@@ -1,0 +1,61 @@
+\documentclass[
+    % blackwhite
+]{dragonbane-supplement}
+%\usepackage{fontspec}
+%\setmainfont{Crimson Pro}[Scale=1.2] % Aumenta el tamaño de la fuente en un 20%
+\usepackage{fontspec}
+\usepackage{CrimsonPro}
+\renewcommand*\familydefault{\sfdefault} 
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true, % false: boxed links; true: colored links
+    linkcolor=blue,  % Color de los enlaces internos
+    filecolor=blue,  % Color de los enlaces a archivos
+    urlcolor=blue    % Color de los enlaces externos
+}
+
+\usepackage{pdflscape} %pagina horizontal
+\usepackage{makecell} % para que partir palabras en tablas
+\usepackage{tabto}
+
+
+\usepackage{titlesec}
+\titleformat{\paragraph}[runin]{\tffamily\large}{}{0pt}{#1~\quad}
+
+%% ================ TITLE ================ %%
+\title{Micorrizas:\\ El Jardín de los Sentidos}
+\subtitle{GDD (Game Desing Document)}
+\author{
+\large Saúl Pacheco Trilles}
+%\version{2024-07}
+% \credits{
+%     Imagen de portada sacada de  \href{https://forgottenrealms.fandom.com/wiki/Slaad}{\emph{Fandom}}.
+%     }
+% \includegraphics[width=\textwidth]{img/LogoUJI.png} \par
+%% ================ DOCUMENT ================ %%
+\begin{document}
+\maketitle
+
+\partcolor{Maroon}
+%\partimage{img/Slaad4e.png}
+%\part{GDD}
+
+
+\include{1OneSheet}
+\include{2DisenoJugadores}
+% \include{3Rules}
+% \include{4Mecanicas}
+% \include{5BalanceDelJuego}
+% \include{6Gameplay}
+% \include{7DiseñoNiveles}
+% \include{8Sonido}
+% \include{9Gamificacion}
+% \include{10Monetizacion}
+% \include{11Multijugador}
+
+
+%------------------------------------------
+
+%\include{template}
+
+\end{document}

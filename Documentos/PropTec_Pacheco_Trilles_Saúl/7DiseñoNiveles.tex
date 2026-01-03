@@ -1,0 +1,139 @@
+\chapter{Diseño de niveles}
+El videojuego se divide en 5 zonas, cada una de estas se llama continente. Se empieza en el nivel más fácil de todos y se va subiendo la dificultad añadiendo mecánicas y añadiendo enemigos más poderosos.
+
+Los niveles tal y como se mencionan aquí abajo están desde el primero hasta el último de más fácil a más difícil respectivamente. Además, Ruku cuenta con un sistema de progresión lineal, por lo que hasta que no se complete el primer continente no puedes acceder al segundo continente.
+
+En Ruku se ha pensado mucho el poder construir los niveles, dado que son cubos con ciertos patrones y luego solo hay que añadir unos enemigos predefinidos. Por lo que los niveles de Ruku se generan proceduralmente, dependiendo del continente habrá que cambiar las texturas y los enemigos, pero volvemos a lo mismo de antes todo esto forma parte de los patrones. 
+
+Como extra, esto nos permite también sacar contenido variado en el modo multijugador del que ya hemos hablado anteriormente y volveremos a hablar en el último apartado. Ya que podemos crear diferentes campos de batalla para cada encuentro y los jugadores no lo vean repetitivo en un mismo campo.
+
+\paragraph{Inicio}: Nada más entrar al juego habrá una pantalla de carga que dará la pantalla de inicio como bien se ve en la figura \ref{fig:pantallaInicio}. En esta al jugador se le da a elegir entre el modo aventura, que es \textit{single player} o el modo arena, que es el modo multijugador competitivo.
+
+\paragraph{Modo aventura}: En este modo aparecerá un mapamundi como en la figura de la derecha \ref{fig:mapa}. En este se podrá elegir el continente mediante una barra horizontal en la parte de abajo con los emblemas de cada continente, estos estarán ordenados de más fácil a más difícil. Cuando se cliquee en un emblema de estos, los niveles del continente seleccionado pasarán a primer plano y el resto tendrá una capa de negro transparente para no perderlo de vista y, con ello, no perder la inmersión, pero que no genere ruido visual y se pueda seleccionar el nivel que el jugador desee cómodamente.
+
+\paragraph{Modo arena}: hablaremos más adelante sobre esto pero, como se ha mencionado, este modo consistirá en un nivel generado proceduralmente en el que te vienen oleadas de Slaads y el jugador que derrote a mayor cantidad de Slaads o tenga más puntos por haber hecho más daño habrá ganado. ¿Y esto para que sirve? Bien, pues cuantas más veces ganes, antes subirás en las ligas que hay entre jugadores y los 3 primeros de cada liga se llevarán una buena recompensa y el resto cuando vayan alcanzando ciertos puntos recibirán alguna que otra recompensa (pero ya lo hablaremos mejor en el capitulo correspondiente).
+
+
+\begin{figure}[h]
+    \begin{multicols}{2} % Inicio de las dos columnas
+        \begin{center}
+            \includegraphics[width=0.4\textwidth]{img/niveles/PantallaInicio.png}
+            \caption{Diseño abstracto de la pantalla de inicio}
+            \label{fig:pantallaInicio}
+        \end{center}
+        
+        \columnbreak
+        
+        \begin{center}
+            \includegraphics[width=0.3\textwidth]{img/niveles/MapaRuku.png}
+            \caption{Mapa del modo aventura}
+            \label{fig:mapa}
+        \end{center}
+    \end{multicols} % Fin de las dos columnas
+\end{figure}
+\newpage
+\begin{figure}
+  \centering
+  \includegraphics[width=0.8\textwidth]{img/niveles/RukuNivel1.png}
+  \caption{Diseño conceptual de los niveles en Thalvaren}
+  \label{fig:lv1}
+\end{figure}
+\begin{dragonbox}{1º continente: Thalvaren}
+\paragraph{Momento}: Día, soleado
+\paragraph{Historia}: Uno de los pocos bastiones que quedan a la vista, este está protegido por un gran escudo que abarca todo el bastión. (En el primer nivel) Los aventureros llegan en pleno asedio para que puedan ayudar a los defensores de Thalvaren a repeler el ataque (de estos el jugador puede controlar a dos o dejar que el turno lo haga la IA). La mayoría de su población es devota a alguna deidad benigna, lo que mantiene el escudo en pie.
+\paragraph{Progresión}: Tienen que ir repeliendo y alejando a las tropas del bastión de Thalvaren hasta que se llega a la nave principal de los Slaads en este continente.
+\paragraph{Tiempo Est. Juego}: 40 mins
+\paragraph{Gama de colores}: Blanco, amarillo, verde (prados y pastos), blanco translúcido (escudos mágicos)
+\paragraph{Enemigos}: 80 \% Slaads rojos,  20\% Slaads azules, esto no quita que haya algún Slaad rojo que pueda ser un \textit{boss} con habilidades diferentes.
+\paragraph{Mecánicas}: Este continente esta centrado en los escudos divinos y las curaciones. Este continente también sirve para aprender a usar el entorno como elementos de cobertura.
+\paragraph{\textit{Power-Up}}: Pociones de curación, pergaminos con conjuros de protección, algún arma sagrada.
+\paragraph{Recompensas Bonus}: El nivel secreto
+\end{dragonbox}
+
+
+
+\newpage
+\begin{figure}
+  \centering
+  \includegraphics[width=0.8\textwidth]{img/niveles/RukuNivel2.png}
+  \caption{Diseño conceptual de los niveles en Durmon}
+  \label{fig:lv2}
+\end{figure}
+\begin{dragonbox}{2º continente: Durmon}
+\paragraph{Momento}: Día con rayos de sol que se cuelan entre las copas de los árboles
+\paragraph{Historia}: Estos refugios ocultos entre la frondosa naturaleza han sobrevivido hasta ahora a los ataques Slaads, los aventureros con la ayuda de los domadores y sus criaturas deben repeler el ataque Slaad y sacar a estas aberraciones de las zonas naturales.
+\paragraph{Progresión}: El jugador mediante alguna de las bestias y elementales que merodean o están domados en estas zonas irán avanzando hasta la nave del último nivel.
+\paragraph{Tiempo Est. Juego}: 60 mins.
+\paragraph{Gama de colores}: Verdes y marrones (vegetación), amarillos (luces) y morados y azules (para las sombras).
+\paragraph{Enemigos}: 50 \% Slaads rojos,  40\% Slaads azules y 10\% Slaads verdes + \textit{bosses}.
+\paragraph{Mecánicas}: Aprender a utilizar las sinergias entre criaturas y domadores (estas luchan más en el frente y el personaje ataca desde detrás o incluso montado depende) y tener cuidado con el entorno, los domadores han conseguido aprender algunos conjuros para poner el terreno a nuestro favor.
+\paragraph{\textit{Power-Up}}: Pergaminos con conjuros para invocar bestias, armas a distancia.
+\paragraph{Recompensas Bonus}: El nivel secreto, objeto que invoca a un elemental de roca una vez por continente.
+\end{dragonbox}
+
+
+
+
+\newpage
+\begin{figure}
+  \centering
+  \includegraphics[width=0.8\textwidth]{img/niveles/RukuNivel3.png}
+  \caption{Diseño conceptual de los niveles en Iryndor}
+  \label{fig:lv3}
+\end{figure}
+\begin{dragonbox}{3º continente: Iryndor}
+\paragraph{Momento}: Día, nublado
+\paragraph{Historia}: Gente que lo ha perdido todo se dedica a ir por el mundo en busca de refugio, la mayoría lo han encontrado cerca del ecuador en climas extremos y desérticos. Esta gente ha decidido no asentarse en un lugar por el riesgo y las perdidas que ello conlleva. Deambulando por terrenos difíciles y apoyándose en ciertas ilusiones atraviesan sin rumbo los desiertos esquivando a los Slaads que puedan encontrarse por el camino.
+\paragraph{Progresión}: Los nómadas tienen encuentros casuales con los Slaads. En este continente se va primera vez a una de las bases que acaban de instalar los Slaads en Ruku.
+\paragraph{Tiempo Est. Juego}: 35 mins.
+\paragraph{Gama de colores}: Marrones, naranjas, amarillos.
+\paragraph{Enemigos}: 10 \% Slaads rojos, 10 \% Slaads azules,  50\% Slaads verdes y 30\% Slaads grises + \textit{bosses}.
+\paragraph{Mecánicas}: Estos niveles están basados en las ilusiones ya que el pueblo nómada ha aprendido de estas en su camino por el desierto. Eso supone que el jugador puede elegir contra que grupo de Slaads puede luchar al iniciar un nivel se le presentara una pantalla partida a la izquierda unos slaads y a la derecha otros y el elegirá el grupo contra los que luchar. Esto narrativamente se representa con que se han mantenido ocultos en las arenas mediante las ilusiones hasta poder hacer frente a estos.
+\paragraph{\textit{Power-Up}}: pergaminos con conjuros de ilusión, objetos que si estas quieto te puedes volver invisible.
+\paragraph{Recompensas Bonus}: El nivel secreto, un objeto para cambiar la suerte de tus dados (1 carga por combate).
+\end{dragonbox}
+
+
+
+
+\newpage
+\begin{figure}
+  \centering
+  \includegraphics[width=0.8\textwidth]{img/niveles/RukuNivel4.png}
+  \caption{Diseño conceptual de los niveles en Nytheria}
+  \label{fig:lv4}
+\end{figure}
+\begin{dragonbox}{4º continente: Nytheria}
+\paragraph{Momento}: Sombrío, oscuro (estamos bajo tierra en cuevas y grutas)
+\paragraph
+{Historia}: El bastión más oculto de todos por ello que haya aguantado tanto aún sin tener muchos recursos.
+\paragraph{Progresión}: Tienen que ir repeliendo y alejado a los Slaads de las grutas que hay debajo de Nytheria hasta que se lleguen a la base principal de los Slaads en este continente.
+\paragraph{Tiempo Est. Juego}: 45 mins.
+\paragraph{Gama de colores}: Blanco translucido, marrón, negro, gris, amarillo tenue (para algunas luces), morados y azules (para sombras)
+\paragraph{Enemigos}: 10 \% Slaads azules,  40\% Slaads verdes, 40\% Slaads grises, 10\% Slaads negros + \textit{bosses}.
+\paragraph{Mecánicas}: Estos niveles están centrados en las grutas donde se aprovechan las zonas para hacer emboscadas donde ellos son menos que los humanos.
+\paragraph{\textit{Power-Up}}: Objetos para ver en la oscuridad, objetos para aprovechar la ventaja numérica (por ejemplo si hay un aliado a tu lado tenéis ventaja para atacar).
+\paragraph{Recompensas Bonus}: El nivel secreto, objeto que como acción te deja cavar y salir al próximo turno a 6 casillas.
+\end{dragonbox}
+
+
+
+
+\newpage
+\begin{figure}
+  \centering
+  \includegraphics[width=0.8\textwidth]{img/niveles/RukuNivel5.png}
+  \caption{Diseño conceptual de los niveles en Kaedhyr}
+  \label{fig:lv5}
+\end{figure}
+\begin{dragonbox}{5º continente: Kaedhyr}
+\paragraph{Momento}: Día, soleado
+\paragraph{Historia}: La resistencia de Ruku ha aprendido de la tecnología Slaad. Este es el 5 continente y para llegar hasta aqui ya han arrasado con un par de bases que habían construido los Slaads para instaurarse en Ruku, al desvalijarlas y dedicar tiempo a ver como funciona lo han conseguido. Esto significa que ahora el jugador también podrá usar armas de los enemigos e incluso podrá hacer trampas sofisticadas 
+\paragraph{Progresión}: El jugador ira completando niveles hasta adentrarse en la máxima base del enemigo aquí en Ruku y deberá atacar con todas sus fuerzas para que los Slaads entiendan que Ruku no es un planeta que valga la pena conquistar o como mínimo que si lo intentan tendrán resistencia y ya no les pillara por sorpresa.
+\paragraph{Tiempo Est. Juego}: 80 mins.
+\paragraph{Gama de colores}: Blanco, marrón, amarillo, verde.
+\paragraph{Enemigos}: 5 \% Slaads azules,  35\% Slaads verdes, 35\% Slaads grises, 25\% Slaads negros + \textit{bosses}.
+\paragraph{Mecánicas}: En este continente podemos ver una gran gama de artilugios y trampas mecánicas de lo que han aprendido los residentes de Ruku de la tecnología Slaad.
+\paragraph{\textit{Power-Up}}: Trampas de todo tipo con electricidad fuego, tiempo de retardo que se activan con el movimiento etc.
+\paragraph{Recompensas Bonus}: El nivel secreto, un arma a distancia que dispara plasma.
+\end{dragonbox}
