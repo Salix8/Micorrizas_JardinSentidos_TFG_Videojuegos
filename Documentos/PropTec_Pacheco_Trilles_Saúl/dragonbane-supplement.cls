@@ -9,7 +9,7 @@
 % version 2005/12/01 or later.
 %
 % This work has the LPPL maintenance status “maintained”.
-% 
+%
 % The Current Maintainer of this work is Sibling_Dex.
 %
 % This work consists of the files dragonbane-supplement.cls
@@ -22,7 +22,7 @@
 \ProcessOptions\relax
 \LoadClass[10pt,a4paper,english]{report}
 %%========= PACKAGES =========%%
-\RequirePackage{multicol,wrapfig} 
+\RequirePackage{multicol,wrapfig}
 \RequirePackage[hidelinks]{hyperref}
 \RequirePackage[a4paper,textwidth=17cm,top=2.5cm,bottom=2.5cm,footskip=1.5cm]{geometry}
 \setlength{\columnsep}{2em}
@@ -185,7 +185,7 @@
             \vspace*{4cm}
             \fontsize{60}{60}\selectfont
             {\color{title}\tffamily\MakeUppercase\@title}
-    
+
             \ifdefined\@subtitle
                 \vspace{30pt}
                 \fontsize{25}{25}\selectfont
@@ -196,16 +196,16 @@
             \vspace{10pt}
             \begin{minipage}{0.5\textwidth}\centering
                 %{\footnotesize\sffamily Version~\@version}
-                
+
                 \vspace{30pt}
                 {\footnotesize\bfseries\sffamily AUTHOR:}\par
                 {\@author}
-                
+
                 % \vspace{20pt}
                 % {\footnotesize\bfseries\sffamily CREDITS:}\par\vspace{-0.5em}
                 % {\setlength{\parskip}{0.5em}\@credits}
             \end{minipage}
-    
+
             \vfill
             \ifdefined\blackwhite
                 %\includegraphics[width=0.5\linewidth]{img/Dragonbane-licenslogo-svart.png}
@@ -268,22 +268,22 @@
     beforeafter skip = 2em,
     fontupper = \normalsize \sffamily,
     fonttitle = \bfseries\sffamily,
-    colframe = accent,
+    colframe = DemonGreen,
     coltitle = textlight,
     parbox = false,
-    colbacktitle = accent,
+    colbacktitle = DemonGreen,
     halign title = center,
     boxed title style = {
         enhanced,
-        colback = accent,
-        colframe = accent,
+        colback = DemonGreen,
+        colframe = DemonGreen,
         top = 1.1mm,
         bottom = 1.1mm,
         overlay = {
-            \pic[fill = accent] at (frame.west) {leftcap};
-            \pic[fill = accent,xscale=-1] at (frame.east) {leftcap};
-            \pic[fill = accent] at (frame.south) {tip};
-            \pic[fill = accent] at (frame.north) {tip};
+            \pic[fill = DemonGreen] at (frame.west) {leftcap};
+            \pic[fill = DemonGreen,xscale=-1] at (frame.east) {leftcap};
+            \pic[fill = DemonGreen] at (frame.south) {tip};
+            \pic[fill = DemonGreen] at (frame.north) {tip};
         },
     },
 }
@@ -391,28 +391,28 @@
 \titleformat{\chapter}[hang]{}{}{0pt}{
     \hspace{-2.5mm}%
     \begin{tikzpicture}
-        \node[text = accent,minimum height = 1.8cm] (heading) at (0,0) {\Huge\bfseries\sffamily\uppercase{#1}};
+        \node[text = DemonGreen,minimum height = 1.8cm] (heading) at (0,0) {\Huge\bfseries\sffamily\uppercase{#1}};
         %
-        \node[fill = accent,minimum height = 4.5mm,minimum width = 17cm] (header) at ([yshift = 2mm]heading.north) {};
-        \pic[fill = accent,scale=0.5] at (header.west) {leftcap};
-        \pic[fill = accent,scale=-0.5] at (header.east) {leftcap};
-        \pic[fill = accent] at (header.south) {tip};
+        \node[fill = DemonGreen,minimum height = 4.5mm,minimum width = 17cm] (header) at ([yshift = 2mm]heading.north) {};
+        \pic[fill = DemonGreen,scale=0.5] at (header.west) {leftcap};
+        \pic[fill = DemonGreen,scale=-0.5] at (header.east) {leftcap};
+        \pic[fill = DemonGreen] at (header.south) {tip};
         %
-        \node[fill = accent,text = textlight,minimum height = 4.5mm,inner xsep = 1em,text centered] (label) at (header.north) {\small\bfseries\sffamily CHAPTER~\thechapter};
-        \pic[fill = accent,scale=-0.5] at (label.east) {lefttip};
-        \pic[fill = accent,scale=0.5] at (label.west) {lefttip};
-        \pic[fill = accent] at (label.north) {tipup};
+        \node[fill = DemonGreen,text = textlight,minimum height = 4.5mm,inner xsep = 1em,text centered] (label) at (header.north) {\small\bfseries\sffamily CHAPTER~\thechapter};
+        \pic[fill = DemonGreen,scale=-0.5] at (label.east) {lefttip};
+        \pic[fill = DemonGreen,scale=0.5] at (label.west) {lefttip};
+        \pic[fill = DemonGreen] at (label.north) {tipup};
         %
         \node[minimum width = 17cm] (bottom) at (heading.south) {};
-        \draw[color = accent,line width = 2pt] (bottom.east) -- (bottom.west);
-        \pic[fill = accent] at (bottom.east) {head};
-        \pic[fill = accent] at (bottom.west) {head};
-        \pic[fill = accent,scale=1.25] at (bottom) {tip};
+        \draw[color = DemonGreen,line width = 2pt] (bottom.east) -- (bottom.west);
+        \pic[fill = DemonGreen] at (bottom.east) {head};
+        \pic[fill = DemonGreen] at (bottom.west) {head};
+        \pic[fill = DemonGreen,scale=1.25] at (bottom) {tip};
     \end{tikzpicture}
 }
 \titlespacing*{\chapter}{0pt}{-1.5cm}{0pt}
 
-\titleformat{\section}{\tffamily\color{accent}\Huge\uppercase}{}{0pt}{\hfill~#1~\hfill}
+\titleformat{\section}{\tffamily\color{DemonGreen}\Huge\uppercase}{}{0pt}{\hfill~#1~\hfill}
 \titlespacing*{\section}{0pt}{0pt}{1em}
 
 \titleformat{\subsection}{\tffamily\large\uppercase}{}{0pt}{#1}
@@ -431,9 +431,9 @@
     \def\@evenfoot{
         \hfil
         \begin{tikzpicture}
-            \pic[fill = accent] at (0,0) {downspike};
+            \pic[fill = DemonGreen] at (0,0) {downspike};
             \node[text = textlight] (page) at (0,0) {\bfseries\sffamily\thepage};
-            \node[text = accent] (chapter) at (0,.5) {\small\bfseries\sffamily\thefooter};
+            \node[text = DemonGreen] (chapter) at (0,.5) {\small\bfseries\sffamily\thefooter};
         \end{tikzpicture}
         \hfil
     }
