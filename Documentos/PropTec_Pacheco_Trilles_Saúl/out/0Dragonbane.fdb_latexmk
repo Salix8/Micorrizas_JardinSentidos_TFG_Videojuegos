@@ -1,11 +1,11 @@
 # Fdb version 4
-["xdvipdfmx"] 1767535346.9797 "out/0Dragonbane.xdv" "out/0Dragonbane.pdf" "out/0Dragonbane" 1767535347.47755 0
-  "out/0Dragonbane.xdv" 1767535346 113808 8bc9c6b6e4797ea7cce221e9437c39b1 "xelatex"
+["xdvipdfmx"] 1767535861.49861 "out/0Dragonbane.xdv" "out/0Dragonbane.pdf" "out/0Dragonbane" 1767535861.99458 0
+  "out/0Dragonbane.xdv" 1767535861 113492 af765cb8ccf79e8c182c7ea37e193499 "xelatex"
   (generated)
   "out/0Dragonbane.pdf"
   (rewritten before read)
-["xelatex"] 1767535344.28903 "c:/Users/Usuario/Documents/Micorrizas_JardinSentidos_TFG_Videojuegos/Documentos/PropTec_Pacheco_Trilles_Saúl/0Dragonbane.tex" "out/0Dragonbane.xdv" "0Dragonbane" 1767535347.47165 0
-  "0Dragonbane.tex" 1767489125 1649 92f95b36a98b1f4c00f175496b903202 ""
+["xelatex"] 1767535858.56825 "c:/Users/Usuario/Documents/Micorrizas_JardinSentidos_TFG_Videojuegos/Documentos/PropTec_Pacheco_Trilles_Saúl/0Dragonbane.tex" "out/0Dragonbane.xdv" "0Dragonbane" 1767535861.98852 0
+  "0Dragonbane.tex" 1767535857 1645 f74c97ddac2dfb13a3cc90f3994d26ca ""
   "1OneSheet.tex" 1767475579 3530 302f1e2188e781908bb4da2fd0e638af ""
   "2DisenoJugadores.tex" 1767475579 3915 77c7326645453262b6b88e610c03cea5 ""
   "C:/Users/Usuario/AppData/Local/MiKTeX/miktex/data/le/xetex/xelatex.fmt" 1767487903 27177498 7257710dadb443625c07c244b7206f37 ""
@@ -203,15 +203,15 @@
   "C:/Users/Usuario/AppData/Local/Programs/MiKTeX/tex/latex/wrapfig/wrapfig.sty" 1044403200 26220 3701aebf80ccdef248c0c20dd062fea9 ""
   "C:/Users/Usuario/AppData/Local/Programs/MiKTeX/tex/latex/xcolor/xcolor.sty" 1729265222 55384 b454dec21c2d9f45ec0b793f0995b992 ""
   "C:/Users/Usuario/AppData/Local/Programs/MiKTeX/tex/latex/xkeyval/xkeyval.sty" 1656236919 4937 4ce600ce9bd4ec84d0250eb6892fcf4f ""
-  "c:/Users/Usuario/Documents/Micorrizas_JardinSentidos_TFG_Videojuegos/Documentos/PropTec_Pacheco_Trilles_Saúl/0Dragonbane.tex" 1767489125 1649 92f95b36a98b1f4c00f175496b903202 ""
+  "c:/Users/Usuario/Documents/Micorrizas_JardinSentidos_TFG_Videojuegos/Documentos/PropTec_Pacheco_Trilles_Saúl/0Dragonbane.tex" 1767535857 1645 f74c97ddac2dfb13a3cc90f3994d26ca ""
   "cuted.sty" 1767475579 25941 37777e600592aa9206b474fe03f66b4b ""
-  "dragonbane-supplement.cls" 1767535328 16420 116e07ed2fe8ed9d16c6b003408a2d7e ""
+  "dragonbane-supplement.cls" 1767535787 16431 2a082d060e6a7aac48c2495bfbf05540 ""
   "img/Fondo.png" 1767475579 355125 3b15ded81c9f1836ef7c01b04b71c187 ""
   "img/LogoUJI.png" 1767475579 22658 8731ec5c3921d4019eca04e57b32fb4e ""
-  "out/0Dragonbane.aux" 1767535346 488 567ba7ae326567b9579b1c7d9718c091 "xelatex"
-  "out/0Dragonbane.out" 1767535346 2192 52269f741db908a9e99e6b5821f6cef9 "xelatex"
-  "out/1OneSheet.aux" 1767535346 2177 2d3921c9acfd9eb3600469c4c136900f "xelatex"
-  "out/2DisenoJugadores.aux" 1767535346 1314 cb179b443146bca6dac6ae702837a64e "xelatex"
+  "out/0Dragonbane.aux" 1767535861 488 567ba7ae326567b9579b1c7d9718c091 "xelatex"
+  "out/0Dragonbane.out" 1767535861 2192 52269f741db908a9e99e6b5821f6cef9 "xelatex"
+  "out/1OneSheet.aux" 1767535861 2177 2d3921c9acfd9eb3600469c4c136900f "xelatex"
+  "out/2DisenoJugadores.aux" 1767535861 1314 cb179b443146bca6dac6ae702837a64e "xelatex"
   (generated)
   "out/0Dragonbane.aux"
   "out/0Dragonbane.log"

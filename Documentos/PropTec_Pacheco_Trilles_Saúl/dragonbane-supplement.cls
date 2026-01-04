@@ -182,10 +182,10 @@
 \renewcommand*{\maketitle}{%
     \begin{titlepage}
         \begin{center}
-            \vspace*{4cm}
+            \vspace*{3cm}
             \fontsize{60}{60}\selectfont
             {\color{title}\tffamily\MakeUppercase\@title}
-
+            \vspace{1cm}
             \ifdefined\@subtitle
                 \vspace{30pt}
                 \fontsize{25}{25}\selectfont
@@ -198,7 +198,7 @@
                 %{\footnotesize\sffamily Version~\@version}
 
                 \vspace{30pt}
-                {\footnotesize\bfseries\sffamily AUTHOR:}\par
+                {\bfseries\sffamily AUTHOR:}\par
                 {\@author}
 
                 % \vspace{20pt}
