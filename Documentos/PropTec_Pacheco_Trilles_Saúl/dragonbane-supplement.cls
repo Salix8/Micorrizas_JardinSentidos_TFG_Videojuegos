@@ -39,7 +39,7 @@
 \RequirePackage[table,dvipsnames]{xcolor}
 \definecolor{DemonGreen}{RGB}{34, 114, 98}
 \definecolor{PlantGreen}{RGB}{200, 217, 173}
-\definecolor{BackGreen}{RGB}{245, 240, 245}
+\definecolor{BackGreen}{RGB}{230, 240, 240}
 \definecolor{DragonRed}{RGB}{238, 61, 60}
 \definecolor{InkBlack}{RGB}{35, 31, 32}
 \definecolor{LightGreen}{RGB}{223, 235, 227}
