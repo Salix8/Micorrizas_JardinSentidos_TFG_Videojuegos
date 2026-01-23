@@ -60,7 +60,7 @@
         \colorlet{accent}{DemonGreen}
         \colorlet{page}{BackGreen}
         \colorlet{light}{StainBrown}
-        \colorlet{row}{StainBrown}
+        \colorlet{row}{PlantGreen}
     \fi
 \newcommand{\partcolor}[1]{
     \clearpage

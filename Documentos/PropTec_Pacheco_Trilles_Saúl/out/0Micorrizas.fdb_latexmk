@@ -1,12 +1,11 @@
 # Fdb version 4
-["xdvipdfmx"] 1769172897.8874 "out/0Dragonbane.xdv" "out/0Dragonbane.pdf" "out/0Dragonbane" 1769172898.37881 0
-  "out/0Dragonbane.xdv" 1769172897 242008 ddeef3b81f4de90777850be9b0b2ac21 "xelatex"
+["xdvipdfmx"] 1769175082.51884 "out/0Micorrizas.xdv" "out/0Micorrizas.pdf" "out/0Micorrizas" 1769175083.01372 0
+  "out/0Micorrizas.xdv" 1769175082 197920 0c4e27c9be13b5d85c0d2be61197c187 "xelatex"
   (generated)
-  "out/0Dragonbane.pdf"
+  "out/0Micorrizas.pdf"
   (rewritten before read)
-["xelatex"] 1769172894.60231 "c:/Users/Usuario/Documents/Micorrizas_JardinSentidos_TFG_Videojuegos/Documentos/PropTec_Pacheco_Trilles_Saúl/0Dragonbane.tex" "out/0Dragonbane.xdv" "0Dragonbane" 1769172898.37264 0
-  "0Dragonbane.tex" 1769172054 1746 080c04255522bd0c397fb57a8afcb82e ""
-  "1OneSheet.tex" 1767475579 3530 302f1e2188e781908bb4da2fd0e638af ""
+["xelatex"] 1769175079.39237 "c:/Users/Usuario/Documents/Micorrizas_JardinSentidos_TFG_Videojuegos/Documentos/PropTec_Pacheco_Trilles_Saúl/0Micorrizas.tex" "out/0Micorrizas.xdv" "0Micorrizas" 1769175083.00774 0
+  "0Micorrizas.tex" 1769174590 1748 a2a707eb1d277d3a255108ef4790d9d0 ""
   "C:/Users/Usuario/AppData/Local/MiKTeX/miktex/data/le/xetex/xelatex.fmt" 1767487903 27177498 7257710dadb443625c07c244b7206f37 ""
   "C:/Users/Usuario/AppData/Local/Programs/MiKTeX/fonts/tfm/adobe/symbol/psyr.tfm" 1136768654 1408 5937f58aa508ea2cea4901c07d10f5fe ""
   "C:/Users/Usuario/AppData/Local/Programs/MiKTeX/fonts/tfm/adobe/zapfding/pzdr.tfm" 1136768654 1528 7e12f4c0fcf5a072cebdcfbfc610f54c ""
@@ -209,24 +208,22 @@
   "C:/Users/Usuario/AppData/Local/Programs/MiKTeX/tex/latex/wrapfig/wrapfig.sty" 1044403200 26220 3701aebf80ccdef248c0c20dd062fea9 ""
   "C:/Users/Usuario/AppData/Local/Programs/MiKTeX/tex/latex/xcolor/xcolor.sty" 1729265222 55384 b454dec21c2d9f45ec0b793f0995b992 ""
   "C:/Users/Usuario/AppData/Local/Programs/MiKTeX/tex/latex/xkeyval/xkeyval.sty" 1656236919 4937 4ce600ce9bd4ec84d0250eb6892fcf4f ""
-  "PropuestaTecnica.tex" 1769171958 6462 190b0667d748e14deffa58cebc78c044 ""
-  "c:/Users/Usuario/Documents/Micorrizas_JardinSentidos_TFG_Videojuegos/Documentos/PropTec_Pacheco_Trilles_Saúl/0Dragonbane.tex" 1769172054 1746 080c04255522bd0c397fb57a8afcb82e ""
+  "PropuestaTecnica.tex" 1769175077 6511 9f21a4e72153bd7cf055de54bab09aa5 ""
+  "c:/Users/Usuario/Documents/Micorrizas_JardinSentidos_TFG_Videojuegos/Documentos/PropTec_Pacheco_Trilles_Saúl/0Micorrizas.tex" 1769174590 1748 a2a707eb1d277d3a255108ef4790d9d0 ""
   "cuted.sty" 1767475579 25941 37777e600592aa9206b474fe03f66b4b ""
-  "dragonbane-supplement.cls" 1769172894 16460 6445d523a641393ef1188ffdb3fe07cb ""
+  "dragonbane-supplement.cls" 1769174291 16460 fecb589904d453a30715bee8706d7a47 ""
   "img/Fondo.png" 1767475579 355125 3b15ded81c9f1836ef7c01b04b71c187 ""
   "img/LogoUJI.png" 1767475579 22658 8731ec5c3921d4019eca04e57b32fb4e ""
-  "out/0Dragonbane.aux" 1769172897 643 5eadd7668541c055401d7db3a11816d1 "xelatex"
-  "out/0Dragonbane.out" 1769172897 4393 692525d4ecbe5902c4e9a1d4a3b94dc3 "xelatex"
-  "out/1OneSheet.aux" 1769172897 2178 faae3ce7be110f957b4e12f24b6f47b2 "xelatex"
-  "out/PropuestaTecnica.aux" 1769172897 2121 3bcc90e1ae7f3d7feddf67c5af903e7d "xelatex"
-  "out/template.aux" 1769172897 2874 4b50ee62096655ef3c319af9fce96a37 "xelatex"
+  "out/0Micorrizas.aux" 1769175082 576 dd97af6f82111eca65282ddb384b684f "xelatex"
+  "out/0Micorrizas.out" 1769175082 2561 447af2558af535a1c4732318f8bf19a9 "xelatex"
+  "out/PropuestaTecnica.aux" 1769175081 2121 3bcc90e1ae7f3d7feddf67c5af903e7d "xelatex"
+  "out/template.aux" 1769175082 2874 0e761326b602c0fa26a9198c194ad691 "xelatex"
   "template.tex" 1767475579 6355 634f78a0ae915579befa7f7c157af790 ""
   (generated)
-  "out/0Dragonbane.aux"
-  "out/0Dragonbane.log"
-  "out/0Dragonbane.out"
-  "out/0Dragonbane.xdv"
-  "out/1OneSheet.aux"
+  "out/0Micorrizas.aux"
+  "out/0Micorrizas.log"
+  "out/0Micorrizas.out"
+  "out/0Micorrizas.xdv"
   "out/PropuestaTecnica.aux"
   "out/template.aux"
   (rewritten before read)
