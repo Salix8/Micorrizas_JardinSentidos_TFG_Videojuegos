@@ -183,7 +183,7 @@
     \begin{titlepage}
         \begin{center}
             \vspace*{3cm}
-            \fontsize{60}{60}\selectfont
+            \fontsize{40}{40}\selectfont
             {\color{title}\tffamily\MakeUppercase\@title}
             \vspace{1cm}
             \ifdefined\@subtitle
@@ -197,7 +197,7 @@
             \begin{minipage}{0.5\textwidth}\centering
                 %{\footnotesize\sffamily Version~\@version}
 
-                \vspace{30pt}
+                \vspace{40pt}
                 {\bfseries\sffamily AUTHOR:}\par
                 {\@author}
 
@@ -292,7 +292,7 @@
     right = 2em,
     top = 2.5em,
     bottom = 1.5em,
-    colframe = light,
+    colframe = PlantGreen,
     interior code = {
         \draw[line width = 2pt] (frame.north west) -- (frame.north east);
         \draw[line width = 2pt] (frame.south west) -- (frame.south east);
@@ -443,19 +443,19 @@
     \def\@evenhead{% \color{accent}\hrulefil
         \hspace{-2.5mm}%
         \begin{tikzpicture}
-            \draw[color = accent,line width = 2pt] (0,0) -- (17,0);
-            \pic[fill = accent] at (0,0) {head};
-            \pic[fill = accent,scale=1.25] at (8.5,0) {tip};
-            \pic[fill = accent] at (17,0) {head};
+            \draw[color = DemonGreen,line width = 2pt] (0,0) -- (17,0);
+            \pic[fill = DemonGreen] at (0,0) {head};
+            \pic[fill = DemonGreen,scale=1.25] at (8.5,0) {tip};
+            \pic[fill = DemonGreen] at (17,0) {head};
         \end{tikzpicture}
     }
     \let\@oddhead\@evenhead
     \def\@evenfoot{
         \hfil
         \begin{tikzpicture}
-            \pic[fill = accent] at (0,0) {downspike};
+            \pic[fill = DemonGreen] at (0,0) {downspike};
             \node[text = textlight] (page) at (0,0) {\bfseries\sffamily\thepage};
-            \node[text = accent] (chapter) at (0,.5) {\small\bfseries\sffamily\uppercase{\thefooter}};
+            \node[text = DemonGreen] (chapter) at (0,.5) {\small\bfseries\sffamily\uppercase{\thefooter}};
         \end{tikzpicture}
         \hfil
     }
