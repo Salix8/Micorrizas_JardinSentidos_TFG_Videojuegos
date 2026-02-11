@@ -1,0 +1,8 @@
+﻿<Solution>
+  <Project Path="Esri.HPFramework.Editor.csproj" />
+  <Project Path="ArcGISMapsSDK.csproj" />
+  <Project Path="ArcGISMapsSDK.Editor.csproj" />
+  <Project Path="Esri.HPFramework.csproj" />
+  <Project Path="Assembly-CSharp-Editor.csproj" />
+  <Project Path="Assembly-CSharp.csproj" />
+</Solution>
