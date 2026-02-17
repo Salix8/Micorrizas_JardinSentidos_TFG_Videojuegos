@@ -198,7 +198,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c703502c1493f5b4eb3e95b2efe0271e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: ArcGISMapsSDK::Esri.ArcGISMapsSDK.Components.ArcGISMapComponent
-  apiKey: AAPTxy8BH1VEsoebNVZXo8HurBy1-ACodBVF4phWQLFrAGpgXT53Um6gr9QXaC_JZ1Vv6fwDDWkZ77XFYvXtSadt6ojxbqeRsxIo9Co1Ytqm4RPUmnQSxhDKys_vWHukwRWc2Kk11gVlGmhgEcWdye9zp9GSGwzAPGgAArKEDu_Alra2_ps7QNnN6N18sdEeqjYGPSqjr6yAoyf6sVtsnFvKq6esm5Tw3prRlPWxKCtShjs.AT1_RBNH3UBu
+  apiKey: AAPTxy8BH1VEsoebNVZXo8HurBy1-ACodBVF4phWQLFrAGrLJOc2RRM80_oJDsdl6HlLXteRRCmnEKmyV-lQrjA7emUmEdKrCnQ8du1HtBMiyRg04qdjfTynquqoG6OCzQZM267EVd3vDkLkmkMkRcRrz6fi6NDzGL4U5XIciXxaLhBqfLBNTOPhQ-wqIkvfu3T0z1KQuBwvCseBi_zsFZo3cfGhP8lYU7KnEnRqgAVac9w.AT1_RBNH3UBu
   basemap: https://basemapstyles-api.arcgis.com/arcgis/rest/services/styles/v2/webmaps/arcgis/imagery/standard
   basemapType: 0
   basemapAuthentication:
@@ -348,7 +348,7 @@ MonoBehaviour:
     Type: 6
     Source: https://gis.uji.es/arcgis/rest/services/Hosted/NivelMenos1_/VectorTileServer
     Opacity: 1
-    IsVisible: 1
+    IsVisible: 0
     Authentication:
       ConfigurationIndex: 0
     AuthenticationType: 1
@@ -370,7 +370,7 @@ MonoBehaviour:
     Type: 6
     Source: https://gis.uji.es/arcgis/rest/services/Hosted/Planta_general_Jul23/VectorTileServer
     Opacity: 1
-    IsVisible: 1
+    IsVisible: 0
     Authentication:
       ConfigurationIndex: 0
     AuthenticationType: 1
