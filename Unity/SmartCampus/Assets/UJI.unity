@@ -167,7 +167,7 @@ MonoBehaviour:
   priority: 0
   blendDistance: 0
   weight: 1
-  sharedProfile: {fileID: 11400000, guid: ef66ccf0804c7574080087ef9297cd75, type: 2}
+  sharedProfile: {fileID: 0}
 --- !u!1 &77495825
 GameObject:
   m_ObjectHideFlags: 0
@@ -705,7 +705,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc4d76f733087744991913c9d19d5274, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_LensFlareData: {fileID: 11400000, guid: 71a76a29d3ccd7548980e565bcc94647, type: 2}
+  m_LensFlareData: {fileID: 0}
   version: 0
   intensity: 1
   maxAttenuationDistance: 100
@@ -1096,7 +1096,7 @@ MonoBehaviour:
   priority: 0
   blendDistance: 0
   weight: 1
-  sharedProfile: {fileID: 11400000, guid: ef66ccf0804c7574080087ef9297cd75, type: 2}
+  sharedProfile: {fileID: 0}
 --- !u!4 &432432461
 Transform:
   m_ObjectHideFlags: 0
@@ -1237,7 +1237,7 @@ MonoBehaviour:
   priority: 0
   blendDistance: 0
   weight: 1
-  sharedProfile: {fileID: 11400000, guid: eb041d26203db1a4abe7fa0608c60f37, type: 2}
+  sharedProfile: {fileID: 0}
 --- !u!1 &1199882893
 GameObject:
   m_ObjectHideFlags: 1
@@ -1268,7 +1268,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Core.Runtime::UnityEngine.Rendering.ProbeVolumePerSceneData
   serializedBakingSet: {fileID: 0}
-  sceneGUID: c3641f88727e65641a9a1d5a51726b9c
+  sceneGUID: 0f7e4375d4d6b2d4e90f0fb9e8ff5f3b
   obsoleteAsset: {fileID: 0}
   obsoleteCellSharedDataAsset: {fileID: 0}
   obsoleteCellSupportDataAsset: {fileID: 0}
