@@ -16,7 +16,18 @@
 /[Ll]ogs/
 /[Uu]ser[Ss]ettings/
 
-**/[Pp]ackages/
+############################
+# OS Generated
+############################
+
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
 
 ############################
 # Logs
@@ -44,13 +55,13 @@ sysinfo.txt
 # IDE / Editor
 ############################
 
-# Visual Studio
+# Visual Studio, Rider & Others
 .vs/
+.idea/
 .gradle/
 ExportedObj/
 .consulo/
 
-*.meta
 *.csproj
 *.unityproj
 *.sln
