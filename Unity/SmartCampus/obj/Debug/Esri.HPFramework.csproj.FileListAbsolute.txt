@@ -1,0 +1,6 @@
+C:\Users\saulp\Documents\UJI\Micorrizas_JardinSentidos_TFG_Videojuegos\Unity\SmartCampus\Temp\bin\Debug\Esri.HPFramework.dll
+C:\Users\saulp\Documents\UJI\Micorrizas_JardinSentidos_TFG_Videojuegos\Unity\SmartCampus\Temp\bin\Debug\Esri.HPFramework.pdb
+C:\Users\saulp\Documents\UJI\Micorrizas_JardinSentidos_TFG_Videojuegos\Unity\SmartCampus\obj\Debug\Esri.HPFramework.csproj.AssemblyReference.cache
+C:\Users\saulp\Documents\UJI\Micorrizas_JardinSentidos_TFG_Videojuegos\Unity\SmartCampus\obj\Debug\Esri.HPFramework.csproj.CoreCompileInputs.cache
+C:\Users\saulp\Documents\UJI\Micorrizas_JardinSentidos_TFG_Videojuegos\Unity\SmartCampus\obj\Debug\Esri.HPFramework.dll
+C:\Users\saulp\Documents\UJI\Micorrizas_JardinSentidos_TFG_Videojuegos\Unity\SmartCampus\obj\Debug\Esri.HPFramework.pdb

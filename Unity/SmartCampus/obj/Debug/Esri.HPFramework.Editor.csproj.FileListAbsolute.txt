@@ -1,0 +1,8 @@
+C:\Users\saulp\Documents\UJI\Micorrizas_JardinSentidos_TFG_Videojuegos\Unity\SmartCampus\Temp\bin\Debug\Esri.HPFramework.Editor.dll
+C:\Users\saulp\Documents\UJI\Micorrizas_JardinSentidos_TFG_Videojuegos\Unity\SmartCampus\Temp\bin\Debug\Esri.HPFramework.Editor.pdb
+C:\Users\saulp\Documents\UJI\Micorrizas_JardinSentidos_TFG_Videojuegos\Unity\SmartCampus\Temp\bin\Debug\Esri.HPFramework.pdb
+C:\Users\saulp\Documents\UJI\Micorrizas_JardinSentidos_TFG_Videojuegos\Unity\SmartCampus\obj\Debug\Esri.HPFramework.Editor.csproj.AssemblyReference.cache
+C:\Users\saulp\Documents\UJI\Micorrizas_JardinSentidos_TFG_Videojuegos\Unity\SmartCampus\obj\Debug\Esri.HPFramework.Editor.csproj.CoreCompileInputs.cache
+C:\Users\saulp\Documents\UJI\Micorrizas_JardinSentidos_TFG_Videojuegos\Unity\SmartCampus\obj\Debug\Esri.HPF.52F8B3B1.Up2Date
+C:\Users\saulp\Documents\UJI\Micorrizas_JardinSentidos_TFG_Videojuegos\Unity\SmartCampus\obj\Debug\Esri.HPFramework.Editor.dll
+C:\Users\saulp\Documents\UJI\Micorrizas_JardinSentidos_TFG_Videojuegos\Unity\SmartCampus\obj\Debug\Esri.HPFramework.Editor.pdb
