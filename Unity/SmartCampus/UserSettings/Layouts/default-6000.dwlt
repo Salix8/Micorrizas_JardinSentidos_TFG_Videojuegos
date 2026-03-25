@@ -8,10 +8,10 @@ MonoBehaviour:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
-  m_EditorHideFlags: 1
+  m_EditorHideFlags: 0
   m_Script: {fileID: 12004, guid: 0000000000000000e000000000000000, type: 0}
   m_Name: 
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier: UnityEditor.dll::UnityEditor.ContainerWindow
   m_PixelRect:
     serializedVersion: 2
     x: 0
@@ -19,7 +19,7 @@ MonoBehaviour:
     width: 1706.6667
     height: 976
   m_ShowMode: 4
-  m_Title: Scene
+  m_Title: Project
   m_RootView: {fileID: 6}
   m_MinSize: {x: 875, y: 300}
   m_MaxSize: {x: 10000, y: 10000}
@@ -48,7 +48,7 @@ MonoBehaviour:
   m_MinSize: {x: 300, y: 112}
   m_MaxSize: {x: 24288, y: 16192}
   vertical: 0
-  controlID: 40
+  controlID: 38
   draggingID: 0
 --- !u!114 &3
 MonoBehaviour:
@@ -225,7 +225,7 @@ MonoBehaviour:
   m_MinSize: {x: 200, y: 112}
   m_MaxSize: {x: 16192, y: 16192}
   vertical: 1
-  controlID: 41
+  controlID: 39
   draggingID: 0
 --- !u!114 &10
 MonoBehaviour:
@@ -251,7 +251,7 @@ MonoBehaviour:
   m_MinSize: {x: 200, y: 56}
   m_MaxSize: {x: 16192, y: 8096}
   vertical: 0
-  controlID: 42
+  controlID: 40
   draggingID: 0
 --- !u!114 &11
 MonoBehaviour:
@@ -620,9 +620,9 @@ MonoBehaviour:
   m_Pos:
     serializedVersion: 2
     x: 0
-    y: 740.6667
+    y: 760.6667
     width: 1302.3334
-    height: 232
+    height: 212
   m_SerializedDataModeController:
     m_DataMode: 0
     m_PreferredDataMode: 0
@@ -685,7 +685,7 @@ MonoBehaviour:
     m_SkipHidden: 0
     m_SearchArea: 1
     m_Folders:
-    - Assets/UJI
+    - Assets
     m_Globs: []
     m_ProductIds: 
     m_AnyWithAssetOrigin: 0
@@ -695,22 +695,23 @@ MonoBehaviour:
   m_ViewMode: 1
   m_StartGridSize: 64
   m_LastFolders:
-  - Assets/UJI
+  - Assets
   m_LastFoldersGridSize: -1
   m_LastProjectPath: C:\Users\saulp\Documents\UJI\Micorrizas_JardinSentidos_TFG_Videojuegos\Unity\SmartCampus
   m_LockTracker:
     m_IsLocked: 0
   m_LastLocalAssetsSearchArea: 1
   m_FolderTreeState:
-    scrollPos: {x: 0, y: 0}
+    scrollPos: {x: 0, y: 32}
     m_SelectedIDs:
-    - m_Data: 53572
+    - m_Data: 65632
     m_LastClickedID:
-      m_Data: 53572
+      m_Data: 65632
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 53426
+    - m_Data: 65632
     - m_Data: 1000000000
+    - m_Data: 2147483647
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -728,7 +729,7 @@ MonoBehaviour:
       m_OriginalEventType: 11
       m_IsRenamingFilename: 1
       m_TrimLeadingAndTrailingWhitespace: 0
-      m_ClientGUIView: {fileID: 0}
+      m_ClientGUIView: {fileID: 5}
     m_SearchString: 
     m_CreateAssetUtility:
       m_EndAction: {fileID: 0}
@@ -743,7 +744,7 @@ MonoBehaviour:
       m_Data: 0
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 53426
+    - m_Data: 65632
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -771,8 +772,8 @@ MonoBehaviour:
       m_ResourceFile: 
   m_ListAreaState:
     m_SelectedInstanceIDs:
-    - m_Data: 52872
-    m_LastClickedInstanceID: 52872
+    - m_Data: 65320
+    m_LastClickedInstanceID: 65320
     m_HadKeyboardFocusLastEvent: 0
     m_ExpandedInstanceIDs: []
     m_RenameOverlay:
@@ -792,7 +793,7 @@ MonoBehaviour:
       m_OriginalEventType: 11
       m_IsRenamingFilename: 1
       m_TrimLeadingAndTrailingWhitespace: 0
-      m_ClientGUIView: {fileID: 0}
+      m_ClientGUIView: {fileID: 3}
     m_CreateAssetUtility:
       m_EndAction: {fileID: 0}
       m_InstanceID: 0
@@ -897,14 +898,14 @@ MonoBehaviour:
     m_TreeViewState:
       scrollPos: {x: 0, y: 0}
       m_SelectedIDs:
-      - m_Data: 52872
+      - m_Data: 65320
       m_LastClickedID:
-        m_Data: 52872
+        m_Data: 65320
       m_ExpandedIDs:
-      - m_Data: -101574
-      - m_Data: -1330
-      - m_Data: -12
-      - m_Data: 52872
+      - m_Data: -1398
+      - m_Data: 65234
+      - m_Data: 65252
+      - m_Data: 65436
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -1413,9 +1414,9 @@ MonoBehaviour:
   m_AudioPlay: 0
   m_DebugDrawModesUseInteractiveLightBakingData: 0
   m_Position:
-    m_Target: {x: 169.66948, y: 252.5336, z: -149.44092}
+    m_Target: {x: 373.51297, y: 173.75545, z: 689.2275}
     speed: 2
-    m_Value: {x: 169.66948, y: 252.5336, z: -149.44092}
+    m_Value: {x: 373.51297, y: 173.75545, z: 689.2275}
   m_RenderMode: 0
   m_CameraMode:
     drawMode: 0
@@ -1461,20 +1462,20 @@ MonoBehaviour:
     m_GridAxis: 1
     m_gridOpacity: 0.5
   m_Rotation:
-    m_Target: {x: 0.24456617, y: -0.46216434, z: 0.13427651, w: 0.8417798}
+    m_Target: {x: 0.08164358, y: -0.021029456, z: 0.0017197098, w: 0.99645656}
     speed: 2
-    m_Value: {x: 0.24526902, y: -0.46286374, z: 0.1349818, w: 0.84105897}
+    m_Value: {x: 0.08263483, y: -0.023019983, z: 0.0019059789, w: 0.9963122}
   m_Size:
-    m_Target: 0.8660254
+    m_Target: 617.26154
     speed: 2
-    m_Value: 0.86776876
+    m_Value: 617.26154
   m_Ortho:
     m_Target: 0
     speed: 2
     m_Value: 0
   m_CameraSettings:
-    m_Speed: 15.201866
-    m_SpeedNormalized: 0.0015200868
+    m_Speed: 11.014225
+    m_SpeedNormalized: 0.0011013226
     m_SpeedMin: 0.001
     m_SpeedMax: 10000
     m_EasingEnabled: 1

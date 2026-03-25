@@ -1,0 +1,6 @@
+Scene: Assets/Lobby.unity
+Controller children: 4
+Saved: True
+HomePanel: -1328
+JoinInput: -1526
+StatusLabel: -1610
