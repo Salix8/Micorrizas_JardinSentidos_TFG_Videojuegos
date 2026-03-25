@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using System.IO;
+using SmartCampus.Coop;
 
 public static class LobbySceneUiSetup
 {
@@ -17,10 +18,12 @@ public static class LobbySceneUiSetup
         var scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
         var canvas = Object.FindFirstObjectByType<Canvas>();
         var controller = Object.FindFirstObjectByType<MultiplayerMenuController>(FindObjectsInactive.Include);
+        var relayConnectionService = Object.FindFirstObjectByType<RelayConnectionService>(FindObjectsInactive.Include);
+        var coopSessionCoordinator = Object.FindFirstObjectByType<CoopSessionCoordinator>(FindObjectsInactive.Include);
 
-        if (canvas == null || controller == null)
+        if (canvas == null || controller == null || relayConnectionService == null || coopSessionCoordinator == null)
         {
-            throw new System.InvalidOperationException("Lobby scene requires a Canvas and a MultiplayerMenuController.");
+            throw new System.InvalidOperationException("Lobby scene requires Canvas, MultiplayerMenuController, RelayConnectionService and CoopSessionCoordinator references.");
         }
 
         var font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
@@ -29,6 +32,7 @@ public static class LobbySceneUiSetup
             throw new System.InvalidOperationException("Could not load builtin Arial font.");
         }
 
+        AssignSessionDefaults(relayConnectionService, coopSessionCoordinator);
         ConfigureRoot(canvas, controller);
         ClearExistingUi(controller.transform);
 
@@ -64,6 +68,8 @@ public static class LobbySceneUiSetup
             sessionData.copyJoinCodeButton);
 
         EditorUtility.SetDirty(controller);
+        EditorUtility.SetDirty(relayConnectionService);
+        EditorUtility.SetDirty(coopSessionCoordinator);
         EditorUtility.SetDirty(canvas.gameObject);
         EditorSceneManager.MarkSceneDirty(scene);
         var saved = EditorSceneManager.SaveScene(scene);
@@ -94,6 +100,22 @@ public static class LobbySceneUiSetup
         controllerRect.offsetMin = Vector2.zero;
         controllerRect.offsetMax = Vector2.zero;
         controllerRect.localScale = Vector3.one;
+    }
+
+    private static void AssignSessionDefaults(RelayConnectionService relayConnectionService, CoopSessionCoordinator coopSessionCoordinator)
+    {
+        var relaySerializedObject = new SerializedObject(relayConnectionService);
+        relaySerializedObject.FindProperty("minPlayersToStart").intValue = CoopSessionRules.DefaultMinimumPlayers;
+        relaySerializedObject.FindProperty("maxPlayers").intValue = CoopSessionRules.DefaultMaximumPlayers;
+        relaySerializedObject.FindProperty("mainMapSceneName").stringValue = "UJI";
+        relaySerializedObject.ApplyModifiedPropertiesWithoutUndo();
+
+        var coordinatorSerializedObject = new SerializedObject(coopSessionCoordinator);
+        coordinatorSerializedObject.FindProperty("minPlayersToStart").intValue = CoopSessionRules.DefaultMinimumPlayers;
+        coordinatorSerializedObject.FindProperty("maxPlayers").intValue = CoopSessionRules.DefaultMaximumPlayers;
+        coordinatorSerializedObject.FindProperty("lobbySceneName").stringValue = "Lobby";
+        coordinatorSerializedObject.FindProperty("mainMapSceneName").stringValue = "UJI";
+        coordinatorSerializedObject.ApplyModifiedPropertiesWithoutUndo();
     }
 
     private static void ClearExistingUi(Transform root)
@@ -148,8 +170,8 @@ public static class LobbySceneUiSetup
         CreateText("Title", parent, font, "Lobby Status", 30, TextAnchor.MiddleCenter, new Vector2(0.5f, 1f), new Vector2(0f, -42f), new Vector2(560f, 44f));
         var statusLabel = CreateText("StatusLabel", parent, font, "Esperando a que el host cree o abra la sala.", 18, TextAnchor.UpperLeft, new Vector2(0.5f, 1f), new Vector2(0f, -112f), new Vector2(640f, 88f));
         var joinCodeLabel = CreateText("JoinCodeLabel", parent, font, "Join code: -", 20, TextAnchor.MiddleLeft, new Vector2(0.5f, 1f), new Vector2(0f, -212f), new Vector2(640f, 34f));
-        var playerCountLabel = CreateText("PlayerCountLabel", parent, font, "Players: 0/6 (minimum 3)", 20, TextAnchor.MiddleLeft, new Vector2(0.5f, 1f), new Vector2(0f, -252f), new Vector2(640f, 34f));
-        var requirementsLabel = CreateText("SessionRequirementsLabel", parent, font, "Lobby rule: 3-6 players", 18, TextAnchor.MiddleLeft, new Vector2(0.5f, 1f), new Vector2(0f, -288f), new Vector2(640f, 30f));
+        var playerCountLabel = CreateText("PlayerCountLabel", parent, font, "Players: 0/6 (minimum 2)", 20, TextAnchor.MiddleLeft, new Vector2(0.5f, 1f), new Vector2(0f, -252f), new Vector2(640f, 34f));
+        var requirementsLabel = CreateText("SessionRequirementsLabel", parent, font, "Lobby rule: 2-6 players", 18, TextAnchor.MiddleLeft, new Vector2(0.5f, 1f), new Vector2(0f, -288f), new Vector2(640f, 30f));
 
         var copyJoinCodeButton = CreateButton("CopyJoinCodeButton", parent, font, "Copy Code", new Vector2(0.5f, 0f), new Vector2(-172f, 54f), new Vector2(180f, 46f));
         var startMatchButton = CreateButton("StartMatchButton", parent, font, "Go To Map", new Vector2(0.5f, 0f), new Vector2(0f, 54f), new Vector2(180f, 46f));

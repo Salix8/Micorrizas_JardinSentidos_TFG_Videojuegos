@@ -43,7 +43,7 @@ MonoBehaviour:
     serializedVersion: 2
     x: 0
     y: 36
-    width: 1706.6666
+    width: 1706.6667
     height: 920
   m_MinSize: {x: 300, y: 112}
   m_MaxSize: {x: 24288, y: 16192}
@@ -67,7 +67,7 @@ MonoBehaviour:
     serializedVersion: 2
     x: 1303.3334
     y: 0
-    width: 403.33325
+    width: 403.33337
     height: 920
   m_MinSize: {x: 276, y: 76}
   m_MaxSize: {x: 4001, y: 4026}
@@ -150,7 +150,7 @@ MonoBehaviour:
     serializedVersion: 2
     x: 0
     y: 0
-    width: 1706.6666
+    width: 1706.6667
     height: 976
   m_MinSize: {x: 875, y: 300}
   m_MaxSize: {x: 10000, y: 10000}
@@ -175,7 +175,7 @@ MonoBehaviour:
     serializedVersion: 2
     x: 0
     y: 0
-    width: 1706.6666
+    width: 1706.6667
     height: 36
   m_MinSize: {x: 50, y: 50}
   m_MaxSize: {x: 4000, y: 4000}
@@ -197,7 +197,7 @@ MonoBehaviour:
     serializedVersion: 2
     x: 0
     y: 956
-    width: 1706.6666
+    width: 1706.6667
     height: 20
   m_MinSize: {x: 0, y: 0}
   m_MaxSize: {x: 0, y: 0}
@@ -341,7 +341,7 @@ MonoBehaviour:
     serializedVersion: 2
     x: 0
     y: 42.666668
-    width: 1706.6666
+    width: 1706.6667
     height: 36
   m_SerializedDataModeController:
     m_DataMode: 0
@@ -685,7 +685,7 @@ MonoBehaviour:
     m_SkipHidden: 0
     m_SearchArea: 1
     m_Folders:
-    - Assets
+    - Assets/Test
     m_Globs: []
     m_ProductIds: 
     m_AnyWithAssetOrigin: 0
@@ -695,21 +695,22 @@ MonoBehaviour:
   m_ViewMode: 1
   m_StartGridSize: 64
   m_LastFolders:
-  - Assets
+  - Assets/Test
   m_LastFoldersGridSize: -1
   m_LastProjectPath: C:\Users\saulp\Documents\UJI\Micorrizas_JardinSentidos_TFG_Videojuegos\Unity\SmartCampus
   m_LockTracker:
     m_IsLocked: 0
   m_LastLocalAssetsSearchArea: 1
   m_FolderTreeState:
-    scrollPos: {x: 0, y: 32}
+    scrollPos: {x: 0, y: 64}
     m_SelectedIDs:
-    - m_Data: 65632
+    - m_Data: 66030
     m_LastClickedID:
-      m_Data: 65632
+      m_Data: 66030
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 65632
+    - m_Data: 65672
+    - m_Data: 66030
     - m_Data: 1000000000
     - m_Data: 2147483647
     m_RenameOverlay:
@@ -744,7 +745,7 @@ MonoBehaviour:
       m_Data: 0
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 65632
+    - m_Data: 65672
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -772,9 +773,9 @@ MonoBehaviour:
       m_ResourceFile: 
   m_ListAreaState:
     m_SelectedInstanceIDs:
-    - m_Data: 65320
-    m_LastClickedInstanceID: 65320
-    m_HadKeyboardFocusLastEvent: 0
+    - m_Data: 68634
+    m_LastClickedInstanceID: 68634
+    m_HadKeyboardFocusLastEvent: 1
     m_ExpandedInstanceIDs: []
     m_RenameOverlay:
       m_UserAcceptedRename: 0
@@ -828,7 +829,7 @@ MonoBehaviour:
     serializedVersion: 2
     x: 1303.3334
     y: 78.66667
-    width: 402.33325
+    width: 402.33337
     height: 894
   m_SerializedDataModeController:
     m_DataMode: 0
@@ -898,14 +899,28 @@ MonoBehaviour:
     m_TreeViewState:
       scrollPos: {x: 0, y: 0}
       m_SelectedIDs:
-      - m_Data: 65320
+      - m_Data: 68634
       m_LastClickedID:
-        m_Data: 65320
+        m_Data: 0
       m_ExpandedIDs:
+      - m_Data: -15640
+      - m_Data: -15630
+      - m_Data: -15620
+      - m_Data: -15610
+      - m_Data: -12584
+      - m_Data: -12240
+      - m_Data: -12230
+      - m_Data: -12220
+      - m_Data: -12210
+      - m_Data: -12200
+      - m_Data: -9174
+      - m_Data: -8370
+      - m_Data: -6950
+      - m_Data: -6940
+      - m_Data: -6608
+      - m_Data: -6598
+      - m_Data: -3572
       - m_Data: -1398
-      - m_Data: 65234
-      - m_Data: 65252
-      - m_Data: 65436
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -1464,7 +1479,7 @@ MonoBehaviour:
   m_Rotation:
     m_Target: {x: 0.08164358, y: -0.021029456, z: 0.0017197098, w: 0.99645656}
     speed: 2
-    m_Value: {x: 0.08263483, y: -0.023019983, z: 0.0019059789, w: 0.9963122}
+    m_Value: {x: 0.08164209, y: -0.021029072, z: 0.0017196785, w: 0.9964384}
   m_Size:
     m_Target: 617.26154
     speed: 2

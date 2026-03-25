@@ -2,6 +2,7 @@ using System;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using SmartCampus.Coop;
 
 [DisallowMultipleComponent]
 public sealed class CoopSessionCoordinator : NetworkBehaviour
@@ -10,8 +11,8 @@ public sealed class CoopSessionCoordinator : NetworkBehaviour
     [SerializeField] private RelayConnectionService relayConnectionService;
 
     [Header("Co-op Rules")]
-    [SerializeField] [Range(3, 6)] private int minPlayersToStart = 3;
-    [SerializeField] [Range(3, 6)] private int maxPlayers = 6;
+    [SerializeField] [Range(CoopSessionRules.DefaultMinimumPlayers, CoopSessionRules.DefaultMaximumPlayers)] private int minPlayersToStart = CoopSessionRules.DefaultMinimumPlayers;
+    [SerializeField] [Range(CoopSessionRules.DefaultMinimumPlayers, CoopSessionRules.DefaultMaximumPlayers)] private int maxPlayers = CoopSessionRules.DefaultMaximumPlayers;
 
     [Header("Scene Flow")]
     [SerializeField] private string lobbySceneName = "Lobby";
@@ -26,10 +27,9 @@ public sealed class CoopSessionCoordinator : NetworkBehaviour
     public int ActiveMiniGameIndex => activeMiniGameIndex.Value;
     public int MinimumPlayersToStart => minPlayersToStart;
     public int MaximumPlayers => maxPlayers;
+    public CoopSessionRules SessionRules => new(minPlayersToStart, maxPlayers);
     public int ConnectedPlayerCount => NetworkManager == null ? 0 : NetworkManager.ConnectedClientsIds.Count;
-    public bool CanStartMainMap => IsServer &&
-                                   ConnectedPlayerCount >= minPlayersToStart &&
-                                   ConnectedPlayerCount <= maxPlayers;
+    public bool CanStartMainMap => IsServer && SessionRules.CanStart(ConnectedPlayerCount);
 
     public event Action<CoopGamePhase> PhaseChanged;
     public event Action SlotsChanged;
@@ -49,8 +49,9 @@ public sealed class CoopSessionCoordinator : NetworkBehaviour
             }
         }
 
-        minPlayersToStart = Mathf.Clamp(minPlayersToStart, 3, 6);
-        maxPlayers = Mathf.Clamp(maxPlayers, minPlayersToStart, 6);
+        var rules = SessionRules;
+        minPlayersToStart = rules.MinimumPlayers;
+        maxPlayers = rules.MaximumPlayers;
 
         currentPhase.OnValueChanged += HandlePhaseChanged;
         playerSlots.OnListChanged += HandlePlayerSlotsChanged;
@@ -87,7 +88,7 @@ public sealed class CoopSessionCoordinator : NetworkBehaviour
 
         if (!CanStartMainMap)
         {
-            Debug.LogWarning($"Cannot leave lobby. The co-op session needs {minPlayersToStart}-{maxPlayers} players.", this);
+            Debug.LogWarning($"Cannot leave lobby. {SessionRules.GetStartBlocker(ConnectedPlayerCount)}", this);
             return;
         }
 

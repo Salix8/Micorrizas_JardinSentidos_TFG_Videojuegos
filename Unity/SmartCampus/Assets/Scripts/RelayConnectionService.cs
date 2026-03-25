@@ -9,6 +9,7 @@ using Unity.Services.Relay.Models;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
+using SmartCampus.Coop;
 
 [DisallowMultipleComponent]
 public sealed class RelayConnectionService : MonoBehaviour
@@ -19,8 +20,8 @@ public sealed class RelayConnectionService : MonoBehaviour
     [SerializeField] private bool persistAcrossScenes = true;
 
     [Header("Relay")]
-    [SerializeField] [Range(3, 6)] private int minPlayersToStart = 3;
-    [SerializeField] [Range(3, 6)] private int maxPlayers = 6;
+    [SerializeField] [Range(CoopSessionRules.DefaultMinimumPlayers, CoopSessionRules.DefaultMaximumPlayers)] private int minPlayersToStart = CoopSessionRules.DefaultMinimumPlayers;
+    [SerializeField] [Range(CoopSessionRules.DefaultMinimumPlayers, CoopSessionRules.DefaultMaximumPlayers)] private int maxPlayers = CoopSessionRules.DefaultMaximumPlayers;
     [SerializeField] private RelayConnectionProtocol connectionProtocol = RelayConnectionProtocol.Dtls;
 
     [Header("Flow")]
@@ -38,9 +39,8 @@ public sealed class RelayConnectionService : MonoBehaviour
     public int MinimumPlayersToStart => minPlayersToStart;
     public int MaximumPlayers => maxPlayers;
     public string MainMapSceneName => mainMapSceneName;
-    public bool CanStartMainMap => IsHost &&
-                                   ConnectedPlayerCount >= minPlayersToStart &&
-                                   ConnectedPlayerCount <= maxPlayers;
+    public CoopSessionRules SessionRules => new(minPlayersToStart, maxPlayers);
+    public bool CanStartMainMap => IsHost && SessionRules.CanStart(ConnectedPlayerCount);
 
     public event Action<string> StatusChanged;
     public event Action<string> JoinCodeChanged;
@@ -48,8 +48,9 @@ public sealed class RelayConnectionService : MonoBehaviour
 
     private void Awake()
     {
-        minPlayersToStart = Mathf.Clamp(minPlayersToStart, 3, 6);
-        maxPlayers = Mathf.Clamp(maxPlayers, minPlayersToStart, 6);
+        var rules = SessionRules;
+        minPlayersToStart = rules.MinimumPlayers;
+        maxPlayers = rules.MaximumPlayers;
 
         networkManager ??= GetComponent<NetworkManager>();
         unityTransport ??= GetComponent<UnityTransport>();
@@ -129,7 +130,7 @@ public sealed class RelayConnectionService : MonoBehaviour
                 throw new InvalidOperationException("NetworkManager could not start as host.");
             }
 
-            PublishStatus($"Co-op lobby started. Share join code {CurrentJoinCode}. Waiting for {minPlayersToStart}-{maxPlayers} players.");
+            PublishStatus($"Co-op lobby started. Share join code {CurrentJoinCode}. Waiting for {SessionRules.DescribeRequirements()}.");
 
             if (autoLoadMainMapOnHostStart)
             {
@@ -212,7 +213,7 @@ public sealed class RelayConnectionService : MonoBehaviour
 
         if (!CanStartMainMap)
         {
-            PublishStatus($"The co-op session needs {minPlayersToStart}-{maxPlayers} players before the main map can start.");
+            PublishStatus(SessionRules.GetStartBlocker(ConnectedPlayerCount));
             return;
         }
 
@@ -278,15 +279,26 @@ public sealed class RelayConnectionService : MonoBehaviour
         NotifyPlayerCountChanged();
     }
 
-    private void HandleClientConnected(ulong _)
+    private void HandleClientConnected(ulong clientId)
     {
-        PublishStatus($"Player connected. Lobby population: {ConnectedPlayerCount}/{maxPlayers}.");
+        if (networkManager != null &&
+            networkManager.IsServer &&
+            ConnectedPlayerCount > SessionRules.MaximumPlayers)
+        {
+            var disconnectReason = $"Lobby full. Maximum supported players: {SessionRules.MaximumPlayers}.";
+            networkManager.DisconnectClient(clientId, disconnectReason);
+            PublishStatus($"Rejected client {clientId}. {disconnectReason}");
+            NotifyPlayerCountChanged();
+            return;
+        }
+
+        PublishStatus($"Player connected. Lobby population: {ConnectedPlayerCount}/{SessionRules.MaximumPlayers}.");
         NotifyPlayerCountChanged();
     }
 
     private void HandleClientDisconnected(ulong _)
     {
-        PublishStatus($"Player disconnected. Lobby population: {ConnectedPlayerCount}/{maxPlayers}.");
+        PublishStatus($"Player disconnected. Lobby population: {ConnectedPlayerCount}/{SessionRules.MaximumPlayers}.");
         NotifyPlayerCountChanged();
     }
 
