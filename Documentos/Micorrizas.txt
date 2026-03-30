@@ -1,0 +1,49 @@
+Main Characters
+Deeproot (The Ent, Guardian of the Network)
+Deeproot, the ent, is ancient, wise, and deeply connected to the forest, yet increasingly vulnerable. Fully aware that the mycorrhizal network is deteriorating, it understands that it cannot restore the natural memory on its own. As the last guardian capable of interpreting the forest’s language, the Ent serves as both narrative guide and thematic anchor throughout the experience. Its primary motivation is to preserve the natural memory before it collapses entirely, safeguarding the balance that once sustained the garden.
+
+The Wood Wide Web: From Biological System to Narrative Presence
+The mycorrhizal network (colloquially known as the Wood Wide Web) is a vast underground biological infrastructure that connects trees and plants in the forest. Through kilometres of microscopic fungal filaments called mycelium, fungi enter into symbiosis with roots, creating an organic "superhighway". It is a social and life-support network.In the real world, this network allows trees to behave almost like a single organism: older, stronger specimens ("Mother Trees") send carbon and sugars to younger ones to help them grow, and they can even transmit chemical warning signals about pests or droughts to their neighbours. It is, in essence, the physical manifestation of cooperation, resilience, and the natural memory within the ecosystem.
+In Micorrizas, this scientific reality becomes the foundation for a narrative reinterpretation. Although not a character in the traditional sense, the mycorrhizal network functions as an active presence within the story world. It responds to player actions, visibly stabilising as challenges are successfully completed. Through subtle visual and systemic feedback, it expresses its state of recovery or instability. In this way, the network embodies collective natural intelligence, an interconnected system of memory, perception, and communication that transcends individual organisms and turns cooperation into a living mechanic.
+
+The party
+Players embody a party of adventurers willing to help. To assist Deeproot, they must act as temporary extensions of the network, providing information to the Ent through the device, thereby helping to reconnect fragmented information and restore lost meaning.
+
+
+Narrative Structure
+The game follows a classical three-act structure that mirrors the ecological arc of disruption and restoration at the heart of Micorrizas.
+
+
+Act I – Warning
+The narrative begins when Deeproot, the ent guardian of the network, detects instability within the sensory nodes that sustain the underground system. Subtle environmental changes signal that the mycorrhizal network is deteriorating. Through guided interaction and environmental storytelling, players are introduced to the concept of a failing communication system and the consequences of weakened sensory perception. This act establishes both the stakes and the core metaphor: the natural memory is fragile when perception is neglected.
+
+Act II – Restoration
+In the second act, each sensory garden represents a damaged node of the network. Players must collaboratively repair the following nodes: The Node of Sight, The Node of Sound, The Node of Touch, The Node of Taste and The Node of Smell.
+Each completed challenge restores a fragment of the system. Visually, the network begins to glow and stabilize; narratively, the Ent regains clarity and coherence. The progressive strengthening of the network reinforces the educational objective: understanding the environment requires active interpretation across multiple sensory dimensions.
+
+Act III – Reconnection
+Once all nodes have been restored, the network reaches a state of stability. The underground system reconnects fully, and the environment above reflects this renewed balance. The final screen presents a fully connected map, symbolizing restored ecological awareness and collective responsibility. The group then receives its shared evaluation, emphasizing collaboration over individual performance and reinforcing the project’s pedagogical focus on collective intelligence.
+
+
+Garden-by-Garden Design
+Each sensory garden is structured around a different perceptual domain, combining the natural learning objectives with cooperative mechanics and a narrative framework. While the interaction model remains constant, the cognitive focus changes according to the sensory theme.
+
+Garden of Sight
+The Garden of Sight focuses on pattern recognition and visual differentiation. Its educational focus includes leaf morphology, the distinction between evergreen and deciduous species, and variations in the height, colour and structural form of trees. Players are encouraged to observe silhouettes, textures and general growth patterns in the real environment.
+The dynamics of the challenge are based on fragmented visual resources distributed across devices. Players must identify silhouettes and colours, among other things, and collectively determine whether the species is found in the park. If so, they swipe the image to the right; if not, to the left, for a few rounds. The narrative framework reinforces this perceptual uncertainty: ‘The network sees shapes, but cannot distinguish permanence from change.’
+
+Garden of the Ear
+The Garden of Sound explores auditory classification and environmental awareness. The educational emphasis includes identifying bird species, differentiating between natural and artificial sounds, and interpreting water and wind as ecological indicators.
+During the cooperative challenge, one device plays the sound, while others provide classification options and contextual information. Stability depends on group consensus. The narration underscores the theme of forgotten meaning: ‘The Network hears vibrations, but cannot name their source.’
+
+Garden of Touch
+The Garden of Touch focuses on interpreting textures and physical characteristics. Educational objectives include recognising differences between barks, understanding leaf textures, and identifying defensive adaptations.
+The challenge is structured as an attribute deduction system inspired by the mechanics of progressive revelation. All devices can contribute by writing a species, when they do so it appears in green, orange or red, the type of species, roughness, type of leaf, depending on whether they have guessed correctly, almost correctly or incorrectly respectively. Players collaboratively reduce the possibilities through comparison and elimination. The narrative framework reflects sensory ambiguity: ‘The Network feels surfaces, but has forgotten their meaning.’
+
+Garden of Smell
+The Garden of Smell focuses on aromatic association and the function of plants. The educational content includes distinguishing medicinal, culinary and ornamental uses, recognising aromatic plant families and understanding pollination relationships.
+The cooperative task involves categorisation challenges, with relevant information distributed across devices. Each player will see either the scientific name, its functional use, a clue, or the image, and based on that, they will have to identify the species. The narrative context emphasises interpretative loss: ‘The Network remembers the fragrance, but not its purpose.’
+
+Garden of Taste
+The Garden of Taste addresses the identification of fruits and their ecological function. Learning objectives include recognising fruit species and understanding seasonal cycles.
+The challenge uses the typical game of matching figures. Each device has cards face down on it, and players have to turn them over to reveal the pairs. Only through communication will they be able to find the fruit relationships. The narrative framework concludes the sensory arc: ‘The network recognises the sweetness, but not its origin.’

@@ -1,0 +1,11 @@
+C:\Users\saulp\Documents\UJI\Micorrizas_JardinSentidos_TFG_Videojuegos\Unity\SmartCampus\Temp\bin\Debug\Assembly-CSharp-Editor.dll
+C:\Users\saulp\Documents\UJI\Micorrizas_JardinSentidos_TFG_Videojuegos\Unity\SmartCampus\Temp\bin\Debug\Assembly-CSharp-Editor.pdb
+C:\Users\saulp\Documents\UJI\Micorrizas_JardinSentidos_TFG_Videojuegos\Unity\SmartCampus\Temp\bin\Debug\Assembly-CSharp.pdb
+C:\Users\saulp\Documents\UJI\Micorrizas_JardinSentidos_TFG_Videojuegos\Unity\SmartCampus\Temp\bin\Debug\ArcGISMapsSDK.Editor.pdb
+C:\Users\saulp\Documents\UJI\Micorrizas_JardinSentidos_TFG_Videojuegos\Unity\SmartCampus\Temp\bin\Debug\Esri.HPFramework.pdb
+C:\Users\saulp\Documents\UJI\Micorrizas_JardinSentidos_TFG_Videojuegos\Unity\SmartCampus\Temp\bin\Debug\ArcGISMapsSDK.pdb
+C:\Users\saulp\Documents\UJI\Micorrizas_JardinSentidos_TFG_Videojuegos\Unity\SmartCampus\obj\Debug\Assembly-CSharp-Editor.csproj.AssemblyReference.cache
+C:\Users\saulp\Documents\UJI\Micorrizas_JardinSentidos_TFG_Videojuegos\Unity\SmartCampus\obj\Debug\Assembly-CSharp-Editor.csproj.CoreCompileInputs.cache
+C:\Users\saulp\Documents\UJI\Micorrizas_JardinSentidos_TFG_Videojuegos\Unity\SmartCampus\obj\Debug\Assembly.1F1299F3.Up2Date
+C:\Users\saulp\Documents\UJI\Micorrizas_JardinSentidos_TFG_Videojuegos\Unity\SmartCampus\obj\Debug\Assembly-CSharp-Editor.dll
+C:\Users\saulp\Documents\UJI\Micorrizas_JardinSentidos_TFG_Videojuegos\Unity\SmartCampus\obj\Debug\Assembly-CSharp-Editor.pdb

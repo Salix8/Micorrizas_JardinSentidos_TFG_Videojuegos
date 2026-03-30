@@ -2444,12 +2444,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CoopSessionCoordinator
   ShowTopMostFoldoutHeaderGroup: 1
   relayConnectionService: {fileID: 663364422}
+  persistAcrossScenes: 1
   minPlayersToStart: 2
   maxPlayers: 6
   lobbySceneName: Lobby
   mainMapSceneName: UJI
   miniGameSceneNames:
-  - 
+  - DistributedPairsMinigame
   - 
   - 
   - 
