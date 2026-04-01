@@ -1,0 +1,8 @@
+C:\Users\saulp\Documents\UJI\Micorrizas_JardinSentidos_TFG_Videojuegos\Unity\SmartCampus\Temp\bin\Debug\ArcGISMapsSDK.dll
+C:\Users\saulp\Documents\UJI\Micorrizas_JardinSentidos_TFG_Videojuegos\Unity\SmartCampus\Temp\bin\Debug\ArcGISMapsSDK.pdb
+C:\Users\saulp\Documents\UJI\Micorrizas_JardinSentidos_TFG_Videojuegos\Unity\SmartCampus\Temp\bin\Debug\Esri.HPFramework.pdb
+C:\Users\saulp\Documents\UJI\Micorrizas_JardinSentidos_TFG_Videojuegos\Unity\SmartCampus\obj\Debug\ArcGISMapsSDK.csproj.AssemblyReference.cache
+C:\Users\saulp\Documents\UJI\Micorrizas_JardinSentidos_TFG_Videojuegos\Unity\SmartCampus\obj\Debug\ArcGISMapsSDK.csproj.CoreCompileInputs.cache
+C:\Users\saulp\Documents\UJI\Micorrizas_JardinSentidos_TFG_Videojuegos\Unity\SmartCampus\obj\Debug\ArcGISMa.499F48A8.Up2Date
+C:\Users\saulp\Documents\UJI\Micorrizas_JardinSentidos_TFG_Videojuegos\Unity\SmartCampus\obj\Debug\ArcGISMapsSDK.dll
+C:\Users\saulp\Documents\UJI\Micorrizas_JardinSentidos_TFG_Videojuegos\Unity\SmartCampus\obj\Debug\ArcGISMapsSDK.pdb
