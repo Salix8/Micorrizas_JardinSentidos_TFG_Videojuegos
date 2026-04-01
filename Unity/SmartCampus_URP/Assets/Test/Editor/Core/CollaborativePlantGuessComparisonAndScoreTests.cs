@@ -38,5 +38,50 @@ namespace SmartCampus.Testing.Editor.Core
 
             Assert.That(result.ScoreOutOfTen, Is.EqualTo(10f));
         }
+
+        [Test]
+        public void Evaluate_NullPlants_ThrowsArgumentNullException()
+        {
+            var validPlant = new CollaborativePlantGuessPlantDefinition("laurel", "Laurel", new string[0], string.Empty, "Perenne", "Mediana", 2, "Lisa", 1, "Drupa", "Carnoso");
+
+            Assert.That(() => CollaborativePlantGuessComparisonService.Evaluate(null, validPlant), Throws.ArgumentNullException);
+            Assert.That(() => CollaborativePlantGuessComparisonService.Evaluate(validPlant, null), Throws.ArgumentNullException);
+        }
+
+        [Test]
+        public void CreateResult_UnsolvedRun_ReturnsZeroScore()
+        {
+            var result = CollaborativePlantGuessScoreService.CreateResult(
+                config: null,
+                wasSolved: false,
+                attemptsUsed: 8,
+                maxAttempts: 8,
+                resultMessage: "No encontrada");
+
+            Assert.That(result.ScoreOutOfTen, Is.EqualTo(0f));
+            Assert.That(result.FailedActions, Is.EqualTo(8));
+        }
+
+        [Test]
+        public void CreateResult_LateSolveScoresLessThanEarlySolve()
+        {
+            var config = ScriptableObject.CreateInstance<CollaborativePlantGuessMinigameConfig>();
+
+            var earlyResult = CollaborativePlantGuessScoreService.CreateResult(
+                config,
+                wasSolved: true,
+                attemptsUsed: 2,
+                maxAttempts: 8,
+                resultMessage: "Resuelta");
+
+            var lateResult = CollaborativePlantGuessScoreService.CreateResult(
+                config,
+                wasSolved: true,
+                attemptsUsed: 7,
+                maxAttempts: 8,
+                resultMessage: "Resuelta");
+
+            Assert.That(lateResult.ScoreOutOfTen, Is.LessThan(earlyResult.ScoreOutOfTen));
+        }
     }
 }

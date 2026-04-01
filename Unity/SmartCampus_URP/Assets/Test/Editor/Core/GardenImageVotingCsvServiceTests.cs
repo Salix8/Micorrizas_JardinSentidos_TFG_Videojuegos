@@ -54,5 +54,49 @@ namespace SmartCampus.Testing.Editor.Core
             Assert.That(success, Is.False);
             Assert.That(errorMessage, Does.Contain("repetida"));
         }
+
+        [Test]
+        public void Parse_QuotedValuesAndLocalizedBoolean_ReturnsExpectedCardData()
+        {
+            var csv = string.Join("\n", new[]
+            {
+                "roundIndex,deviceSlot,topic,title,imagePath,isSeenInGarden",
+                "1,2,\"Zona, norte\",\"Flor principal\",\"imagenes/flor,01.png\",si",
+                "1,1,Arbustos,Rama,imagenes/rama.png,no"
+            });
+
+            var success = GardenImageVotingCsvService.TryParse(
+                csv,
+                maxSupportedDevices: 4,
+                cardsPerDevice: 3,
+                allowRepeatedImagesAcrossDevices: true,
+                out var definitions,
+                out var errorMessage);
+
+            Assert.That(success, Is.True, errorMessage);
+            Assert.That(definitions.Count, Is.EqualTo(2));
+            Assert.That(definitions[1].Topic, Is.EqualTo("Zona, norte"));
+            Assert.That(definitions[1].ImagePath, Is.EqualTo("imagenes/flor,01.png"));
+            Assert.That(definitions[1].IsSeenInGarden, Is.True);
+        }
+
+        [Test]
+        public void Parse_MissingRequiredColumn_ReturnsFalse()
+        {
+            const string csv =
+                "roundIndex,deviceSlot,topic,title,imagePath\n" +
+                "1,1,Cipreses,Hojas,folder/hojas.png\n";
+
+            var success = GardenImageVotingCsvService.TryParse(
+                csv,
+                maxSupportedDevices: 6,
+                cardsPerDevice: 5,
+                allowRepeatedImagesAcrossDevices: true,
+                out List<GardenImageVotingCardDefinition> _,
+                out var errorMessage);
+
+            Assert.That(success, Is.False);
+            Assert.That(errorMessage, Does.Contain("isSeenInGarden"));
+        }
     }
 }

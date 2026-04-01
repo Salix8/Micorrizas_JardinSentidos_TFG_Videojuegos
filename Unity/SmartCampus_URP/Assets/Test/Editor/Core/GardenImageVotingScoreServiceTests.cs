@@ -39,6 +39,20 @@ namespace SmartCampus.Testing.Editor.Core
             Assert.That(result.Message, Is.EqualTo(config.TimeoutMessage));
         }
 
+        [Test]
+        public void CreateResult_NullConfig_UsesFallbackMessage()
+        {
+            var result = GardenImageVotingScoreService.CreateResult(
+                config: null,
+                correctAnswers: 2,
+                incorrectAnswers: 1,
+                totalScheduledCards: 4,
+                completedAllCards: false);
+
+            Assert.That(result.ScoreOutOfTen, Is.EqualTo(5f));
+            Assert.That(result.Message, Is.EqualTo("Minijuego completado"));
+        }
+
         private static GardenImageVotingMinigameConfig CreateConfig()
         {
             var config = ScriptableObject.CreateInstance<GardenImageVotingMinigameConfig>();

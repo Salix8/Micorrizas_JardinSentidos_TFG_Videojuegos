@@ -51,5 +51,34 @@ namespace SmartCampus.Testing.Editor.Core
 
             Assert.That(success, Is.False);
         }
+
+        [Test]
+        public void TryBuildAssignments_TrimsAndDeduplicatesDistractors()
+        {
+            var success = AudioWordConsensusWordAssignmentService.TryBuildAssignments(
+                new ulong[] { 1UL, 2UL, 3UL },
+                " Campana ",
+                new[] { " hoja ", "Hoja", "campana", " piedra " },
+                randomSeed: 3,
+                out var assignments);
+
+            Assert.That(success, Is.True);
+            Assert.That(assignments.Values.Count(word => word == "Campana"), Is.EqualTo(1));
+            Assert.That(assignments.Values, Does.Contain("hoja"));
+            Assert.That(assignments.Values.Distinct(System.StringComparer.OrdinalIgnoreCase).Count(), Is.EqualTo(assignments.Count));
+        }
+
+        [Test]
+        public void TryBuildAssignments_InvalidInput_ReturnsFalse()
+        {
+            var success = AudioWordConsensusWordAssignmentService.TryBuildAssignments(
+                receiverClientIds: new ulong[0],
+                correctWord: "Campana",
+                distractorWords: new[] { "Hoja" },
+                randomSeed: 0,
+                out _);
+
+            Assert.That(success, Is.False);
+        }
     }
 }

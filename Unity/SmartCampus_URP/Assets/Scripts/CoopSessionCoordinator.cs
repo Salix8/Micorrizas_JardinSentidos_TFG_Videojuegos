@@ -141,6 +141,18 @@ public sealed class CoopSessionCoordinator : NetworkBehaviour
         return !string.IsNullOrWhiteSpace(miniGameSceneNames[miniGameIndex]);
     }
 
+    public bool TryGetMiniGameSceneName(int miniGameIndex, out string sceneName)
+    {
+        sceneName = string.Empty;
+        if (miniGameSceneNames == null || miniGameIndex < 0 || miniGameIndex >= miniGameSceneNames.Length)
+        {
+            return false;
+        }
+
+        sceneName = miniGameSceneNames[miniGameIndex];
+        return !string.IsNullOrWhiteSpace(sceneName);
+    }
+
     public void ReturnToMainMap()
     {
         if (!IsServer)

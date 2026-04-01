@@ -15,12 +15,16 @@ namespace SmartCampus.Coop.Minigames
             if (titleLabel != null)
             {
                 titleLabel.text = displayName;
+                titleLabel.resizeTextForBestFit = true;
+                titleLabel.resizeTextMinSize = 14;
             }
 
             if (descriptionLabel != null)
             {
-                descriptionLabel.text = description;
+                descriptionLabel.text = TruncateDescription(description);
                 descriptionLabel.gameObject.SetActive(!string.IsNullOrWhiteSpace(description));
+                descriptionLabel.resizeTextForBestFit = true;
+                descriptionLabel.resizeTextMinSize = 12;
             }
 
             if (launchButton != null)
@@ -32,6 +36,16 @@ namespace SmartCampus.Coop.Minigames
                     launchButton.onClick.AddListener(onClick);
                 }
             }
+        }
+
+        private static string TruncateDescription(string description)
+        {
+            if (string.IsNullOrWhiteSpace(description) || description.Length <= 120)
+            {
+                return description;
+            }
+
+            return description.Substring(0, 117).TrimEnd() + "...";
         }
     }
 }

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 namespace SmartCampus.Coop.Minigames
 {
@@ -96,11 +97,15 @@ namespace SmartCampus.Coop.Minigames
                 return;
             }
 
-            var isHost = coopSessionCoordinator != null && coopSessionCoordinator.IsSpawned && coopSessionCoordinator.IsServer;
+            var isNetworkHost = coopSessionCoordinator != null && coopSessionCoordinator.IsSpawned && coopSessionCoordinator.IsServer;
+            var isLocalDebugLauncher = coopSessionCoordinator != null && !coopSessionCoordinator.IsSpawned;
+            var canLaunchFromCurrentContext = isNetworkHost || isLocalDebugLauncher;
             if (helperLabel != null)
             {
-                helperLabel.text = isHost
-                    ? "Elige el siguiente minijuego para todo el grupo."
+                helperLabel.text = canLaunchFromCurrentContext
+                    ? (isLocalDebugLauncher
+                        ? "Modo local de prueba: puedes abrir cualquier minijuego configurado."
+                        : "Elige el siguiente minijuego para todo el grupo.")
                     : "Esperando a que el host lance el siguiente minijuego.";
             }
 
@@ -110,7 +115,8 @@ namespace SmartCampus.Coop.Minigames
                 var view = instantiatedEntries[index];
                 var minigameIndex = entry.MinigameIndex;
 
-                var canLaunch = isHost && (coopSessionCoordinator == null || coopSessionCoordinator.IsMiniGameConfigured(minigameIndex));
+                var canLaunch = canLaunchFromCurrentContext &&
+                                (coopSessionCoordinator == null || coopSessionCoordinator.IsMiniGameConfigured(minigameIndex));
                 view.Bind(
                     entry.DisplayName,
                     entry.Description,
@@ -121,12 +127,22 @@ namespace SmartCampus.Coop.Minigames
 
         private void LaunchMinigame(int minigameIndex)
         {
-            if (coopSessionCoordinator == null || !coopSessionCoordinator.IsSpawned || !coopSessionCoordinator.IsServer)
+            if (coopSessionCoordinator == null)
             {
                 return;
             }
 
-            coopSessionCoordinator.StartMiniGame(minigameIndex);
+            if (coopSessionCoordinator.IsSpawned && coopSessionCoordinator.IsServer)
+            {
+                coopSessionCoordinator.StartMiniGame(minigameIndex);
+                return;
+            }
+
+            if (!coopSessionCoordinator.IsSpawned &&
+                coopSessionCoordinator.TryGetMiniGameSceneName(minigameIndex, out var sceneName))
+            {
+                SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
+            }
         }
     }
 }

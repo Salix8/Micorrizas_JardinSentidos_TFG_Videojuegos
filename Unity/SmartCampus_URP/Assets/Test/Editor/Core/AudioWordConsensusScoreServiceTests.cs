@@ -39,6 +39,20 @@ namespace SmartCampus.Testing.Editor.Core
             Assert.That(result.Message, Is.EqualTo(config.TimeoutMessage));
         }
 
+        [Test]
+        public void CreateResult_NullConfig_UsesFallbackMessage()
+        {
+            var result = AudioWordConsensusScoreService.CreateResult(
+                config: null,
+                correctRounds: 1,
+                incorrectRounds: 1,
+                totalScheduledRounds: 4,
+                completedAllRounds: false);
+
+            Assert.That(result.ScoreOutOfTen, Is.EqualTo(2.5f));
+            Assert.That(result.Message, Is.EqualTo("Minijuego completado"));
+        }
+
         private static AudioWordConsensusMinigameConfig CreateConfig()
         {
             var config = ScriptableObject.CreateInstance<AudioWordConsensusMinigameConfig>();
