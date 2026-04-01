@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b823e944a6ef724fbb919335770f994, type: 3}
+  m_Name: GardenImageVotingTutorialContent
+  m_EditorClassIdentifier: Assembly-CSharp::SmartCampus.Coop.Minigames.MinigameTutorialContentConfig
+  title: Imagenes del jardin
+  subtitle: Decide con un gesto rapido
+  bodyText: 'Cada dispositivo recibe una secuencia propia de imagenes relacionadas
+    entre si.
+
+
+    Desliza la tarjeta a la derecha si crees que esa imagen si aparece
+    en el jardin, y a la izquierda si crees que no.
+
+
+    Los aciertos suman puntos
+    compartidos para todo el lobby. La partida termina cuando se acaba el tiempo
+    o cuando todos completan sus imagenes.'
+  illustration: {fileID: 0}
+  videoClip: {fileID: 0}
+  customContentPrefab: {fileID: 0}

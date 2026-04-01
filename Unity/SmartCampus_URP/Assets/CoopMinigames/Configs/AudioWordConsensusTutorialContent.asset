@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b823e944a6ef724fbb919335770f994, type: 3}
+  m_Name: AudioWordConsensusTutorialContent
+  m_EditorClassIdentifier: Assembly-CSharp::SmartCampus.Coop.Minigames.MinigameTutorialContentConfig
+  title: Sonido y consenso
+  subtitle: Una persona escucha, el resto compara palabras
+  bodyText: 'En cada ronda un dispositivo solo puede reproducir un sonido. Ese jugador
+    no recibe ninguna palabra.
+
+
+    El resto de dispositivos recibe una palabra
+    distinta. Solo una coincide con el sonido reproducido.
+
+
+    Debatid rapidamente
+    y decidid quien debe pulsar. El minijuego termina cuando todos han sido emisor
+    una vez o cuando se agota el tiempo.'
+  illustration: {fileID: 0}
+  videoClip: {fileID: 0}
+  customContentPrefab: {fileID: 0}

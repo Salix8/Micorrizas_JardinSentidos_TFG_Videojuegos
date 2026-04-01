@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b823e944a6ef724fbb919335770f994, type: 3}
+  m_Name: CollaborativePlantGuessTutorialContent
+  m_EditorClassIdentifier: Assembly-CSharp::SmartCampus.Coop.Minigames.MinigameTutorialContentConfig
+  title: Adivina la planta
+  subtitle: Deduce en grupo con pistas visuales
+  bodyText: 'Todo el grupo intenta descubrir la planta objetivo.
+
+
+    Escribe una
+    planta del CSV con ayuda del autocompletado. Cada intento aparece en todos los
+    dispositivos con pistas de color por atributo.
+
+
+    Verde significa acierto,
+    naranja significa casi y rojo significa fallo. El mismo dispositivo no puede
+    enviar dos intentos seguidos.
+
+
+    Al llegar al intento configurado se desbloquea
+    la pista de hoja caduca/perenne.'
+  illustration: {fileID: 0}
+  videoClip: {fileID: 0}
+  customContentPrefab: {fileID: 0}

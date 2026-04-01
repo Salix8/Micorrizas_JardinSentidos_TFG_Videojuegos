@@ -21,8 +21,8 @@ public static class DistributedPairsMinigameSetup
     private const string CatalogConfigPath = ConfigFolder + "/CoopMinigameCatalog.asset";
     private const string CardPrefabPath = PrefabFolder + "/DistributedPairsCardView.prefab";
     private const string MinigameScenePath = SceneFolder + "/DistributedPairsMinigame.unity";
-    private const string LobbyScenePath = "Assets/Lobby.unity";
-    private const string MainMapScenePath = "Assets/UJI.unity";
+    private const string LobbyScenePath = "Assets/Scenes/Lobby.unity";
+    private const string MainMapScenePath = "Assets/Scenes/UJI.unity";
     private const string MinigameSceneName = "DistributedPairsMinigame";
 
     [MenuItem("Tools/Coop/Setup Distributed Pairs Minigame")]
@@ -128,8 +128,8 @@ public static class DistributedPairsMinigameSetup
         entries.arraySize = 1;
 
         var entry = entries.GetArrayElementAtIndex(0);
-        entry.FindPropertyRelative("minigameIndex").intValue = 0;
-        entry.FindPropertyRelative("displayName").stringValue = "Parejas distribuidas";
+        entry.FindPropertyRelative("minigameIndex").intValue = 4;
+        entry.FindPropertyRelative("displayName").stringValue = "Minijuego 4 - Parejas distribuidas";
         entry.FindPropertyRelative("description").stringValue = "Minijuego cooperativo con informacion parcial repartida entre dispositivos.";
 
         serializedObject.ApplyModifiedPropertiesWithoutUndo();
@@ -333,7 +333,7 @@ public static class DistributedPairsMinigameSetup
 
         var miniGameSceneNames = serializedCoordinator.FindProperty("miniGameSceneNames");
         miniGameSceneNames.arraySize = Math.Max(5, miniGameSceneNames.arraySize);
-        miniGameSceneNames.GetArrayElementAtIndex(0).stringValue = MinigameSceneName;
+        miniGameSceneNames.GetArrayElementAtIndex(4).stringValue = MinigameSceneName;
         serializedCoordinator.ApplyModifiedPropertiesWithoutUndo();
 
         EditorUtility.SetDirty(coordinator);

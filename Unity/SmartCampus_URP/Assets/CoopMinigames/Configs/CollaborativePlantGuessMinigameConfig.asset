@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab796ac5275cf914a81eede299b428a7, type: 3}
+  m_Name: CollaborativePlantGuessMinigameConfig
+  m_EditorClassIdentifier: Assembly-CSharp::SmartCampus.Coop.Minigames.CollaborativePlantGuess.CollaborativePlantGuessMinigameConfig
+  displayName: Minijuego 3 - Adivina la planta
+  tutorialContent: {fileID: 11400000, guid: b7564c284041354428e8039fe9e67977, type: 2}
+  successMessage: Planta encontrada
+  returnToMapButtonLabel: Volver al mapa
+  csvRelativePath: CoopMinigames/CollaborativePlantGuessPlants.csv
+  minimumSupportedPlayers: 2
+  maxSupportedDevices: 6
+  timeLimitSeconds: 180
+  maxAttempts: 8
+  hintRevealAttempt: 5
+  autocompleteSuggestionCount: 6
+  timeoutMessage: Tiempo agotado
+  attemptsExhaustedMessage: Intentos agotados
+  invalidGuessMessage: Selecciona una planta valida del autocompletado
+  scoreSettings:
+    maxScore: 10
+    minimumSolvedScoreRatio: 0.4
+    decimalPlaces: 1
+  visualSettings:
+    backgroundColor: {r: 0.92, g: 0.96, b: 0.9, a: 1}
+    panelColor: {r: 1, g: 1, b: 1, a: 0.82}
+    primaryButtonColor: {r: 0.22, g: 0.4, b: 0.29, a: 1}
+    secondaryButtonColor: {r: 0.21, g: 0.42, b: 0.46, a: 1}
+    exactMatchColor: {r: 0.25, g: 0.63, b: 0.31, a: 1}
+    closeMatchColor: {r: 0.9, g: 0.62, b: 0.2, a: 1}
+    incorrectMatchColor: {r: 0.75, g: 0.27, b: 0.24, a: 1}
+    neutralCellColor: {r: 0.88, g: 0.9, b: 0.86, a: 1}

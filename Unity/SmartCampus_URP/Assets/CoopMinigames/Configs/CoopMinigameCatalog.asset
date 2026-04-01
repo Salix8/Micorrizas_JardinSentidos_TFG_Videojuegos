@@ -13,6 +13,18 @@ MonoBehaviour:
   m_Name: CoopMinigameCatalog
   m_EditorClassIdentifier: Assembly-CSharp::SmartCampus.Coop.Minigames.CoopMinigameCatalogConfig
   entries:
-  - minigameIndex: 0
-    displayName: Parejas distribuidas
+  - minigameIndex: 1
+    displayName: Minijuego 1 - Imagenes del jardin
+    description: Cada dispositivo decide con un gesto si una imagen pertenece o no
+      al jardin. La puntuacion se comparte entre todo el grupo.
+  - minigameIndex: 4
+    displayName: Minijuego 4 - Parejas distribuidas
     description: Minijuego cooperativo con informacion parcial repartida entre dispositivos.
+  - minigameIndex: 2
+    displayName: Minijuego 2 - Sonido y consenso
+    description: Un dispositivo reproduce un sonido y el resto compara palabras diferentes
+      para decidir en grupo cual debe pulsarse.
+  - minigameIndex: 3
+    displayName: Minijuego 3 - Adivina la planta
+    description: Adivina una planta entre todos con historial compartido, autocompletado
+      y pistas de atributos tipo Loldle.

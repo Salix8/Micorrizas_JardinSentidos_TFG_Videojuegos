@@ -1,0 +1,7 @@
+plantId,displayName,aliases,imagePath,leafPersistence,leafSize,leafSizeOrder,leafTexture,leafTextureOrder,fruitType,fruitCategory
+arce_campestre,Arce campestre,Acirón|Acer campestre,,Caduca,Mediana,2,Lisa,1,Samara,Seco
+encina,Encina,Carrasca|Quercus ilex,,Perenne,Pequeña,1,Coriácea,3,Bellota,Seco
+madrono,Madroño,Arbutus unedo,,Perenne,Mediana,2,Lisa,1,Baya,Carnoso
+olmo,Olmo,Ulmus minor,,Caduca,Grande,3,Áspera,2,Samara,Seco
+laurel,Laurel,Laurus nobilis,,Perenne,Mediana,2,Lisa,1,Drupa,Carnoso
+granado,Granado,Punica granatum,,Caduca,Pequeña,1,Lisa,1,Balausta,Carnoso

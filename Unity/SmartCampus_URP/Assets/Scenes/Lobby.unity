@@ -2307,11 +2307,11 @@ MonoBehaviour:
   lobbySceneName: Lobby
   mainMapSceneName: UJI
   miniGameSceneNames:
+  - 
+  - GardenImageVotingMinigame
+  - AudioWordConsensusMinigame
+  - CollaborativePlantGuessMinigame
   - DistributedPairsMinigame
-  - 
-  - 
-  - 
-  - 
 --- !u!1 &1184627747
 GameObject:
   m_ObjectHideFlags: 0

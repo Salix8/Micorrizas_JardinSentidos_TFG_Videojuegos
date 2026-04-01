@@ -17,6 +17,15 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/DistributedPairsMinigame.unity
     guid: a17f2e25539056d418f3fc6c1696d1a8
+  - enabled: 1
+    path: Assets/Scenes/GardenImageVotingMinigame.unity
+    guid: 832860ff0e7c69f448f493e919700ebe
+  - enabled: 1
+    path: Assets/Scenes/AudioWordConsensusMinigame.unity
+    guid: 69fe6ede6de70854eb826ec0d462c7d0
+  - enabled: 1
+    path: Assets/Scenes/CollaborativePlantGuessMinigame.unity
+    guid: d371d4c17105ed549a6707e4f3d28a65
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 35845fe01580c41289b024647b1d1c53, type: 3}
   m_UseUCBPForAssetBundles: 0

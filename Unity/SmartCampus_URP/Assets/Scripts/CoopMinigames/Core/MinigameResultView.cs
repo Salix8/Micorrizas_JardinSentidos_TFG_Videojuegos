@@ -7,12 +7,19 @@ namespace SmartCampus.Coop.Minigames
     [DisallowMultipleComponent]
     public sealed class MinigameResultView : MonoBehaviour
     {
+        [Header("Labels")]
         [SerializeField] private Text titleLabel;
         [SerializeField] private Text scoreLabel;
         [SerializeField] private Text summaryLabel;
+
+        [Header("Buttons")]
         [SerializeField] private Button returnButton;
         [SerializeField] private Text returnButtonLabel;
         [SerializeField] private Text waitingHostLabel;
+
+        [Header("Summary Formatting")]
+        [SerializeField] private string successfulActionsLabel = "Aciertos";
+        [SerializeField] private string failedActionsLabel = "Errores";
 
         public void Bind(MinigameResultData result, string returnButtonText, bool canReturnToMap, Action onReturnToMap)
         {
@@ -28,7 +35,7 @@ namespace SmartCampus.Coop.Minigames
 
             if (summaryLabel != null)
             {
-                summaryLabel.text = $"Parejas acertadas: {result.SuccessfulActions}\nIntentos incorrectos: {result.FailedActions}";
+                summaryLabel.text = $"{successfulActionsLabel}: {result.SuccessfulActions}\n{failedActionsLabel}: {result.FailedActions}";
             }
 
             if (returnButtonLabel != null)
