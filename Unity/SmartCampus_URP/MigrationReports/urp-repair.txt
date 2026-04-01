@@ -1,7 +1,0 @@
-﻿URP Repair
-Generated: 2026-03-27T18:34:14.3875851Z
-Materials reassigned to URP shaders: 0
-- none
-Scenes cleaned from missing HDRP scripts: 2
-- Assets/OutdoorsScene.unity :: reassigned 1 HDRP volume references
-- Assets/UJI.unity :: reassigned 3 HDRP volume references

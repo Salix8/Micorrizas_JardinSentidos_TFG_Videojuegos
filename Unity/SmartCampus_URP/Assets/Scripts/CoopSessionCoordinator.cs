@@ -141,16 +141,6 @@ public sealed class CoopSessionCoordinator : NetworkBehaviour
         return !string.IsNullOrWhiteSpace(miniGameSceneNames[miniGameIndex]);
     }
 
-    public string GetMiniGameSceneName(int miniGameIndex)
-    {
-        if (!IsMiniGameConfigured(miniGameIndex))
-        {
-            return string.Empty;
-        }
-
-        return miniGameSceneNames[miniGameIndex];
-    }
-
     public void ReturnToMainMap()
     {
         if (!IsServer)

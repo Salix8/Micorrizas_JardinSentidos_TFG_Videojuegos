@@ -1,9 +1,0 @@
-﻿URP Android Setup
-Generated: 2026-03-27T18:25:18.3228889Z
-GraphicsSettings.defaultRenderPipeline -> Assets/Settings/URPAndroid/SmartCampus_URP_High.asset
-QualitySettings -> Balanced
-PlayerSettings.colorSpace -> Linear
-PlayerSettings Android scripting backend -> IL2CPP
-PlayerSettings Android architectures -> ARM64
-PlayerSettings Android managed stripping -> Low
-Active build target -> Android

@@ -137,6 +137,19 @@ crashlytics-build.properties
 InitTestScene*.unity*
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
 
+############################
+# Project Generated Outputs
+############################
+
+/Unity/SmartCampus_URP/MigrationReports/
+/Documentos/**/.vscode/
+/Documentos/**/out/*.aux
+/Documentos/**/out/*.fdb_latexmk
+/Documentos/**/out/*.fls
+/Documentos/**/out/*.out
+/Documentos/**/out/*.synctex.gz
+/Documentos/**/out/*.xdv
+
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*

@@ -227,11 +227,6 @@ public sealed class RelayConnectionService : MonoBehaviour
         PublishStatus($"Loading co-op main map '{mainMapSceneName}' ({sceneLoadStatus}).");
     }
 
-    public void LoadGameplayScene()
-    {
-        LoadMainMapScene();
-    }
-
     public void ShutdownSession()
     {
         ShutdownNetworkIfNeeded();

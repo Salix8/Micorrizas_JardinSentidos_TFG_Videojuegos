@@ -1,5 +1,0 @@
-﻿ArcGIS URP Map Surface Setup
-Generated: 2026-03-27T19:14:47.3125559Z
-Created ArcGIS terrain material: Assets/Settings/URPAndroid/ArcGIS/SmartCampus_ArcGIS_Terrain_URP.mat
-Added ArcGISUrpMaterialOverrideController to ArcGISMap
-Saved ArcGIS surface override in Assets/UJI.unity
