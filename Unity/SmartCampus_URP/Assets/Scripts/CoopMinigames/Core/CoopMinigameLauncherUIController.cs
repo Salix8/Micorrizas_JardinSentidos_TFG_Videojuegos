@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
@@ -92,13 +93,17 @@ namespace SmartCampus.Coop.Minigames
 
         private void RefreshEntries()
         {
+            ResolveCoordinator();
+
             if (minigameCatalogConfig == null)
             {
                 return;
             }
 
             var isNetworkHost = coopSessionCoordinator != null && coopSessionCoordinator.IsSpawned && coopSessionCoordinator.IsServer;
-            var isLocalDebugLauncher = coopSessionCoordinator != null && !coopSessionCoordinator.IsSpawned;
+            var isLocalDebugLauncher = coopSessionCoordinator != null &&
+                                       !coopSessionCoordinator.IsSpawned &&
+                                       !HasActiveNetworkSession();
             var canLaunchFromCurrentContext = isNetworkHost || isLocalDebugLauncher;
             if (helperLabel != null)
             {
@@ -127,6 +132,8 @@ namespace SmartCampus.Coop.Minigames
 
         private void LaunchMinigame(int minigameIndex)
         {
+            ResolveCoordinator();
+
             if (coopSessionCoordinator == null)
             {
                 return;
@@ -138,11 +145,17 @@ namespace SmartCampus.Coop.Minigames
                 return;
             }
 
-            if (!coopSessionCoordinator.IsSpawned &&
+            if (!HasActiveNetworkSession() &&
+                !coopSessionCoordinator.IsSpawned &&
                 coopSessionCoordinator.TryGetMiniGameSceneName(minigameIndex, out var sceneName))
             {
                 SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
             }
+        }
+
+        private static bool HasActiveNetworkSession()
+        {
+            return NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening;
         }
     }
 }

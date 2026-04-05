@@ -73,7 +73,24 @@ public sealed class RelayConnectionService : MonoBehaviour
 
         if (persistAcrossScenes)
         {
-            DontDestroyOnLoad(gameObject);
+            PersistMultiplayerBootstrap();
+        }
+    }
+
+    private void PersistMultiplayerBootstrap()
+    {
+        DontDestroyOnLoad(gameObject);
+
+        if (networkManager != null)
+        {
+            DontDestroyOnLoad(networkManager.gameObject);
+        }
+
+        if (unityTransport != null &&
+            networkManager != null &&
+            unityTransport.gameObject != networkManager.gameObject)
+        {
+            DontDestroyOnLoad(unityTransport.gameObject);
         }
     }
 
