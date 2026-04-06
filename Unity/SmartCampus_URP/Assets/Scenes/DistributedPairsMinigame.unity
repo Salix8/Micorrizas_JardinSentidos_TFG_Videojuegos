@@ -1314,7 +1314,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SmartCampus.Coop.Minigames.DistributedPairs.DistributedPairsHandView
   cardRoot: {fileID: 649649237}
-  cardPrefab: {fileID: 0}
+  cardPrefab: {fileID: 5189353429959708868, guid: d8abf68867d296045ac92b4de365a621, type: 3}
   responsiveGridLayoutController: {fileID: 649649239}
 --- !u!114 &649649239
 MonoBehaviour:

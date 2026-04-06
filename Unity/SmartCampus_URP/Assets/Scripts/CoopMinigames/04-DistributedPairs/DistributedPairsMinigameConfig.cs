@@ -122,7 +122,7 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
                 frameColor = new Color(0.77f, 0.87f, 0.88f, 1f),
                 selectedFrameColor = new Color(0.95f, 0.69f, 0.22f, 1f),
                 frontTextColor = new Color(0.12f, 0.15f, 0.17f, 1f),
-                maxColumns = 4,
+                maxColumns = 2,
                 minCardSize = new Vector2(120f, 170f),
                 maxCardSize = new Vector2(240f, 330f),
                 cardAspectRatio = 0.72f

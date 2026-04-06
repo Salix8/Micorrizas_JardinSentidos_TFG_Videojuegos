@@ -16,6 +16,7 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
         [SerializeField] private DistributedPairsMinigameConfig distributedPairsMinigameConfig;
 
         private readonly NetworkList<DistributedPairsCardNetworkState> cardStates = new();
+        private readonly NetworkList<int> pendingMismatchCardInstanceIds = new();
         private readonly NetworkVariable<int> matchedPairCount = new();
         private readonly NetworkVariable<int> failedAttemptCount = new();
         private readonly NetworkVariable<int> totalPairCount = new();
@@ -27,6 +28,7 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
         public int FailedAttemptCount => failedAttemptCount.Value;
         public int TotalPairCount => totalPairCount.Value;
         public string SharedStatusMessage => sharedStatusMessage.Value.ToString();
+        public bool HasPendingMismatch => pendingMismatchCardInstanceIds.Count > 0;
 
         public event Action StateChanged;
 
@@ -38,6 +40,7 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
         public override void OnNetworkSpawn()
         {
             cardStates.OnListChanged += HandleCardStatesChanged;
+            pendingMismatchCardInstanceIds.OnListChanged += HandlePendingMismatchChanged;
             matchedPairCount.OnValueChanged += HandleSimpleStateChanged;
             failedAttemptCount.OnValueChanged += HandleSimpleStateChanged;
             totalPairCount.OnValueChanged += HandleSimpleStateChanged;
@@ -50,6 +53,7 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
         public override void OnNetworkDespawn()
         {
             cardStates.OnListChanged -= HandleCardStatesChanged;
+            pendingMismatchCardInstanceIds.OnListChanged -= HandlePendingMismatchChanged;
             matchedPairCount.OnValueChanged -= HandleSimpleStateChanged;
             failedAttemptCount.OnValueChanged -= HandleSimpleStateChanged;
             totalPairCount.OnValueChanged -= HandleSimpleStateChanged;
@@ -99,6 +103,16 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
             return null;
         }
 
+        public int GetDrawPileCount()
+        {
+            return CountCardsInZone(DistributedPairsCardZone.DrawPile);
+        }
+
+        public int GetDiscardPileCount()
+        {
+            return CountCardsInZone(DistributedPairsCardZone.Discarded);
+        }
+
         public DistributedPairDefinition GetPairDefinition(int pairId)
         {
             return distributedPairsMinigameConfig == null ? null : distributedPairsMinigameConfig.GetPairDefinition(pairId);
@@ -111,6 +125,12 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
                 return;
             }
 
+            if (HasPendingMismatch)
+            {
+                TryAcknowledgePendingMismatch();
+                return;
+            }
+
             if (IsServer)
             {
                 HandleToggleSelectionServer(cardInstanceId, GetLocalClientId());
@@ -120,9 +140,26 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
             ToggleSelectionServerRpc(cardInstanceId);
         }
 
+        public void TryAcknowledgePendingMismatch()
+        {
+            if (Stage != CooperativeMinigameStage.Playing || !HasPendingMismatch)
+            {
+                return;
+            }
+
+            if (IsServer)
+            {
+                ClearPendingMismatchServer();
+                return;
+            }
+
+            AcknowledgePendingMismatchServerRpc();
+        }
+
         protected override void InitializeMinigameServer()
         {
             assignmentSeed = Environment.TickCount;
+            pendingMismatchCardInstanceIds.Clear();
             matchedPairCount.Value = 0;
             failedAttemptCount.Value = 0;
             totalPairCount.Value = distributedPairsMinigameConfig == null ? 0 : distributedPairsMinigameConfig.ActivePairCount;
@@ -187,10 +224,22 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
             HandleToggleSelectionServer(cardInstanceId, rpcParams.Receive.SenderClientId);
         }
 
+        [Rpc(SendTo.Server)]
+        private void AcknowledgePendingMismatchServerRpc(RpcParams rpcParams = default)
+        {
+            ClearPendingMismatchServer();
+        }
+
         private void HandleToggleSelectionServer(int cardInstanceId, ulong senderClientId)
         {
             if (!IsServer || Stage != CooperativeMinigameStage.Playing)
             {
+                return;
+            }
+
+            if (HasPendingMismatch)
+            {
+                ClearPendingMismatchServer();
                 return;
             }
 
@@ -252,6 +301,7 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
 
             if (firstCard.PairId == secondCard.PairId)
             {
+                pendingMismatchCardInstanceIds.Clear();
                 MoveCardToDiscard(firstIndex);
                 MoveCardToDiscard(secondIndex);
                 matchedPairCount.Value += 1;
@@ -269,12 +319,11 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
                 return;
             }
 
-            firstCard.IsSelected = false;
-            secondCard.IsSelected = false;
-            cardStates[firstIndex] = firstCard;
-            cardStates[secondIndex] = secondCard;
+            pendingMismatchCardInstanceIds.Clear();
+            pendingMismatchCardInstanceIds.Add(firstCard.CardInstanceId);
+            pendingMismatchCardInstanceIds.Add(secondCard.CardInstanceId);
             failedAttemptCount.Value += 1;
-            sharedStatusMessage.Value = new FixedString128Bytes("Las cartas no coinciden. Intentalo de nuevo.");
+            sharedStatusMessage.Value = new FixedString128Bytes("Las cartas no coinciden. Toca la pantalla para girarlas de nuevo.");
         }
 
         private void MoveCardToDiscard(int cardIndex)
@@ -459,6 +508,12 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
 
         private void UpdateSharedStatusForSelectionCount()
         {
+            if (HasPendingMismatch)
+            {
+                sharedStatusMessage.Value = new FixedString128Bytes("Las cartas no coinciden. Toca la pantalla para girarlas de nuevo.");
+                return;
+            }
+
             var selectionCount = 0;
             for (var index = 0; index < cardStates.Count; index++)
             {
@@ -476,7 +531,55 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
             };
         }
 
+        private void ClearPendingMismatchServer()
+        {
+            if (!IsServer || pendingMismatchCardInstanceIds.Count == 0)
+            {
+                return;
+            }
+
+            for (var pendingIndex = 0; pendingIndex < pendingMismatchCardInstanceIds.Count; pendingIndex++)
+            {
+                var cardIndex = FindCardStateIndex(pendingMismatchCardInstanceIds[pendingIndex]);
+                if (cardIndex < 0)
+                {
+                    continue;
+                }
+
+                var state = cardStates[cardIndex];
+                if (state.Zone != DistributedPairsCardZone.Hand)
+                {
+                    continue;
+                }
+
+                state.IsSelected = false;
+                cardStates[cardIndex] = state;
+            }
+
+            pendingMismatchCardInstanceIds.Clear();
+            UpdateSharedStatusForSelectionCount();
+        }
+
+        private int CountCardsInZone(DistributedPairsCardZone zone)
+        {
+            var count = 0;
+            for (var index = 0; index < cardStates.Count; index++)
+            {
+                if (cardStates[index].Zone == zone)
+                {
+                    count++;
+                }
+            }
+
+            return count;
+        }
+
         private void HandleCardStatesChanged(NetworkListEvent<DistributedPairsCardNetworkState> _)
+        {
+            StateChanged?.Invoke();
+        }
+
+        private void HandlePendingMismatchChanged(NetworkListEvent<int> _)
         {
             StateChanged?.Invoke();
         }

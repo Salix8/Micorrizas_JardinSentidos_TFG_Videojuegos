@@ -98,6 +98,7 @@ public static class DistributedPairsMinigameSetup
         serializedObject.FindProperty("returnToMapButtonLabel").stringValue = "Volver al mapa";
         serializedObject.FindProperty("cardsPerDevice").intValue = 4;
         serializedObject.FindProperty("pairsToUse").intValue = 10;
+        serializedObject.FindProperty("cardVisualSettings").FindPropertyRelative("maxColumns").intValue = 2;
 
         var pairDefinitions = serializedObject.FindProperty("pairDefinitions");
         pairDefinitions.arraySize = 10;

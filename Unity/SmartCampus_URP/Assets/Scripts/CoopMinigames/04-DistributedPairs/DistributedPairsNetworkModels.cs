@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Unity.Netcode;
 
 namespace SmartCampus.Coop.Minigames.DistributedPairs
@@ -49,6 +50,61 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
         public override int GetHashCode()
         {
             return HashCode.Combine(CardInstanceId, PairId, OwnerClientId, IsSelected, HandOrder, (int)Zone);
+        }
+    }
+
+    public readonly struct DistributedPairsHandSlotModel
+    {
+        public DistributedPairsHandSlotModel(int slotIndex, bool hasCard, DistributedPairsCardNetworkState cardState = default)
+        {
+            SlotIndex = slotIndex;
+            HasCard = hasCard;
+            CardState = cardState;
+        }
+
+        public int SlotIndex { get; }
+        public bool HasCard { get; }
+        public DistributedPairsCardNetworkState CardState { get; }
+    }
+
+    public static class DistributedPairsHandSlotService
+    {
+        public static IReadOnlyList<DistributedPairsHandSlotModel> BuildSlots(IReadOnlyList<DistributedPairsCardNetworkState> handStates, int slotCount)
+        {
+            var orderedSlots = new DistributedPairsHandSlotModel[slotCount];
+            var nextFallbackSlot = 0;
+
+            for (var index = 0; index < handStates.Count; index++)
+            {
+                var state = handStates[index];
+                var targetSlot = state.HandOrder;
+                if (targetSlot < 0 || targetSlot >= slotCount || orderedSlots[targetSlot].HasCard)
+                {
+                    while (nextFallbackSlot < slotCount && orderedSlots[nextFallbackSlot].HasCard)
+                    {
+                        nextFallbackSlot++;
+                    }
+
+                    targetSlot = nextFallbackSlot;
+                }
+
+                if (targetSlot < 0 || targetSlot >= slotCount)
+                {
+                    continue;
+                }
+
+                orderedSlots[targetSlot] = new DistributedPairsHandSlotModel(targetSlot, hasCard: true, state);
+            }
+
+            for (var slotIndex = 0; slotIndex < slotCount; slotIndex++)
+            {
+                if (!orderedSlots[slotIndex].HasCard)
+                {
+                    orderedSlots[slotIndex] = new DistributedPairsHandSlotModel(slotIndex, hasCard: false);
+                }
+            }
+
+            return orderedSlots;
         }
     }
 }

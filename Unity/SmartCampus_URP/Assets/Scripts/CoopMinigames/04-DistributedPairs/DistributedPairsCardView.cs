@@ -18,6 +18,12 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
         [SerializeField] private Image backFaceBackground;
         [SerializeField] private Text backFaceLabel;
 
+        private RectTransform cachedRectTransform;
+
+        public RectTransform RectTransform => cachedRectTransform != null
+            ? cachedRectTransform
+            : cachedRectTransform = GetComponent<RectTransform>();
+
         public void Bind(
             DistributedPairsCardNetworkState state,
             DistributedPairDefinition pairDefinition,
@@ -86,6 +92,63 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
                 {
                     selectionButton.onClick.AddListener(() => onSelected(state.CardInstanceId));
                 }
+            }
+        }
+
+        public void BindEmptySlot(DistributedPairsCardVisualSettings visualSettings, int slotIndex)
+        {
+            if (frameImage != null)
+            {
+                var emptyFrameColor = visualSettings.FrameColor;
+                emptyFrameColor.a = 0.28f;
+                frameImage.color = emptyFrameColor;
+            }
+
+            if (frontFaceRoot != null)
+            {
+                frontFaceRoot.SetActive(false);
+            }
+
+            if (backFaceRoot != null)
+            {
+                backFaceRoot.SetActive(true);
+            }
+
+            if (backFaceBackground != null)
+            {
+                var emptyBackColor = visualSettings.BackColor;
+                emptyBackColor.a = 0.16f;
+                backFaceBackground.color = emptyBackColor;
+            }
+
+            if (backFaceLabel != null)
+            {
+                backFaceLabel.text = string.Empty;
+                var emptyTextColor = visualSettings.BackTextColor;
+                emptyTextColor.a = 0.45f;
+                backFaceLabel.color = emptyTextColor;
+            }
+
+            if (selectionButton != null)
+            {
+                selectionButton.onClick.RemoveAllListeners();
+                selectionButton.interactable = false;
+            }
+
+            if (titleLabel != null)
+            {
+                titleLabel.text = string.Empty;
+            }
+
+            if (descriptionLabel != null)
+            {
+                descriptionLabel.text = string.Empty;
+            }
+
+            if (illustrationImage != null)
+            {
+                illustrationImage.sprite = null;
+                illustrationImage.gameObject.SetActive(false);
             }
         }
     }

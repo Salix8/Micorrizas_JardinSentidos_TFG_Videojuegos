@@ -13,6 +13,11 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
         [SerializeField] private Text progressLabel;
         [SerializeField] private Text sharedStatusLabel;
         [SerializeField] private Text localSelectionLabel;
+        [SerializeField] private RectTransform drawPileAnchor;
+        [SerializeField] private Text drawPileCountLabel;
+        [SerializeField] private Text discardPileCountLabel;
+        [SerializeField] private Button mismatchResetButton;
+        [SerializeField] private Text mismatchResetLabel;
 
         private DistributedPairsMinigameSession TypedSession => distributedPairsMinigameSession != null
             ? distributedPairsMinigameSession
@@ -21,6 +26,7 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
         protected override void Awake()
         {
             distributedPairsMinigameSession ??= FindFirstObjectByType<DistributedPairsMinigameSession>(FindObjectsInactive.Include);
+            EnsureRuntimeHud();
             base.Awake();
         }
 
@@ -32,6 +38,8 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
                 TypedSession.StateChanged += HandleStateChanged;
             }
 
+            EnsureRuntimeHud();
+            BindRuntimeHud();
             base.OnEnable();
         }
 
@@ -40,6 +48,11 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
             if (TypedSession != null)
             {
                 TypedSession.StateChanged -= HandleStateChanged;
+            }
+
+            if (mismatchResetButton != null)
+            {
+                mismatchResetButton.onClick.RemoveListener(HandleMismatchResetRequested);
             }
 
             base.OnDisable();
@@ -86,24 +99,202 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
             if (localSelectionLabel != null)
             {
                 var localSelectedCard = TypedSession.GetLocalSelectedCard();
-                localSelectionLabel.text = localSelectedCard.HasValue
-                    ? $"Carta activa: {config.GetPairDefinition(localSelectedCard.Value.PairId)?.Title}"
-                    : "Solo puedes tener una carta activa. Si tocas otra, sustituye la seleccion actual.";
+                if (TypedSession.HasPendingMismatch)
+                {
+                    localSelectionLabel.text = "El intento no coincide. Toca la pantalla para girar ambas cartas y seguir jugando.";
+                }
+                else
+                {
+                    localSelectionLabel.text = localSelectedCard.HasValue
+                        ? $"Carta activa: {config.GetPairDefinition(localSelectedCard.Value.PairId)?.Title}"
+                        : "Solo puedes tener una carta activa. Espera a que otro dispositivo revele la segunda carta.";
+                }
             }
 
             if (localHandView != null)
             {
+                localHandView.SetDrawPileAnchor(drawPileAnchor);
                 localHandView.Render(
                     TypedSession.GetLocalHandStates(),
                     config,
-                    TypedSession.Stage == CooperativeMinigameStage.Playing,
+                    TypedSession.Stage == CooperativeMinigameStage.Playing && !TypedSession.HasPendingMismatch,
                     TypedSession.TryToggleLocalCardSelection);
+            }
+
+            if (drawPileCountLabel != null)
+            {
+                drawPileCountLabel.text = $"Mazo\n{TypedSession.GetDrawPileCount()}";
+            }
+
+            if (discardPileCountLabel != null)
+            {
+                discardPileCountLabel.text = $"Descartes\n{TypedSession.GetDiscardPileCount()}";
+            }
+
+            if (mismatchResetButton != null)
+            {
+                mismatchResetButton.gameObject.SetActive(TypedSession.Stage == CooperativeMinigameStage.Playing && TypedSession.HasPendingMismatch);
             }
         }
 
         private void HandleStateChanged()
         {
             RefreshGameplay();
+        }
+
+        private void HandleMismatchResetRequested()
+        {
+            TypedSession?.TryAcknowledgePendingMismatch();
+        }
+
+        private void BindRuntimeHud()
+        {
+            if (mismatchResetButton != null)
+            {
+                mismatchResetButton.onClick.RemoveListener(HandleMismatchResetRequested);
+                mismatchResetButton.onClick.AddListener(HandleMismatchResetRequested);
+            }
+        }
+
+        private void EnsureRuntimeHud()
+        {
+            if (drawPileCountLabel != null && discardPileCountLabel != null && mismatchResetButton != null && drawPileAnchor != null)
+            {
+                return;
+            }
+
+            var rootRect = transform as RectTransform;
+            if (rootRect == null)
+            {
+                return;
+            }
+
+            var font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+
+            if (drawPileCountLabel == null || discardPileCountLabel == null || drawPileAnchor == null)
+            {
+                var pileHudRoot = CreateUiObject("RuntimePileHud", rootRect, typeof(Image));
+                var pileHudRect = pileHudRoot.GetComponent<RectTransform>();
+                pileHudRect.anchorMin = new Vector2(1f, 1f);
+                pileHudRect.anchorMax = new Vector2(1f, 1f);
+                pileHudRect.pivot = new Vector2(1f, 1f);
+                pileHudRect.anchoredPosition = new Vector2(-40f, -44f);
+                pileHudRect.sizeDelta = new Vector2(260f, 150f);
+
+                var pileHudImage = pileHudRoot.GetComponent<Image>();
+                pileHudImage.color = new Color(0.12f, 0.17f, 0.21f, 0.18f);
+                pileHudImage.raycastTarget = false;
+
+                var deckPanel = CreatePilePanel("DeckPanel", pileHudRoot.transform, font, "Mazo");
+                var deckRect = deckPanel.GetComponent<RectTransform>();
+                deckRect.anchorMin = new Vector2(0f, 0f);
+                deckRect.anchorMax = new Vector2(0.48f, 1f);
+                deckRect.offsetMin = new Vector2(0f, 0f);
+                deckRect.offsetMax = new Vector2(-8f, 0f);
+
+                var discardPanel = CreatePilePanel("DiscardPanel", pileHudRoot.transform, font, "Descartes");
+                var discardRect = discardPanel.GetComponent<RectTransform>();
+                discardRect.anchorMin = new Vector2(0.52f, 0f);
+                discardRect.anchorMax = new Vector2(1f, 1f);
+                discardRect.offsetMin = new Vector2(8f, 0f);
+                discardRect.offsetMax = new Vector2(0f, 0f);
+
+                drawPileAnchor = deckPanel.transform.Find("CardAnchor") as RectTransform;
+                drawPileCountLabel = deckPanel.transform.Find("CountLabel")?.GetComponent<Text>();
+                discardPileCountLabel = discardPanel.transform.Find("CountLabel")?.GetComponent<Text>();
+            }
+
+            if (mismatchResetButton == null)
+            {
+                var overlay = CreateUiObject("MismatchResetOverlay", rootRect, typeof(Image), typeof(Button));
+                var overlayRect = overlay.GetComponent<RectTransform>();
+                overlayRect.anchorMin = Vector2.zero;
+                overlayRect.anchorMax = Vector2.one;
+                overlayRect.offsetMin = Vector2.zero;
+                overlayRect.offsetMax = Vector2.zero;
+
+                var overlayImage = overlay.GetComponent<Image>();
+                overlayImage.color = new Color(0f, 0f, 0f, 0.22f);
+
+                mismatchResetButton = overlay.GetComponent<Button>();
+                mismatchResetButton.targetGraphic = overlayImage;
+
+                mismatchResetLabel = CreateText("Label", overlay.transform, font, "No coinciden. Toca para girarlas de nuevo.", 26, TextAnchor.MiddleCenter);
+                var labelRect = mismatchResetLabel.rectTransform;
+                labelRect.anchorMin = new Vector2(0.5f, 0.5f);
+                labelRect.anchorMax = new Vector2(0.5f, 0.5f);
+                labelRect.pivot = new Vector2(0.5f, 0.5f);
+                labelRect.sizeDelta = new Vector2(760f, 180f);
+                mismatchResetLabel.color = Color.white;
+                mismatchResetButton.gameObject.SetActive(false);
+            }
+        }
+
+        private static GameObject CreatePilePanel(string name, Transform parent, Font font, string title)
+        {
+            var panel = CreateUiObject(name, parent, typeof(Image));
+            var image = panel.GetComponent<Image>();
+            image.color = new Color(1f, 1f, 1f, 0.75f);
+            image.raycastTarget = false;
+
+            var cardAnchor = CreateUiObject("CardAnchor", panel.transform, typeof(Image));
+            var cardAnchorRect = cardAnchor.GetComponent<RectTransform>();
+            cardAnchorRect.anchorMin = new Vector2(0.5f, 1f);
+            cardAnchorRect.anchorMax = new Vector2(0.5f, 1f);
+            cardAnchorRect.pivot = new Vector2(0.5f, 1f);
+            cardAnchorRect.anchoredPosition = new Vector2(0f, -16f);
+            cardAnchorRect.sizeDelta = new Vector2(72f, 104f);
+            var cardAnchorImage = cardAnchor.GetComponent<Image>();
+            cardAnchorImage.color = new Color(0.16f, 0.29f, 0.35f, 1f);
+            cardAnchorImage.raycastTarget = false;
+
+            var titleLabel = CreateText("TitleLabel", panel.transform, font, title, 18, TextAnchor.MiddleCenter);
+            var titleRect = titleLabel.rectTransform;
+            titleRect.anchorMin = new Vector2(0.5f, 1f);
+            titleRect.anchorMax = new Vector2(0.5f, 1f);
+            titleRect.pivot = new Vector2(0.5f, 1f);
+            titleRect.anchoredPosition = new Vector2(0f, -126f);
+            titleRect.sizeDelta = new Vector2(110f, 24f);
+
+            var countLabel = CreateText("CountLabel", panel.transform, font, $"{title}\n0", 22, TextAnchor.UpperCenter);
+            var countRect = countLabel.rectTransform;
+            countRect.anchorMin = new Vector2(0.5f, 0f);
+            countRect.anchorMax = new Vector2(0.5f, 0f);
+            countRect.pivot = new Vector2(0.5f, 0f);
+            countRect.anchoredPosition = new Vector2(0f, 12f);
+            countRect.sizeDelta = new Vector2(120f, 54f);
+
+            return panel;
+        }
+
+        private static GameObject CreateUiObject(string name, Transform parent, params System.Type[] components)
+        {
+            var objectComponents = new System.Type[components.Length + 1];
+            objectComponents[0] = typeof(RectTransform);
+            for (var index = 0; index < components.Length; index++)
+            {
+                objectComponents[index + 1] = components[index];
+            }
+
+            var gameObject = new GameObject(name, objectComponents);
+            gameObject.layer = 5;
+            gameObject.transform.SetParent(parent, false);
+            return gameObject;
+        }
+
+        private static Text CreateText(string name, Transform parent, Font font, string value, int fontSize, TextAnchor alignment)
+        {
+            var textObject = CreateUiObject(name, parent, typeof(Text));
+            var text = textObject.GetComponent<Text>();
+            text.font = font;
+            text.text = value;
+            text.fontSize = fontSize;
+            text.alignment = alignment;
+            text.color = new Color(0.12f, 0.15f, 0.17f, 1f);
+            text.horizontalOverflow = HorizontalWrapMode.Wrap;
+            text.verticalOverflow = VerticalWrapMode.Overflow;
+            text.raycastTarget = false;
+            return text;
         }
     }
 }

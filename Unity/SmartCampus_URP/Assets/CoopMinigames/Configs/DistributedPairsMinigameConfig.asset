@@ -71,7 +71,7 @@ MonoBehaviour:
     frameColor: {r: 0.77, g: 0.87, b: 0.88, a: 1}
     selectedFrameColor: {r: 0.95, g: 0.69, b: 0.22, a: 1}
     frontTextColor: {r: 0.12, g: 0.15, b: 0.17, a: 1}
-    maxColumns: 4
+    maxColumns: 2
     minCardSize: {x: 120, y: 170}
     maxCardSize: {x: 240, y: 330}
     cardAspectRatio: 0.72
