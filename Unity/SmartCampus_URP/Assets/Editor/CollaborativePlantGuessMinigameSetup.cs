@@ -91,7 +91,8 @@ public static class CollaborativePlantGuessMinigameSetup
             "Todo el grupo intenta descubrir la planta objetivo.\n\n" +
             "Escribe una planta del CSV con ayuda del autocompletado. Puedes buscar por nombre comun, cientifico o sinonimos y cada intento aparece en todos los dispositivos con pistas de color por atributo.\n\n" +
             "Verde significa acierto, naranja significa casi y rojo significa fallo. El mismo dispositivo no puede enviar dos intentos seguidos.\n\n" +
-            "La rugosidad y la categoria del fruto aparecen desde el principio. El tipo de hoja se revela en el intento 3, el detalle del fruto en el 5 y el tipo de planta en el 7.";
+            "Las pistas aparecen en este orden: rugosidad, tipo de hoja, categoria del fruto, tipo de fruto, hoja perenne o caduca y tipo de planta.\n\n" +
+            "El tipo de fruto se desbloquea en el intento 2, la persistencia de la hoja en el 4 y el tipo de planta en el 6.";
         serializedObject.ApplyModifiedPropertiesWithoutUndo();
         EditorUtility.SetDirty(asset);
         return asset;
@@ -116,9 +117,11 @@ public static class CollaborativePlantGuessMinigameSetup
         serializedObject.FindProperty("maxSupportedDevices").intValue = 6;
         serializedObject.FindProperty("timeLimitSeconds").floatValue = 180f;
         serializedObject.FindProperty("maxAttempts").intValue = 8;
-        serializedObject.FindProperty("leafTypeRevealAttempt").intValue = 3;
-        serializedObject.FindProperty("fruitDetailRevealAttempt").intValue = 5;
-        serializedObject.FindProperty("plantTypeRevealAttempt").intValue = 7;
+        serializedObject.FindProperty("leafTypeRevealAttempt").intValue = 1;
+        serializedObject.FindProperty("fruitDetailRevealAttempt").intValue = 2;
+        serializedObject.FindProperty("leafPersistenceRevealAttempt").intValue = 4;
+        serializedObject.FindProperty("plantTypeRevealAttempt").intValue = 6;
+        serializedObject.FindProperty("victoryRevealDelaySeconds").floatValue = 1.2f;
         serializedObject.FindProperty("autocompleteSuggestionCount").intValue = 6;
         serializedObject.FindProperty("timeoutMessage").stringValue = "Tiempo agotado";
         serializedObject.FindProperty("attemptsExhaustedMessage").stringValue = "Intentos agotados";
@@ -397,19 +400,21 @@ public static class CollaborativePlantGuessMinigameSetup
 
         var comparisonsRow = CreateUiObject("ComparisonsRow", root.transform, typeof(HorizontalLayoutGroup));
         var comparisonsRowLayoutElement = comparisonsRow.AddComponent<LayoutElement>();
-        comparisonsRowLayoutElement.minWidth = 760f;
+        comparisonsRowLayoutElement.minWidth = 720f;
         comparisonsRowLayoutElement.flexibleWidth = 1f;
         var comparisonsLayout = comparisonsRow.GetComponent<HorizontalLayoutGroup>();
-        comparisonsLayout.spacing = 12f;
+        comparisonsLayout.spacing = 8f;
         comparisonsLayout.childControlHeight = true;
         comparisonsLayout.childControlWidth = true;
         comparisonsLayout.childForceExpandWidth = true;
         comparisonsLayout.childForceExpandHeight = false;
 
-        var plantTypeCell = CreateComparisonCell("Tipo de planta", comparisonsRow.transform, font, "?", config.VisualSettings.NeutralCellColor);
         var surfaceRoughnessCell = CreateComparisonCell("Rugosidad", comparisonsRow.transform, font, "Media", config.VisualSettings.NeutralCellColor);
-        var leafTypeCell = CreateComparisonCell("Tipo de hoja", comparisonsRow.transform, font, "?", config.VisualSettings.NeutralCellColor);
-        var fruitCell = CreateComparisonCell("Fruto", comparisonsRow.transform, font, "Carnoso", config.VisualSettings.NeutralCellColor);
+        var leafTypeCell = CreateComparisonCell("Tipo de hoja", comparisonsRow.transform, font, "Lanceolada", config.VisualSettings.NeutralCellColor);
+        var fruitCategoryCell = CreateComparisonCell("Categoria del fruto", comparisonsRow.transform, font, "Carnoso", config.VisualSettings.NeutralCellColor);
+        var fruitTypeCell = CreateComparisonCell("Tipo de fruto", comparisonsRow.transform, font, "?", config.VisualSettings.NeutralCellColor);
+        var leafPersistenceCell = CreateComparisonCell("Hoja perenne/caduca", comparisonsRow.transform, font, "?", config.VisualSettings.NeutralCellColor);
+        var plantTypeCell = CreateComparisonCell("Tipo de planta", comparisonsRow.transform, font, "?", config.VisualSettings.NeutralCellColor);
 
         var rowView = root.AddComponent<CollaborativePlantGuessHistoryRowView>();
         var serializedRowView = new SerializedObject(rowView);
@@ -421,10 +426,14 @@ public static class CollaborativePlantGuessMinigameSetup
         serializedRowView.FindProperty("plantTypeLabel").objectReferenceValue = plantTypeCell.ValueLabel;
         serializedRowView.FindProperty("surfaceRoughnessCell").objectReferenceValue = surfaceRoughnessCell.RootImage;
         serializedRowView.FindProperty("surfaceRoughnessLabel").objectReferenceValue = surfaceRoughnessCell.ValueLabel;
+        serializedRowView.FindProperty("leafPersistenceCell").objectReferenceValue = leafPersistenceCell.RootImage;
+        serializedRowView.FindProperty("leafPersistenceLabel").objectReferenceValue = leafPersistenceCell.ValueLabel;
         serializedRowView.FindProperty("leafTypeCell").objectReferenceValue = leafTypeCell.RootImage;
         serializedRowView.FindProperty("leafTypeLabel").objectReferenceValue = leafTypeCell.ValueLabel;
-        serializedRowView.FindProperty("fruitCell").objectReferenceValue = fruitCell.RootImage;
-        serializedRowView.FindProperty("fruitLabel").objectReferenceValue = fruitCell.ValueLabel;
+        serializedRowView.FindProperty("fruitCategoryCell").objectReferenceValue = fruitCategoryCell.RootImage;
+        serializedRowView.FindProperty("fruitCategoryLabel").objectReferenceValue = fruitCategoryCell.ValueLabel;
+        serializedRowView.FindProperty("fruitTypeCell").objectReferenceValue = fruitTypeCell.RootImage;
+        serializedRowView.FindProperty("fruitTypeLabel").objectReferenceValue = fruitTypeCell.ValueLabel;
         serializedRowView.ApplyModifiedPropertiesWithoutUndo();
         return rowView;
     }
@@ -622,18 +631,18 @@ public static class CollaborativePlantGuessMinigameSetup
     private static string BuildCsvTemplate()
     {
         return
-            "plantId,commonName,scientificName,synonyms,imagePath,plantType,surfaceRoughness,surfaceRoughnessOrder,leafType,fruitCategory,fruitType\n" +
-            "adelfa_baladre,Adelfa / baladre,Nerium oleander,Adelfa|Baladre|Nerium oleander,,Arbusto,Media,3,Lanceolada,Seco,Foliculo\n" +
-            "acebo,Acebo,Ilex aquifolium,Acebo|Ilex aquifolium,,Arbusto,Rugosa,4,Coriacea,Carnoso,Baya\n" +
-            "palmito_margallo,Palmito / margallo,Chamaerops humilis,Palmito|Margallo|Margallo|Chamaerops humilis,,Palmera,Aspera,4,Palmada,Carnoso,Drupa\n" +
-            "olivo,Olivo,Olea europaea,Olivo|Olea europaea,,Arbol,Media,3,Lanceolada,Carnoso,Drupa\n" +
-            "encina,Encina,Quercus ilex,Encina|Carrasca|Quercus ilex,,Arbol,Rugosa,4,Coriacea,Seco,Bellota\n" +
-            "hiedra_enredadera,Hiedra / enredadera,Hedera helix,Hiedra|Enredadera|Enredaderas|Hedera helix,,Trepadora,Media,3,Lobulada,Carnoso,Baya\n" +
-            "garrofera_algarrobo,Garrofera / algarrobo,Ceratonia siliqua,Garrofera|Algarrobo|Ceratonia siliqua,,Arbol,Media,3,Compuesta,Seco,Legumbre\n" +
-            "madrono,Madrono,Arbutus unedo,Madrono|Arbutus unedo,,Arbusto,Media,3,Aserrada,Carnoso,Baya\n" +
-            "alcornoque_surera,Alcornoque / surera,Quercus suber,Alcornoque|Surera|Quercus suber,,Arbol,Muy rugosa,5,Coriacea,Seco,Bellota\n" +
-            "pino_carrasco,Pino carrasco,Pinus halepensis,Pino carrasco|Pinus halepensis,,Arbol,Rugosa,4,Acicular,Seco,Pina\n" +
-            "chumbera_figa_palera,Chumbera / figa palera,Opuntia ficus-indica,Chumbera|Figa palera|Nopal|Opuntia ficus-indica,,Suculenta,Media,3,Carnosa,Carnoso,Baya\n";
+            "plantId,commonName,scientificName,synonyms,imagePath,surfaceRoughness,leafType,fruitCategory,fruitType,leafPersistence,plantType\n" +
+            "adelfa_baladre,Adelfa / baladre,Nerium oleander,Adelfa|Baladre|Nerium oleander,,Media,Lanceolada,Seco,Foliculo,Perenne,Arbusto\n" +
+            "acebo,Acebo,Ilex aquifolium,Acebo|Ilex aquifolium,,Rugosa,Coriacea,Carnoso,Baya,Perenne,Arbusto\n" +
+            "palmito_margallo,Palmito / margallo,Chamaerops humilis,Palmito|Margallo|Chamaerops humilis,,Aspera,Palmada,Carnoso,Drupa,Perenne,Palmera\n" +
+            "olivo,Olivo,Olea europaea,Olivo|Olea europaea,,Media,Lanceolada,Carnoso,Drupa,Perenne,Arbol\n" +
+            "encina,Encina,Quercus ilex,Encina|Carrasca|Quercus ilex,,Rugosa,Coriacea,Seco,Bellota,Perenne,Arbol\n" +
+            "hiedra_enredadera,Hiedra / enredadera,Hedera helix,Hiedra|Enredadera|Enredaderas|Hedera helix,,Media,Lobulada,Carnoso,Baya,Perenne,Trepadora\n" +
+            "garrofera_algarrobo,Garrofera / algarrobo,Ceratonia siliqua,Garrofera|Algarrobo|Ceratonia siliqua,,Media,Compuesta,Seco,Legumbre,Perenne,Arbol\n" +
+            "madrono,Madrono,Arbutus unedo,Madrono|Arbutus unedo,,Media,Aserrada,Carnoso,Baya,Perenne,Arbusto\n" +
+            "alcornoque_surera,Alcornoque / surera,Quercus suber,Alcornoque|Surera|Quercus suber,,Muy rugosa,Coriacea,Seco,Bellota,Perenne,Arbol\n" +
+            "pino_carrasco,Pino carrasco,Pinus halepensis,Pino carrasco|Pinus halepensis,,Rugosa,Acicular,Seco,Pina,Perenne,Arbol\n" +
+            "chumbera_figa_palera,Chumbera / figa palera,Opuntia ficus-indica,Chumbera|Figa palera|Nopal|Opuntia ficus-indica,,Media,Carnosa,Carnoso,Baya,Perenne,Suculenta\n";
     }
 
     private static Canvas CreateCanvas(string name)

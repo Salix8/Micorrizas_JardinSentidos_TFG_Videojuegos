@@ -8,7 +8,7 @@ namespace SmartCampus.Coop.Minigames.GardenImageVoting
     public sealed class GardenImageVotingMinigameConfig : CooperativeMinigameConfigBase
     {
         [Header("Dataset")]
-        [SerializeField] private string csvRelativePath = "CoopMinigames/GardenImageVotingCards.csv";
+        [SerializeField] private string csvRelativePath = "CoopMinigames/01-GardenImagenVotingCards/GardenImageVotingCards.csv";
         [SerializeField] [Min(1)] private int cardsPerDevice = 5;
         [SerializeField] [Min(1)] private int maxSupportedDevices = 6;
         [SerializeField] private bool allowRepeatedImagesAcrossDevices = true;

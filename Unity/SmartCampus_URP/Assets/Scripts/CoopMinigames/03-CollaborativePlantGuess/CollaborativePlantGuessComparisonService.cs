@@ -15,21 +15,27 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             bool isExactPlantMatch,
             CollaborativePlantGuessComparisonOutcome plantTypeOutcome,
             CollaborativePlantGuessComparisonOutcome surfaceRoughnessOutcome,
+            CollaborativePlantGuessComparisonOutcome leafPersistenceOutcome,
             CollaborativePlantGuessComparisonOutcome leafTypeOutcome,
-            CollaborativePlantGuessComparisonOutcome fruitOutcome)
+            CollaborativePlantGuessComparisonOutcome fruitCategoryOutcome,
+            CollaborativePlantGuessComparisonOutcome fruitTypeOutcome)
         {
             IsExactPlantMatch = isExactPlantMatch;
             PlantTypeOutcome = plantTypeOutcome;
             SurfaceRoughnessOutcome = surfaceRoughnessOutcome;
+            LeafPersistenceOutcome = leafPersistenceOutcome;
             LeafTypeOutcome = leafTypeOutcome;
-            FruitOutcome = fruitOutcome;
+            FruitCategoryOutcome = fruitCategoryOutcome;
+            FruitTypeOutcome = fruitTypeOutcome;
         }
 
         public bool IsExactPlantMatch { get; }
         public CollaborativePlantGuessComparisonOutcome PlantTypeOutcome { get; }
         public CollaborativePlantGuessComparisonOutcome SurfaceRoughnessOutcome { get; }
+        public CollaborativePlantGuessComparisonOutcome LeafPersistenceOutcome { get; }
         public CollaborativePlantGuessComparisonOutcome LeafTypeOutcome { get; }
-        public CollaborativePlantGuessComparisonOutcome FruitOutcome { get; }
+        public CollaborativePlantGuessComparisonOutcome FruitCategoryOutcome { get; }
+        public CollaborativePlantGuessComparisonOutcome FruitTypeOutcome { get; }
     }
 
     public static class CollaborativePlantGuessComparisonService
@@ -52,9 +58,11 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             return new CollaborativePlantGuessEvaluation(
                 isExactPlantMatch,
                 EvaluateExactText(targetPlant.PlantType, guessedPlant.PlantType),
-                EvaluateOrderedValue(targetPlant.SurfaceRoughnessOrder, guessedPlant.SurfaceRoughnessOrder, targetPlant.SurfaceRoughness, guessedPlant.SurfaceRoughness),
+                EvaluateExactText(targetPlant.SurfaceRoughness, guessedPlant.SurfaceRoughness),
+                EvaluateExactText(targetPlant.LeafPersistence, guessedPlant.LeafPersistence),
                 EvaluateExactText(targetPlant.LeafType, guessedPlant.LeafType),
-                EvaluateFruit(targetPlant, guessedPlant));
+                EvaluateExactText(targetPlant.FruitCategory, guessedPlant.FruitCategory),
+                EvaluateExactText(targetPlant.FruitType, guessedPlant.FruitType));
         }
 
         private static CollaborativePlantGuessComparisonOutcome EvaluateExactText(string targetValue, string guessedValue)
@@ -64,41 +72,6 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
                 CollaborativePlantGuessAutocompleteService.Normalize(guessedValue),
                 StringComparison.Ordinal)
                 ? CollaborativePlantGuessComparisonOutcome.Exact
-                : CollaborativePlantGuessComparisonOutcome.Incorrect;
-        }
-
-        private static CollaborativePlantGuessComparisonOutcome EvaluateOrderedValue(int targetOrder, int guessedOrder, string targetValue, string guessedValue)
-        {
-            if (string.Equals(
-                    CollaborativePlantGuessAutocompleteService.Normalize(targetValue),
-                    CollaborativePlantGuessAutocompleteService.Normalize(guessedValue),
-                    StringComparison.Ordinal))
-            {
-                return CollaborativePlantGuessComparisonOutcome.Exact;
-            }
-
-            return Math.Abs(targetOrder - guessedOrder) == 1
-                ? CollaborativePlantGuessComparisonOutcome.Close
-                : CollaborativePlantGuessComparisonOutcome.Incorrect;
-        }
-
-        private static CollaborativePlantGuessComparisonOutcome EvaluateFruit(
-            CollaborativePlantGuessPlantDefinition targetPlant,
-            CollaborativePlantGuessPlantDefinition guessedPlant)
-        {
-            if (string.Equals(
-                    CollaborativePlantGuessAutocompleteService.Normalize(targetPlant.FruitType),
-                    CollaborativePlantGuessAutocompleteService.Normalize(guessedPlant.FruitType),
-                    StringComparison.Ordinal))
-            {
-                return CollaborativePlantGuessComparisonOutcome.Exact;
-            }
-
-            return string.Equals(
-                CollaborativePlantGuessAutocompleteService.Normalize(targetPlant.FruitCategory),
-                CollaborativePlantGuessAutocompleteService.Normalize(guessedPlant.FruitCategory),
-                StringComparison.Ordinal)
-                ? CollaborativePlantGuessComparisonOutcome.Close
                 : CollaborativePlantGuessComparisonOutcome.Incorrect;
         }
     }

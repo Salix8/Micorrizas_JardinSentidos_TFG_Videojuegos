@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 
 namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
@@ -15,7 +14,7 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             string imagePath,
             string plantType,
             string surfaceRoughness,
-            int surfaceRoughnessOrder,
+            string leafPersistence,
             string leafType,
             string fruitCategory,
             string fruitType)
@@ -27,7 +26,7 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             ImagePath = imagePath ?? string.Empty;
             PlantType = plantType;
             SurfaceRoughness = surfaceRoughness;
-            SurfaceRoughnessOrder = surfaceRoughnessOrder;
+            LeafPersistence = leafPersistence;
             LeafType = leafType;
             FruitCategory = fruitCategory;
             FruitType = fruitType;
@@ -40,12 +39,13 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
         public string ImagePath { get; }
         public string PlantType { get; }
         public string SurfaceRoughness { get; }
-        public int SurfaceRoughnessOrder { get; }
+        public string LeafPersistence { get; }
         public string LeafType { get; }
         public string FruitCategory { get; }
         public string FruitType { get; }
 
         public string DisplayName => CommonName;
+
         public string FullDisplayName => string.IsNullOrWhiteSpace(ScientificName)
             ? CommonName
             : $"{CommonName} ({ScientificName})";
@@ -97,23 +97,18 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
                 var imagePath = GetValue(row, headerMap, "imagePath").Trim();
                 var plantType = GetValue(row, headerMap, "plantType").Trim();
                 var surfaceRoughness = GetValue(row, headerMap, "surfaceRoughness").Trim();
+                var leafPersistence = GetValue(row, headerMap, "leafPersistence").Trim();
                 var leafType = GetValue(row, headerMap, "leafType").Trim();
-                var fruitCategory = GetRequiredValue(row, headerMap, "fruitCategory", "fruitType").Trim();
-                var fruitType = GetValue(row, headerMap, "fruitType").Trim();
+                var fruitCategory = GetRequiredValue(row, headerMap, "fruitCategory").Trim();
+                var fruitType = GetRequiredValue(row, headerMap, "fruitType").Trim();
                 var synonyms = SplitSynonyms(GetRequiredValue(row, headerMap, "synonyms", "aliases"));
-
-                if (!TryGetInt(row, headerMap, "surfaceRoughnessOrder", out var surfaceRoughnessOrder))
-                {
-                    errorMessage = $"Fila {rowIndex + 1}: surfaceRoughnessOrder debe ser un entero.";
-                    plantDefinitions.Clear();
-                    return false;
-                }
 
                 if (string.IsNullOrWhiteSpace(plantId) ||
                     string.IsNullOrWhiteSpace(commonName) ||
                     string.IsNullOrWhiteSpace(scientificName) ||
                     string.IsNullOrWhiteSpace(plantType) ||
                     string.IsNullOrWhiteSpace(surfaceRoughness) ||
+                    string.IsNullOrWhiteSpace(leafPersistence) ||
                     string.IsNullOrWhiteSpace(leafType) ||
                     string.IsNullOrWhiteSpace(fruitCategory) ||
                     string.IsNullOrWhiteSpace(fruitType))
@@ -145,7 +140,7 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
                     imagePath,
                     plantType,
                     surfaceRoughness,
-                    surfaceRoughnessOrder,
+                    leafPersistence,
                     leafType,
                     fruitCategory,
                     fruitType));
@@ -171,7 +166,7 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
                 "scientificName",
                 "plantType",
                 "surfaceRoughness",
-                "surfaceRoughnessOrder",
+                "leafPersistence",
                 "leafType",
                 "fruitCategory",
                 "fruitType"
@@ -221,12 +216,6 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
                     .Where(value => !string.IsNullOrWhiteSpace(value))
                     .Distinct(StringComparer.OrdinalIgnoreCase)
                     .ToArray();
-        }
-
-        private static bool TryGetInt(IReadOnlyList<string> row, IReadOnlyDictionary<string, int> headerMap, string key, out int value)
-        {
-            value = 0;
-            return int.TryParse(GetValue(row, headerMap, key), NumberStyles.Integer, CultureInfo.InvariantCulture, out value);
         }
 
         private static string GetValue(IReadOnlyList<string> row, IReadOnlyDictionary<string, int> headerMap, string key)

@@ -234,6 +234,7 @@ namespace SmartCampus.Coop.Minigames.GardenImageVoting
 
                     if (sprite == null)
                     {
+                        Debug.LogWarning($"[GardenImageVoting] No se ha podido cargar la imagen '{definition.ImagePath}'. Error: {error}", this);
                         if (bodyLabel != null && !string.IsNullOrWhiteSpace(error))
                         {
                             bodyLabel.text = $"No se ha podido cargar la imagen.\n{error}";

@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
+using SmartCampus.Coop.Minigames;
 
 namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
 {
@@ -15,12 +16,18 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
         [SerializeField] [FormerlySerializedAs("leafPersistenceLabel")] private Text plantTypeLabel;
         [SerializeField] [FormerlySerializedAs("leafSizeCell")] private Image surfaceRoughnessCell;
         [SerializeField] [FormerlySerializedAs("leafSizeLabel")] private Text surfaceRoughnessLabel;
+        [SerializeField] private Image leafPersistenceCell;
+        [SerializeField] private Text leafPersistenceLabel;
         [SerializeField] [FormerlySerializedAs("leafTextureCell")] private Image leafTypeCell;
         [SerializeField] [FormerlySerializedAs("leafTextureLabel")] private Text leafTypeLabel;
-        [SerializeField] [FormerlySerializedAs("fruitTypeCell")] private Image fruitCell;
-        [SerializeField] [FormerlySerializedAs("fruitTypeLabel")] private Text fruitLabel;
+        [SerializeField] private Image fruitCategoryCell;
+        [SerializeField] private Text fruitCategoryLabel;
+        [SerializeField] private Image fruitTypeCell;
+        [SerializeField] private Text fruitTypeLabel;
 
         private bool responsiveLayoutConfigured;
+        private Coroutine imageLoadingCoroutine;
+        private Sprite runtimeSprite;
 
         public void Bind(
             CollaborativePlantGuessPlantDefinition plantDefinition,
@@ -30,62 +37,33 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
         {
             if (guessedByLabel != null)
             {
-                guessedByLabel.text = guessingPlayerSlot > 0
-                    ? $"Dispositivo {guessingPlayerSlot}"
-                    : "Dispositivo compartido";
+                var playerLabel = guessingPlayerSlot > 0 ? $"Dispositivo {guessingPlayerSlot}" : "Dispositivo compartido";
+                guessedByLabel.text = $"Intento {historyEntry.AttemptIndex} · {playerLabel}";
             }
 
             if (plantNameLabel != null)
             {
-                plantNameLabel.text = $"Intento {historyEntry.AttemptIndex}";
-            }
-
-            if (plantImage != null)
-            {
-                plantImage.gameObject.SetActive(false);
-            }
-
-            if (plantImagePlaceholder != null)
-            {
-                plantImagePlaceholder.SetActive(false);
+                plantNameLabel.text = plantDefinition == null
+                    ? "Planta no encontrada"
+                    : plantDefinition.FullDisplayName;
             }
 
             EnsureResponsiveLayout();
+            BindPlantImage(plantDefinition);
 
-            BindCell(
-                plantTypeCell,
-                plantTypeLabel,
-                "Tipo de planta",
-                CollaborativePlantGuessHintProgressionService.GetPlantTypeDisplayValue(plantDefinition, historyEntry.AttemptIndex, config),
-                historyEntry.PlantTypeOutcome,
-                config.VisualSettings,
-                CollaborativePlantGuessHintProgressionService.ShouldRevealPlantType(historyEntry.AttemptIndex, config));
-            BindCell(
-                surfaceRoughnessCell,
-                surfaceRoughnessLabel,
-                "Rugosidad",
-                plantDefinition == null ? CollaborativePlantGuessHintProgressionService.LockedValue : plantDefinition.SurfaceRoughness,
-                historyEntry.SurfaceRoughnessOutcome,
-                config.VisualSettings,
-                isRevealed: true);
-            BindCell(
-                leafTypeCell,
-                leafTypeLabel,
-                "Tipo de hoja",
-                CollaborativePlantGuessHintProgressionService.GetLeafTypeDisplayValue(plantDefinition, historyEntry.AttemptIndex, config),
-                historyEntry.LeafTypeOutcome,
-                config.VisualSettings,
-                CollaborativePlantGuessHintProgressionService.ShouldRevealLeafType(historyEntry.AttemptIndex, config));
-            BindCell(
-                fruitCell,
-                fruitLabel,
-                "Fruto",
-                CollaborativePlantGuessHintProgressionService.GetFruitDisplayValue(plantDefinition, historyEntry.AttemptIndex, config),
-                historyEntry.FruitOutcome,
-                config.VisualSettings,
-                isRevealed: true);
+            BindCell(surfaceRoughnessCell, surfaceRoughnessLabel, "Rugosidad", plantDefinition?.SurfaceRoughness, historyEntry.SurfaceRoughnessOutcome, config.VisualSettings, CollaborativePlantGuessHintProgressionService.ShouldRevealSurfaceRoughness(historyEntry.AttemptIndex, config));
+            BindCell(leafTypeCell, leafTypeLabel, "Tipo de hoja", plantDefinition?.LeafType, historyEntry.LeafTypeOutcome, config.VisualSettings, CollaborativePlantGuessHintProgressionService.ShouldRevealLeafType(historyEntry.AttemptIndex, config));
+            BindCell(fruitCategoryCell, fruitCategoryLabel, "Categoria del fruto", plantDefinition?.FruitCategory, historyEntry.FruitCategoryOutcome, config.VisualSettings, CollaborativePlantGuessHintProgressionService.ShouldRevealFruitCategory(historyEntry.AttemptIndex, config));
+            BindCell(fruitTypeCell, fruitTypeLabel, "Tipo de fruto", plantDefinition?.FruitType, historyEntry.FruitTypeOutcome, config.VisualSettings, CollaborativePlantGuessHintProgressionService.ShouldRevealFruitType(historyEntry.AttemptIndex, config));
+            BindCell(leafPersistenceCell, leafPersistenceLabel, "Hoja perenne/caduca", plantDefinition?.LeafPersistence, historyEntry.LeafPersistenceOutcome, config.VisualSettings, CollaborativePlantGuessHintProgressionService.ShouldRevealLeafPersistence(historyEntry.AttemptIndex, config));
+            BindCell(plantTypeCell, plantTypeLabel, "Tipo de planta", plantDefinition?.PlantType, historyEntry.PlantTypeOutcome, config.VisualSettings, CollaborativePlantGuessHintProgressionService.ShouldRevealPlantType(historyEntry.AttemptIndex, config));
 
             RefreshLayout();
+        }
+
+        private void OnDisable()
+        {
+            ReleaseRuntimeSprite();
         }
 
         private void BindCell(
@@ -110,17 +88,19 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
 
             if (label != null)
             {
-                label.text = isRevealed ? value : CollaborativePlantGuessHintProgressionService.LockedValue;
+                label.text = isRevealed && !string.IsNullOrWhiteSpace(value)
+                    ? value
+                    : CollaborativePlantGuessHintProgressionService.LockedValue;
             }
 
             cellImage.color = !isRevealed
                 ? visualSettings.NeutralCellColor
                 : outcome switch
-                {
-                    CollaborativePlantGuessComparisonOutcome.Exact => visualSettings.ExactMatchColor,
-                    CollaborativePlantGuessComparisonOutcome.Close => visualSettings.CloseMatchColor,
-                    _ => visualSettings.IncorrectMatchColor
-                };
+            {
+                CollaborativePlantGuessComparisonOutcome.Exact => visualSettings.ExactMatchColor,
+                CollaborativePlantGuessComparisonOutcome.Close => visualSettings.CloseMatchColor,
+                _ => visualSettings.IncorrectMatchColor
+            };
         }
 
         private void EnsureResponsiveLayout()
@@ -132,13 +112,17 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
 
             ConfigureRowRoot();
             ConfigureInfoColumn();
+            EnsureDynamicComparisonCells();
             ConfigureComparisonRow();
-            ConfigureComparisonCell(plantTypeCell);
             ConfigureComparisonCell(surfaceRoughnessCell);
             ConfigureComparisonCell(leafTypeCell);
-            ConfigureComparisonCell(fruitCell);
+            ConfigureComparisonCell(fruitCategoryCell);
+            ConfigureComparisonCell(fruitTypeCell);
+            ConfigureComparisonCell(leafPersistenceCell);
+            ConfigureComparisonCell(plantTypeCell);
             ConfigureInfoText(guessedByLabel, TextAnchor.MiddleLeft, 1);
-            ConfigureInfoText(plantNameLabel, TextAnchor.UpperLeft, 2);
+            ConfigureInfoText(plantNameLabel, TextAnchor.UpperLeft, 3);
+            ReorderComparisonCells();
             responsiveLayoutConfigured = true;
         }
 
@@ -147,7 +131,7 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             var rowLayout = GetComponent<HorizontalLayoutGroup>();
             if (rowLayout != null)
             {
-                rowLayout.spacing = 14f;
+                rowLayout.spacing = 12f;
                 rowLayout.childControlWidth = true;
                 rowLayout.childControlHeight = true;
                 rowLayout.childForceExpandWidth = false;
@@ -186,32 +170,32 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
                 layoutElement = infoColumn.AddComponent<LayoutElement>();
             }
 
-            layoutElement.minWidth = 240f;
-            layoutElement.preferredWidth = 260f;
+            layoutElement.minWidth = 220f;
+            layoutElement.preferredWidth = 240f;
             layoutElement.flexibleWidth = 0f;
         }
 
         private void ConfigureComparisonRow()
         {
-            if (plantTypeCell == null || plantTypeCell.transform.parent == null)
+            var comparisonsRow = ResolveComparisonsRow();
+            if (comparisonsRow == null)
             {
                 return;
             }
 
-            var comparisonsRow = plantTypeCell.transform.parent.gameObject;
-            var layoutElement = comparisonsRow.GetComponent<LayoutElement>();
+            var layoutElement = comparisonsRow.gameObject.GetComponent<LayoutElement>();
             if (layoutElement == null)
             {
-                layoutElement = comparisonsRow.AddComponent<LayoutElement>();
+                layoutElement = comparisonsRow.gameObject.AddComponent<LayoutElement>();
             }
 
-            layoutElement.minWidth = 760f;
+            layoutElement.minWidth = 720f;
             layoutElement.flexibleWidth = 1f;
 
-            var layoutGroup = comparisonsRow.GetComponent<HorizontalLayoutGroup>();
+            var layoutGroup = comparisonsRow.gameObject.GetComponent<HorizontalLayoutGroup>();
             if (layoutGroup != null)
             {
-                layoutGroup.spacing = 12f;
+                layoutGroup.spacing = 8f;
                 layoutGroup.childControlWidth = true;
                 layoutGroup.childControlHeight = true;
                 layoutGroup.childForceExpandWidth = true;
@@ -233,8 +217,8 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
                 layoutElement = cellObject.AddComponent<LayoutElement>();
             }
 
-            layoutElement.minWidth = 170f;
-            layoutElement.preferredWidth = 190f;
+            layoutElement.minWidth = 118f;
+            layoutElement.preferredWidth = 126f;
             layoutElement.flexibleWidth = 1f;
             layoutElement.preferredHeight = -1f;
 
@@ -250,8 +234,8 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             var verticalLayout = cellObject.GetComponent<VerticalLayoutGroup>();
             if (verticalLayout != null)
             {
-                verticalLayout.padding = new RectOffset(10, 10, 10, 12);
-                verticalLayout.spacing = 8f;
+                verticalLayout.padding = new RectOffset(8, 8, 8, 10);
+                verticalLayout.spacing = 6f;
                 verticalLayout.childAlignment = TextAnchor.UpperCenter;
                 verticalLayout.childControlWidth = true;
                 verticalLayout.childControlHeight = true;
@@ -280,7 +264,7 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
                 layoutElement = headerLabel.gameObject.AddComponent<LayoutElement>();
             }
 
-            layoutElement.minHeight = 24f;
+            layoutElement.minHeight = 34f;
             layoutElement.preferredHeight = -1f;
         }
 
@@ -332,12 +316,10 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
 
         private void RefreshLayout()
         {
-            if (transform is not RectTransform rowRectTransform)
+            if (transform is RectTransform rowRectTransform)
             {
-                return;
+                LayoutRebuilder.ForceRebuildLayoutImmediate(rowRectTransform);
             }
-
-            LayoutRebuilder.ForceRebuildLayoutImmediate(rowRectTransform);
         }
 
         private static Text ResolveHeaderLabel(Image cellImage)
@@ -361,71 +343,234 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             var valueTransform = cellImage.transform.Find("ValueLabel");
             return valueTransform == null ? null : valueTransform.GetComponent<Text>();
         }
+
+        private Transform ResolveComparisonsRow()
+        {
+            if (plantTypeCell != null && plantTypeCell.transform.parent != null)
+            {
+                return plantTypeCell.transform.parent;
+            }
+
+            if (surfaceRoughnessCell != null && surfaceRoughnessCell.transform.parent != null)
+            {
+                return surfaceRoughnessCell.transform.parent;
+            }
+
+            return null;
+        }
+
+        private void EnsureDynamicComparisonCells()
+        {
+            var comparisonsRow = ResolveComparisonsRow();
+            if (comparisonsRow == null)
+            {
+                return;
+            }
+
+            if (leafPersistenceCell == null)
+            {
+                leafPersistenceCell = CreateComparisonCell("LeafPersistenceCell", "Hoja perenne/caduca", comparisonsRow);
+                leafPersistenceLabel = ResolveValueLabel(leafPersistenceCell);
+            }
+
+            if (fruitCategoryCell == null)
+            {
+                fruitCategoryCell = PromoteLegacyFruitCell(comparisonsRow);
+                fruitCategoryLabel = ResolveValueLabel(fruitCategoryCell);
+            }
+
+            if (fruitTypeCell == null)
+            {
+                fruitTypeCell = CreateComparisonCell("FruitTypeCell", "Tipo de fruto", comparisonsRow);
+                fruitTypeLabel = ResolveValueLabel(fruitTypeCell);
+            }
+
+            ReorderComparisonCells();
+        }
+
+        private void ReorderComparisonCells()
+        {
+            var comparisonsRow = ResolveComparisonsRow();
+            if (comparisonsRow == null)
+            {
+                return;
+            }
+
+            SetSiblingIfPresent(surfaceRoughnessCell, 0);
+            SetSiblingIfPresent(leafTypeCell, 1);
+            SetSiblingIfPresent(fruitCategoryCell, 2);
+            SetSiblingIfPresent(fruitTypeCell, 3);
+            SetSiblingIfPresent(leafPersistenceCell, 4);
+            SetSiblingIfPresent(plantTypeCell, 5);
+        }
+
+        private static void SetSiblingIfPresent(Component component, int index)
+        {
+            if (component != null)
+            {
+                component.transform.SetSiblingIndex(index);
+            }
+        }
+
+        private Image PromoteLegacyFruitCell(Transform comparisonsRow)
+        {
+            var candidate = FindLegacyComparisonCell(comparisonsRow, "FrutoCell");
+            candidate ??= FindLegacyComparisonCell(comparisonsRow, "FruitCell");
+            candidate ??= FindLegacyComparisonCell(comparisonsRow, "FruitTypeCell");
+            if (candidate == null)
+            {
+                candidate = CreateComparisonCell("FruitCategoryCell", "Categoria del fruto", comparisonsRow);
+            }
+            else
+            {
+                candidate.name = "FruitCategoryCell";
+                var headerLabel = ResolveHeaderLabel(candidate);
+                if (headerLabel != null)
+                {
+                    headerLabel.text = "Categoria del fruto";
+                }
+            }
+
+            return candidate;
+        }
+
+        private static Image FindLegacyComparisonCell(Transform comparisonsRow, string candidateName)
+        {
+            for (var childIndex = 0; childIndex < comparisonsRow.childCount; childIndex++)
+            {
+                var child = comparisonsRow.GetChild(childIndex);
+                if (!string.Equals(child.name, candidateName, System.StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                return child.GetComponent<Image>();
+            }
+
+            return null;
+        }
+
+        private static Image CreateComparisonCell(string objectName, string headerText, Transform parent)
+        {
+            var cellObject = new GameObject(objectName, typeof(RectTransform), typeof(Image), typeof(VerticalLayoutGroup));
+            cellObject.transform.SetParent(parent, false);
+
+            var headerObject = new GameObject("HeaderLabel", typeof(RectTransform), typeof(Text));
+            headerObject.transform.SetParent(cellObject.transform, false);
+            var headerLabel = headerObject.GetComponent<Text>();
+            headerLabel.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            headerLabel.fontSize = 15;
+            headerLabel.alignment = TextAnchor.UpperCenter;
+            headerLabel.color = new Color(0.16f, 0.2f, 0.18f, 1f);
+            headerLabel.text = headerText;
+
+            var valueObject = new GameObject("ValueLabel", typeof(RectTransform), typeof(Text));
+            valueObject.transform.SetParent(cellObject.transform, false);
+            var valueLabel = valueObject.GetComponent<Text>();
+            valueLabel.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            valueLabel.fontSize = 17;
+            valueLabel.alignment = TextAnchor.UpperCenter;
+            valueLabel.color = new Color(0.1f, 0.12f, 0.11f, 1f);
+            valueLabel.text = CollaborativePlantGuessHintProgressionService.LockedValue;
+
+            return cellObject.GetComponent<Image>();
+        }
+
+        private void BindPlantImage(CollaborativePlantGuessPlantDefinition plantDefinition)
+        {
+            ReleaseRuntimeSprite();
+
+            if (plantImage == null)
+            {
+                return;
+            }
+
+            plantImage.sprite = null;
+            plantImage.gameObject.SetActive(false);
+            if (plantImagePlaceholder != null)
+            {
+                plantImagePlaceholder.SetActive(true);
+            }
+
+            if (plantDefinition == null || string.IsNullOrWhiteSpace(plantDefinition.ImagePath))
+            {
+                return;
+            }
+
+            imageLoadingCoroutine = StartCoroutine(CoopMinigameExternalContentService.LoadSpriteAsync(
+                plantDefinition.ImagePath,
+                (sprite, error) =>
+                {
+                    imageLoadingCoroutine = null;
+                    if (sprite == null)
+                    {
+                        Debug.LogWarning($"[CollaborativePlantGuess] No se ha podido cargar la imagen de '{plantDefinition.FullDisplayName}'. Error: {error}", this);
+                        return;
+                    }
+
+                    runtimeSprite = sprite;
+                    plantImage.sprite = runtimeSprite;
+                    plantImage.gameObject.SetActive(true);
+                    if (plantImagePlaceholder != null)
+                    {
+                        plantImagePlaceholder.SetActive(false);
+                    }
+                }));
+        }
+
+        private void ReleaseRuntimeSprite()
+        {
+            if (imageLoadingCoroutine != null)
+            {
+                StopCoroutine(imageLoadingCoroutine);
+                imageLoadingCoroutine = null;
+            }
+
+            if (plantImage != null)
+            {
+                plantImage.sprite = null;
+            }
+
+            if (runtimeSprite != null)
+            {
+                Destroy(runtimeSprite);
+                runtimeSprite = null;
+            }
+        }
     }
 
     public static class CollaborativePlantGuessHintProgressionService
     {
         public const string LockedValue = "?";
 
-        public static bool ShouldRevealLeafType(int attemptIndex, CollaborativePlantGuessMinigameConfig config)
+        public static bool ShouldRevealSurfaceRoughness(int attemptIndex, CollaborativePlantGuessMinigameConfig config)
         {
-            return attemptIndex >= GetLeafTypeRevealAttempt(config);
+            return attemptIndex >= 1;
         }
 
-        public static bool ShouldRevealFruitDetails(int attemptIndex, CollaborativePlantGuessMinigameConfig config)
+        public static bool ShouldRevealLeafType(int attemptIndex, CollaborativePlantGuessMinigameConfig config)
         {
-            return attemptIndex >= GetFruitDetailRevealAttempt(config);
+            return attemptIndex >= (config == null ? 1 : config.LeafTypeRevealAttempt);
+        }
+
+        public static bool ShouldRevealFruitCategory(int attemptIndex, CollaborativePlantGuessMinigameConfig config)
+        {
+            return attemptIndex >= 1;
+        }
+
+        public static bool ShouldRevealFruitType(int attemptIndex, CollaborativePlantGuessMinigameConfig config)
+        {
+            return attemptIndex >= (config == null ? 2 : config.FruitDetailRevealAttempt);
+        }
+
+        public static bool ShouldRevealLeafPersistence(int attemptIndex, CollaborativePlantGuessMinigameConfig config)
+        {
+            return attemptIndex >= (config == null ? 4 : config.LeafPersistenceRevealAttempt);
         }
 
         public static bool ShouldRevealPlantType(int attemptIndex, CollaborativePlantGuessMinigameConfig config)
         {
-            return attemptIndex >= GetPlantTypeRevealAttempt(config);
-        }
-
-        public static string GetPlantTypeDisplayValue(CollaborativePlantGuessPlantDefinition plantDefinition, int attemptIndex, CollaborativePlantGuessMinigameConfig config)
-        {
-            return ShouldRevealPlantType(attemptIndex, config) && plantDefinition != null
-                ? plantDefinition.PlantType
-                : LockedValue;
-        }
-
-        public static string GetLeafTypeDisplayValue(CollaborativePlantGuessPlantDefinition plantDefinition, int attemptIndex, CollaborativePlantGuessMinigameConfig config)
-        {
-            return ShouldRevealLeafType(attemptIndex, config) && plantDefinition != null
-                ? plantDefinition.LeafType
-                : LockedValue;
-        }
-
-        public static string GetFruitDisplayValue(CollaborativePlantGuessPlantDefinition plantDefinition, int attemptIndex, CollaborativePlantGuessMinigameConfig config)
-        {
-            if (plantDefinition == null)
-            {
-                return LockedValue;
-            }
-
-            if (!ShouldRevealFruitDetails(attemptIndex, config) ||
-                string.IsNullOrWhiteSpace(plantDefinition.FruitType) ||
-                string.Equals(plantDefinition.FruitCategory, plantDefinition.FruitType, System.StringComparison.OrdinalIgnoreCase))
-            {
-                return plantDefinition.FruitCategory;
-            }
-
-            return $"{plantDefinition.FruitCategory} / {plantDefinition.FruitType}";
-        }
-
-        private static int GetLeafTypeRevealAttempt(CollaborativePlantGuessMinigameConfig config)
-        {
-            return config == null ? 3 : config.LeafTypeRevealAttempt;
-        }
-
-        private static int GetFruitDetailRevealAttempt(CollaborativePlantGuessMinigameConfig config)
-        {
-            return config == null ? 5 : config.FruitDetailRevealAttempt;
-        }
-
-        private static int GetPlantTypeRevealAttempt(CollaborativePlantGuessMinigameConfig config)
-        {
-            return config == null ? 7 : config.PlantTypeRevealAttempt;
+            return attemptIndex >= (config == null ? 6 : config.PlantTypeRevealAttempt);
         }
     }
 }

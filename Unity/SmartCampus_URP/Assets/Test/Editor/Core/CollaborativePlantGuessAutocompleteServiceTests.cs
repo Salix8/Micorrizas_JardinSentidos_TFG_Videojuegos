@@ -20,7 +20,7 @@ namespace SmartCampus.Testing.Editor.Core
                 string.Empty,
                 "Arbol",
                 "Media",
-                3,
+                "Perenne",
                 "Simple",
                 "Carnoso",
                 "Baya");

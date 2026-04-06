@@ -7,79 +7,49 @@ namespace SmartCampus.Testing.Editor.Core
 {
     public sealed class CollaborativePlantGuessHintProgressionServiceTests
     {
-        private static CollaborativePlantGuessPlantDefinition CreatePlant()
-        {
-            return new CollaborativePlantGuessPlantDefinition(
-                "olivo",
-                "Olivo",
-                "Olea europaea",
-                new[] { "Aceituno" },
-                string.Empty,
-                "Arbol",
-                "Media",
-                3,
-                "Lanceolada",
-                "Carnoso",
-                "Drupa");
-        }
-
         private static CollaborativePlantGuessMinigameConfig CreateConfig()
         {
             var config = ScriptableObject.CreateInstance<CollaborativePlantGuessMinigameConfig>();
             var serialized = new SerializedObject(config);
-            serialized.FindProperty("leafTypeRevealAttempt").intValue = 3;
-            serialized.FindProperty("fruitDetailRevealAttempt").intValue = 5;
-            serialized.FindProperty("plantTypeRevealAttempt").intValue = 7;
+            serialized.FindProperty("leafTypeRevealAttempt").intValue = 1;
+            serialized.FindProperty("fruitDetailRevealAttempt").intValue = 2;
+            serialized.FindProperty("leafPersistenceRevealAttempt").intValue = 4;
+            serialized.FindProperty("plantTypeRevealAttempt").intValue = 6;
             serialized.ApplyModifiedPropertiesWithoutUndo();
             return config;
         }
 
         [Test]
-        public void GetLeafTypeDisplayValue_BeforeThirdAttempt_ReturnsQuestionMark()
+        public void LockedValue_RemainsQuestionMark()
         {
-            var value = CollaborativePlantGuessHintProgressionService.GetLeafTypeDisplayValue(CreatePlant(), 2, CreateConfig());
-
-            Assert.That(value, Is.EqualTo("?"));
+            Assert.That(CollaborativePlantGuessHintProgressionService.LockedValue, Is.EqualTo("?"));
         }
 
         [Test]
-        public void GetLeafTypeDisplayValue_FromThirdAttempt_ReturnsLeafType()
+        public void FruitType_RevealsFromSecondAttempt()
         {
-            var value = CollaborativePlantGuessHintProgressionService.GetLeafTypeDisplayValue(CreatePlant(), 3, CreateConfig());
+            var config = CreateConfig();
 
-            Assert.That(value, Is.EqualTo("Lanceolada"));
+            Assert.That(CollaborativePlantGuessHintProgressionService.ShouldRevealFruitType(1, config), Is.False);
+            Assert.That(CollaborativePlantGuessHintProgressionService.ShouldRevealFruitType(2, config), Is.True);
         }
 
         [Test]
-        public void GetFruitDisplayValue_BeforeFifthAttempt_ReturnsOnlyCategory()
+        public void LeafPersistence_RevealsFromFourthAttempt()
         {
-            var value = CollaborativePlantGuessHintProgressionService.GetFruitDisplayValue(CreatePlant(), 4, CreateConfig());
+            var config = CreateConfig();
 
-            Assert.That(value, Is.EqualTo("Carnoso"));
+            Assert.That(CollaborativePlantGuessHintProgressionService.ShouldRevealLeafPersistence(3, config), Is.False);
+            Assert.That(CollaborativePlantGuessHintProgressionService.ShouldRevealLeafPersistence(4, config), Is.True);
         }
 
         [Test]
-        public void GetFruitDisplayValue_FromFifthAttempt_ReturnsCategoryAndType()
+        public void PlantType_RevealsFromSixthAttempt()
         {
-            var value = CollaborativePlantGuessHintProgressionService.GetFruitDisplayValue(CreatePlant(), 5, CreateConfig());
+            var config = CreateConfig();
 
-            Assert.That(value, Is.EqualTo("Carnoso / Drupa"));
-        }
-
-        [Test]
-        public void GetPlantTypeDisplayValue_BeforeSeventhAttempt_ReturnsQuestionMark()
-        {
-            var value = CollaborativePlantGuessHintProgressionService.GetPlantTypeDisplayValue(CreatePlant(), 6, CreateConfig());
-
-            Assert.That(value, Is.EqualTo("?"));
-        }
-
-        [Test]
-        public void GetPlantTypeDisplayValue_FromSeventhAttempt_ReturnsPlantType()
-        {
-            var value = CollaborativePlantGuessHintProgressionService.GetPlantTypeDisplayValue(CreatePlant(), 7, CreateConfig());
-
-            Assert.That(value, Is.EqualTo("Arbol"));
+            Assert.That(CollaborativePlantGuessHintProgressionService.ShouldRevealPlantType(5, config), Is.False);
+            Assert.That(CollaborativePlantGuessHintProgressionService.ShouldRevealPlantType(6, config), Is.True);
         }
     }
 }

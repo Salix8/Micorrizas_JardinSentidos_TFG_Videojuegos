@@ -211,6 +211,7 @@ namespace SmartCampus.Coop.Minigames.GardenImageVoting
             if (!string.IsNullOrWhiteSpace(loadError))
             {
                 dataLoadError = $"No se ha podido cargar el CSV: {loadError}";
+                Debug.LogError($"[GardenImageVoting] Error cargando CSV '{gardenImageVotingMinigameConfig.CsvRelativePath}': {loadError}", this);
                 HandleLoadedCardDefinitionsFailure();
                 yield break;
             }
@@ -224,14 +225,17 @@ namespace SmartCampus.Coop.Minigames.GardenImageVoting
                     out var parseError))
             {
                 dataLoadError = parseError;
+                Debug.LogError($"[GardenImageVoting] Error parseando CSV '{gardenImageVotingMinigameConfig.CsvRelativePath}': {parseError}", this);
                 HandleLoadedCardDefinitionsFailure();
                 yield break;
             }
 
             dataLoadError = string.Empty;
             hasLoadedCardDefinitions = true;
-            loadedCardDefinitions.AddRange(definitions);
-            BuildCardAssignments(definitions);
+            var normalizedDefinitions = NormalizeDefinitionImagePaths(definitions);
+            loadedCardDefinitions.AddRange(normalizedDefinitions);
+            BuildCardAssignments(normalizedDefinitions);
+            Debug.Log($"[GardenImageVoting] CSV cargado correctamente desde '{gardenImageVotingMinigameConfig.CsvRelativePath}'. Cartas: {normalizedDefinitions.Count}.", this);
 
             if (IsServer)
             {
@@ -252,6 +256,30 @@ namespace SmartCampus.Coop.Minigames.GardenImageVoting
             }
 
             StateChanged?.Invoke();
+        }
+
+        private List<GardenImageVotingCardDefinition> NormalizeDefinitionImagePaths(IReadOnlyList<GardenImageVotingCardDefinition> definitions)
+        {
+            var normalizedDefinitions = new List<GardenImageVotingCardDefinition>(definitions.Count);
+            var csvRelativePath = gardenImageVotingMinigameConfig == null ? string.Empty : gardenImageVotingMinigameConfig.CsvRelativePath;
+
+            for (var index = 0; index < definitions.Count; index++)
+            {
+                var definition = definitions[index];
+                var resolvedImagePath = string.IsNullOrWhiteSpace(definition.ImagePath)
+                    ? string.Empty
+                    : GardenImageVotingExternalContentService.ResolveConfiguredPath(definition.ImagePath, csvRelativePath);
+
+                normalizedDefinitions.Add(new GardenImageVotingCardDefinition(
+                    definition.RoundIndex,
+                    definition.DeviceSlot,
+                    definition.Topic,
+                    definition.Title,
+                    resolvedImagePath,
+                    definition.IsSeenInGarden));
+            }
+
+            return normalizedDefinitions;
         }
 
         private void BuildCardAssignments(IReadOnlyList<GardenImageVotingCardDefinition> definitions)

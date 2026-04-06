@@ -16,7 +16,7 @@ MonoBehaviour:
   tutorialContent: {fileID: 11400000, guid: f9ddcd0855f1e804bbc4f70a2eda628b, type: 2}
   successMessage: Secuencia completada
   returnToMapButtonLabel: Volver al mapa
-  csvRelativePath: CoopMinigames/GardenImageVotingCards.csv
+  csvRelativePath: CoopMinigames/01-GardenImagenVotingCards/GardenImageVotingCards.csv
   cardsPerDevice: 5
   maxSupportedDevices: 6
   allowRepeatedImagesAcrossDevices: 1

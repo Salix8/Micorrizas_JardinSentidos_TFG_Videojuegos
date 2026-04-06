@@ -133,7 +133,8 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             {
                 hintLabel.gameObject.SetActive(true);
                 hintLabel.text =
-                    $"Pistas: rugosidad y fruto desde el inicio, tipo de hoja en {config.LeafTypeRevealAttempt}, detalle del fruto en {config.FruitDetailRevealAttempt}, tipo de planta en {config.PlantTypeRevealAttempt}.";
+                    $"Orden de pistas: rugosidad, tipo de hoja, categoria del fruto, tipo de fruto, hoja perenne o caduca y tipo de planta. " +
+                    $"Se desbloquean en los intentos 2, 4 y 6 para tipo de fruto, persistencia y tipo de planta.";
             }
 
             if (guessInputField != null)
@@ -181,7 +182,7 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
                 return "Selecciona una planta valida. Puedes buscar por nombre comun, cientifico o sinonimos.";
             }
 
-            return $"Busca por nombre comun, cientifico o sinonimos. El fruto se detalla en el intento {config.FruitDetailRevealAttempt}.";
+            return "Busca por nombre comun, cientifico o sinonimos. Cada intento se comparte con 6 pistas para comparar la planta elegida.";
         }
 
         private void RefreshSuggestionList(CollaborativePlantGuessMinigameConfig config)
@@ -231,9 +232,10 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
 
             for (var index = 0; index < historyEntries.Count; index++)
             {
-                var historyEntry = historyEntries[index];
+                var historyEntry = historyEntries[historyEntries.Count - 1 - index];
                 var historyRowView = GetOrCreateHistoryRowView(index);
                 historyRowView.gameObject.SetActive(true);
+                historyRowView.transform.SetSiblingIndex(index);
 
                 TypedSession.TryGetPlantDefinition(historyEntry.PlantId.ToString(), out var plantDefinition);
                 historyRowView.Bind(

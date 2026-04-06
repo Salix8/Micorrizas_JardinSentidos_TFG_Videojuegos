@@ -19,7 +19,7 @@ public static class GardenImageVotingMinigameSetup
     private const string TutorialConfigPath = ConfigFolder + "/GardenImageVotingTutorialContent.asset";
     private const string MinigameConfigPath = ConfigFolder + "/GardenImageVotingMinigameConfig.asset";
     private const string CatalogConfigPath = ConfigFolder + "/CoopMinigameCatalog.asset";
-    private const string CsvTemplatePath = StreamingAssetsFolder + "/GardenImageVotingCards.csv";
+    private const string CsvTemplatePath = StreamingAssetsFolder + "/01-GardenImagenVotingCards/GardenImageVotingCards.csv";
     private const string MinigameScenePath = SceneFolder + "/GardenImageVotingMinigame.unity";
     private const string LobbyScenePath = SceneFolder + "/Lobby.unity";
     private const string MainMapScenePath = SceneFolder + "/UJI.unity";
@@ -51,6 +51,7 @@ public static class GardenImageVotingMinigameSetup
         EnsureFolder(RootFolder, "Configs");
         EnsureFolder("Assets", "StreamingAssets");
         EnsureFolder("Assets/StreamingAssets", "CoopMinigames");
+        EnsureFolder("Assets/StreamingAssets/CoopMinigames", "01-GardenImagenVotingCards");
         EnsureFolder("Assets", "Scenes");
     }
 
@@ -98,7 +99,7 @@ public static class GardenImageVotingMinigameSetup
         serializedObject.FindProperty("tutorialContent").objectReferenceValue = tutorialContent;
         serializedObject.FindProperty("successMessage").stringValue = "Secuencia completada";
         serializedObject.FindProperty("returnToMapButtonLabel").stringValue = "Volver al mapa";
-        serializedObject.FindProperty("csvRelativePath").stringValue = "CoopMinigames/GardenImageVotingCards.csv";
+        serializedObject.FindProperty("csvRelativePath").stringValue = "CoopMinigames/01-GardenImagenVotingCards/GardenImageVotingCards.csv";
         serializedObject.FindProperty("cardsPerDevice").intValue = 5;
         serializedObject.FindProperty("maxSupportedDevices").intValue = 6;
         serializedObject.FindProperty("allowRepeatedImagesAcrossDevices").boolValue = true;
