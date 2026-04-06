@@ -113,30 +113,12 @@ public static class GardenImageVotingMinigameSetup
 
     private static CoopMinigameCatalogConfig CreateOrUpdateCatalogConfig()
     {
-        var asset = AssetDatabase.LoadAssetAtPath<CoopMinigameCatalogConfig>(CatalogConfigPath);
-        if (asset == null)
-        {
-            asset = ScriptableObject.CreateInstance<CoopMinigameCatalogConfig>();
-            AssetDatabase.CreateAsset(asset, CatalogConfigPath);
-        }
-
-        var serializedObject = new SerializedObject(asset);
-        var entries = serializedObject.FindProperty("entries");
-        entries.arraySize = 2;
-
-        var imageVotingEntry = entries.GetArrayElementAtIndex(0);
-        imageVotingEntry.FindPropertyRelative("minigameIndex").intValue = 1;
-        imageVotingEntry.FindPropertyRelative("displayName").stringValue = "Minijuego 1 - Imagenes del jardin";
-        imageVotingEntry.FindPropertyRelative("description").stringValue = "Cada dispositivo decide con un gesto si una imagen pertenece o no al jardin. La puntuacion se comparte entre todo el grupo.";
-
-        var pairsEntry = entries.GetArrayElementAtIndex(1);
-        pairsEntry.FindPropertyRelative("minigameIndex").intValue = 4;
-        pairsEntry.FindPropertyRelative("displayName").stringValue = "Minijuego 4 - Parejas distribuidas";
-        pairsEntry.FindPropertyRelative("description").stringValue = "Minijuego cooperativo con informacion parcial repartida entre dispositivos.";
-
-        serializedObject.ApplyModifiedPropertiesWithoutUndo();
-        EditorUtility.SetDirty(asset);
-        return asset;
+        return CoopMinigameSetupEditorUtility.UpsertCatalogEntry(
+            CatalogConfigPath,
+            1,
+            "Minijuego 1 - Imagenes del jardin",
+            "Cada dispositivo decide con un gesto si una imagen pertenece o no al jardin. La puntuacion se comparte entre todo el grupo.",
+            MinigameSceneName);
     }
 
     private static void CreateCsvTemplateIfMissing()
@@ -161,6 +143,7 @@ public static class GardenImageVotingMinigameSetup
         var font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
         var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
         CreateEventSystemIfMissing();
+        MinigameSceneCameraUtility.EnsureFixedCamera(scene, new Color(0.92f, 0.96f, 0.9f, 1f));
 
         var sessionObject = new GameObject("GardenImageVotingSession", typeof(Unity.Netcode.NetworkObject), typeof(GardenImageVotingMinigameSession));
         var session = sessionObject.GetComponent<GardenImageVotingMinigameSession>();
@@ -336,20 +319,7 @@ public static class GardenImageVotingMinigameSetup
 
     private static void SetupMainMapScene(CoopMinigameCatalogConfig catalogConfig)
     {
-        var scene = EditorSceneManager.OpenScene(MainMapScenePath, OpenSceneMode.Single);
-        var launcherController = UnityEngine.Object.FindFirstObjectByType<CoopMinigameLauncherUIController>(FindObjectsInactive.Include);
-        if (launcherController == null)
-        {
-            throw new InvalidOperationException("La escena del mapa principal necesita un CoopMinigameLauncherUIController.");
-        }
-
-        var serializedLauncherController = new SerializedObject(launcherController);
-        serializedLauncherController.FindProperty("minigameCatalogConfig").objectReferenceValue = catalogConfig;
-        serializedLauncherController.ApplyModifiedPropertiesWithoutUndo();
-
-        EditorUtility.SetDirty(launcherController);
-        EditorSceneManager.MarkSceneDirty(scene);
-        EditorSceneManager.SaveScene(scene);
+        CoopMinigameSetupEditorUtility.ConfigureMainMapLauncher(catalogConfig);
     }
 
     private static void UpdateBuildSettings()

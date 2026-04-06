@@ -67,27 +67,39 @@ namespace SmartCampus.Coop.Minigames
                 return;
             }
 
-            for (var index = 0; index < instantiatedEntries.Count; index++)
-            {
-                if (instantiatedEntries[index] != null)
-                {
-                    Destroy(instantiatedEntries[index].gameObject);
-                }
-            }
-
             instantiatedEntries.Clear();
             entryTemplate.gameObject.SetActive(false);
 
-            foreach (var entry in minigameCatalogConfig.Entries)
+            var sceneEntries = new List<CoopMinigameLauncherEntryView>();
+            for (var childIndex = 0; childIndex < entryRoot.childCount; childIndex++)
             {
-                if (entry == null)
+                var child = entryRoot.GetChild(childIndex);
+                if (child == entryTemplate.transform)
                 {
                     continue;
                 }
 
+                var childEntry = child.GetComponent<CoopMinigameLauncherEntryView>();
+                if (childEntry != null)
+                {
+                    sceneEntries.Add(childEntry);
+                }
+            }
+
+            for (var index = sceneEntries.Count; index < minigameCatalogConfig.Entries.Count; index++)
+            {
                 var entryInstance = Instantiate(entryTemplate, entryRoot, false);
-                entryInstance.gameObject.SetActive(true);
-                instantiatedEntries.Add(entryInstance);
+                sceneEntries.Add(entryInstance);
+            }
+
+            for (var index = 0; index < sceneEntries.Count; index++)
+            {
+                var shouldBeActive = index < minigameCatalogConfig.Entries.Count && minigameCatalogConfig.Entries[index] != null;
+                sceneEntries[index].gameObject.SetActive(shouldBeActive);
+                if (shouldBeActive)
+                {
+                    instantiatedEntries.Add(sceneEntries[index]);
+                }
             }
         }
 
@@ -101,9 +113,7 @@ namespace SmartCampus.Coop.Minigames
             }
 
             var isNetworkHost = coopSessionCoordinator != null && coopSessionCoordinator.IsSpawned && coopSessionCoordinator.IsServer;
-            var isLocalDebugLauncher = coopSessionCoordinator != null &&
-                                       !coopSessionCoordinator.IsSpawned &&
-                                       !HasActiveNetworkSession();
+            var isLocalDebugLauncher = !HasActiveNetworkSession();
             var canLaunchFromCurrentContext = isNetworkHost || isLocalDebugLauncher;
             if (helperLabel != null)
             {
@@ -121,36 +131,53 @@ namespace SmartCampus.Coop.Minigames
                 var minigameIndex = entry.MinigameIndex;
 
                 var canLaunch = canLaunchFromCurrentContext &&
-                                (coopSessionCoordinator == null || coopSessionCoordinator.IsMiniGameConfigured(minigameIndex));
+                                (isLocalDebugLauncher || (coopSessionCoordinator != null && coopSessionCoordinator.IsMiniGameConfigured(minigameIndex)));
                 view.Bind(
                     entry.DisplayName,
                     entry.Description,
                     canLaunch,
-                    () => LaunchMinigame(minigameIndex));
+                    () => LaunchMinigame(entry));
             }
         }
 
-        private void LaunchMinigame(int minigameIndex)
+        private void LaunchMinigame(CoopMinigameCatalogEntry entry)
         {
             ResolveCoordinator();
 
-            if (coopSessionCoordinator == null)
+            if (coopSessionCoordinator != null && coopSessionCoordinator.IsSpawned && coopSessionCoordinator.IsServer)
             {
+                coopSessionCoordinator.StartMiniGame(entry.MinigameIndex);
                 return;
             }
 
-            if (coopSessionCoordinator.IsSpawned && coopSessionCoordinator.IsServer)
-            {
-                coopSessionCoordinator.StartMiniGame(minigameIndex);
-                return;
-            }
-
-            if (!HasActiveNetworkSession() &&
-                !coopSessionCoordinator.IsSpawned &&
-                coopSessionCoordinator.TryGetMiniGameSceneName(minigameIndex, out var sceneName))
+            if (!HasActiveNetworkSession() && TryResolveLocalSceneName(entry, out var sceneName))
             {
                 SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
             }
+        }
+
+        private bool TryResolveLocalSceneName(CoopMinigameCatalogEntry entry, out string sceneName)
+        {
+            sceneName = string.Empty;
+            if (entry == null)
+            {
+                return false;
+            }
+
+            if (!string.IsNullOrWhiteSpace(entry.SceneName))
+            {
+                sceneName = entry.SceneName;
+                return true;
+            }
+
+            if (coopSessionCoordinator != null &&
+                !coopSessionCoordinator.IsSpawned &&
+                coopSessionCoordinator.TryGetMiniGameSceneName(entry.MinigameIndex, out sceneName))
+            {
+                return !string.IsNullOrWhiteSpace(sceneName);
+            }
+
+            return false;
         }
 
         private static bool HasActiveNetworkSession()

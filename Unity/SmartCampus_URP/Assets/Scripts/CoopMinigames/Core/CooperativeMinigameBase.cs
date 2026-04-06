@@ -14,11 +14,12 @@ namespace SmartCampus.Coop.Minigames
         private readonly NetworkVariable<MinigameResultNetworkState> resultState = new();
         private readonly NetworkList<ulong> tutorialDismissedClientIds = new();
 
-        private bool localTutorialDismissed;
+        private bool localTutorialDismissalSubmitted;
 
         public CoopSessionCoordinator SessionCoordinator => coopSessionCoordinator;
         public CooperativeMinigameStage Stage => stage.Value;
-        public bool HasLocalTutorialBeenDismissed => localTutorialDismissed;
+        public bool HasLocalTutorialBeenDismissed => NetworkManager != null && TutorialDismissedByClient(GetLocalClientId());
+        public bool IsLocalTutorialDismissalPending => localTutorialDismissalSubmitted && !HasLocalTutorialBeenDismissed;
         public int TutorialDismissedCount => tutorialDismissedClientIds.Count;
         public int ParticipantCount => GetParticipantIds().Count;
         public bool HasPublishedResult => resultState.Value.HasValue;
@@ -46,7 +47,7 @@ namespace SmartCampus.Coop.Minigames
             resultState.OnValueChanged += HandleResultChanged;
             tutorialDismissedClientIds.OnListChanged += HandleTutorialListChanged;
 
-            localTutorialDismissed = false;
+            localTutorialDismissalSubmitted = false;
 
             if (IsServer)
             {
@@ -74,12 +75,12 @@ namespace SmartCampus.Coop.Minigames
 
         public void DismissLocalTutorial()
         {
-            if (localTutorialDismissed)
+            if (HasLocalTutorialBeenDismissed || IsLocalTutorialDismissalPending)
             {
                 return;
             }
 
-            localTutorialDismissed = true;
+            localTutorialDismissalSubmitted = true;
             TutorialProgressChanged?.Invoke();
 
             if (IsServer)
@@ -206,6 +207,11 @@ namespace SmartCampus.Coop.Minigames
 
         private void HandleTutorialListChanged(NetworkListEvent<ulong> _)
         {
+            if (HasLocalTutorialBeenDismissed)
+            {
+                localTutorialDismissalSubmitted = false;
+            }
+
             TutorialProgressChanged?.Invoke();
         }
     }

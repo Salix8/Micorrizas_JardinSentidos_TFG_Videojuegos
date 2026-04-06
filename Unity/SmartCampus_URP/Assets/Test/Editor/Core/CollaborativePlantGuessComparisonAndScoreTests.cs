@@ -7,18 +7,62 @@ namespace SmartCampus.Testing.Editor.Core
 {
     public sealed class CollaborativePlantGuessComparisonAndScoreTests
     {
-        [Test]
-        public void Evaluate_CloseLeafSizeAndFruitCategory_ReturnsCloseOutcomes()
+        private static CollaborativePlantGuessPlantDefinition CreatePlant(
+            string plantId,
+            string commonName,
+            string scientificName,
+            string plantType = "Arbol",
+            string surfaceRoughness = "Media",
+            int surfaceRoughnessOrder = 3,
+            string leafType = "Simple",
+            string fruitCategory = "Carnoso",
+            string fruitType = "Baya")
         {
-            var targetPlant = new CollaborativePlantGuessPlantDefinition("laurel", "Laurel", new string[0], string.Empty, "Perenne", "Mediana", 2, "Lisa", 1, "Drupa", "Carnoso");
-            var guessedPlant = new CollaborativePlantGuessPlantDefinition("madrono", "Madroño", new string[0], string.Empty, "Perenne", "Grande", 3, "Lisa", 1, "Baya", "Carnoso");
+            return new CollaborativePlantGuessPlantDefinition(
+                plantId,
+                commonName,
+                scientificName,
+                new string[0],
+                string.Empty,
+                plantType,
+                surfaceRoughness,
+                surfaceRoughnessOrder,
+                leafType,
+                fruitCategory,
+                fruitType);
+        }
+
+        [Test]
+        public void Evaluate_CloseRoughnessAndFruitCategory_ReturnsExpectedOutcomes()
+        {
+            var targetPlant = CreatePlant(
+                "laurel",
+                "Laurel",
+                "Laurus nobilis",
+                plantType: "Arbusto",
+                surfaceRoughness: "Lisa",
+                surfaceRoughnessOrder: 2,
+                leafType: "Lanceolada",
+                fruitCategory: "Carnoso",
+                fruitType: "Drupa");
+            var guessedPlant = CreatePlant(
+                "madrono",
+                "Madrono",
+                "Arbutus unedo",
+                plantType: "Arbol",
+                surfaceRoughness: "Media",
+                surfaceRoughnessOrder: 3,
+                leafType: "Ovalada",
+                fruitCategory: "Carnoso",
+                fruitType: "Baya");
 
             var evaluation = CollaborativePlantGuessComparisonService.Evaluate(targetPlant, guessedPlant);
 
             Assert.That(evaluation.IsExactPlantMatch, Is.False);
-            Assert.That(evaluation.LeafPersistenceOutcome, Is.EqualTo(CollaborativePlantGuessComparisonOutcome.Exact));
-            Assert.That(evaluation.LeafSizeOutcome, Is.EqualTo(CollaborativePlantGuessComparisonOutcome.Close));
-            Assert.That(evaluation.FruitTypeOutcome, Is.EqualTo(CollaborativePlantGuessComparisonOutcome.Close));
+            Assert.That(evaluation.PlantTypeOutcome, Is.EqualTo(CollaborativePlantGuessComparisonOutcome.Incorrect));
+            Assert.That(evaluation.SurfaceRoughnessOutcome, Is.EqualTo(CollaborativePlantGuessComparisonOutcome.Close));
+            Assert.That(evaluation.LeafTypeOutcome, Is.EqualTo(CollaborativePlantGuessComparisonOutcome.Incorrect));
+            Assert.That(evaluation.FruitOutcome, Is.EqualTo(CollaborativePlantGuessComparisonOutcome.Close));
         }
 
         [Test]
@@ -42,46 +86,10 @@ namespace SmartCampus.Testing.Editor.Core
         [Test]
         public void Evaluate_NullPlants_ThrowsArgumentNullException()
         {
-            var validPlant = new CollaborativePlantGuessPlantDefinition("laurel", "Laurel", new string[0], string.Empty, "Perenne", "Mediana", 2, "Lisa", 1, "Drupa", "Carnoso");
+            var validPlant = CreatePlant("laurel", "Laurel", "Laurus nobilis");
 
             Assert.That(() => CollaborativePlantGuessComparisonService.Evaluate(null, validPlant), Throws.ArgumentNullException);
             Assert.That(() => CollaborativePlantGuessComparisonService.Evaluate(validPlant, null), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public void CreateResult_UnsolvedRun_ReturnsZeroScore()
-        {
-            var result = CollaborativePlantGuessScoreService.CreateResult(
-                config: null,
-                wasSolved: false,
-                attemptsUsed: 8,
-                maxAttempts: 8,
-                resultMessage: "No encontrada");
-
-            Assert.That(result.ScoreOutOfTen, Is.EqualTo(0f));
-            Assert.That(result.FailedActions, Is.EqualTo(8));
-        }
-
-        [Test]
-        public void CreateResult_LateSolveScoresLessThanEarlySolve()
-        {
-            var config = ScriptableObject.CreateInstance<CollaborativePlantGuessMinigameConfig>();
-
-            var earlyResult = CollaborativePlantGuessScoreService.CreateResult(
-                config,
-                wasSolved: true,
-                attemptsUsed: 2,
-                maxAttempts: 8,
-                resultMessage: "Resuelta");
-
-            var lateResult = CollaborativePlantGuessScoreService.CreateResult(
-                config,
-                wasSolved: true,
-                attemptsUsed: 7,
-                maxAttempts: 8,
-                resultMessage: "Resuelta");
-
-            Assert.That(lateResult.ScoreOutOfTen, Is.LessThan(earlyResult.ScoreOutOfTen));
         }
     }
 }

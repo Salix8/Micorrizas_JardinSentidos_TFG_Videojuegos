@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -45,6 +47,16 @@ public static class CollaborativePlantGuessMinigameSetup
         AssetDatabase.Refresh();
     }
 
+    public static void RepairCollaborativePlantGuessInput()
+    {
+        var scene = EditorSceneManager.OpenScene(MinigameScenePath, OpenSceneMode.Single);
+        EnsureInputSystemUiEventSystem();
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene);
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+    }
+
     private static void EnsureFolders()
     {
         EnsureFolder("Assets", "CoopMinigames");
@@ -77,9 +89,9 @@ public static class CollaborativePlantGuessMinigameSetup
         serializedObject.FindProperty("subtitle").stringValue = "Deduce en grupo con pistas visuales";
         serializedObject.FindProperty("bodyText").stringValue =
             "Todo el grupo intenta descubrir la planta objetivo.\n\n" +
-            "Escribe una planta del CSV con ayuda del autocompletado. Cada intento aparece en todos los dispositivos con pistas de color por atributo.\n\n" +
+            "Escribe una planta del CSV con ayuda del autocompletado. Puedes buscar por nombre comun, cientifico o sinonimos y cada intento aparece en todos los dispositivos con pistas de color por atributo.\n\n" +
             "Verde significa acierto, naranja significa casi y rojo significa fallo. El mismo dispositivo no puede enviar dos intentos seguidos.\n\n" +
-            "Al llegar al intento configurado se desbloquea la pista de hoja caduca/perenne.";
+            "La rugosidad y la categoria del fruto aparecen desde el principio. El tipo de hoja se revela en el intento 3, el detalle del fruto en el 5 y el tipo de planta en el 7.";
         serializedObject.ApplyModifiedPropertiesWithoutUndo();
         EditorUtility.SetDirty(asset);
         return asset;
@@ -104,7 +116,9 @@ public static class CollaborativePlantGuessMinigameSetup
         serializedObject.FindProperty("maxSupportedDevices").intValue = 6;
         serializedObject.FindProperty("timeLimitSeconds").floatValue = 180f;
         serializedObject.FindProperty("maxAttempts").intValue = 8;
-        serializedObject.FindProperty("hintRevealAttempt").intValue = 5;
+        serializedObject.FindProperty("leafTypeRevealAttempt").intValue = 3;
+        serializedObject.FindProperty("fruitDetailRevealAttempt").intValue = 5;
+        serializedObject.FindProperty("plantTypeRevealAttempt").intValue = 7;
         serializedObject.FindProperty("autocompleteSuggestionCount").intValue = 6;
         serializedObject.FindProperty("timeoutMessage").stringValue = "Tiempo agotado";
         serializedObject.FindProperty("attemptsExhaustedMessage").stringValue = "Intentos agotados";
@@ -116,42 +130,12 @@ public static class CollaborativePlantGuessMinigameSetup
 
     private static CoopMinigameCatalogConfig CreateOrUpdateCatalogConfig()
     {
-        var asset = AssetDatabase.LoadAssetAtPath<CoopMinigameCatalogConfig>(CatalogConfigPath);
-        if (asset == null)
-        {
-            asset = ScriptableObject.CreateInstance<CoopMinigameCatalogConfig>();
-            AssetDatabase.CreateAsset(asset, CatalogConfigPath);
-        }
-
-        var serializedObject = new SerializedObject(asset);
-        var entries = serializedObject.FindProperty("entries");
-        var targetIndex = FindCatalogEntryIndex(entries, MinigameIndex);
-        if (targetIndex < 0)
-        {
-            targetIndex = entries.arraySize;
-            entries.InsertArrayElementAtIndex(targetIndex);
-        }
-
-        var entry = entries.GetArrayElementAtIndex(targetIndex);
-        entry.FindPropertyRelative("minigameIndex").intValue = MinigameIndex;
-        entry.FindPropertyRelative("displayName").stringValue = "Minijuego 3 - Adivina la planta";
-        entry.FindPropertyRelative("description").stringValue = "Adivina una planta entre todos con historial compartido, autocompletado y pistas de atributos tipo Loldle.";
-        serializedObject.ApplyModifiedPropertiesWithoutUndo();
-        EditorUtility.SetDirty(asset);
-        return asset;
-    }
-
-    private static int FindCatalogEntryIndex(SerializedProperty entries, int minigameIndex)
-    {
-        for (var index = 0; index < entries.arraySize; index++)
-        {
-            if (entries.GetArrayElementAtIndex(index).FindPropertyRelative("minigameIndex").intValue == minigameIndex)
-            {
-                return index;
-            }
-        }
-
-        return -1;
+        return CoopMinigameSetupEditorUtility.UpsertCatalogEntry(
+            CatalogConfigPath,
+            MinigameIndex,
+            "Minijuego 3 - Adivina la planta",
+            "Adivina una planta entre todos con historial compartido, autocompletado y pistas de atributos tipo Loldle.",
+            MinigameSceneName);
     }
 
     private static void CreateCsvTemplateIfMissing()
@@ -163,7 +147,15 @@ public static class CollaborativePlantGuessMinigameSetup
             Directory.CreateDirectory(folderPath);
         }
 
-        if (!File.Exists(absolutePath))
+        var shouldWriteTemplate = !File.Exists(absolutePath);
+        if (!shouldWriteTemplate)
+        {
+            var existingHeader = File.ReadLines(absolutePath).FirstOrDefault();
+            var expectedHeader = BuildCsvTemplate().Split('\n')[0].TrimEnd('\r');
+            shouldWriteTemplate = !string.Equals(existingHeader, expectedHeader, StringComparison.Ordinal);
+        }
+
+        if (shouldWriteTemplate)
         {
             File.WriteAllText(absolutePath, BuildCsvTemplate());
         }
@@ -175,7 +167,8 @@ public static class CollaborativePlantGuessMinigameSetup
     {
         var font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
         var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
-        CreateEventSystemIfMissing();
+        EnsureInputSystemUiEventSystem();
+        MinigameSceneCameraUtility.EnsureFixedCamera(scene, config.VisualSettings.BackgroundColor);
 
         var sessionObject = new GameObject("CollaborativePlantGuessSession", typeof(Unity.Netcode.NetworkObject), typeof(CollaborativePlantGuessMinigameSession));
         var session = sessionObject.GetComponent<CollaborativePlantGuessMinigameSession>();
@@ -323,19 +316,7 @@ public static class CollaborativePlantGuessMinigameSetup
 
     private static void SetupMainMapScene(CoopMinigameCatalogConfig catalogConfig)
     {
-        var scene = EditorSceneManager.OpenScene(MainMapScenePath, OpenSceneMode.Single);
-        var launcherController = UnityEngine.Object.FindFirstObjectByType<CoopMinigameLauncherUIController>(FindObjectsInactive.Include);
-        if (launcherController == null)
-        {
-            throw new InvalidOperationException("La escena del mapa principal necesita un CoopMinigameLauncherUIController.");
-        }
-
-        var serializedLauncherController = new SerializedObject(launcherController);
-        serializedLauncherController.FindProperty("minigameCatalogConfig").objectReferenceValue = catalogConfig;
-        serializedLauncherController.ApplyModifiedPropertiesWithoutUndo();
-        EditorUtility.SetDirty(launcherController);
-        EditorSceneManager.MarkSceneDirty(scene);
-        EditorSceneManager.SaveScene(scene);
+        CoopMinigameSetupEditorUtility.ConfigureMainMapLauncher(catalogConfig);
     }
 
     private static void UpdateBuildSettings()
@@ -367,6 +348,7 @@ public static class CollaborativePlantGuessMinigameSetup
     private static CollaborativePlantGuessSuggestionEntryView CreateSuggestionTemplate(Transform parent, Font font, Color buttonColor)
     {
         var buttonObject = CreateButton("SuggestionTemplate", parent, font, "Planta", 20, buttonColor);
+        buttonObject.AddComponent<LayoutElement>().preferredHeight = 44f;
         var suggestionView = buttonObject.AddComponent<CollaborativePlantGuessSuggestionEntryView>();
         var serializedSuggestionView = new SerializedObject(suggestionView);
         serializedSuggestionView.FindProperty("selectionButton").objectReferenceValue = buttonObject.GetComponent<Button>();
@@ -380,14 +362,21 @@ public static class CollaborativePlantGuessMinigameSetup
         var root = CreatePanel("HistoryRowTemplate", parent, new Color(1f, 1f, 1f, 0.58f));
         var layout = root.AddComponent<HorizontalLayoutGroup>();
         layout.padding = new RectOffset(12, 12, 12, 12);
-        layout.spacing = 10f;
+        layout.spacing = 14f;
         layout.childControlHeight = true;
-        layout.childControlWidth = false;
+        layout.childControlWidth = true;
+        layout.childForceExpandWidth = false;
         layout.childForceExpandHeight = false;
-        root.AddComponent<LayoutElement>().preferredHeight = 150f;
+        var rowLayoutElement = root.AddComponent<LayoutElement>();
+        rowLayoutElement.minHeight = 180f;
+        rowLayoutElement.preferredHeight = -1f;
+        var rowFitter = root.AddComponent<ContentSizeFitter>();
+        rowFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
         var infoColumn = CreateUiObject("InfoColumn", root.transform, typeof(VerticalLayoutGroup));
-        infoColumn.AddComponent<LayoutElement>().preferredWidth = 240f;
+        var infoLayoutElement = infoColumn.AddComponent<LayoutElement>();
+        infoLayoutElement.minWidth = 280f;
+        infoLayoutElement.preferredWidth = 320f;
         var infoLayout = infoColumn.GetComponent<VerticalLayoutGroup>();
         infoLayout.spacing = 6f;
         infoLayout.childControlWidth = true;
@@ -404,21 +393,23 @@ public static class CollaborativePlantGuessMinigameSetup
         var placeholder = CreateText("ImagePlaceholder", plantImageRoot.transform, font, "Sin imagen", 16, TextAnchor.MiddleCenter);
         Stretch(placeholder.GetComponent<RectTransform>(), Vector2.zero, Vector2.zero);
         var plantNameLabel = CreateText("PlantNameLabel", infoColumn.transform, font, "Planta", 22, TextAnchor.MiddleLeft);
-        plantNameLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 34f;
+        plantNameLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = -1f;
 
         var comparisonsRow = CreateUiObject("ComparisonsRow", root.transform, typeof(HorizontalLayoutGroup));
-        comparisonsRow.AddComponent<LayoutElement>().flexibleWidth = 1f;
+        var comparisonsRowLayoutElement = comparisonsRow.AddComponent<LayoutElement>();
+        comparisonsRowLayoutElement.minWidth = 760f;
+        comparisonsRowLayoutElement.flexibleWidth = 1f;
         var comparisonsLayout = comparisonsRow.GetComponent<HorizontalLayoutGroup>();
-        comparisonsLayout.spacing = 8f;
+        comparisonsLayout.spacing = 12f;
         comparisonsLayout.childControlHeight = true;
         comparisonsLayout.childControlWidth = true;
         comparisonsLayout.childForceExpandWidth = true;
         comparisonsLayout.childForceExpandHeight = false;
 
-        var persistenceCell = CreateComparisonCell("Hoja", comparisonsRow.transform, font, "Caduca", config.VisualSettings.NeutralCellColor);
-        var sizeCell = CreateComparisonCell("Tamaño", comparisonsRow.transform, font, "Mediana", config.VisualSettings.NeutralCellColor);
-        var textureCell = CreateComparisonCell("Rugosidad", comparisonsRow.transform, font, "Lisa", config.VisualSettings.NeutralCellColor);
-        var fruitCell = CreateComparisonCell("Fruto", comparisonsRow.transform, font, "No tiene", config.VisualSettings.NeutralCellColor);
+        var plantTypeCell = CreateComparisonCell("Tipo de planta", comparisonsRow.transform, font, "?", config.VisualSettings.NeutralCellColor);
+        var surfaceRoughnessCell = CreateComparisonCell("Rugosidad", comparisonsRow.transform, font, "Media", config.VisualSettings.NeutralCellColor);
+        var leafTypeCell = CreateComparisonCell("Tipo de hoja", comparisonsRow.transform, font, "?", config.VisualSettings.NeutralCellColor);
+        var fruitCell = CreateComparisonCell("Fruto", comparisonsRow.transform, font, "Carnoso", config.VisualSettings.NeutralCellColor);
 
         var rowView = root.AddComponent<CollaborativePlantGuessHistoryRowView>();
         var serializedRowView = new SerializedObject(rowView);
@@ -426,14 +417,14 @@ public static class CollaborativePlantGuessMinigameSetup
         serializedRowView.FindProperty("plantNameLabel").objectReferenceValue = plantNameLabel;
         serializedRowView.FindProperty("plantImage").objectReferenceValue = plantImage;
         serializedRowView.FindProperty("plantImagePlaceholder").objectReferenceValue = placeholder.gameObject;
-        serializedRowView.FindProperty("leafPersistenceCell").objectReferenceValue = persistenceCell.RootImage;
-        serializedRowView.FindProperty("leafPersistenceLabel").objectReferenceValue = persistenceCell.ValueLabel;
-        serializedRowView.FindProperty("leafSizeCell").objectReferenceValue = sizeCell.RootImage;
-        serializedRowView.FindProperty("leafSizeLabel").objectReferenceValue = sizeCell.ValueLabel;
-        serializedRowView.FindProperty("leafTextureCell").objectReferenceValue = textureCell.RootImage;
-        serializedRowView.FindProperty("leafTextureLabel").objectReferenceValue = textureCell.ValueLabel;
-        serializedRowView.FindProperty("fruitTypeCell").objectReferenceValue = fruitCell.RootImage;
-        serializedRowView.FindProperty("fruitTypeLabel").objectReferenceValue = fruitCell.ValueLabel;
+        serializedRowView.FindProperty("plantTypeCell").objectReferenceValue = plantTypeCell.RootImage;
+        serializedRowView.FindProperty("plantTypeLabel").objectReferenceValue = plantTypeCell.ValueLabel;
+        serializedRowView.FindProperty("surfaceRoughnessCell").objectReferenceValue = surfaceRoughnessCell.RootImage;
+        serializedRowView.FindProperty("surfaceRoughnessLabel").objectReferenceValue = surfaceRoughnessCell.ValueLabel;
+        serializedRowView.FindProperty("leafTypeCell").objectReferenceValue = leafTypeCell.RootImage;
+        serializedRowView.FindProperty("leafTypeLabel").objectReferenceValue = leafTypeCell.ValueLabel;
+        serializedRowView.FindProperty("fruitCell").objectReferenceValue = fruitCell.RootImage;
+        serializedRowView.FindProperty("fruitLabel").objectReferenceValue = fruitCell.ValueLabel;
         serializedRowView.ApplyModifiedPropertiesWithoutUndo();
         return rowView;
     }
@@ -441,18 +432,28 @@ public static class CollaborativePlantGuessMinigameSetup
     private static ComparisonCellReferences CreateComparisonCell(string headerText, Transform parent, Font font, string value, Color backgroundColor)
     {
         var root = CreatePanel($"{headerText}Cell", parent, backgroundColor);
-        root.AddComponent<LayoutElement>().flexibleWidth = 1f;
+        var layoutElement = root.AddComponent<LayoutElement>();
+        layoutElement.minWidth = 170f;
+        layoutElement.preferredWidth = 190f;
+        layoutElement.flexibleWidth = 1f;
         var layout = root.AddComponent<VerticalLayoutGroup>();
-        layout.padding = new RectOffset(8, 8, 10, 10);
-        layout.spacing = 6f;
-        layout.childAlignment = TextAnchor.MiddleCenter;
+        layout.padding = new RectOffset(10, 10, 10, 12);
+        layout.spacing = 8f;
+        layout.childAlignment = TextAnchor.UpperCenter;
         layout.childControlWidth = true;
         layout.childControlHeight = true;
+        layout.childForceExpandHeight = false;
+        var fitter = root.AddComponent<ContentSizeFitter>();
+        fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
-        var header = CreateText("HeaderLabel", root.transform, font, headerText, 16, TextAnchor.MiddleCenter);
-        header.gameObject.AddComponent<LayoutElement>().preferredHeight = 24f;
-        var valueLabel = CreateText("ValueLabel", root.transform, font, value, 20, TextAnchor.MiddleCenter);
-        valueLabel.gameObject.AddComponent<LayoutElement>().flexibleHeight = 1f;
+        var header = CreateText("HeaderLabel", root.transform, font, headerText, 16, TextAnchor.UpperCenter);
+        header.horizontalOverflow = HorizontalWrapMode.Wrap;
+        header.verticalOverflow = VerticalWrapMode.Overflow;
+        header.gameObject.AddComponent<LayoutElement>().minHeight = 24f;
+        var valueLabel = CreateText("ValueLabel", root.transform, font, value, 20, TextAnchor.UpperCenter);
+        valueLabel.horizontalOverflow = HorizontalWrapMode.Wrap;
+        valueLabel.verticalOverflow = VerticalWrapMode.Overflow;
+        valueLabel.gameObject.AddComponent<LayoutElement>().minHeight = 48f;
 
         return new ComparisonCellReferences(root.GetComponent<Image>(), valueLabel);
     }
@@ -621,13 +622,18 @@ public static class CollaborativePlantGuessMinigameSetup
     private static string BuildCsvTemplate()
     {
         return
-            "plantId,displayName,aliases,imagePath,leafPersistence,leafSize,leafSizeOrder,leafTexture,leafTextureOrder,fruitType,fruitCategory\n" +
-            "arce_campestre,Arce campestre,Acirón|Acer campestre,,Caduca,Mediana,2,Lisa,1,Samara,Seco\n" +
-            "encina,Encina,Carrasca|Quercus ilex,,Perenne,Pequeña,1,Coriácea,3,Bellota,Seco\n" +
-            "madrono,Madroño,Arbutus unedo,,Perenne,Mediana,2,Lisa,1,Baya,Carnoso\n" +
-            "olmo,Olmo,Ulmus minor,,Caduca,Grande,3,Áspera,2,Samara,Seco\n" +
-            "laurel,Laurel,Laurus nobilis,,Perenne,Mediana,2,Lisa,1,Drupa,Carnoso\n" +
-            "granado,Granado,Punica granatum,,Caduca,Pequeña,1,Lisa,1,Balausta,Carnoso\n";
+            "plantId,commonName,scientificName,synonyms,imagePath,plantType,surfaceRoughness,surfaceRoughnessOrder,leafType,fruitCategory,fruitType\n" +
+            "adelfa_baladre,Adelfa / baladre,Nerium oleander,Adelfa|Baladre|Nerium oleander,,Arbusto,Media,3,Lanceolada,Seco,Foliculo\n" +
+            "acebo,Acebo,Ilex aquifolium,Acebo|Ilex aquifolium,,Arbusto,Rugosa,4,Coriacea,Carnoso,Baya\n" +
+            "palmito_margallo,Palmito / margallo,Chamaerops humilis,Palmito|Margallo|Margallo|Chamaerops humilis,,Palmera,Aspera,4,Palmada,Carnoso,Drupa\n" +
+            "olivo,Olivo,Olea europaea,Olivo|Olea europaea,,Arbol,Media,3,Lanceolada,Carnoso,Drupa\n" +
+            "encina,Encina,Quercus ilex,Encina|Carrasca|Quercus ilex,,Arbol,Rugosa,4,Coriacea,Seco,Bellota\n" +
+            "hiedra_enredadera,Hiedra / enredadera,Hedera helix,Hiedra|Enredadera|Enredaderas|Hedera helix,,Trepadora,Media,3,Lobulada,Carnoso,Baya\n" +
+            "garrofera_algarrobo,Garrofera / algarrobo,Ceratonia siliqua,Garrofera|Algarrobo|Ceratonia siliqua,,Arbol,Media,3,Compuesta,Seco,Legumbre\n" +
+            "madrono,Madrono,Arbutus unedo,Madrono|Arbutus unedo,,Arbusto,Media,3,Aserrada,Carnoso,Baya\n" +
+            "alcornoque_surera,Alcornoque / surera,Quercus suber,Alcornoque|Surera|Quercus suber,,Arbol,Muy rugosa,5,Coriacea,Seco,Bellota\n" +
+            "pino_carrasco,Pino carrasco,Pinus halepensis,Pino carrasco|Pinus halepensis,,Arbol,Rugosa,4,Acicular,Seco,Pina\n" +
+            "chumbera_figa_palera,Chumbera / figa palera,Opuntia ficus-indica,Chumbera|Figa palera|Nopal|Opuntia ficus-indica,,Suculenta,Media,3,Carnosa,Carnoso,Baya\n";
     }
 
     private static Canvas CreateCanvas(string name)
@@ -643,11 +649,25 @@ public static class CollaborativePlantGuessMinigameSetup
         return canvas;
     }
 
-    private static void CreateEventSystemIfMissing()
+    private static void EnsureInputSystemUiEventSystem()
     {
-        if (UnityEngine.Object.FindFirstObjectByType<EventSystem>() == null)
+        var eventSystem = UnityEngine.Object.FindFirstObjectByType<EventSystem>();
+        if (eventSystem == null)
         {
-            new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
+            var eventSystemObject = new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
+            eventSystem = eventSystemObject.GetComponent<EventSystem>();
+        }
+
+        var gameObject = eventSystem.gameObject;
+        var standaloneInputModule = gameObject.GetComponent<StandaloneInputModule>();
+        if (standaloneInputModule != null)
+        {
+            UnityEngine.Object.DestroyImmediate(standaloneInputModule);
+        }
+
+        if (gameObject.GetComponent<InputSystemUIInputModule>() == null)
+        {
+            gameObject.AddComponent<InputSystemUIInputModule>();
         }
     }
 
@@ -744,5 +764,180 @@ public static class CollaborativePlantGuessMinigameSetup
         public GameObject Root { get; }
         public GameObject ContentRoot { get; }
         public VerticalLayoutGroup ContentVerticalLayout { get; }
+    }
+}
+
+internal static class CoopMinigameSetupEditorUtility
+{
+    private const string MainMapScenePath = "Assets/Scenes/UJI.unity";
+    private const string CatalogConfigPath = "Assets/CoopMinigames/Configs/CoopMinigameCatalog.asset";
+
+    [MenuItem("Tools/Coop/Refresh Main Map Minigame Launcher")]
+    public static void RefreshMainMapMinigameLauncher()
+    {
+        var catalogConfig = AssetDatabase.LoadAssetAtPath<CoopMinigameCatalogConfig>(CatalogConfigPath);
+        if (catalogConfig == null)
+        {
+            throw new InvalidOperationException("No existe CoopMinigameCatalog.asset. Ejecuta primero el setup de al menos un minijuego.");
+        }
+
+        ConfigureMainMapLauncher(catalogConfig);
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+    }
+
+    public static CoopMinigameCatalogConfig UpsertCatalogEntry(string catalogConfigPath, int minigameIndex, string displayName, string description, string sceneName)
+    {
+        var asset = AssetDatabase.LoadAssetAtPath<CoopMinigameCatalogConfig>(catalogConfigPath);
+        if (asset == null)
+        {
+            asset = ScriptableObject.CreateInstance<CoopMinigameCatalogConfig>();
+            AssetDatabase.CreateAsset(asset, catalogConfigPath);
+        }
+
+        var serializedObject = new SerializedObject(asset);
+        var entries = serializedObject.FindProperty("entries");
+        var targetIndex = FindEntryIndex(entries, minigameIndex);
+        if (targetIndex < 0)
+        {
+            targetIndex = entries.arraySize;
+            entries.InsertArrayElementAtIndex(targetIndex);
+        }
+
+        var entry = entries.GetArrayElementAtIndex(targetIndex);
+        entry.FindPropertyRelative("minigameIndex").intValue = minigameIndex;
+        entry.FindPropertyRelative("displayName").stringValue = displayName;
+        entry.FindPropertyRelative("description").stringValue = description;
+        entry.FindPropertyRelative("sceneName").stringValue = sceneName;
+
+        SortEntries(entries);
+        serializedObject.ApplyModifiedPropertiesWithoutUndo();
+        EditorUtility.SetDirty(asset);
+        return asset;
+    }
+
+    public static void ConfigureMainMapLauncher(CoopMinigameCatalogConfig catalogConfig)
+    {
+        var scene = EditorSceneManager.OpenScene(MainMapScenePath, OpenSceneMode.Single);
+        var launcherController = UnityEngine.Object.FindFirstObjectByType<CoopMinigameLauncherUIController>(FindObjectsInactive.Include);
+        if (launcherController == null)
+        {
+            throw new InvalidOperationException("La escena UJI necesita un CoopMinigameLauncherUIController.");
+        }
+
+        var serializedLauncherController = new SerializedObject(launcherController);
+        serializedLauncherController.FindProperty("minigameCatalogConfig").objectReferenceValue = catalogConfig;
+        serializedLauncherController.ApplyModifiedPropertiesWithoutUndo();
+
+        var entryRoot = serializedLauncherController.FindProperty("entryRoot").objectReferenceValue as Transform;
+        var entryTemplate = serializedLauncherController.FindProperty("entryTemplate").objectReferenceValue as CoopMinigameLauncherEntryView;
+        if (entryRoot == null || entryTemplate == null)
+        {
+            throw new InvalidOperationException("La escena UJI necesita entryRoot y entryTemplate configurados en el launcher.");
+        }
+
+        EnsureSceneVisibleEntries(entryRoot, entryTemplate, catalogConfig);
+
+        EditorUtility.SetDirty(launcherController);
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene);
+    }
+
+    private static void EnsureSceneVisibleEntries(Transform entryRoot, CoopMinigameLauncherEntryView entryTemplate, CoopMinigameCatalogConfig catalogConfig)
+    {
+        var existingEntries = new List<CoopMinigameLauncherEntryView>();
+        for (var childIndex = 0; childIndex < entryRoot.childCount; childIndex++)
+        {
+            var child = entryRoot.GetChild(childIndex);
+            if (child == entryTemplate.transform)
+            {
+                continue;
+            }
+
+            var childEntry = child.GetComponent<CoopMinigameLauncherEntryView>();
+            if (childEntry != null)
+            {
+                existingEntries.Add(childEntry);
+            }
+        }
+
+        for (var index = existingEntries.Count; index < catalogConfig.Entries.Count; index++)
+        {
+            var instance = UnityEngine.Object.Instantiate(entryTemplate, entryRoot, false);
+            existingEntries.Add(instance);
+        }
+
+        entryTemplate.gameObject.name = "EntryTemplate";
+        entryTemplate.gameObject.SetActive(false);
+        entryTemplate.transform.SetAsLastSibling();
+
+        for (var index = 0; index < existingEntries.Count; index++)
+        {
+            var entryView = existingEntries[index];
+            var shouldBeVisible = index < catalogConfig.Entries.Count;
+            entryView.gameObject.SetActive(shouldBeVisible);
+            if (!shouldBeVisible)
+            {
+                continue;
+            }
+
+            var catalogEntry = catalogConfig.Entries[index];
+            entryView.gameObject.name = BuildEntryObjectName(catalogEntry);
+            entryView.transform.SetSiblingIndex(index);
+            entryView.ConfigureForSceneAuthoredPresentation(catalogEntry.DisplayName, catalogEntry.Description, "Abrir");
+
+            var layoutElement = entryView.GetComponent<LayoutElement>();
+            if (layoutElement == null)
+            {
+                layoutElement = entryView.gameObject.AddComponent<LayoutElement>();
+            }
+
+            layoutElement.preferredHeight = 182f;
+            layoutElement.flexibleHeight = 0f;
+        }
+    }
+
+    private static int FindEntryIndex(SerializedProperty entries, int minigameIndex)
+    {
+        for (var index = 0; index < entries.arraySize; index++)
+        {
+            if (entries.GetArrayElementAtIndex(index).FindPropertyRelative("minigameIndex").intValue == minigameIndex)
+            {
+                return index;
+            }
+        }
+
+        return -1;
+    }
+
+    private static void SortEntries(SerializedProperty entries)
+    {
+        var values = new List<(int MinigameIndex, string DisplayName, string Description, string SceneName)>();
+        for (var index = 0; index < entries.arraySize; index++)
+        {
+            var entry = entries.GetArrayElementAtIndex(index);
+            values.Add((
+                entry.FindPropertyRelative("minigameIndex").intValue,
+                entry.FindPropertyRelative("displayName").stringValue,
+                entry.FindPropertyRelative("description").stringValue,
+                entry.FindPropertyRelative("sceneName").stringValue));
+        }
+
+        values.Sort((left, right) => left.MinigameIndex.CompareTo(right.MinigameIndex));
+        entries.arraySize = values.Count;
+        for (var index = 0; index < values.Count; index++)
+        {
+            var entry = entries.GetArrayElementAtIndex(index);
+            entry.FindPropertyRelative("minigameIndex").intValue = values[index].MinigameIndex;
+            entry.FindPropertyRelative("displayName").stringValue = values[index].DisplayName;
+            entry.FindPropertyRelative("description").stringValue = values[index].Description;
+            entry.FindPropertyRelative("sceneName").stringValue = values[index].SceneName;
+        }
+    }
+
+    private static string BuildEntryObjectName(CoopMinigameCatalogEntry entry)
+    {
+        var sanitizedName = new string(entry.DisplayName.Where(character => char.IsLetterOrDigit(character)).ToArray());
+        return $"MinigameShortcut_{entry.MinigameIndex}_{sanitizedName}";
     }
 }

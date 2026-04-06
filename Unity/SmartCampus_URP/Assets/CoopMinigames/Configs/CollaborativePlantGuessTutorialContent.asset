@@ -18,17 +18,19 @@ MonoBehaviour:
 
 
     Escribe una
-    planta del CSV con ayuda del autocompletado. Cada intento aparece en todos los
-    dispositivos con pistas de color por atributo.
+    planta del CSV con ayuda del autocompletado. Puedes buscar por nombre comun,
+    cientifico o sinonimos y cada intento aparece en todos los dispositivos con pistas
+    de color por atributo.
 
 
-    Verde significa acierto,
-    naranja significa casi y rojo significa fallo. El mismo dispositivo no puede
-    enviar dos intentos seguidos.
+    Verde significa acierto, naranja significa casi
+    y rojo significa fallo. El mismo dispositivo no puede enviar dos intentos seguidos.
 
 
-    Al llegar al intento configurado se desbloquea
-    la pista de hoja caduca/perenne.'
+    La
+    rugosidad y la categoria del fruto aparecen desde el principio. El tipo de hoja
+    se revela en el intento 3, el detalle del fruto en el 5 y el tipo de planta en
+    el 7.'
   illustration: {fileID: 0}
   videoClip: {fileID: 0}
   customContentPrefab: {fileID: 0}

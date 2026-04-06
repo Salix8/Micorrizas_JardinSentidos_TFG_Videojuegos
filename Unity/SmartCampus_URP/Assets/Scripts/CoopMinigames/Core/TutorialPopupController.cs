@@ -75,6 +75,19 @@ namespace SmartCampus.Coop.Minigames
             SetupCustomContent(content.CustomContentPrefab);
         }
 
+        public void SetDismissButtonsInteractable(bool interactable)
+        {
+            if (backgroundDismissButton != null)
+            {
+                backgroundDismissButton.interactable = interactable;
+            }
+
+            if (closeButton != null)
+            {
+                closeButton.interactable = interactable;
+            }
+        }
+
         private void NotifyClosed()
         {
             Closed?.Invoke();

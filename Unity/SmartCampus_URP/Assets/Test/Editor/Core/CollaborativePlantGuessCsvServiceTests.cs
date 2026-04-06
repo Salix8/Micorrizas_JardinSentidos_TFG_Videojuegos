@@ -6,28 +6,44 @@ namespace SmartCampus.Testing.Editor.Core
     public sealed class CollaborativePlantGuessCsvServiceTests
     {
         [Test]
-        public void TryParse_ValidCsv_BuildsDefinitionsAndAliases()
+        public void TryParse_ValidCsv_BuildsDefinitionsWithSearchNames()
         {
             const string csv =
-                "plantId,displayName,aliases,imagePath,leafPersistence,leafSize,leafSizeOrder,leafTexture,leafTextureOrder,fruitType,fruitCategory\n" +
-                "encina,Encina,Carrasca|Quercus ilex,,Perenne,Pequena,1,Coriacea,3,Bellota,Seco\n" +
-                "olmo,Olmo,Ulmus minor,,Caduca,Grande,3,Aspera,2,Samara,Seco\n";
+                "plantId,commonName,scientificName,synonyms,imagePath,plantType,surfaceRoughness,surfaceRoughnessOrder,leafType,fruitCategory,fruitType\n" +
+                "encina,Encina,Quercus ilex,Carrasca|Chaparra,,Arbol,Rugosa,4,Coriacea,Seco,Bellota\n" +
+                "olivo,Olivo,Olea europaea,Aceituno,,Arbol,Media,3,Lanceolada,Carnoso,Drupa\n";
 
             var parsed = CollaborativePlantGuessCsvService.TryParse(csv, out var definitions, out var errorMessage);
 
             Assert.That(parsed, Is.True, errorMessage);
             Assert.That(definitions.Count, Is.EqualTo(2));
             Assert.That(definitions[0].DisplayName, Is.EqualTo("Encina"));
-            Assert.That(definitions[0].Aliases.Count, Is.EqualTo(2));
+            Assert.That(definitions[0].ScientificName, Is.EqualTo("Quercus ilex"));
+            Assert.That(definitions[0].Synonyms.Count, Is.EqualTo(2));
+            Assert.That(definitions[0].FruitCategory, Is.EqualTo("Seco"));
+        }
+
+        [Test]
+        public void TryParse_LegacyAliasesHeader_IsStillAccepted()
+        {
+            const string csv =
+                "plantId,commonName,scientificName,aliases,imagePath,plantType,surfaceRoughness,surfaceRoughnessOrder,leafType,fruitCategory,fruitType\n" +
+                "encina,Encina,Quercus ilex,Carrasca,,Arbol,Rugosa,4,Coriacea,Seco,Bellota\n" +
+                "olivo,Olivo,Olea europaea,Aceituno,,Arbol,Media,3,Lanceolada,Carnoso,Drupa\n";
+
+            var parsed = CollaborativePlantGuessCsvService.TryParse(csv, out var definitions, out var errorMessage);
+
+            Assert.That(parsed, Is.True, errorMessage);
+            Assert.That(definitions[0].Synonyms[0], Is.EqualTo("Carrasca"));
         }
 
         [Test]
         public void TryParse_DuplicatePlantId_ReturnsFalse()
         {
             const string csv =
-                "plantId,displayName,aliases,imagePath,leafPersistence,leafSize,leafSizeOrder,leafTexture,leafTextureOrder,fruitType,fruitCategory\n" +
-                "encina,Encina,,,Perenne,Pequena,1,Coriacea,3,Bellota,Seco\n" +
-                "encina,Olmo,,,Caduca,Grande,3,Aspera,2,Samara,Seco\n";
+                "plantId,commonName,scientificName,synonyms,imagePath,plantType,surfaceRoughness,surfaceRoughnessOrder,leafType,fruitCategory,fruitType\n" +
+                "encina,Encina,Quercus ilex,Carrasca,,Arbol,Rugosa,4,Coriacea,Seco,Bellota\n" +
+                "encina,Olivo,Olea europaea,Aceituno,,Arbol,Media,3,Lanceolada,Carnoso,Drupa\n";
 
             var parsed = CollaborativePlantGuessCsvService.TryParse(csv, out _, out var errorMessage);
 
@@ -36,31 +52,17 @@ namespace SmartCampus.Testing.Editor.Core
         }
 
         [Test]
-        public void TryParse_BlankFruitCategoryFallsBackToFruitType_AndAliasesAreDeduplicated()
+        public void TryParse_MissingNewSchemaColumn_ReturnsFalse()
         {
             const string csv =
-                "plantId,displayName,aliases,imagePath,leafPersistence,leafSize,leafSizeOrder,leafTexture,leafTextureOrder,fruitType,fruitCategory\n" +
-                "encina,Encina,Carrasca|carrasca|Quercus ilex,,Perenne,Pequena,1,Coriacea,3,Bellota,\n" +
-                "olmo,Olmo,Ulmus minor,,Caduca,Grande,3,Aspera,2,Samara,Seco\n";
-
-            var parsed = CollaborativePlantGuessCsvService.TryParse(csv, out var definitions, out var errorMessage);
-
-            Assert.That(parsed, Is.True, errorMessage);
-            Assert.That(definitions[0].Aliases.Count, Is.EqualTo(2));
-            Assert.That(definitions[0].FruitCategory, Is.EqualTo("Bellota"));
-        }
-
-        [Test]
-        public void TryParse_WithSingleValidPlant_ReturnsFalse()
-        {
-            const string csv =
-                "plantId,displayName,aliases,imagePath,leafPersistence,leafSize,leafSizeOrder,leafTexture,leafTextureOrder,fruitType,fruitCategory\n" +
-                "encina,Encina,Carrasca,,Perenne,Pequena,1,Coriacea,3,Bellota,Seco\n";
+                "plantId,commonName,scientificName,synonyms,imagePath,plantType,surfaceRoughness,leafType,fruitCategory,fruitType\n" +
+                "encina,Encina,Quercus ilex,Carrasca,,Arbol,Rugosa,Coriacea,Seco,Bellota\n" +
+                "olivo,Olivo,Olea europaea,Aceituno,,Arbol,Media,Lanceolada,Carnoso,Drupa\n";
 
             var parsed = CollaborativePlantGuessCsvService.TryParse(csv, out _, out var errorMessage);
 
             Assert.That(parsed, Is.False);
-            Assert.That(errorMessage, Does.Contain("al menos dos plantas"));
+            Assert.That(errorMessage, Does.Contain("surfaceRoughnessOrder"));
         }
     }
 }

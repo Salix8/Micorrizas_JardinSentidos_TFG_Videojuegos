@@ -18,10 +18,8 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
         private readonly NetworkList<CollaborativePlantGuessHistoryEntryNetworkState> guessHistory = new();
         private readonly NetworkVariable<int> attemptsUsed = new();
         private readonly NetworkVariable<float> remainingTimeSeconds = new();
-        private readonly NetworkVariable<bool> isLeafPersistenceHintUnlocked = new();
         private readonly NetworkVariable<ulong> lastGuessingClientId = new(NoClientId);
         private readonly NetworkVariable<FixedString128Bytes> sharedStatusMessage = new();
-        private readonly NetworkVariable<FixedString128Bytes> revealedLeafPersistenceHint = new();
         private readonly NetworkVariable<FixedString128Bytes> revealedTargetPlantId = new();
 
         private readonly List<CollaborativePlantGuessPlantDefinition> loadedPlantDefinitions = new();
@@ -41,9 +39,7 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
         public string DataLoadError => dataLoadError;
         public int AttemptsUsed => attemptsUsed.Value;
         public float RemainingTimeSeconds => remainingTimeSeconds.Value;
-        public bool IsLeafPersistenceHintUnlocked => isLeafPersistenceHintUnlocked.Value;
         public string SharedStatusMessage => sharedStatusMessage.Value.ToString();
-        public string RevealedLeafPersistenceHint => revealedLeafPersistenceHint.Value.ToString();
         public string RevealedTargetPlantId => revealedTargetPlantId.Value.ToString();
 
         public event Action StateChanged;
@@ -58,10 +54,8 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             guessHistory.OnListChanged += HandleHistoryChanged;
             attemptsUsed.OnValueChanged += HandleIntChanged;
             remainingTimeSeconds.OnValueChanged += HandleFloatChanged;
-            isLeafPersistenceHintUnlocked.OnValueChanged += HandleBoolChanged;
             lastGuessingClientId.OnValueChanged += HandleLastGuessingClientChanged;
             sharedStatusMessage.OnValueChanged += HandleStatusChanged;
-            revealedLeafPersistenceHint.OnValueChanged += HandleStringChanged;
             revealedTargetPlantId.OnValueChanged += HandleStringChanged;
 
             base.OnNetworkSpawn();
@@ -74,10 +68,8 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             guessHistory.OnListChanged -= HandleHistoryChanged;
             attemptsUsed.OnValueChanged -= HandleIntChanged;
             remainingTimeSeconds.OnValueChanged -= HandleFloatChanged;
-            isLeafPersistenceHintUnlocked.OnValueChanged -= HandleBoolChanged;
             lastGuessingClientId.OnValueChanged -= HandleLastGuessingClientChanged;
             sharedStatusMessage.OnValueChanged -= HandleStatusChanged;
-            revealedLeafPersistenceHint.OnValueChanged -= HandleStringChanged;
             revealedTargetPlantId.OnValueChanged -= HandleStringChanged;
 
             if (csvLoadingCoroutine != null)
@@ -149,21 +141,26 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
 
         public bool CanLocalSubmitGuess(string rawInput)
         {
-            if (Stage != CooperativeMinigameStage.Playing ||
-                !hasLoadedPlantDefinitions ||
-                !string.IsNullOrWhiteSpace(dataLoadError) ||
-                collaborativePlantGuessMinigameConfig == null ||
-                attemptsUsed.Value >= collaborativePlantGuessMinigameConfig.MaxAttempts)
+            return GetLocalSubmissionBlockReason(rawInput) == CollaborativePlantGuessSubmissionBlockReason.None;
+        }
+
+        public CollaborativePlantGuessSubmissionBlockReason GetLocalSubmissionBlockReason(string rawInput)
+        {
+            if (collaborativePlantGuessMinigameConfig == null)
             {
-                return false;
+                return CollaborativePlantGuessSubmissionBlockReason.NotPlaying;
             }
 
-            if (lastGuessingClientId.Value == GetLocalClientId() && attemptsUsed.Value > 0)
-            {
-                return false;
-            }
-
-            return TryResolveLocalPlant(rawInput, out _);
+            var canResolvePlant = TryResolveLocalPlant(rawInput, out _);
+            return CollaborativePlantGuessGameplayRules.GetLocalSubmissionBlockReason(
+                Stage,
+                hasLoadedPlantDefinitions,
+                dataLoadError,
+                attemptsUsed.Value,
+                collaborativePlantGuessMinigameConfig.MaxAttempts,
+                GetLocalClientId(),
+                lastGuessingClientId.Value,
+                canResolvePlant);
         }
 
         public void SubmitLocalGuess(string rawInput)
@@ -210,10 +207,8 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             assignmentSeed = Environment.TickCount;
             attemptsUsed.Value = 0;
             remainingTimeSeconds.Value = collaborativePlantGuessMinigameConfig == null ? 0f : collaborativePlantGuessMinigameConfig.TimeLimitSeconds;
-            isLeafPersistenceHintUnlocked.Value = false;
             lastGuessingClientId.Value = NoClientId;
             sharedStatusMessage.Value = new FixedString128Bytes("Preparando el conjunto de plantas compartidas.");
-            revealedLeafPersistenceHint.Value = default;
             revealedTargetPlantId.Value = default;
             guessHistory.Clear();
             targetPlantId = string.Empty;
@@ -330,9 +325,11 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             }
 
             var random = new System.Random(assignmentSeed++);
-            targetPlantId = loadedPlantDefinitions[random.Next(loadedPlantDefinitions.Count)].PlantId;
+            var targetPlant = loadedPlantDefinitions[random.Next(loadedPlantDefinitions.Count)];
+            targetPlantId = targetPlant.PlantId;
             sharedStatusMessage.Value = new FixedString128Bytes("La partida ha empezado. Coordinaos para proponer plantas.");
             serverDataPrepared = true;
+            Debug.Log($"[CollaborativePlantGuess] Planta objetivo seleccionada: {targetPlant.FullDisplayName} ({targetPlant.PlantId})");
 
             if (pendingGameplayStart || Stage == CooperativeMinigameStage.Playing)
             {
@@ -370,7 +367,7 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
                 return;
             }
 
-            if (attemptsUsed.Value > 0 && senderClientId == lastGuessingClientId.Value)
+            if (CollaborativePlantGuessGameplayRules.HasSubmittedPreviousGuess(attemptsUsed.Value, senderClientId, lastGuessingClientId.Value))
             {
                 return;
             }
@@ -405,18 +402,12 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
                 AttemptIndex = attemptsUsed.Value,
                 GuessingClientId = senderClientId,
                 PlantId = new FixedString128Bytes(guessedPlant.PlantId),
-                LeafPersistenceOutcome = evaluation.LeafPersistenceOutcome,
-                LeafSizeOutcome = evaluation.LeafSizeOutcome,
-                LeafTextureOutcome = evaluation.LeafTextureOutcome,
-                FruitTypeOutcome = evaluation.FruitTypeOutcome,
+                PlantTypeOutcome = evaluation.PlantTypeOutcome,
+                SurfaceRoughnessOutcome = evaluation.SurfaceRoughnessOutcome,
+                LeafTypeOutcome = evaluation.LeafTypeOutcome,
+                FruitOutcome = evaluation.FruitOutcome,
                 IsExactPlantMatch = evaluation.IsExactPlantMatch
             });
-
-            if (!isLeafPersistenceHintUnlocked.Value && attemptsUsed.Value >= collaborativePlantGuessMinigameConfig.HintRevealAttempt)
-            {
-                isLeafPersistenceHintUnlocked.Value = true;
-                revealedLeafPersistenceHint.Value = new FixedString128Bytes(targetPlant.LeafPersistence);
-            }
 
             if (evaluation.IsExactPlantMatch)
             {
@@ -432,9 +423,8 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
                 return;
             }
 
-            sharedStatusMessage.Value = isLeafPersistenceHintUnlocked.Value
-                ? new FixedString128Bytes($"Intento {attemptsUsed.Value}/{collaborativePlantGuessMinigameConfig.MaxAttempts}. Ya teneis la pista de hoja.")
-                : new FixedString128Bytes($"Intento {attemptsUsed.Value}/{collaborativePlantGuessMinigameConfig.MaxAttempts}. Ahora debe responder otro dispositivo.");
+            sharedStatusMessage.Value = new FixedString128Bytes(
+                $"Intento {attemptsUsed.Value}/{collaborativePlantGuessMinigameConfig.MaxAttempts}. Ahora debe responder otro dispositivo.");
         }
 
         private void RevealTargetPlantServer()
@@ -445,8 +435,6 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             }
 
             revealedTargetPlantId.Value = new FixedString128Bytes(targetPlant.PlantId);
-            revealedLeafPersistenceHint.Value = new FixedString128Bytes(targetPlant.LeafPersistence);
-            isLeafPersistenceHintUnlocked.Value = true;
         }
 
         private void CompleteMinigameServer(bool wasSolved, string resultMessage)
@@ -460,7 +448,7 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             var decoratedResultMessage = resultMessage;
             if (TryGetPlantDefinition(targetPlantId, out var targetPlant))
             {
-                decoratedResultMessage = $"{resultMessage}: {targetPlant.DisplayName}";
+                decoratedResultMessage = $"{resultMessage}: {targetPlant.FullDisplayName}";
             }
 
             PublishResultServer(CollaborativePlantGuessScoreService.CreateResult(
@@ -486,11 +474,6 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             StateChanged?.Invoke();
         }
 
-        private void HandleBoolChanged(bool _, bool __)
-        {
-            StateChanged?.Invoke();
-        }
-
         private void HandleLastGuessingClientChanged(ulong _, ulong __)
         {
             StateChanged?.Invoke();
@@ -504,6 +487,65 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
         private void HandleStringChanged(FixedString128Bytes _, FixedString128Bytes __)
         {
             StateChanged?.Invoke();
+        }
+    }
+
+    public enum CollaborativePlantGuessSubmissionBlockReason
+    {
+        None = 0,
+        NotPlaying = 1,
+        PlantDefinitionsNotReady = 2,
+        DataLoadFailed = 3,
+        AttemptsExhausted = 4,
+        WaitingForAnotherPlayer = 5,
+        InvalidPlantSelection = 6
+    }
+
+    public static class CollaborativePlantGuessGameplayRules
+    {
+        public static CollaborativePlantGuessSubmissionBlockReason GetLocalSubmissionBlockReason(
+            CooperativeMinigameStage stage,
+            bool hasLoadedPlantDefinitions,
+            string dataLoadError,
+            int attemptsUsed,
+            int maxAttempts,
+            ulong localClientId,
+            ulong lastGuessingClientId,
+            bool canResolveGuess)
+        {
+            if (stage != CooperativeMinigameStage.Playing)
+            {
+                return CollaborativePlantGuessSubmissionBlockReason.NotPlaying;
+            }
+
+            if (!hasLoadedPlantDefinitions)
+            {
+                return CollaborativePlantGuessSubmissionBlockReason.PlantDefinitionsNotReady;
+            }
+
+            if (!string.IsNullOrWhiteSpace(dataLoadError))
+            {
+                return CollaborativePlantGuessSubmissionBlockReason.DataLoadFailed;
+            }
+
+            if (attemptsUsed >= maxAttempts)
+            {
+                return CollaborativePlantGuessSubmissionBlockReason.AttemptsExhausted;
+            }
+
+            if (HasSubmittedPreviousGuess(attemptsUsed, localClientId, lastGuessingClientId))
+            {
+                return CollaborativePlantGuessSubmissionBlockReason.WaitingForAnotherPlayer;
+            }
+
+            return canResolveGuess
+                ? CollaborativePlantGuessSubmissionBlockReason.None
+                : CollaborativePlantGuessSubmissionBlockReason.InvalidPlantSelection;
+        }
+
+        public static bool HasSubmittedPreviousGuess(int attemptsUsed, ulong clientId, ulong lastGuessingClientId)
+        {
+            return attemptsUsed > 0 && clientId == lastGuessingClientId;
         }
     }
 }

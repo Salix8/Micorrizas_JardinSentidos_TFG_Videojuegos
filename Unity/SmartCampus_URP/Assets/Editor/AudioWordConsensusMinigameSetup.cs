@@ -122,42 +122,12 @@ public static class AudioWordConsensusMinigameSetup
 
     private static CoopMinigameCatalogConfig CreateOrUpdateCatalogConfig()
     {
-        var asset = AssetDatabase.LoadAssetAtPath<CoopMinigameCatalogConfig>(CatalogConfigPath);
-        if (asset == null)
-        {
-            asset = ScriptableObject.CreateInstance<CoopMinigameCatalogConfig>();
-            AssetDatabase.CreateAsset(asset, CatalogConfigPath);
-        }
-
-        var serializedObject = new SerializedObject(asset);
-        var entries = serializedObject.FindProperty("entries");
-        var targetIndex = FindCatalogEntryIndex(entries, MinigameIndex);
-        if (targetIndex < 0)
-        {
-            targetIndex = entries.arraySize;
-            entries.InsertArrayElementAtIndex(targetIndex);
-        }
-
-        var entry = entries.GetArrayElementAtIndex(targetIndex);
-        entry.FindPropertyRelative("minigameIndex").intValue = MinigameIndex;
-        entry.FindPropertyRelative("displayName").stringValue = "Minijuego 2 - Sonido y consenso";
-        entry.FindPropertyRelative("description").stringValue = "Un dispositivo reproduce un sonido y el resto compara palabras diferentes para decidir en grupo cual debe pulsarse.";
-        serializedObject.ApplyModifiedPropertiesWithoutUndo();
-        EditorUtility.SetDirty(asset);
-        return asset;
-    }
-
-    private static int FindCatalogEntryIndex(SerializedProperty entries, int minigameIndex)
-    {
-        for (var index = 0; index < entries.arraySize; index++)
-        {
-            if (entries.GetArrayElementAtIndex(index).FindPropertyRelative("minigameIndex").intValue == minigameIndex)
-            {
-                return index;
-            }
-        }
-
-        return -1;
+        return CoopMinigameSetupEditorUtility.UpsertCatalogEntry(
+            CatalogConfigPath,
+            MinigameIndex,
+            "Minijuego 2 - Sonido y consenso",
+            "Un dispositivo reproduce un sonido y el resto compara palabras diferentes para decidir en grupo cual debe pulsarse.",
+            MinigameSceneName);
     }
 
     private static void SetupMinigameScene(AudioWordConsensusMinigameConfig config)
@@ -165,6 +135,7 @@ public static class AudioWordConsensusMinigameSetup
         var font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
         var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
         CreateEventSystemIfMissing();
+        MinigameSceneCameraUtility.EnsureFixedCamera(scene, config.VisualSettings.BackgroundColor);
 
         var sessionObject = new GameObject("AudioWordConsensusSession", typeof(Unity.Netcode.NetworkObject), typeof(AudioWordConsensusMinigameSession));
         var session = sessionObject.GetComponent<AudioWordConsensusMinigameSession>();
@@ -290,19 +261,7 @@ public static class AudioWordConsensusMinigameSetup
 
     private static void SetupMainMapScene(CoopMinigameCatalogConfig catalogConfig)
     {
-        var scene = EditorSceneManager.OpenScene(MainMapScenePath, OpenSceneMode.Single);
-        var launcherController = UnityEngine.Object.FindFirstObjectByType<CoopMinigameLauncherUIController>(FindObjectsInactive.Include);
-        if (launcherController == null)
-        {
-            throw new InvalidOperationException("La escena del mapa principal necesita un CoopMinigameLauncherUIController.");
-        }
-
-        var serializedLauncherController = new SerializedObject(launcherController);
-        serializedLauncherController.FindProperty("minigameCatalogConfig").objectReferenceValue = catalogConfig;
-        serializedLauncherController.ApplyModifiedPropertiesWithoutUndo();
-        EditorUtility.SetDirty(launcherController);
-        EditorSceneManager.MarkSceneDirty(scene);
-        EditorSceneManager.SaveScene(scene);
+        CoopMinigameSetupEditorUtility.ConfigureMainMapLauncher(catalogConfig);
     }
 
     private static void UpdateBuildSettings()

@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 using SmartCampus.Coop.Minigames;
 
 namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
@@ -15,7 +16,9 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
         [Header("Gameplay")]
         [SerializeField] [Min(10f)] private float timeLimitSeconds = 180f;
         [SerializeField] [Min(3)] private int maxAttempts = 8;
-        [SerializeField] [Min(1)] private int hintRevealAttempt = 5;
+        [SerializeField] [Min(1)] private int leafTypeRevealAttempt = 3;
+        [SerializeField] [FormerlySerializedAs("hintRevealAttempt")] [Min(1)] private int fruitDetailRevealAttempt = 5;
+        [SerializeField] [Min(1)] private int plantTypeRevealAttempt = 7;
         [SerializeField] [Min(1)] private int autocompleteSuggestionCount = 6;
         [SerializeField] private string timeoutMessage = "Tiempo agotado";
         [SerializeField] private string attemptsExhaustedMessage = "Intentos agotados";
@@ -32,7 +35,9 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
         public int MaxSupportedDevices => maxSupportedDevices;
         public float TimeLimitSeconds => timeLimitSeconds;
         public int MaxAttempts => maxAttempts;
-        public int HintRevealAttempt => hintRevealAttempt;
+        public int LeafTypeRevealAttempt => leafTypeRevealAttempt;
+        public int FruitDetailRevealAttempt => fruitDetailRevealAttempt;
+        public int PlantTypeRevealAttempt => plantTypeRevealAttempt;
         public int AutocompleteSuggestionCount => autocompleteSuggestionCount;
         public string TimeoutMessage => timeoutMessage;
         public string AttemptsExhaustedMessage => attemptsExhaustedMessage;
@@ -46,7 +51,9 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             maxSupportedDevices = Mathf.Max(minimumSupportedPlayers, maxSupportedDevices);
             timeLimitSeconds = Mathf.Max(10f, timeLimitSeconds);
             maxAttempts = Mathf.Max(3, maxAttempts);
-            hintRevealAttempt = Mathf.Clamp(hintRevealAttempt, 1, maxAttempts);
+            leafTypeRevealAttempt = Mathf.Clamp(leafTypeRevealAttempt, 1, maxAttempts);
+            fruitDetailRevealAttempt = Mathf.Clamp(fruitDetailRevealAttempt, 1, maxAttempts);
+            plantTypeRevealAttempt = Mathf.Clamp(plantTypeRevealAttempt, 1, maxAttempts);
             autocompleteSuggestionCount = Mathf.Max(1, autocompleteSuggestionCount);
             scoreSettings.Clamp();
             visualSettings.Clamp();

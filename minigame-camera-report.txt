@@ -1,0 +1,4 @@
+Assets/Scenes/GardenImageVotingMinigame.unity | camera=True | saved=True | position=(0.00, 0.00, -10.00) | ortho=True
+Assets/Scenes/AudioWordConsensusMinigame.unity | camera=True | saved=True | position=(0.00, 0.00, -10.00) | ortho=True
+Assets/Scenes/CollaborativePlantGuessMinigame.unity | camera=True | saved=True | position=(0.00, 0.00, -10.00) | ortho=True
+Assets/Scenes/DistributedPairsMinigame.unity | camera=True | saved=True | position=(0.00, 0.00, -10.00) | ortho=True

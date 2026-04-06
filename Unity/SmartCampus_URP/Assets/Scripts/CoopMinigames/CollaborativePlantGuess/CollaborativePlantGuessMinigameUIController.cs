@@ -131,17 +131,16 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
 
             if (hintLabel != null)
             {
-                var showHint = TypedSession.IsLeafPersistenceHintUnlocked && !string.IsNullOrWhiteSpace(TypedSession.RevealedLeafPersistenceHint);
-                hintLabel.gameObject.SetActive(showHint);
-                if (showHint)
-                {
-                    hintLabel.text = $"Pista desbloqueada: la planta objetivo es de hoja {TypedSession.RevealedLeafPersistenceHint}.";
-                }
+                hintLabel.gameObject.SetActive(true);
+                hintLabel.text =
+                    $"Pistas: rugosidad y fruto desde el inicio, tipo de hoja en {config.LeafTypeRevealAttempt}, detalle del fruto en {config.FruitDetailRevealAttempt}, tipo de planta en {config.PlantTypeRevealAttempt}.";
             }
 
             if (guessInputField != null)
             {
-                guessInputField.interactable = TypedSession.Stage == CooperativeMinigameStage.Playing && TypedSession.HasLoadedPlantDefinitions;
+                guessInputField.interactable =
+                    TypedSession.Stage == CooperativeMinigameStage.Playing &&
+                    string.IsNullOrWhiteSpace(TypedSession.DataLoadError);
             }
 
             if (submitGuessButtonLabel != null)
@@ -170,17 +169,19 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
                 return TypedSession.DataLoadError;
             }
 
-            if (TypedSession.AttemptsUsed > 0 && TypedSession.CanLocalSubmitGuess(guessInputField == null ? string.Empty : guessInputField.text) == false)
+            var inputText = guessInputField == null ? string.Empty : guessInputField.text;
+            var blockReason = TypedSession.GetLocalSubmissionBlockReason(inputText);
+            if (blockReason == CollaborativePlantGuessSubmissionBlockReason.WaitingForAnotherPlayer)
             {
-                var localClientId = TypedSession.NetworkManager == null ? 0UL : TypedSession.NetworkManager.LocalClientId;
-                var lastHistory = TypedSession.GetGuessHistory();
-                if (lastHistory.Count > 0 && lastHistory[lastHistory.Count - 1].GuessingClientId == localClientId)
-                {
-                    return "Tu dispositivo ya hizo el ultimo intento. Espera a que otro envie una planta.";
-                }
+                return "Tu dispositivo ya hizo el ultimo intento. Espera a que otro envie una planta.";
             }
 
-            return $"Escribe una planta del CSV y pulsa enviar. La pista de hoja aparece en el intento {config.HintRevealAttempt}.";
+            if (blockReason == CollaborativePlantGuessSubmissionBlockReason.InvalidPlantSelection && !string.IsNullOrWhiteSpace(inputText))
+            {
+                return "Selecciona una planta valida. Puedes buscar por nombre comun, cientifico o sinonimos.";
+            }
+
+            return $"Busca por nombre comun, cientifico o sinonimos. El fruto se detalla en el intento {config.FruitDetailRevealAttempt}.";
         }
 
         private void RefreshSuggestionList(CollaborativePlantGuessMinigameConfig config)
@@ -200,9 +201,9 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
                 var suggestionView = GetOrCreateSuggestionView(index);
                 suggestionView.gameObject.SetActive(true);
                 var suggestion = suggestions[index];
-                suggestionView.Bind(suggestion.DisplayName, () =>
+                suggestionView.Bind(suggestion.FullDisplayName, () =>
                 {
-                    guessInputField.text = suggestion.DisplayName;
+                    guessInputField.text = suggestion.FullDisplayName;
                     guessInputField.caretPosition = guessInputField.text.Length;
                     RefreshGameplay();
                 });
@@ -236,11 +237,10 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
 
                 TypedSession.TryGetPlantDefinition(historyEntry.PlantId.ToString(), out var plantDefinition);
                 historyRowView.Bind(
-                    this,
                     plantDefinition,
                     TypedSession.GetPlayerDisplaySlot(historyEntry.GuessingClientId),
                     historyEntry,
-                    config.VisualSettings);
+                    config);
             }
 
             for (var index = historyEntries.Count; index < historyRowViews.Count; index++)

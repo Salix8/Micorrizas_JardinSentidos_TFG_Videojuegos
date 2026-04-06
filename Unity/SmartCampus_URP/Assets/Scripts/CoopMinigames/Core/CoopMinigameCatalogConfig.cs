@@ -18,9 +18,11 @@ namespace SmartCampus.Coop.Minigames
         [SerializeField] private int minigameIndex;
         [SerializeField] private string displayName = "Minijuego";
         [SerializeField] [TextArea(2, 4)] private string description = string.Empty;
+        [SerializeField] private string sceneName = string.Empty;
 
         public int MinigameIndex => minigameIndex;
         public string DisplayName => displayName;
         public string Description => description;
+        public string SceneName => sceneName;
     }
 }

@@ -13,23 +13,23 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
     {
         public CollaborativePlantGuessEvaluation(
             bool isExactPlantMatch,
-            CollaborativePlantGuessComparisonOutcome leafPersistenceOutcome,
-            CollaborativePlantGuessComparisonOutcome leafSizeOutcome,
-            CollaborativePlantGuessComparisonOutcome leafTextureOutcome,
-            CollaborativePlantGuessComparisonOutcome fruitTypeOutcome)
+            CollaborativePlantGuessComparisonOutcome plantTypeOutcome,
+            CollaborativePlantGuessComparisonOutcome surfaceRoughnessOutcome,
+            CollaborativePlantGuessComparisonOutcome leafTypeOutcome,
+            CollaborativePlantGuessComparisonOutcome fruitOutcome)
         {
             IsExactPlantMatch = isExactPlantMatch;
-            LeafPersistenceOutcome = leafPersistenceOutcome;
-            LeafSizeOutcome = leafSizeOutcome;
-            LeafTextureOutcome = leafTextureOutcome;
-            FruitTypeOutcome = fruitTypeOutcome;
+            PlantTypeOutcome = plantTypeOutcome;
+            SurfaceRoughnessOutcome = surfaceRoughnessOutcome;
+            LeafTypeOutcome = leafTypeOutcome;
+            FruitOutcome = fruitOutcome;
         }
 
         public bool IsExactPlantMatch { get; }
-        public CollaborativePlantGuessComparisonOutcome LeafPersistenceOutcome { get; }
-        public CollaborativePlantGuessComparisonOutcome LeafSizeOutcome { get; }
-        public CollaborativePlantGuessComparisonOutcome LeafTextureOutcome { get; }
-        public CollaborativePlantGuessComparisonOutcome FruitTypeOutcome { get; }
+        public CollaborativePlantGuessComparisonOutcome PlantTypeOutcome { get; }
+        public CollaborativePlantGuessComparisonOutcome SurfaceRoughnessOutcome { get; }
+        public CollaborativePlantGuessComparisonOutcome LeafTypeOutcome { get; }
+        public CollaborativePlantGuessComparisonOutcome FruitOutcome { get; }
     }
 
     public static class CollaborativePlantGuessComparisonService
@@ -51,10 +51,10 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             var isExactPlantMatch = string.Equals(targetPlant.PlantId, guessedPlant.PlantId, StringComparison.OrdinalIgnoreCase);
             return new CollaborativePlantGuessEvaluation(
                 isExactPlantMatch,
-                EvaluateExactText(targetPlant.LeafPersistence, guessedPlant.LeafPersistence),
-                EvaluateOrderedValue(targetPlant.LeafSizeOrder, guessedPlant.LeafSizeOrder, targetPlant.LeafSize, guessedPlant.LeafSize),
-                EvaluateOrderedValue(targetPlant.LeafTextureOrder, guessedPlant.LeafTextureOrder, targetPlant.LeafTexture, guessedPlant.LeafTexture),
-                EvaluateFruitType(targetPlant, guessedPlant));
+                EvaluateExactText(targetPlant.PlantType, guessedPlant.PlantType),
+                EvaluateOrderedValue(targetPlant.SurfaceRoughnessOrder, guessedPlant.SurfaceRoughnessOrder, targetPlant.SurfaceRoughness, guessedPlant.SurfaceRoughness),
+                EvaluateExactText(targetPlant.LeafType, guessedPlant.LeafType),
+                EvaluateFruit(targetPlant, guessedPlant));
         }
 
         private static CollaborativePlantGuessComparisonOutcome EvaluateExactText(string targetValue, string guessedValue)
@@ -82,7 +82,7 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
                 : CollaborativePlantGuessComparisonOutcome.Incorrect;
         }
 
-        private static CollaborativePlantGuessComparisonOutcome EvaluateFruitType(
+        private static CollaborativePlantGuessComparisonOutcome EvaluateFruit(
             CollaborativePlantGuessPlantDefinition targetPlant,
             CollaborativePlantGuessPlantDefinition guessedPlant)
         {
@@ -94,9 +94,10 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
                 return CollaborativePlantGuessComparisonOutcome.Exact;
             }
 
-            var targetCategory = CollaborativePlantGuessAutocompleteService.Normalize(targetPlant.FruitCategory);
-            var guessedCategory = CollaborativePlantGuessAutocompleteService.Normalize(guessedPlant.FruitCategory);
-            return !string.IsNullOrWhiteSpace(targetCategory) && targetCategory == guessedCategory
+            return string.Equals(
+                CollaborativePlantGuessAutocompleteService.Normalize(targetPlant.FruitCategory),
+                CollaborativePlantGuessAutocompleteService.Normalize(guessedPlant.FruitCategory),
+                StringComparison.Ordinal)
                 ? CollaborativePlantGuessComparisonOutcome.Close
                 : CollaborativePlantGuessComparisonOutcome.Incorrect;
         }

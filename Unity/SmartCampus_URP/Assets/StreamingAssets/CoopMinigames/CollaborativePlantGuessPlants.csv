@@ -1,7 +1,12 @@
-plantId,displayName,aliases,imagePath,leafPersistence,leafSize,leafSizeOrder,leafTexture,leafTextureOrder,fruitType,fruitCategory
-arce_campestre,Arce campestre,Acirón|Acer campestre,,Caduca,Mediana,2,Lisa,1,Samara,Seco
-encina,Encina,Carrasca|Quercus ilex,,Perenne,Pequeña,1,Coriácea,3,Bellota,Seco
-madrono,Madroño,Arbutus unedo,,Perenne,Mediana,2,Lisa,1,Baya,Carnoso
-olmo,Olmo,Ulmus minor,,Caduca,Grande,3,Áspera,2,Samara,Seco
-laurel,Laurel,Laurus nobilis,,Perenne,Mediana,2,Lisa,1,Drupa,Carnoso
-granado,Granado,Punica granatum,,Caduca,Pequeña,1,Lisa,1,Balausta,Carnoso
+plantId,commonName,scientificName,synonyms,imagePath,plantType,surfaceRoughness,surfaceRoughnessOrder,leafType,fruitCategory,fruitType
+adelfa_baladre,Adelfa / baladre,Nerium oleander,Adelfa|Baladre|Nerium oleander,,Arbusto,Media,3,Lanceolada,Seco,Foliculo
+acebo,Acebo,Ilex aquifolium,Acebo|Ilex aquifolium,,Arbusto,Rugosa,4,Coriacea,Carnoso,Baya
+palmito_margallo,Palmito / margallo,Chamaerops humilis,Palmito|Margallo|Margallo|Chamaerops humilis,,Palmera,Aspera,4,Palmada,Carnoso,Drupa
+olivo,Olivo,Olea europaea,Olivo|Olea europaea,,Arbol,Media,3,Lanceolada,Carnoso,Drupa
+encina,Encina,Quercus ilex,Encina|Carrasca|Quercus ilex,,Arbol,Rugosa,4,Coriacea,Seco,Bellota
+hiedra_enredadera,Hiedra / enredadera,Hedera helix,Hiedra|Enredadera|Enredaderas|Hedera helix,,Trepadora,Media,3,Lobulada,Carnoso,Baya
+garrofera_algarrobo,Garrofera / algarrobo,Ceratonia siliqua,Garrofera|Algarrobo|Ceratonia siliqua,,Arbol,Media,3,Compuesta,Seco,Legumbre
+madrono,Madrono,Arbutus unedo,Madrono|Arbutus unedo,,Arbusto,Media,3,Aserrada,Carnoso,Baya
+alcornoque_surera,Alcornoque / surera,Quercus suber,Alcornoque|Surera|Quercus suber,,Arbol,Muy rugosa,5,Coriacea,Seco,Bellota
+pino_carrasco,Pino carrasco,Pinus halepensis,Pino carrasco|Pinus halepensis,,Arbol,Rugosa,4,Acicular,Seco,Pina
+chumbera_figa_palera,Chumbera / figa palera,Opuntia ficus-indica,Chumbera|Figa palera|Nopal|Opuntia ficus-indica,,Suculenta,Media,3,Carnosa,Carnoso,Baya

@@ -86,7 +86,12 @@ public sealed class MultiplayerMenuController : MonoBehaviour
         try
         {
             ShowSessionPanel();
-            await relayConnectionService.StartHostAsync();
+            var joinCode = await relayConnectionService.StartHostAsync();
+            if (string.IsNullOrWhiteSpace(joinCode) && !relayConnectionService.IsSessionActive)
+            {
+                relayConnectionService.ShutdownSession();
+                ShowHostPanel();
+            }
         }
         finally
         {
@@ -101,7 +106,13 @@ public sealed class MultiplayerMenuController : MonoBehaviour
         try
         {
             ShowSessionPanel();
-            await relayConnectionService.JoinAsClientAsync(joinCodeInput != null ? joinCodeInput.text : string.Empty);
+            var joined = await relayConnectionService.JoinAsClientAsync(joinCodeInput != null ? joinCodeInput.text : string.Empty);
+            if (!joined && !relayConnectionService.IsSessionActive)
+            {
+                relayConnectionService.ShutdownSession();
+                ShowJoinPanel();
+                FocusJoinCodeInput();
+            }
         }
         finally
         {
@@ -271,5 +282,16 @@ public sealed class MultiplayerMenuController : MonoBehaviour
     {
         relayConnectionService ??= FindFirstObjectByType<RelayConnectionService>();
         coopSessionCoordinator ??= FindFirstObjectByType<CoopSessionCoordinator>(FindObjectsInactive.Include);
+    }
+
+    private void FocusJoinCodeInput()
+    {
+        if (joinCodeInput == null)
+        {
+            return;
+        }
+
+        joinCodeInput.ActivateInputField();
+        joinCodeInput.Select();
     }
 }

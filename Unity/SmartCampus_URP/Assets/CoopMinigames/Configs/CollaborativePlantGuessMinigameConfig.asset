@@ -21,7 +21,9 @@ MonoBehaviour:
   maxSupportedDevices: 6
   timeLimitSeconds: 180
   maxAttempts: 8
-  hintRevealAttempt: 5
+  leafTypeRevealAttempt: 3
+  fruitDetailRevealAttempt: 5
+  plantTypeRevealAttempt: 7
   autocompleteSuggestionCount: 6
   timeoutMessage: Tiempo agotado
   attemptsExhaustedMessage: Intentos agotados

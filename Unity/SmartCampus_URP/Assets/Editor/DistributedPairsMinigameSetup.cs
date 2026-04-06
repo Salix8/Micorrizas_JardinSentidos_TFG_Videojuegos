@@ -116,25 +116,12 @@ public static class DistributedPairsMinigameSetup
 
     private static CoopMinigameCatalogConfig CreateOrUpdateCatalogConfig()
     {
-        var asset = AssetDatabase.LoadAssetAtPath<CoopMinigameCatalogConfig>(CatalogConfigPath);
-        if (asset == null)
-        {
-            asset = ScriptableObject.CreateInstance<CoopMinigameCatalogConfig>();
-            AssetDatabase.CreateAsset(asset, CatalogConfigPath);
-        }
-
-        var serializedObject = new SerializedObject(asset);
-        var entries = serializedObject.FindProperty("entries");
-        entries.arraySize = 1;
-
-        var entry = entries.GetArrayElementAtIndex(0);
-        entry.FindPropertyRelative("minigameIndex").intValue = 4;
-        entry.FindPropertyRelative("displayName").stringValue = "Minijuego 4 - Parejas distribuidas";
-        entry.FindPropertyRelative("description").stringValue = "Minijuego cooperativo con informacion parcial repartida entre dispositivos.";
-
-        serializedObject.ApplyModifiedPropertiesWithoutUndo();
-        EditorUtility.SetDirty(asset);
-        return asset;
+        return CoopMinigameSetupEditorUtility.UpsertCatalogEntry(
+            CatalogConfigPath,
+            4,
+            "Minijuego 4 - Parejas distribuidas",
+            "Minijuego cooperativo con informacion parcial repartida entre dispositivos.",
+            MinigameSceneName);
     }
 
     private static DistributedPairsCardView CreateOrUpdateCardPrefab()
@@ -209,6 +196,7 @@ public static class DistributedPairsMinigameSetup
         var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
         CreateEventSystemIfMissing();
+        MinigameSceneCameraUtility.EnsureFixedCamera(scene, new Color(0.94f, 0.97f, 0.93f, 1f));
 
         var sessionObject = new GameObject("DistributedPairsSession", typeof(NetworkObject), typeof(DistributedPairsMinigameSession));
         var session = sessionObject.GetComponent<DistributedPairsMinigameSession>();
@@ -343,66 +331,7 @@ public static class DistributedPairsMinigameSetup
 
     private static void SetupMainMapScene(CoopMinigameCatalogConfig catalogConfig)
     {
-        var font = GetBuiltinFont();
-        var scene = EditorSceneManager.OpenScene(MainMapScenePath, OpenSceneMode.Single);
-        CreateEventSystemIfMissing();
-
-        var existingCanvas = GameObject.Find("CoopMinigameLauncherCanvas");
-        if (existingCanvas != null)
-        {
-            UnityEngine.Object.DestroyImmediate(existingCanvas);
-        }
-
-        var canvas = CreateCanvas("CoopMinigameLauncherCanvas");
-        var panel = CreatePanel("LauncherPanel", canvas.transform, new Color(0.11f, 0.16f, 0.2f, 0.84f));
-        var panelRect = panel.GetComponent<RectTransform>();
-        panelRect.anchorMin = new Vector2(0f, 1f);
-        panelRect.anchorMax = new Vector2(0f, 1f);
-        panelRect.pivot = new Vector2(0f, 1f);
-        panelRect.anchoredPosition = new Vector2(32f, -32f);
-        var panelResponsiveLayout = panel.AddComponent<ResponsivePanelLayoutController>();
-        panelResponsiveLayout.Configure(
-            canvas.GetComponent<RectTransform>(),
-            0.38f,
-            0.34f,
-            new Vector2(280f, 260f),
-            new Vector2(460f, 420f),
-            new Vector2(32f, 32f));
-
-        var panelLayout = panel.AddComponent<VerticalLayoutGroup>();
-        panelLayout.padding = new RectOffset(20, 20, 20, 20);
-        panelLayout.spacing = 14f;
-        panelLayout.childControlWidth = true;
-        panelLayout.childControlHeight = true;
-        panelLayout.childForceExpandHeight = false;
-
-        var header = CreateText("Header", panel.transform, font, "Hub de minijuegos cooperativos", 28, TextAnchor.MiddleLeft);
-        header.gameObject.AddComponent<LayoutElement>().preferredHeight = 48f;
-
-        var helperLabel = CreateText("HelperLabel", panel.transform, font, "Elige el siguiente minijuego para todo el grupo.", 18, TextAnchor.UpperLeft);
-        helperLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 72f;
-
-        var entryRoot = CreateUiObject("EntryRoot", panel.transform, typeof(VerticalLayoutGroup));
-        var entryLayout = entryRoot.GetComponent<VerticalLayoutGroup>();
-        entryLayout.spacing = 12f;
-        entryLayout.childControlWidth = true;
-        entryLayout.childControlHeight = true;
-        entryLayout.childForceExpandHeight = false;
-        entryRoot.AddComponent<LayoutElement>().flexibleHeight = 1f;
-
-        var template = CreateLauncherEntryTemplate(entryRoot.transform, font);
-        template.gameObject.SetActive(false);
-
-        var launcherController = panel.AddComponent<CoopMinigameLauncherUIController>();
-        var serializedLauncherController = new SerializedObject(launcherController);
-        serializedLauncherController.FindProperty("minigameCatalogConfig").objectReferenceValue = catalogConfig;
-        serializedLauncherController.FindProperty("entryRoot").objectReferenceValue = entryRoot.transform;
-        serializedLauncherController.FindProperty("entryTemplate").objectReferenceValue = template;
-        serializedLauncherController.FindProperty("helperLabel").objectReferenceValue = helperLabel;
-        serializedLauncherController.ApplyModifiedPropertiesWithoutUndo();
-
-        EditorSceneManager.MarkSceneDirty(scene);
-        EditorSceneManager.SaveScene(scene);
+        CoopMinigameSetupEditorUtility.ConfigureMainMapLauncher(catalogConfig);
     }
 
     private static void UpdateBuildSettings()

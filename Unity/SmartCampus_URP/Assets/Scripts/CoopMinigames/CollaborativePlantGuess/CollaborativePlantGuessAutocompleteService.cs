@@ -20,32 +20,21 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
 
             var normalizedInput = Normalize(rawInput);
             var prefixMatches = new List<CollaborativePlantGuessPlantDefinition>();
-            var containsMatches = new List<CollaborativePlantGuessPlantDefinition>();
 
             for (var index = 0; index < plantDefinitions.Count; index++)
             {
                 var plant = plantDefinitions[index];
-                var bestMatch = GetBestMatchScore(plant, normalizedInput);
-                if (bestMatch == MatchScore.None)
+                if (!MatchesPrefixPlantName(plant, normalizedInput))
                 {
                     continue;
                 }
 
-                if (bestMatch == MatchScore.Prefix)
-                {
-                    prefixMatches.Add(plant);
-                }
-                else
-                {
-                    containsMatches.Add(plant);
-                }
+                prefixMatches.Add(plant);
             }
 
             prefixMatches.Sort(SortByDisplayName);
-            containsMatches.Sort(SortByDisplayName);
 
             return prefixMatches
-                .Concat(containsMatches)
                 .Take(Math.Max(1, maxSuggestions))
                 .ToArray();
         }
@@ -70,6 +59,30 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
                     plantDefinition = plant;
                     return true;
                 }
+            }
+
+            CollaborativePlantGuessPlantDefinition prefixMatch = null;
+            for (var index = 0; index < plantDefinitions.Count; index++)
+            {
+                var plant = plantDefinitions[index];
+                if (!MatchesPrefixPlantName(plant, normalizedInput))
+                {
+                    continue;
+                }
+
+                if (prefixMatch != null)
+                {
+                    plantDefinition = null;
+                    return false;
+                }
+
+                prefixMatch = plant;
+            }
+
+            if (prefixMatch != null)
+            {
+                plantDefinition = prefixMatch;
+                return true;
             }
 
             return false;
@@ -98,14 +111,16 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
 
         private static bool MatchesExactPlantName(CollaborativePlantGuessPlantDefinition plantDefinition, string normalizedInput)
         {
-            if (Normalize(plantDefinition.DisplayName) == normalizedInput)
+            if (Normalize(plantDefinition.CommonName) == normalizedInput ||
+                Normalize(plantDefinition.ScientificName) == normalizedInput ||
+                Normalize(plantDefinition.FullDisplayName) == normalizedInput)
             {
                 return true;
             }
 
-            for (var aliasIndex = 0; aliasIndex < plantDefinition.Aliases.Count; aliasIndex++)
+            for (var synonymIndex = 0; synonymIndex < plantDefinition.Synonyms.Count; synonymIndex++)
             {
-                if (Normalize(plantDefinition.Aliases[aliasIndex]) == normalizedInput)
+                if (Normalize(plantDefinition.Synonyms[synonymIndex]) == normalizedInput)
                 {
                     return true;
                 }
@@ -114,32 +129,24 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             return false;
         }
 
-        private static MatchScore GetBestMatchScore(CollaborativePlantGuessPlantDefinition plantDefinition, string normalizedInput)
+        private static bool MatchesPrefixPlantName(CollaborativePlantGuessPlantDefinition plantDefinition, string normalizedInput)
         {
-            if (MatchesPrefix(plantDefinition.DisplayName, normalizedInput))
+            if (MatchesPrefix(plantDefinition.CommonName, normalizedInput) ||
+                MatchesPrefix(plantDefinition.ScientificName, normalizedInput) ||
+                MatchesPrefix(plantDefinition.FullDisplayName, normalizedInput))
             {
-                return MatchScore.Prefix;
+                return true;
             }
 
-            if (ContainsValue(plantDefinition.DisplayName, normalizedInput))
+            for (var synonymIndex = 0; synonymIndex < plantDefinition.Synonyms.Count; synonymIndex++)
             {
-                return MatchScore.Contains;
-            }
-
-            for (var aliasIndex = 0; aliasIndex < plantDefinition.Aliases.Count; aliasIndex++)
-            {
-                if (MatchesPrefix(plantDefinition.Aliases[aliasIndex], normalizedInput))
+                if (MatchesPrefix(plantDefinition.Synonyms[synonymIndex], normalizedInput))
                 {
-                    return MatchScore.Prefix;
-                }
-
-                if (ContainsValue(plantDefinition.Aliases[aliasIndex], normalizedInput))
-                {
-                    return MatchScore.Contains;
+                    return true;
                 }
             }
 
-            return MatchScore.None;
+            return false;
         }
 
         private static bool MatchesPrefix(string value, string normalizedInput)
@@ -147,21 +154,9 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             return Normalize(value).StartsWith(normalizedInput, StringComparison.Ordinal);
         }
 
-        private static bool ContainsValue(string value, string normalizedInput)
-        {
-            return Normalize(value).IndexOf(normalizedInput, StringComparison.Ordinal) >= 0;
-        }
-
         private static int SortByDisplayName(CollaborativePlantGuessPlantDefinition left, CollaborativePlantGuessPlantDefinition right)
         {
-            return string.Compare(left.DisplayName, right.DisplayName, StringComparison.OrdinalIgnoreCase);
-        }
-
-        private enum MatchScore
-        {
-            None = 0,
-            Contains = 1,
-            Prefix = 2
+            return string.Compare(left.CommonName, right.CommonName, StringComparison.OrdinalIgnoreCase);
         }
     }
 }

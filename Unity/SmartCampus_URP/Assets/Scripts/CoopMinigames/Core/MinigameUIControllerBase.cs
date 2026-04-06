@@ -117,6 +117,7 @@ namespace SmartCampus.Coop.Minigames
                 if (showTutorialPopup)
                 {
                     tutorialPopupController.Bind(config.TutorialContent);
+                    tutorialPopupController.SetDismissButtonsInteractable(!Session.IsLocalTutorialDismissalPending);
                 }
             }
 

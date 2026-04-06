@@ -9,10 +9,10 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
         public int AttemptIndex;
         public ulong GuessingClientId;
         public FixedString128Bytes PlantId;
-        public CollaborativePlantGuessComparisonOutcome LeafPersistenceOutcome;
-        public CollaborativePlantGuessComparisonOutcome LeafSizeOutcome;
-        public CollaborativePlantGuessComparisonOutcome LeafTextureOutcome;
-        public CollaborativePlantGuessComparisonOutcome FruitTypeOutcome;
+        public CollaborativePlantGuessComparisonOutcome PlantTypeOutcome;
+        public CollaborativePlantGuessComparisonOutcome SurfaceRoughnessOutcome;
+        public CollaborativePlantGuessComparisonOutcome LeafTypeOutcome;
+        public CollaborativePlantGuessComparisonOutcome FruitOutcome;
         public bool IsExactPlantMatch;
 
         public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
@@ -21,21 +21,21 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             serializer.SerializeValue(ref GuessingClientId);
             serializer.SerializeValue(ref PlantId);
 
-            var leafPersistence = (int)LeafPersistenceOutcome;
-            var leafSize = (int)LeafSizeOutcome;
-            var leafTexture = (int)LeafTextureOutcome;
-            var fruitType = (int)FruitTypeOutcome;
+            var plantType = (int)PlantTypeOutcome;
+            var surfaceRoughness = (int)SurfaceRoughnessOutcome;
+            var leafType = (int)LeafTypeOutcome;
+            var fruit = (int)FruitOutcome;
 
-            serializer.SerializeValue(ref leafPersistence);
-            serializer.SerializeValue(ref leafSize);
-            serializer.SerializeValue(ref leafTexture);
-            serializer.SerializeValue(ref fruitType);
+            serializer.SerializeValue(ref plantType);
+            serializer.SerializeValue(ref surfaceRoughness);
+            serializer.SerializeValue(ref leafType);
+            serializer.SerializeValue(ref fruit);
             serializer.SerializeValue(ref IsExactPlantMatch);
 
-            LeafPersistenceOutcome = (CollaborativePlantGuessComparisonOutcome)leafPersistence;
-            LeafSizeOutcome = (CollaborativePlantGuessComparisonOutcome)leafSize;
-            LeafTextureOutcome = (CollaborativePlantGuessComparisonOutcome)leafTexture;
-            FruitTypeOutcome = (CollaborativePlantGuessComparisonOutcome)fruitType;
+            PlantTypeOutcome = (CollaborativePlantGuessComparisonOutcome)plantType;
+            SurfaceRoughnessOutcome = (CollaborativePlantGuessComparisonOutcome)surfaceRoughness;
+            LeafTypeOutcome = (CollaborativePlantGuessComparisonOutcome)leafType;
+            FruitOutcome = (CollaborativePlantGuessComparisonOutcome)fruit;
         }
 
         public bool Equals(CollaborativePlantGuessHistoryEntryNetworkState other)
@@ -43,10 +43,10 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             return AttemptIndex == other.AttemptIndex &&
                    GuessingClientId == other.GuessingClientId &&
                    PlantId.Equals(other.PlantId) &&
-                   LeafPersistenceOutcome == other.LeafPersistenceOutcome &&
-                   LeafSizeOutcome == other.LeafSizeOutcome &&
-                   LeafTextureOutcome == other.LeafTextureOutcome &&
-                   FruitTypeOutcome == other.FruitTypeOutcome &&
+                   PlantTypeOutcome == other.PlantTypeOutcome &&
+                   SurfaceRoughnessOutcome == other.SurfaceRoughnessOutcome &&
+                   LeafTypeOutcome == other.LeafTypeOutcome &&
+                   FruitOutcome == other.FruitOutcome &&
                    IsExactPlantMatch == other.IsExactPlantMatch;
         }
 
@@ -57,15 +57,18 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(
-                AttemptIndex,
-                GuessingClientId,
-                PlantId.GetHashCode(),
-                (int)LeafPersistenceOutcome,
-                (int)LeafSizeOutcome,
-                (int)LeafTextureOutcome,
-                (int)FruitTypeOutcome,
-                IsExactPlantMatch);
+            unchecked
+            {
+                var hashCode = AttemptIndex;
+                hashCode = (hashCode * 397) ^ GuessingClientId.GetHashCode();
+                hashCode = (hashCode * 397) ^ PlantId.GetHashCode();
+                hashCode = (hashCode * 397) ^ (int)PlantTypeOutcome;
+                hashCode = (hashCode * 397) ^ (int)SurfaceRoughnessOutcome;
+                hashCode = (hashCode * 397) ^ (int)LeafTypeOutcome;
+                hashCode = (hashCode * 397) ^ (int)FruitOutcome;
+                hashCode = (hashCode * 397) ^ IsExactPlantMatch.GetHashCode();
+                return hashCode;
+            }
         }
     }
 }

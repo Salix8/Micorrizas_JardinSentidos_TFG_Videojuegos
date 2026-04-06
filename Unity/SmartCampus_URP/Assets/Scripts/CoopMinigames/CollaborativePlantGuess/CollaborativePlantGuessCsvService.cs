@@ -9,41 +9,46 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
     {
         public CollaborativePlantGuessPlantDefinition(
             string plantId,
-            string displayName,
-            string[] aliases,
+            string commonName,
+            string scientificName,
+            string[] synonyms,
             string imagePath,
-            string leafPersistence,
-            string leafSize,
-            int leafSizeOrder,
-            string leafTexture,
-            int leafTextureOrder,
-            string fruitType,
-            string fruitCategory)
+            string plantType,
+            string surfaceRoughness,
+            int surfaceRoughnessOrder,
+            string leafType,
+            string fruitCategory,
+            string fruitType)
         {
             PlantId = plantId;
-            DisplayName = displayName;
-            Aliases = aliases ?? Array.Empty<string>();
+            CommonName = commonName;
+            ScientificName = scientificName;
+            Synonyms = synonyms ?? Array.Empty<string>();
             ImagePath = imagePath ?? string.Empty;
-            LeafPersistence = leafPersistence;
-            LeafSize = leafSize;
-            LeafSizeOrder = leafSizeOrder;
-            LeafTexture = leafTexture;
-            LeafTextureOrder = leafTextureOrder;
-            FruitType = fruitType;
+            PlantType = plantType;
+            SurfaceRoughness = surfaceRoughness;
+            SurfaceRoughnessOrder = surfaceRoughnessOrder;
+            LeafType = leafType;
             FruitCategory = fruitCategory;
+            FruitType = fruitType;
         }
 
         public string PlantId { get; }
-        public string DisplayName { get; }
-        public IReadOnlyList<string> Aliases { get; }
+        public string CommonName { get; }
+        public string ScientificName { get; }
+        public IReadOnlyList<string> Synonyms { get; }
         public string ImagePath { get; }
-        public string LeafPersistence { get; }
-        public string LeafSize { get; }
-        public int LeafSizeOrder { get; }
-        public string LeafTexture { get; }
-        public int LeafTextureOrder { get; }
-        public string FruitType { get; }
+        public string PlantType { get; }
+        public string SurfaceRoughness { get; }
+        public int SurfaceRoughnessOrder { get; }
+        public string LeafType { get; }
         public string FruitCategory { get; }
+        public string FruitType { get; }
+
+        public string DisplayName => CommonName;
+        public string FullDisplayName => string.IsNullOrWhiteSpace(ScientificName)
+            ? CommonName
+            : $"{CommonName} ({ScientificName})";
     }
 
     public static class CollaborativePlantGuessCsvService
@@ -87,28 +92,30 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
                 }
 
                 var plantId = GetValue(row, headerMap, "plantId").Trim();
-                var displayName = GetValue(row, headerMap, "displayName").Trim();
+                var commonName = GetValue(row, headerMap, "commonName").Trim();
+                var scientificName = GetValue(row, headerMap, "scientificName").Trim();
                 var imagePath = GetValue(row, headerMap, "imagePath").Trim();
-                var leafPersistence = GetValue(row, headerMap, "leafPersistence").Trim();
-                var leafSize = GetValue(row, headerMap, "leafSize").Trim();
-                var leafTexture = GetValue(row, headerMap, "leafTexture").Trim();
+                var plantType = GetValue(row, headerMap, "plantType").Trim();
+                var surfaceRoughness = GetValue(row, headerMap, "surfaceRoughness").Trim();
+                var leafType = GetValue(row, headerMap, "leafType").Trim();
+                var fruitCategory = GetRequiredValue(row, headerMap, "fruitCategory", "fruitType").Trim();
                 var fruitType = GetValue(row, headerMap, "fruitType").Trim();
-                var fruitCategory = GetValue(row, headerMap, "fruitCategory").Trim();
-                var aliases = SplitAliases(GetValue(row, headerMap, "aliases"));
+                var synonyms = SplitSynonyms(GetRequiredValue(row, headerMap, "synonyms", "aliases"));
 
-                if (!TryGetInt(row, headerMap, "leafSizeOrder", out var leafSizeOrder) ||
-                    !TryGetInt(row, headerMap, "leafTextureOrder", out var leafTextureOrder))
+                if (!TryGetInt(row, headerMap, "surfaceRoughnessOrder", out var surfaceRoughnessOrder))
                 {
-                    errorMessage = $"Fila {rowIndex + 1}: leafSizeOrder y leafTextureOrder deben ser enteros.";
+                    errorMessage = $"Fila {rowIndex + 1}: surfaceRoughnessOrder debe ser un entero.";
                     plantDefinitions.Clear();
                     return false;
                 }
 
                 if (string.IsNullOrWhiteSpace(plantId) ||
-                    string.IsNullOrWhiteSpace(displayName) ||
-                    string.IsNullOrWhiteSpace(leafPersistence) ||
-                    string.IsNullOrWhiteSpace(leafSize) ||
-                    string.IsNullOrWhiteSpace(leafTexture) ||
+                    string.IsNullOrWhiteSpace(commonName) ||
+                    string.IsNullOrWhiteSpace(scientificName) ||
+                    string.IsNullOrWhiteSpace(plantType) ||
+                    string.IsNullOrWhiteSpace(surfaceRoughness) ||
+                    string.IsNullOrWhiteSpace(leafType) ||
+                    string.IsNullOrWhiteSpace(fruitCategory) ||
                     string.IsNullOrWhiteSpace(fruitType))
                 {
                     errorMessage = $"Fila {rowIndex + 1}: faltan campos obligatorios.";
@@ -123,28 +130,28 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
                     return false;
                 }
 
-                if (!seenDisplayNames.Add(displayName))
+                if (!seenDisplayNames.Add(commonName))
                 {
-                    errorMessage = $"Fila {rowIndex + 1}: displayName repetido '{displayName}'.";
+                    errorMessage = $"Fila {rowIndex + 1}: commonName repetido '{commonName}'.";
                     plantDefinitions.Clear();
                     return false;
                 }
 
                 plantDefinitions.Add(new CollaborativePlantGuessPlantDefinition(
                     plantId,
-                    displayName,
-                    aliases,
+                    commonName,
+                    scientificName,
+                    synonyms,
                     imagePath,
-                    leafPersistence,
-                    leafSize,
-                    leafSizeOrder,
-                    leafTexture,
-                    leafTextureOrder,
-                    fruitType,
-                    string.IsNullOrWhiteSpace(fruitCategory) ? fruitType : fruitCategory));
+                    plantType,
+                    surfaceRoughness,
+                    surfaceRoughnessOrder,
+                    leafType,
+                    fruitCategory,
+                    fruitType));
             }
 
-            plantDefinitions.Sort((left, right) => string.Compare(left.DisplayName, right.DisplayName, StringComparison.OrdinalIgnoreCase));
+            plantDefinitions.Sort((left, right) => string.Compare(left.CommonName, right.CommonName, StringComparison.OrdinalIgnoreCase));
 
             if (plantDefinitions.Count < 2)
             {
@@ -159,8 +166,15 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
         {
             var requiredColumns = new[]
             {
-                "plantId", "displayName", "aliases", "imagePath", "leafPersistence",
-                "leafSize", "leafSizeOrder", "leafTexture", "leafTextureOrder", "fruitType", "fruitCategory"
+                "plantId",
+                "commonName",
+                "scientificName",
+                "plantType",
+                "surfaceRoughness",
+                "surfaceRoughnessOrder",
+                "leafType",
+                "fruitCategory",
+                "fruitType"
             };
 
             foreach (var requiredColumn in requiredColumns)
@@ -170,6 +184,12 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
                     errorMessage = $"Falta la columna requerida '{requiredColumn}'.";
                     return false;
                 }
+            }
+
+            if (!headerMap.ContainsKey("synonyms") && !headerMap.ContainsKey("aliases"))
+            {
+                errorMessage = "Falta la columna requerida 'synonyms' (o su alias legado 'aliases').";
+                return false;
             }
 
             errorMessage = string.Empty;
@@ -191,14 +211,14 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             return map;
         }
 
-        private static string[] SplitAliases(string rawAliases)
+        private static string[] SplitSynonyms(string rawSynonyms)
         {
-            return string.IsNullOrWhiteSpace(rawAliases)
+            return string.IsNullOrWhiteSpace(rawSynonyms)
                 ? Array.Empty<string>()
-                : rawAliases
+                : rawSynonyms
                     .Split('|')
-                    .Select(alias => alias.Trim())
-                    .Where(alias => !string.IsNullOrWhiteSpace(alias))
+                    .Select(value => value.Trim())
+                    .Where(value => !string.IsNullOrWhiteSpace(value))
                     .Distinct(StringComparer.OrdinalIgnoreCase)
                     .ToArray();
         }
@@ -217,6 +237,20 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             }
 
             return index >= 0 && index < row.Count ? row[index] ?? string.Empty : string.Empty;
+        }
+
+        private static string GetRequiredValue(IReadOnlyList<string> row, IReadOnlyDictionary<string, int> headerMap, params string[] candidateKeys)
+        {
+            foreach (var candidateKey in candidateKeys)
+            {
+                var value = GetValue(row, headerMap, candidateKey);
+                if (!string.IsNullOrWhiteSpace(value))
+                {
+                    return value;
+                }
+            }
+
+            return string.Empty;
         }
 
         private static bool IsEmptyRow(IReadOnlyList<string> row)
