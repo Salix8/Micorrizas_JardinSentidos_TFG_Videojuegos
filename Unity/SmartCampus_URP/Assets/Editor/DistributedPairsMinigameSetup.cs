@@ -185,10 +185,10 @@ public static class DistributedPairsMinigameSetup
         serializedCardView.FindProperty("backFaceLabel").objectReferenceValue = backLabel;
         serializedCardView.ApplyModifiedPropertiesWithoutUndo();
 
-        var prefab = PrefabUtility.SaveAsPrefabAsset(root, CardPrefabPath);
+        PrefabUtility.SaveAsPrefabAsset(root, CardPrefabPath);
         UnityEngine.Object.DestroyImmediate(root);
 
-        return prefab.GetComponent<DistributedPairsCardView>();
+        return AssetDatabase.LoadAssetAtPath<DistributedPairsCardView>(CardPrefabPath);
     }
 
     private static void SetupDistributedPairsScene(DistributedPairsMinigameConfig config, DistributedPairsCardView cardPrefab)
@@ -254,7 +254,7 @@ public static class DistributedPairsMinigameSetup
         statusLayout.childControlHeight = true;
         statusLayout.childControlWidth = true;
         statusLayout.childForceExpandHeight = false;
-        statusPanel.AddComponent<LayoutElement>().preferredHeight = 220f;
+        statusPanel.AddComponent<LayoutElement>().preferredHeight = 360f;
 
         var progressLabel = CreateText("ProgressLabel", statusPanel.transform, font, "Parejas: 0/0   Errores: 0", 24, TextAnchor.MiddleLeft);
         progressLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 34f;
@@ -262,6 +262,20 @@ public static class DistributedPairsMinigameSetup
         sharedStatusLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 72f;
         var localSelectionLabel = CreateText("LocalSelectionLabel", statusPanel.transform, font, "Solo puedes tener una carta activa.", 20, TextAnchor.UpperLeft);
         localSelectionLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 64f;
+
+        var pileHudRow = CreateUiObject("PileHudRow", statusPanel.transform, typeof(HorizontalLayoutGroup));
+        pileHudRow.AddComponent<LayoutElement>().preferredHeight = 132f;
+        var pileHudLayout = pileHudRow.GetComponent<HorizontalLayoutGroup>();
+        pileHudLayout.spacing = 12f;
+        pileHudLayout.childControlWidth = true;
+        pileHudLayout.childControlHeight = true;
+        pileHudLayout.childForceExpandWidth = true;
+        pileHudLayout.childForceExpandHeight = false;
+        var deckPanel = CreatePileHudPanel("DeckPanel", pileHudRow.transform, font, "Mazo");
+        var discardPanel = CreatePileHudPanel("DiscardPanel", pileHudRow.transform, font, "Descartes");
+        var drawPileAnchor = deckPanel.transform.Find("CardAnchor") as RectTransform;
+        var drawPileCountLabel = deckPanel.transform.Find("CountLabel")?.GetComponent<Text>();
+        var discardPileCountLabel = discardPanel.transform.Find("CountLabel")?.GetComponent<Text>();
 
         var handPanel = CreatePanel("HandPanel", gameplayPanel.transform, new Color(1f, 1f, 1f, 0.72f));
         var handLayoutElement = handPanel.AddComponent<LayoutElement>();
@@ -277,12 +291,24 @@ public static class DistributedPairsMinigameSetup
         gridLayout.startCorner = GridLayoutGroup.Corner.UpperLeft;
         gridLayout.childAlignment = TextAnchor.UpperCenter;
 
+        CreateSceneVisibleHandSlots(handGrid.transform, config.CardsPerDevice);
+
         var handView = handGrid.GetComponent<DistributedPairsHandView>();
         var serializedHandView = new SerializedObject(handView);
         serializedHandView.FindProperty("cardRoot").objectReferenceValue = handGrid.transform;
         serializedHandView.FindProperty("cardPrefab").objectReferenceValue = cardPrefab;
         serializedHandView.FindProperty("responsiveGridLayoutController").objectReferenceValue = handGrid.GetComponent<ResponsiveGridLayoutController>();
         serializedHandView.ApplyModifiedPropertiesWithoutUndo();
+
+        var mismatchOverlay = CreateUiObject("MismatchResetOverlay", uiRoot.transform, typeof(Image), typeof(Button));
+        Stretch(mismatchOverlay.GetComponent<RectTransform>(), Vector2.zero, Vector2.zero);
+        mismatchOverlay.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.22f);
+        var mismatchResetButton = mismatchOverlay.GetComponent<Button>();
+        mismatchResetButton.targetGraphic = mismatchOverlay.GetComponent<Image>();
+        mismatchOverlay.SetActive(false);
+        var mismatchResetLabel = CreateText("Label", mismatchOverlay.transform, font, "No coinciden. Toca para girarlas de nuevo.", 26, TextAnchor.MiddleCenter);
+        mismatchResetLabel.color = Color.white;
+        Stretch(mismatchResetLabel.GetComponent<RectTransform>(), new Vector2(48f, 48f), new Vector2(-48f, -48f));
 
         var tutorialPopup = CreateTutorialPopup(uiRoot.transform, font);
         tutorialPopup.gameObject.SetActive(false);
@@ -303,6 +329,11 @@ public static class DistributedPairsMinigameSetup
         serializedUiController.FindProperty("progressLabel").objectReferenceValue = progressLabel;
         serializedUiController.FindProperty("sharedStatusLabel").objectReferenceValue = sharedStatusLabel;
         serializedUiController.FindProperty("localSelectionLabel").objectReferenceValue = localSelectionLabel;
+        serializedUiController.FindProperty("drawPileAnchor").objectReferenceValue = drawPileAnchor;
+        serializedUiController.FindProperty("drawPileCountLabel").objectReferenceValue = drawPileCountLabel;
+        serializedUiController.FindProperty("discardPileCountLabel").objectReferenceValue = discardPileCountLabel;
+        serializedUiController.FindProperty("mismatchResetButton").objectReferenceValue = mismatchResetButton;
+        serializedUiController.FindProperty("mismatchResetLabel").objectReferenceValue = mismatchResetLabel;
         serializedUiController.ApplyModifiedPropertiesWithoutUndo();
 
         EditorSceneManager.SaveScene(scene, MinigameScenePath);
@@ -400,24 +431,25 @@ public static class DistributedPairsMinigameSetup
         layout.childForceExpandHeight = false;
 
         var closeButton = CreateButton("CloseButton", contentPanel.transform, font, "X", 20);
-        var closeRect = closeButton.GetComponent<RectTransform>();
-        closeRect.anchorMin = new Vector2(1f, 1f);
-        closeRect.anchorMax = new Vector2(1f, 1f);
-        closeRect.pivot = new Vector2(1f, 1f);
-        closeRect.sizeDelta = new Vector2(52f, 52f);
+        closeButton.gameObject.AddComponent<LayoutElement>().preferredHeight = 52f;
 
-        var title = CreateText("TitleLabel", contentPanel.transform, font, "Tutorial", 36, TextAnchor.MiddleCenter);
+        var scrollView = CreateScrollView("ContentScrollView", contentPanel.transform);
+        var scrollLayout = scrollView.Root.AddComponent<LayoutElement>();
+        scrollLayout.flexibleHeight = 1f;
+        scrollLayout.minHeight = 220f;
+
+        var title = CreateText("TitleLabel", scrollView.ContentRoot.transform, font, "Tutorial", 36, TextAnchor.MiddleCenter);
         title.gameObject.AddComponent<LayoutElement>().preferredHeight = 56f;
-        var subtitle = CreateText("SubtitleLabel", contentPanel.transform, font, "Subtitulo", 24, TextAnchor.MiddleCenter);
+        var subtitle = CreateText("SubtitleLabel", scrollView.ContentRoot.transform, font, "Subtitulo", 24, TextAnchor.MiddleCenter);
         subtitle.gameObject.AddComponent<LayoutElement>().preferredHeight = 44f;
-        var body = CreateText("BodyLabel", contentPanel.transform, font, "Contenido del tutorial", 22, TextAnchor.UpperLeft);
-        body.gameObject.AddComponent<LayoutElement>().preferredHeight = 220f;
-        var illustration = CreateUiObject("Illustration", contentPanel.transform, typeof(Image));
+        var body = CreateText("BodyLabel", scrollView.ContentRoot.transform, font, "Contenido del tutorial", 22, TextAnchor.UpperLeft);
+        body.gameObject.AddComponent<LayoutElement>().preferredHeight = 180f;
+        var illustration = CreateUiObject("Illustration", scrollView.ContentRoot.transform, typeof(Image));
         illustration.AddComponent<LayoutElement>().preferredHeight = 220f;
-        var videoSurface = CreateUiObject("VideoSurface", contentPanel.transform, typeof(RawImage));
+        var videoSurface = CreateUiObject("VideoSurface", scrollView.ContentRoot.transform, typeof(RawImage));
         videoSurface.AddComponent<LayoutElement>().preferredHeight = 220f;
-        var customContentRoot = CreateUiObject("CustomContentRoot", contentPanel.transform);
-        customContentRoot.AddComponent<LayoutElement>().flexibleHeight = 1f;
+        var customContentRoot = CreateUiObject("CustomContentRoot", scrollView.ContentRoot.transform, typeof(ContentSizeFitter));
+        customContentRoot.GetComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
         var videoPlayer = popupRoot.AddComponent<UnityEngine.Video.VideoPlayer>();
 
         var controller = popupRoot.GetComponent<TutorialPopupController>();
@@ -550,10 +582,106 @@ public static class DistributedPairsMinigameSetup
         return Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
     }
 
+    private static void CreateSceneVisibleHandSlots(Transform cardRoot, int slotCount)
+    {
+        var cardPrefabRoot = AssetDatabase.LoadAssetAtPath<GameObject>(CardPrefabPath);
+        if (cardPrefabRoot == null)
+        {
+            throw new InvalidOperationException($"Card prefab not found at path '{CardPrefabPath}'.");
+        }
+
+        for (var index = 0; index < slotCount; index++)
+        {
+            var slotObject = new GameObject($"HandSlot_{index + 1}", typeof(RectTransform), typeof(Image), typeof(LayoutElement));
+            slotObject.transform.SetParent(cardRoot, false);
+            slotObject.layer = cardRoot.gameObject.layer;
+
+            var slotBackground = slotObject.GetComponent<Image>();
+            slotBackground.color = new Color(1f, 1f, 1f, 0.08f);
+            slotBackground.raycastTarget = false;
+
+            var layoutElement = slotObject.GetComponent<LayoutElement>();
+            layoutElement.flexibleWidth = 1f;
+            layoutElement.flexibleHeight = 1f;
+
+            var cardInstance = PrefabUtility.InstantiatePrefab(cardPrefabRoot) as GameObject;
+            if (cardInstance == null)
+            {
+                cardInstance = UnityEngine.Object.Instantiate(cardPrefabRoot);
+            }
+
+            cardInstance.transform.SetParent(slotObject.transform, false);
+            cardInstance.name = "CardView";
+            var cardRectTransform = cardInstance.GetComponent<RectTransform>();
+            Stretch(cardRectTransform, Vector2.zero, Vector2.zero);
+        }
+    }
+
+    private static ScrollViewReferences CreateScrollView(string name, Transform parent)
+    {
+        var root = CreateUiObject(name, parent, typeof(Image), typeof(ScrollRect));
+        root.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.02f);
+
+        var viewport = CreateUiObject("Viewport", root.transform, typeof(Image), typeof(Mask));
+        Stretch(viewport.GetComponent<RectTransform>(), Vector2.zero, Vector2.zero);
+        viewport.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.01f);
+        viewport.GetComponent<Mask>().showMaskGraphic = false;
+
+        var contentRoot = CreateUiObject("Content", viewport.transform, typeof(VerticalLayoutGroup), typeof(ContentSizeFitter));
+        var contentRect = contentRoot.GetComponent<RectTransform>();
+        contentRect.anchorMin = new Vector2(0f, 1f);
+        contentRect.anchorMax = new Vector2(1f, 1f);
+        contentRect.pivot = new Vector2(0.5f, 1f);
+        contentRect.offsetMin = Vector2.zero;
+        contentRect.offsetMax = Vector2.zero;
+
+        var contentLayout = contentRoot.GetComponent<VerticalLayoutGroup>();
+        contentLayout.spacing = 16f;
+        contentLayout.childControlWidth = true;
+        contentLayout.childControlHeight = true;
+        contentLayout.childForceExpandHeight = false;
+        contentRoot.GetComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+        var scrollRect = root.GetComponent<ScrollRect>();
+        scrollRect.viewport = viewport.GetComponent<RectTransform>();
+        scrollRect.content = contentRect;
+        scrollRect.horizontal = false;
+        scrollRect.vertical = true;
+        scrollRect.movementType = ScrollRect.MovementType.Clamped;
+
+        return new ScrollViewReferences(root, contentRoot);
+    }
+
     private static GameObject CreatePanel(string name, Transform parent, Color color)
     {
         var panel = CreateUiObject(name, parent, typeof(Image));
         panel.GetComponent<Image>().color = color;
+        return panel;
+    }
+
+    private static GameObject CreatePileHudPanel(string name, Transform parent, Font font, string title)
+    {
+        var panel = CreatePanel(name, parent, new Color(1f, 1f, 1f, 0.78f));
+        panel.AddComponent<LayoutElement>().flexibleWidth = 1f;
+        var layout = panel.AddComponent<VerticalLayoutGroup>();
+        layout.padding = new RectOffset(12, 12, 12, 12);
+        layout.spacing = 8f;
+        layout.childAlignment = TextAnchor.UpperCenter;
+        layout.childControlWidth = true;
+        layout.childControlHeight = true;
+        layout.childForceExpandHeight = false;
+
+        var cardAnchor = CreateUiObject("CardAnchor", panel.transform, typeof(Image));
+        cardAnchor.AddComponent<LayoutElement>().preferredHeight = 64f;
+        var cardAnchorImage = cardAnchor.GetComponent<Image>();
+        cardAnchorImage.color = new Color(0.16f, 0.29f, 0.35f, 1f);
+        cardAnchorImage.raycastTarget = false;
+
+        var titleLabel = CreateText("TitleLabel", panel.transform, font, title, 18, TextAnchor.MiddleCenter);
+        titleLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 24f;
+
+        var countLabel = CreateText("CountLabel", panel.transform, font, $"{title}\n0", 20, TextAnchor.MiddleCenter);
+        countLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 32f;
         return panel;
     }
 
@@ -621,5 +749,17 @@ public static class DistributedPairsMinigameSetup
         rectTransform.pivot = new Vector2(0.5f, 0.5f);
         rectTransform.offsetMin = offsetMin;
         rectTransform.offsetMax = offsetMax;
+    }
+
+    private readonly struct ScrollViewReferences
+    {
+        public ScrollViewReferences(GameObject root, GameObject contentRoot)
+        {
+            Root = root;
+            ContentRoot = contentRoot;
+        }
+
+        public GameObject Root { get; }
+        public GameObject ContentRoot { get; }
     }
 }

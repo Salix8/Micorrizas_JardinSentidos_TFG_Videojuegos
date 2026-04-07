@@ -278,7 +278,7 @@ namespace SmartCampus.Coop.Minigames.GardenImageVoting
 
         private IEnumerator AnimateDecisionCoroutine(bool answeredYes)
         {
-            var targetOffset = new Vector2(answeredYes ? 900f : -900f, 0f);
+            var targetOffset = new Vector2(GetExitOffset(answeredYes), 0f);
             var startPosition = cardTransform.anchoredPosition;
             var startRotationZ = NormalizeAngle(cardTransform.rotation.eulerAngles.z);
             var targetRotationZ = answeredYes ? -18f : 18f;
@@ -340,6 +340,24 @@ namespace SmartCampus.Coop.Minigames.GardenImageVoting
                 canvasGroup.alpha = 1f;
                 canvasGroup.blocksRaycasts = true;
             }
+        }
+
+        private float GetExitOffset(bool answeredYes)
+        {
+            if (cardTransform == null)
+            {
+                return answeredYes ? 900f : -900f;
+            }
+
+            var direction = answeredYes ? 1f : -1f;
+            var parentRectTransform = cardTransform.parent as RectTransform;
+            if (parentRectTransform == null)
+            {
+                return direction * 900f;
+            }
+
+            var travelDistance = parentRectTransform.rect.width * 0.5f + cardTransform.rect.width;
+            return direction * Mathf.Max(900f, travelDistance);
         }
 
         private void ReleaseRuntimeSprite()

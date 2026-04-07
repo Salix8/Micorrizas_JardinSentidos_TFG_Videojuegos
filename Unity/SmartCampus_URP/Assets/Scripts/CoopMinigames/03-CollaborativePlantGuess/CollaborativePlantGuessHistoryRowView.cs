@@ -38,7 +38,7 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             if (guessedByLabel != null)
             {
                 var playerLabel = guessingPlayerSlot > 0 ? $"Dispositivo {guessingPlayerSlot}" : "Dispositivo compartido";
-                guessedByLabel.text = $"Intento {historyEntry.AttemptIndex} · {playerLabel}";
+                guessedByLabel.text = $"Intento {historyEntry.AttemptIndex} - {playerLabel}";
             }
 
             if (plantNameLabel != null)
@@ -128,14 +128,25 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
 
         private void ConfigureRowRoot()
         {
-            var rowLayout = GetComponent<HorizontalLayoutGroup>();
-            if (rowLayout != null)
+            var verticalLayout = GetComponent<VerticalLayoutGroup>();
+            if (verticalLayout != null)
             {
-                rowLayout.spacing = 12f;
-                rowLayout.childControlWidth = true;
-                rowLayout.childControlHeight = true;
-                rowLayout.childForceExpandWidth = false;
-                rowLayout.childForceExpandHeight = false;
+                verticalLayout.spacing = 12f;
+                verticalLayout.childControlWidth = true;
+                verticalLayout.childControlHeight = true;
+                verticalLayout.childForceExpandWidth = true;
+                verticalLayout.childForceExpandHeight = false;
+                verticalLayout.childAlignment = TextAnchor.UpperLeft;
+            }
+
+            var horizontalLayout = GetComponent<HorizontalLayoutGroup>();
+            if (horizontalLayout != null)
+            {
+                horizontalLayout.spacing = 12f;
+                horizontalLayout.childControlWidth = true;
+                horizontalLayout.childControlHeight = true;
+                horizontalLayout.childForceExpandWidth = false;
+                horizontalLayout.childForceExpandHeight = false;
             }
 
             var layoutElement = GetComponent<LayoutElement>();
@@ -170,9 +181,9 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
                 layoutElement = infoColumn.AddComponent<LayoutElement>();
             }
 
-            layoutElement.minWidth = 220f;
-            layoutElement.preferredWidth = 240f;
-            layoutElement.flexibleWidth = 0f;
+            layoutElement.minWidth = 0f;
+            layoutElement.preferredWidth = -1f;
+            layoutElement.flexibleWidth = 1f;
         }
 
         private void ConfigureComparisonRow()
@@ -189,17 +200,39 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
                 layoutElement = comparisonsRow.gameObject.AddComponent<LayoutElement>();
             }
 
-            layoutElement.minWidth = 720f;
+            layoutElement.minWidth = 0f;
             layoutElement.flexibleWidth = 1f;
 
-            var layoutGroup = comparisonsRow.gameObject.GetComponent<HorizontalLayoutGroup>();
-            if (layoutGroup != null)
+            var gridLayout = comparisonsRow.gameObject.GetComponent<GridLayoutGroup>();
+            if (gridLayout != null)
             {
-                layoutGroup.spacing = 8f;
-                layoutGroup.childControlWidth = true;
-                layoutGroup.childControlHeight = true;
-                layoutGroup.childForceExpandWidth = true;
-                layoutGroup.childForceExpandHeight = false;
+                gridLayout.padding = new RectOffset(0, 0, 0, 0);
+                gridLayout.spacing = new Vector2(8f, 8f);
+                gridLayout.startAxis = GridLayoutGroup.Axis.Horizontal;
+                gridLayout.startCorner = GridLayoutGroup.Corner.UpperLeft;
+                gridLayout.childAlignment = TextAnchor.UpperLeft;
+
+                var responsiveGridLayoutController = comparisonsRow.gameObject.GetComponent<ResponsiveGridLayoutController>();
+                if (responsiveGridLayoutController == null)
+                {
+                    responsiveGridLayoutController = comparisonsRow.gameObject.AddComponent<ResponsiveGridLayoutController>();
+                }
+
+                responsiveGridLayoutController.Configure(
+                    3,
+                    new Vector2(132f, 104f),
+                    new Vector2(220f, 156f),
+                    1.35f);
+            }
+
+            var horizontalLayout = comparisonsRow.gameObject.GetComponent<HorizontalLayoutGroup>();
+            if (horizontalLayout != null)
+            {
+                horizontalLayout.spacing = 8f;
+                horizontalLayout.childControlWidth = true;
+                horizontalLayout.childControlHeight = true;
+                horizontalLayout.childForceExpandWidth = true;
+                horizontalLayout.childForceExpandHeight = false;
             }
         }
 
@@ -217,8 +250,8 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
                 layoutElement = cellObject.AddComponent<LayoutElement>();
             }
 
-            layoutElement.minWidth = 118f;
-            layoutElement.preferredWidth = 126f;
+            layoutElement.minWidth = 120f;
+            layoutElement.preferredWidth = 148f;
             layoutElement.flexibleWidth = 1f;
             layoutElement.preferredHeight = -1f;
 

@@ -363,12 +363,12 @@ public static class CollaborativePlantGuessMinigameSetup
     private static CollaborativePlantGuessHistoryRowView CreateHistoryTemplate(Transform parent, Font font, CollaborativePlantGuessMinigameConfig config)
     {
         var root = CreatePanel("HistoryRowTemplate", parent, new Color(1f, 1f, 1f, 0.58f));
-        var layout = root.AddComponent<HorizontalLayoutGroup>();
+        var layout = root.AddComponent<VerticalLayoutGroup>();
         layout.padding = new RectOffset(12, 12, 12, 12);
-        layout.spacing = 14f;
+        layout.spacing = 12f;
         layout.childControlHeight = true;
         layout.childControlWidth = true;
-        layout.childForceExpandWidth = false;
+        layout.childForceExpandWidth = true;
         layout.childForceExpandHeight = false;
         var rowLayoutElement = root.AddComponent<LayoutElement>();
         rowLayoutElement.minHeight = 180f;
@@ -378,8 +378,7 @@ public static class CollaborativePlantGuessMinigameSetup
 
         var infoColumn = CreateUiObject("InfoColumn", root.transform, typeof(VerticalLayoutGroup));
         var infoLayoutElement = infoColumn.AddComponent<LayoutElement>();
-        infoLayoutElement.minWidth = 280f;
-        infoLayoutElement.preferredWidth = 320f;
+        infoLayoutElement.flexibleWidth = 1f;
         var infoLayout = infoColumn.GetComponent<VerticalLayoutGroup>();
         infoLayout.spacing = 6f;
         infoLayout.childControlWidth = true;
@@ -398,16 +397,20 @@ public static class CollaborativePlantGuessMinigameSetup
         var plantNameLabel = CreateText("PlantNameLabel", infoColumn.transform, font, "Planta", 22, TextAnchor.MiddleLeft);
         plantNameLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = -1f;
 
-        var comparisonsRow = CreateUiObject("ComparisonsRow", root.transform, typeof(HorizontalLayoutGroup));
+        var comparisonsRow = CreateUiObject("ComparisonsRow", root.transform, typeof(GridLayoutGroup), typeof(ResponsiveGridLayoutController));
         var comparisonsRowLayoutElement = comparisonsRow.AddComponent<LayoutElement>();
-        comparisonsRowLayoutElement.minWidth = 720f;
         comparisonsRowLayoutElement.flexibleWidth = 1f;
-        var comparisonsLayout = comparisonsRow.GetComponent<HorizontalLayoutGroup>();
-        comparisonsLayout.spacing = 8f;
-        comparisonsLayout.childControlHeight = true;
-        comparisonsLayout.childControlWidth = true;
-        comparisonsLayout.childForceExpandWidth = true;
-        comparisonsLayout.childForceExpandHeight = false;
+        var comparisonsLayout = comparisonsRow.GetComponent<GridLayoutGroup>();
+        comparisonsLayout.padding = new RectOffset(0, 0, 0, 0);
+        comparisonsLayout.spacing = new Vector2(8f, 8f);
+        comparisonsLayout.startAxis = GridLayoutGroup.Axis.Horizontal;
+        comparisonsLayout.startCorner = GridLayoutGroup.Corner.UpperLeft;
+        comparisonsLayout.childAlignment = TextAnchor.UpperLeft;
+        comparisonsRow.GetComponent<ResponsiveGridLayoutController>().Configure(
+            3,
+            new Vector2(132f, 104f),
+            new Vector2(220f, 156f),
+            1.35f);
 
         var surfaceRoughnessCell = CreateComparisonCell("Rugosidad", comparisonsRow.transform, font, "Media", config.VisualSettings.NeutralCellColor);
         var leafTypeCell = CreateComparisonCell("Tipo de hoja", comparisonsRow.transform, font, "Lanceolada", config.VisualSettings.NeutralCellColor);
@@ -552,18 +555,25 @@ public static class CollaborativePlantGuessMinigameSetup
         layout.childControlWidth = true;
 
         var closeButton = CreateButton("CloseButton", contentPanel.transform, font, "X", 20, new Color(0.21f, 0.42f, 0.46f, 1f));
-        var title = CreateText("TitleLabel", contentPanel.transform, font, "Tutorial", 36, TextAnchor.MiddleCenter);
+        closeButton.gameObject.AddComponent<LayoutElement>().preferredHeight = 52f;
+
+        var scrollView = CreateScrollView("ContentScrollView", contentPanel.transform);
+        var scrollLayout = scrollView.Root.AddComponent<LayoutElement>();
+        scrollLayout.flexibleHeight = 1f;
+        scrollLayout.minHeight = 220f;
+
+        var title = CreateText("TitleLabel", scrollView.ContentRoot.transform, font, "Tutorial", 36, TextAnchor.MiddleCenter);
         title.gameObject.AddComponent<LayoutElement>().preferredHeight = 56f;
-        var subtitle = CreateText("SubtitleLabel", contentPanel.transform, font, "Subtitulo", 24, TextAnchor.MiddleCenter);
+        var subtitle = CreateText("SubtitleLabel", scrollView.ContentRoot.transform, font, "Subtitulo", 24, TextAnchor.MiddleCenter);
         subtitle.gameObject.AddComponent<LayoutElement>().preferredHeight = 44f;
-        var body = CreateText("BodyLabel", contentPanel.transform, font, "Contenido del tutorial", 22, TextAnchor.UpperLeft);
-        body.gameObject.AddComponent<LayoutElement>().preferredHeight = 220f;
-        var illustration = CreateUiObject("Illustration", contentPanel.transform, typeof(Image));
+        var body = CreateText("BodyLabel", scrollView.ContentRoot.transform, font, "Contenido del tutorial", 22, TextAnchor.UpperLeft);
+        body.gameObject.AddComponent<LayoutElement>().preferredHeight = 180f;
+        var illustration = CreateUiObject("Illustration", scrollView.ContentRoot.transform, typeof(Image));
         illustration.AddComponent<LayoutElement>().preferredHeight = 220f;
-        var videoSurface = CreateUiObject("VideoSurface", contentPanel.transform, typeof(RawImage));
+        var videoSurface = CreateUiObject("VideoSurface", scrollView.ContentRoot.transform, typeof(RawImage));
         videoSurface.AddComponent<LayoutElement>().preferredHeight = 220f;
-        var customContentRoot = CreateUiObject("CustomContentRoot", contentPanel.transform);
-        customContentRoot.AddComponent<LayoutElement>().flexibleHeight = 1f;
+        var customContentRoot = CreateUiObject("CustomContentRoot", scrollView.ContentRoot.transform, typeof(ContentSizeFitter));
+        customContentRoot.GetComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
         var videoPlayer = popupRoot.AddComponent<UnityEngine.Video.VideoPlayer>();
 
         var controller = popupRoot.GetComponent<TutorialPopupController>();
@@ -838,6 +848,18 @@ internal static class CoopMinigameSetupEditorUtility
         serializedLauncherController.FindProperty("minigameCatalogConfig").objectReferenceValue = catalogConfig;
         serializedLauncherController.ApplyModifiedPropertiesWithoutUndo();
 
+        var safeAreaRoot = ConfigureResponsiveMainMapCanvas(launcherController);
+        var launcherPanel = launcherController.transform as RectTransform;
+        if (launcherPanel == null)
+        {
+            throw new InvalidOperationException("El launcher del mapa principal necesita un RectTransform.");
+        }
+
+        if (safeAreaRoot != null && launcherPanel.parent != safeAreaRoot)
+        {
+            launcherPanel.SetParent(safeAreaRoot, false);
+        }
+
         var entryRoot = serializedLauncherController.FindProperty("entryRoot").objectReferenceValue as Transform;
         var entryTemplate = serializedLauncherController.FindProperty("entryTemplate").objectReferenceValue as CoopMinigameLauncherEntryView;
         if (entryRoot == null || entryTemplate == null)
@@ -845,11 +867,168 @@ internal static class CoopMinigameSetupEditorUtility
             throw new InvalidOperationException("La escena UJI necesita entryRoot y entryTemplate configurados en el launcher.");
         }
 
+        ConfigureLauncherPanel(launcherPanel, launcherController, safeAreaRoot);
+        EnsureScrollableEntryRoot(launcherPanel, entryRoot);
         EnsureSceneVisibleEntries(entryRoot, entryTemplate, catalogConfig);
+        SanitizeRectTransformTree(canvasRoot: safeAreaRoot != null ? safeAreaRoot : launcherPanel.root as RectTransform);
 
         EditorUtility.SetDirty(launcherController);
         EditorSceneManager.MarkSceneDirty(scene);
         EditorSceneManager.SaveScene(scene);
+    }
+
+    private static RectTransform ConfigureResponsiveMainMapCanvas(CoopMinigameLauncherUIController launcherController)
+    {
+        var canvas = launcherController.GetComponentInParent<Canvas>();
+        if (canvas == null)
+        {
+            return null;
+        }
+
+        var scaler = canvas.GetComponent<CanvasScaler>();
+        if (scaler == null)
+        {
+            scaler = canvas.gameObject.AddComponent<CanvasScaler>();
+        }
+
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = new Vector2(1080f, 1920f);
+        scaler.matchWidthOrHeight = 0.5f;
+
+        var canvasRect = canvas.GetComponent<RectTransform>();
+        var safeAreaRoot = canvas.transform.Find("SafeAreaRoot") as RectTransform;
+        if (safeAreaRoot == null)
+        {
+            var safeAreaObject = new GameObject("SafeAreaRoot", typeof(RectTransform), typeof(SafeAreaFitter));
+            safeAreaObject.layer = canvas.gameObject.layer;
+            safeAreaObject.transform.SetParent(canvas.transform, false);
+            safeAreaRoot = safeAreaObject.GetComponent<RectTransform>();
+        }
+
+        Stretch(safeAreaRoot, Vector2.zero, Vector2.zero);
+        return safeAreaRoot;
+    }
+
+    private static void ConfigureLauncherPanel(RectTransform launcherPanel, CoopMinigameLauncherUIController launcherController, RectTransform safeAreaRoot)
+    {
+        launcherPanel.anchorMin = new Vector2(0f, 1f);
+        launcherPanel.anchorMax = new Vector2(0f, 1f);
+        launcherPanel.pivot = new Vector2(0f, 1f);
+        launcherPanel.anchoredPosition = new Vector2(24f, -24f);
+
+        var panelLayout = launcherPanel.GetComponent<VerticalLayoutGroup>();
+        if (panelLayout != null)
+        {
+            panelLayout.padding = new RectOffset(16, 16, 16, 16);
+            panelLayout.spacing = 12f;
+            panelLayout.childControlWidth = true;
+            panelLayout.childControlHeight = true;
+            panelLayout.childForceExpandWidth = true;
+            panelLayout.childForceExpandHeight = false;
+        }
+
+        var responsivePanel = launcherPanel.GetComponent<ResponsivePanelLayoutController>();
+        if (responsivePanel == null)
+        {
+            responsivePanel = launcherPanel.gameObject.AddComponent<ResponsivePanelLayoutController>();
+        }
+
+        responsivePanel.Configure(
+            safeAreaRoot != null ? safeAreaRoot : launcherPanel.parent as RectTransform,
+            0.46f,
+            0.78f,
+            new Vector2(300f, 320f),
+            new Vector2(560f, 1280f),
+            new Vector2(24f, 24f));
+
+        var helperLabelField = new SerializedObject(launcherController).FindProperty("helperLabel").objectReferenceValue as Text;
+        if (helperLabelField != null)
+        {
+            helperLabelField.resizeTextForBestFit = false;
+            helperLabelField.horizontalOverflow = HorizontalWrapMode.Wrap;
+            helperLabelField.verticalOverflow = VerticalWrapMode.Overflow;
+        }
+    }
+
+    private static void EnsureScrollableEntryRoot(RectTransform launcherPanel, Transform entryRoot)
+    {
+        if (launcherPanel == null || entryRoot == null)
+        {
+            return;
+        }
+
+        var scrollRoot = launcherPanel.Find("EntriesScrollView") as RectTransform;
+        RectTransform viewport;
+        if (scrollRoot == null)
+        {
+            var scrollObject = new GameObject("EntriesScrollView", typeof(RectTransform), typeof(Image), typeof(ScrollRect), typeof(LayoutElement));
+            scrollObject.layer = launcherPanel.gameObject.layer;
+            scrollObject.transform.SetParent(launcherPanel, false);
+            scrollRoot = scrollObject.GetComponent<RectTransform>();
+            scrollObject.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.04f);
+            var scrollLayoutElement = scrollObject.GetComponent<LayoutElement>();
+            scrollLayoutElement.flexibleHeight = 1f;
+            scrollLayoutElement.minHeight = 220f;
+
+            var viewportObject = new GameObject("Viewport", typeof(RectTransform), typeof(Image), typeof(Mask));
+            viewportObject.layer = launcherPanel.gameObject.layer;
+            viewportObject.transform.SetParent(scrollRoot, false);
+            viewport = viewportObject.GetComponent<RectTransform>();
+            Stretch(viewport, Vector2.zero, Vector2.zero);
+            viewportObject.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.01f);
+            viewportObject.GetComponent<Mask>().showMaskGraphic = false;
+
+            var scrollRect = scrollObject.GetComponent<ScrollRect>();
+            scrollRect.viewport = viewport;
+            scrollRect.horizontal = false;
+            scrollRect.vertical = true;
+            scrollRect.movementType = ScrollRect.MovementType.Clamped;
+        }
+        else
+        {
+            viewport = scrollRoot.Find("Viewport") as RectTransform;
+        }
+
+        if (viewport == null)
+        {
+            throw new InvalidOperationException("EntriesScrollView necesita un Viewport.");
+        }
+
+        if (entryRoot.parent != viewport)
+        {
+            entryRoot.SetParent(viewport, false);
+        }
+
+        entryRoot.name = "EntriesContent";
+        if (entryRoot is RectTransform entryRect)
+        {
+            entryRect.anchorMin = new Vector2(0f, 1f);
+            entryRect.anchorMax = new Vector2(1f, 1f);
+            entryRect.pivot = new Vector2(0.5f, 1f);
+            entryRect.offsetMin = Vector2.zero;
+            entryRect.offsetMax = Vector2.zero;
+        }
+
+        var contentLayout = entryRoot.GetComponent<VerticalLayoutGroup>();
+        if (contentLayout != null)
+        {
+            contentLayout.spacing = 12f;
+            contentLayout.childControlWidth = true;
+            contentLayout.childControlHeight = true;
+            contentLayout.childForceExpandHeight = false;
+        }
+
+        var fitter = entryRoot.GetComponent<ContentSizeFitter>();
+        if (fitter == null)
+        {
+            fitter = entryRoot.gameObject.AddComponent<ContentSizeFitter>();
+        }
+
+        fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+        fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+
+        var scrollRectComponent = scrollRoot.GetComponent<ScrollRect>();
+        scrollRectComponent.content = entryRoot as RectTransform;
     }
 
     private static void EnsureSceneVisibleEntries(Transform entryRoot, CoopMinigameLauncherEntryView entryTemplate, CoopMinigameCatalogConfig catalogConfig)
@@ -901,9 +1080,45 @@ internal static class CoopMinigameSetupEditorUtility
                 layoutElement = entryView.gameObject.AddComponent<LayoutElement>();
             }
 
-            layoutElement.preferredHeight = 182f;
+            layoutElement.preferredHeight = 168f;
             layoutElement.flexibleHeight = 0f;
         }
+    }
+
+    private static void SanitizeRectTransformTree(RectTransform canvasRoot)
+    {
+        if (canvasRoot == null)
+        {
+            return;
+        }
+
+        foreach (var rectTransform in canvasRoot.GetComponentsInChildren<RectTransform>(true))
+        {
+            rectTransform.anchorMin = SanitizeVector2(rectTransform.anchorMin, Vector2.zero);
+            rectTransform.anchorMax = SanitizeVector2(rectTransform.anchorMax, Vector2.one);
+            rectTransform.anchoredPosition = SanitizeVector2(rectTransform.anchoredPosition, Vector2.zero);
+            rectTransform.sizeDelta = SanitizeVector2(rectTransform.sizeDelta, Vector2.zero);
+            rectTransform.offsetMin = SanitizeVector2(rectTransform.offsetMin, Vector2.zero);
+            rectTransform.offsetMax = SanitizeVector2(rectTransform.offsetMax, Vector2.zero);
+            rectTransform.pivot = SanitizeVector2(rectTransform.pivot, new Vector2(0.5f, 0.5f));
+            rectTransform.localScale = SanitizeVector3(rectTransform.localScale, Vector3.one);
+            rectTransform.localPosition = SanitizeVector3(rectTransform.localPosition, Vector3.zero);
+        }
+    }
+
+    private static Vector2 SanitizeVector2(Vector2 value, Vector2 fallback)
+    {
+        return new Vector2(
+            float.IsFinite(value.x) ? value.x : fallback.x,
+            float.IsFinite(value.y) ? value.y : fallback.y);
+    }
+
+    private static Vector3 SanitizeVector3(Vector3 value, Vector3 fallback)
+    {
+        return new Vector3(
+            float.IsFinite(value.x) ? value.x : fallback.x,
+            float.IsFinite(value.y) ? value.y : fallback.y,
+            float.IsFinite(value.z) ? value.z : fallback.z);
     }
 
     private static int FindEntryIndex(SerializedProperty entries, int minigameIndex)
@@ -948,5 +1163,14 @@ internal static class CoopMinigameSetupEditorUtility
     {
         var sanitizedName = new string(entry.DisplayName.Where(character => char.IsLetterOrDigit(character)).ToArray());
         return $"MinigameShortcut_{entry.MinigameIndex}_{sanitizedName}";
+    }
+
+    private static void Stretch(RectTransform rectTransform, Vector2 offsetMin, Vector2 offsetMax)
+    {
+        rectTransform.anchorMin = Vector2.zero;
+        rectTransform.anchorMax = Vector2.one;
+        rectTransform.pivot = new Vector2(0.5f, 0.5f);
+        rectTransform.offsetMin = offsetMin;
+        rectTransform.offsetMax = offsetMax;
     }
 }

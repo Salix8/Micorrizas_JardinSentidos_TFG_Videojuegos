@@ -1,0 +1,75 @@
+Responsive Layout Audit
+======================
+
+Assets/Scenes/UJI.unity
+  Canvases: 1
+  CanvasScalers: 1
+  SafeAreaFitters: 1
+  ScrollRects: 1
+  ResponsivePanels: 1
+  ResponsiveAspectLayouts: 0
+  ResponsiveGrids: 0
+  ContentSizeFitters: 1
+    CanvasScaler[CoopMinigameLauncherCanvas] mode=ScaleWithScreenSize ref=1080x1920 match=0,50
+
+Assets/Scenes/Lobby.unity
+  Canvases: 1
+  CanvasScalers: 1
+  SafeAreaFitters: 1
+  ScrollRects: 1
+  ResponsivePanels: 1
+  ResponsiveAspectLayouts: 0
+  ResponsiveGrids: 0
+  ContentSizeFitters: 5
+    CanvasScaler[Canvas] mode=ScaleWithScreenSize ref=1080x1920 match=0,50
+
+Assets/Scenes/DistributedPairsMinigame.unity
+  Canvases: 1
+  CanvasScalers: 1
+  SafeAreaFitters: 1
+  ScrollRects: 1
+  ResponsivePanels: 3
+  ResponsiveAspectLayouts: 0
+  ResponsiveGrids: 1
+  ContentSizeFitters: 3
+    CanvasScaler[DistributedPairsCanvas] mode=ScaleWithScreenSize ref=1080x1920 match=0,50
+
+Assets/Scenes/GardenImageVotingMinigame.unity
+  Canvases: 1
+  CanvasScalers: 1
+  SafeAreaFitters: 1
+  ScrollRects: 1
+  ResponsivePanels: 3
+  ResponsiveAspectLayouts: 1
+  ResponsiveGrids: 0
+  ContentSizeFitters: 2
+    CanvasScaler[GardenImageVotingCanvas] mode=ScaleWithScreenSize ref=1080x1920 match=0,50
+
+Assets/Scenes/AudioWordConsensusMinigame.unity
+  Canvases: 1
+  CanvasScalers: 1
+  SafeAreaFitters: 1
+  ScrollRects: 1
+  ResponsivePanels: 3
+  ResponsiveAspectLayouts: 0
+  ResponsiveGrids: 0
+  ContentSizeFitters: 2
+    CanvasScaler[AudioWordConsensusCanvas] mode=ScaleWithScreenSize ref=1080x1920 match=0,50
+
+Assets/Scenes/CollaborativePlantGuessMinigame.unity
+  Canvases: 1
+  CanvasScalers: 1
+  SafeAreaFitters: 1
+  ScrollRects: 2
+  ResponsivePanels: 3
+  ResponsiveAspectLayouts: 0
+  ResponsiveGrids: 1
+  ContentSizeFitters: 10
+    CanvasScaler[CollaborativePlantGuessCanvas] mode=ScaleWithScreenSize ref=1080x1920 match=0,50
+
+PlayerSettings
+  defaultInterfaceOrientation: Portrait
+  allowedPortrait: True
+  allowedPortraitUpsideDown: False
+  allowedLandscapeLeft: False
+  allowedLandscapeRight: False

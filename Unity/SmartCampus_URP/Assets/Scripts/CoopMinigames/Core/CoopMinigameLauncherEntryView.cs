@@ -22,9 +22,6 @@ namespace SmartCampus.Coop.Minigames
                 {
                     titleLabel.text = displayName;
                 }
-
-                titleLabel.resizeTextForBestFit = true;
-                titleLabel.resizeTextMinSize = 14;
             }
 
             if (descriptionLabel != null)
@@ -35,8 +32,6 @@ namespace SmartCampus.Coop.Minigames
                 }
 
                 descriptionLabel.gameObject.SetActive(!string.IsNullOrWhiteSpace(description));
-                descriptionLabel.resizeTextForBestFit = true;
-                descriptionLabel.resizeTextMinSize = 12;
             }
 
             if (launchButton != null)

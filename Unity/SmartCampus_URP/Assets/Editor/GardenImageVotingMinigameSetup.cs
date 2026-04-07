@@ -203,15 +203,21 @@ public static class GardenImageVotingMinigameSetup
         var cardPanel = CreatePanel("CardPanel", gameplayPanel.transform, new Color(1f, 1f, 1f, 0.88f));
         var cardPanelLayout = cardPanel.AddComponent<LayoutElement>();
         cardPanelLayout.flexibleHeight = 1f;
-        cardPanelLayout.minHeight = 680f;
+        cardPanelLayout.minHeight = 420f;
 
-        var cardRoot = CreateUiObject("CardRoot", cardPanel.transform, typeof(Image), typeof(CanvasGroup), typeof(GardenImageVotingCardView));
+        var cardRoot = CreateUiObject("CardRoot", cardPanel.transform, typeof(Image), typeof(CanvasGroup), typeof(GardenImageVotingCardView), typeof(ResponsiveAspectRatioLayoutController));
         var cardRootRect = cardRoot.GetComponent<RectTransform>();
         cardRootRect.anchorMin = new Vector2(0.5f, 0.5f);
         cardRootRect.anchorMax = new Vector2(0.5f, 0.5f);
         cardRootRect.pivot = new Vector2(0.5f, 0.5f);
         cardRootRect.sizeDelta = new Vector2(640f, 920f);
         cardRoot.GetComponent<Image>().color = config.CardVisualSettings.BackgroundColor;
+        cardRoot.GetComponent<ResponsiveAspectRatioLayoutController>().Configure(
+            cardPanel.GetComponent<RectTransform>(),
+            640f / 920f,
+            new Vector2(240f, 360f),
+            new Vector2(720f, 1040f),
+            new Vector2(18f, 18f));
 
         var illustration = CreateUiObject("Illustration", cardRoot.transform, typeof(Image));
         var illustrationRect = illustration.GetComponent<RectTransform>();
@@ -380,18 +386,25 @@ public static class GardenImageVotingMinigameSetup
         layout.childForceExpandHeight = false;
 
         var closeButton = CreateButton("CloseButton", contentPanel.transform, font, "X", 20);
-        var title = CreateText("TitleLabel", contentPanel.transform, font, "Tutorial", 36, TextAnchor.MiddleCenter);
+        closeButton.gameObject.AddComponent<LayoutElement>().preferredHeight = 52f;
+
+        var scrollView = CreateScrollView("ContentScrollView", contentPanel.transform);
+        var scrollLayout = scrollView.Root.AddComponent<LayoutElement>();
+        scrollLayout.flexibleHeight = 1f;
+        scrollLayout.minHeight = 220f;
+
+        var title = CreateText("TitleLabel", scrollView.ContentRoot.transform, font, "Tutorial", 36, TextAnchor.MiddleCenter);
         title.gameObject.AddComponent<LayoutElement>().preferredHeight = 56f;
-        var subtitle = CreateText("SubtitleLabel", contentPanel.transform, font, "Subtitulo", 24, TextAnchor.MiddleCenter);
+        var subtitle = CreateText("SubtitleLabel", scrollView.ContentRoot.transform, font, "Subtitulo", 24, TextAnchor.MiddleCenter);
         subtitle.gameObject.AddComponent<LayoutElement>().preferredHeight = 44f;
-        var body = CreateText("BodyLabel", contentPanel.transform, font, "Contenido del tutorial", 22, TextAnchor.UpperLeft);
-        body.gameObject.AddComponent<LayoutElement>().preferredHeight = 220f;
-        var illustration = CreateUiObject("Illustration", contentPanel.transform, typeof(Image));
+        var body = CreateText("BodyLabel", scrollView.ContentRoot.transform, font, "Contenido del tutorial", 22, TextAnchor.UpperLeft);
+        body.gameObject.AddComponent<LayoutElement>().preferredHeight = 180f;
+        var illustration = CreateUiObject("Illustration", scrollView.ContentRoot.transform, typeof(Image));
         illustration.AddComponent<LayoutElement>().preferredHeight = 220f;
-        var videoSurface = CreateUiObject("VideoSurface", contentPanel.transform, typeof(RawImage));
+        var videoSurface = CreateUiObject("VideoSurface", scrollView.ContentRoot.transform, typeof(RawImage));
         videoSurface.AddComponent<LayoutElement>().preferredHeight = 220f;
-        var customContentRoot = CreateUiObject("CustomContentRoot", contentPanel.transform);
-        customContentRoot.AddComponent<LayoutElement>().flexibleHeight = 1f;
+        var customContentRoot = CreateUiObject("CustomContentRoot", scrollView.ContentRoot.transform, typeof(ContentSizeFitter));
+        customContentRoot.GetComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
         var videoPlayer = popupRoot.AddComponent<UnityEngine.Video.VideoPlayer>();
 
         var controller = popupRoot.GetComponent<TutorialPopupController>();
@@ -498,6 +511,41 @@ public static class GardenImageVotingMinigameSetup
         new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
     }
 
+    private static ScrollViewReferences CreateScrollView(string name, Transform parent)
+    {
+        var root = CreateUiObject(name, parent, typeof(Image), typeof(ScrollRect));
+        root.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.02f);
+
+        var viewport = CreateUiObject("Viewport", root.transform, typeof(Image), typeof(Mask));
+        Stretch(viewport.GetComponent<RectTransform>(), Vector2.zero, Vector2.zero);
+        viewport.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.01f);
+        viewport.GetComponent<Mask>().showMaskGraphic = false;
+
+        var contentRoot = CreateUiObject("Content", viewport.transform, typeof(VerticalLayoutGroup), typeof(ContentSizeFitter));
+        var contentRect = contentRoot.GetComponent<RectTransform>();
+        contentRect.anchorMin = new Vector2(0f, 1f);
+        contentRect.anchorMax = new Vector2(1f, 1f);
+        contentRect.pivot = new Vector2(0.5f, 1f);
+        contentRect.offsetMin = Vector2.zero;
+        contentRect.offsetMax = Vector2.zero;
+
+        var contentLayout = contentRoot.GetComponent<VerticalLayoutGroup>();
+        contentLayout.spacing = 16f;
+        contentLayout.childControlWidth = true;
+        contentLayout.childControlHeight = true;
+        contentLayout.childForceExpandHeight = false;
+        contentRoot.GetComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+        var scrollRect = root.GetComponent<ScrollRect>();
+        scrollRect.viewport = viewport.GetComponent<RectTransform>();
+        scrollRect.content = contentRect;
+        scrollRect.horizontal = false;
+        scrollRect.vertical = true;
+        scrollRect.movementType = ScrollRect.MovementType.Clamped;
+
+        return new ScrollViewReferences(root, contentRoot);
+    }
+
     private static GameObject CreatePanel(string name, Transform parent, Color color)
     {
         var panel = CreateUiObject(name, parent, typeof(Image));
@@ -562,5 +610,17 @@ public static class GardenImageVotingMinigameSetup
         rectTransform.pivot = new Vector2(0.5f, 0.5f);
         rectTransform.offsetMin = offsetMin;
         rectTransform.offsetMax = offsetMax;
+    }
+
+    private readonly struct ScrollViewReferences
+    {
+        public ScrollViewReferences(GameObject root, GameObject contentRoot)
+        {
+            Root = root;
+            ContentRoot = contentRoot;
+        }
+
+        public GameObject Root { get; }
+        public GameObject ContentRoot { get; }
     }
 }

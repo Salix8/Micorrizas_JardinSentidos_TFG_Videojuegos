@@ -40,12 +40,16 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
             bool isInteractable,
             Action<int> onCardSelected)
         {
-            if (cardRoot == null || cardPrefab == null || config == null)
+            if (cardRoot == null || config == null)
             {
                 return;
             }
 
             EnsureSlots(config.CardsPerDevice);
+            if (handSlotViews.Count == 0)
+            {
+                return;
+            }
 
             if (responsiveGridLayoutController != null)
             {
@@ -98,8 +102,15 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
 
         private void EnsureSlots(int slotCount)
         {
+            RegisterSceneAuthoredSlots();
+
             for (var index = handSlotViews.Count; index < slotCount; index++)
             {
+                if (cardPrefab == null)
+                {
+                    break;
+                }
+
                 var slotObject = new GameObject($"HandSlot_{index + 1}", typeof(RectTransform), typeof(Image), typeof(LayoutElement));
                 slotObject.transform.SetParent(cardRoot, false);
                 slotObject.layer = cardRoot.gameObject.layer;
@@ -136,6 +147,53 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
             for (var index = 0; index < handSlotViews.Count; index++)
             {
                 handSlotViews[index].SlotRectTransform.SetSiblingIndex(index);
+            }
+        }
+
+        private void RegisterSceneAuthoredSlots()
+        {
+            if (cardRoot == null || handSlotViews.Count > 0)
+            {
+                return;
+            }
+
+            for (var index = 0; index < cardRoot.childCount; index++)
+            {
+                var child = cardRoot.GetChild(index);
+                var cardView = child.GetComponentInChildren<DistributedPairsCardView>(true);
+                if (cardView == null || child is not RectTransform slotRectTransform)
+                {
+                    continue;
+                }
+
+                var slotBackgroundImage = child.GetComponent<Image>();
+                if (slotBackgroundImage == null)
+                {
+                    slotBackgroundImage = child.gameObject.AddComponent<Image>();
+                    slotBackgroundImage.raycastTarget = false;
+                }
+
+                var layoutElement = child.GetComponent<LayoutElement>();
+                if (layoutElement == null)
+                {
+                    layoutElement = child.gameObject.AddComponent<LayoutElement>();
+                }
+
+                layoutElement.flexibleWidth = 1f;
+                layoutElement.flexibleHeight = 1f;
+
+                var cardRectTransform = cardView.RectTransform;
+                cardRectTransform.anchorMin = Vector2.zero;
+                cardRectTransform.anchorMax = Vector2.one;
+                cardRectTransform.offsetMin = Vector2.zero;
+                cardRectTransform.offsetMax = Vector2.zero;
+
+                handSlotViews.Add(new HandSlotView
+                {
+                    SlotRectTransform = slotRectTransform,
+                    SlotBackgroundImage = slotBackgroundImage,
+                    CardView = cardView
+                });
             }
         }
 

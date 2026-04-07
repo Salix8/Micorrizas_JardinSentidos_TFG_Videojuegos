@@ -37,6 +37,12 @@ namespace SmartCampus.Coop.Minigames
                 return;
             }
 
+            if (Screen.width <= 0 || Screen.height <= 0)
+            {
+                ApplyFullStretchFallback();
+                return;
+            }
+
             var safeArea = Screen.safeArea;
             lastSafeArea = safeArea;
             lastScreenSize = new Vector2Int(Screen.width, Screen.height);
@@ -48,10 +54,29 @@ namespace SmartCampus.Coop.Minigames
             anchorMax.x /= Screen.width;
             anchorMax.y /= Screen.height;
 
+            if (!IsFinite(anchorMin) || !IsFinite(anchorMax))
+            {
+                ApplyFullStretchFallback();
+                return;
+            }
+
             rectTransform.anchorMin = anchorMin;
             rectTransform.anchorMax = anchorMax;
             rectTransform.offsetMin = Vector2.zero;
             rectTransform.offsetMax = Vector2.zero;
+        }
+
+        private void ApplyFullStretchFallback()
+        {
+            rectTransform.anchorMin = Vector2.zero;
+            rectTransform.anchorMax = Vector2.one;
+            rectTransform.offsetMin = Vector2.zero;
+            rectTransform.offsetMax = Vector2.zero;
+        }
+
+        private static bool IsFinite(Vector2 value)
+        {
+            return float.IsFinite(value.x) && float.IsFinite(value.y);
         }
     }
 }

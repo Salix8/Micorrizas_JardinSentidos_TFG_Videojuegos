@@ -346,11 +346,13 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
 
             var currentHandCounts = new Dictionary<ulong, int>();
             var currentHandPairIds = new Dictionary<ulong, IReadOnlyList<int>>();
+            var occupiedHandSlots = new Dictionary<ulong, HashSet<int>>();
 
             foreach (var participantId in participantIds)
             {
                 var pairIds = new List<int>();
                 var count = 0;
+                var occupiedSlots = new HashSet<int>();
                 for (var index = 0; index < cardStates.Count; index++)
                 {
                     var state = cardStates[index];
@@ -358,11 +360,16 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
                     {
                         pairIds.Add(state.PairId);
                         count++;
+                        if (state.HandOrder >= 0 && state.HandOrder < distributedPairsMinigameConfig.CardsPerDevice)
+                        {
+                            occupiedSlots.Add(state.HandOrder);
+                        }
                     }
                 }
 
                 currentHandCounts[participantId] = count;
                 currentHandPairIds[participantId] = pairIds;
+                occupiedHandSlots[participantId] = occupiedSlots;
             }
 
             var drawPileCards = new List<DistributedPairsCardModel>();
@@ -395,7 +402,8 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
                 state.Zone = DistributedPairsCardZone.Hand;
                 state.OwnerClientId = assignment.Value;
                 state.IsSelected = false;
-                state.HandOrder = int.MaxValue;
+                state.HandOrder = GetNextAvailableHandSlot(occupiedHandSlots[assignment.Value], distributedPairsMinigameConfig.CardsPerDevice);
+                occupiedHandSlots[assignment.Value].Add(state.HandOrder);
                 cardStates[cardIndex] = state;
             }
 
@@ -408,6 +416,8 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
             foreach (var participantId in participantIds)
             {
                 var handIndices = new List<int>();
+                var occupiedOrders = new HashSet<int>();
+                var pendingIndices = new List<int>();
                 for (var index = 0; index < cardStates.Count; index++)
                 {
                     var state = cardStates[index];
@@ -427,16 +437,25 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
                     return orderComparison != 0 ? orderComparison : left.CardInstanceId.CompareTo(right.CardInstanceId);
                 });
 
-                for (var order = 0; order < handIndices.Count; order++)
+                for (var index = 0; index < handIndices.Count; index++)
                 {
-                    var state = cardStates[handIndices[order]];
-                    if (state.HandOrder == order)
+                    var state = cardStates[handIndices[index]];
+                    if (state.HandOrder >= 0 &&
+                        state.HandOrder < distributedPairsMinigameConfig.CardsPerDevice &&
+                        occupiedOrders.Add(state.HandOrder))
                     {
                         continue;
                     }
 
-                    state.HandOrder = order;
-                    cardStates[handIndices[order]] = state;
+                    pendingIndices.Add(handIndices[index]);
+                }
+
+                for (var index = 0; index < pendingIndices.Count; index++)
+                {
+                    var state = cardStates[pendingIndices[index]];
+                    state.HandOrder = GetNextAvailableHandSlot(occupiedOrders, distributedPairsMinigameConfig.CardsPerDevice);
+                    occupiedOrders.Add(state.HandOrder);
+                    cardStates[pendingIndices[index]] = state;
                 }
             }
 
@@ -449,6 +468,19 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
                     cardStates[index] = state;
                 }
             }
+        }
+
+        private static int GetNextAvailableHandSlot(HashSet<int> occupiedOrders, int slotCount)
+        {
+            for (var slotIndex = 0; slotIndex < slotCount; slotIndex++)
+            {
+                if (!occupiedOrders.Contains(slotIndex))
+                {
+                    return slotIndex;
+                }
+            }
+
+            return slotCount <= 0 ? 0 : slotCount - 1;
         }
 
         private List<DistributedPairsCardModel> BuildDeck(int pairCount)

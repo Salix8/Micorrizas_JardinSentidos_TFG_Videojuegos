@@ -1,15 +1,16 @@
+using System.IO;
 using UnityEditor;
 using UnityEditor.Events;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using System.IO;
 using SmartCampus.Coop;
+using SmartCampus.Coop.Minigames;
 
 public static class LobbySceneUiSetup
 {
-    private const string ScenePath = "Assets/Lobby.unity";
+    private const string ScenePath = "Assets/Scenes/Lobby.unity";
     private const string ReportPath = "C:/Users/saulp/Documents/UJI/Micorrizas_JardinSentidos_TFG_Videojuegos/lobby-ui-setup-report.txt";
 
     [MenuItem("Tools/Coop/Setup Lobby UI")]
@@ -36,10 +37,60 @@ public static class LobbySceneUiSetup
         ConfigureRoot(canvas, controller);
         ClearExistingUi(controller.transform);
 
-        var homePanel = CreatePanel("HomePanel", controller.transform, new Vector2(0.5f, 0.5f), new Vector2(640f, 360f), new Color(0.12f, 0.16f, 0.22f, 0.92f));
-        var hostPanel = CreatePanel("HostPanel", controller.transform, new Vector2(0.5f, 0.5f), new Vector2(640f, 360f), new Color(0.12f, 0.16f, 0.22f, 0.92f));
-        var joinPanel = CreatePanel("JoinPanel", controller.transform, new Vector2(0.5f, 0.5f), new Vector2(640f, 360f), new Color(0.12f, 0.16f, 0.22f, 0.92f));
-        var sessionPanel = CreatePanel("SessionPanel", controller.transform, new Vector2(0.5f, 0.5f), new Vector2(760f, 460f), new Color(0.12f, 0.16f, 0.22f, 0.92f));
+        var safeAreaRoot = CreateUiObject("SafeAreaRoot", controller.transform, typeof(SafeAreaFitter));
+        Stretch(safeAreaRoot.GetComponent<RectTransform>(), Vector2.zero, Vector2.zero);
+
+        var background = CreatePanel("Background", safeAreaRoot.transform, new Color(0.08f, 0.11f, 0.16f, 1f));
+        Stretch(background.GetComponent<RectTransform>(), Vector2.zero, Vector2.zero);
+
+        var surfacePanel = CreatePanel("SurfacePanel", safeAreaRoot.transform, new Color(0.12f, 0.16f, 0.22f, 0.94f));
+        var surfaceRect = surfacePanel.GetComponent<RectTransform>();
+        surfaceRect.anchorMin = new Vector2(0.5f, 0.5f);
+        surfaceRect.anchorMax = new Vector2(0.5f, 0.5f);
+        surfaceRect.pivot = new Vector2(0.5f, 0.5f);
+        surfaceRect.anchoredPosition = Vector2.zero;
+        surfacePanel.AddComponent<ResponsivePanelLayoutController>().Configure(
+            safeAreaRoot.GetComponent<RectTransform>(),
+            0.94f,
+            0.88f,
+            new Vector2(320f, 480f),
+            new Vector2(920f, 1560f),
+            new Vector2(24f, 24f));
+
+        var surfaceLayout = surfacePanel.AddComponent<VerticalLayoutGroup>();
+        surfaceLayout.padding = new RectOffset(28, 28, 28, 28);
+        surfaceLayout.spacing = 18f;
+        surfaceLayout.childControlWidth = true;
+        surfaceLayout.childControlHeight = true;
+        surfaceLayout.childForceExpandWidth = true;
+        surfaceLayout.childForceExpandHeight = false;
+
+        var headerStack = CreateUiObject("HeaderStack", surfacePanel.transform, typeof(VerticalLayoutGroup));
+        var headerLayout = headerStack.GetComponent<VerticalLayoutGroup>();
+        headerLayout.spacing = 6f;
+        headerLayout.childControlWidth = true;
+        headerLayout.childControlHeight = true;
+        headerLayout.childForceExpandHeight = false;
+        headerStack.AddComponent<LayoutElement>().preferredHeight = 128f;
+
+        var appTitle = CreateText("AppTitle", headerStack.transform, font, "Co-op Lobby", 40, TextAnchor.MiddleCenter, Color.white);
+        ConfigureAutoSizedText(appTitle, 22, 40);
+        appTitle.gameObject.AddComponent<LayoutElement>().preferredHeight = 60f;
+
+        var appSubtitle = CreateText("AppSubtitle", headerStack.transform, font, "Multijugador editable y responsive para Android.", 20, TextAnchor.MiddleCenter, new Color(0.86f, 0.9f, 0.95f, 1f));
+        ConfigureAutoSizedText(appSubtitle, 14, 20);
+        appSubtitle.gameObject.AddComponent<LayoutElement>().preferredHeight = 52f;
+
+        var scrollView = CreateScrollView("PanelScrollView", surfacePanel.transform);
+        var scrollLayout = scrollView.Root.AddComponent<LayoutElement>();
+        scrollLayout.flexibleHeight = 1f;
+        scrollLayout.minHeight = 240f;
+        scrollView.ContentLayout.spacing = 16f;
+
+        var homePanel = CreateContentPanel("HomePanel", scrollView.ContentRoot.transform);
+        var hostPanel = CreateContentPanel("HostPanel", scrollView.ContentRoot.transform);
+        var joinPanel = CreateContentPanel("JoinPanel", scrollView.ContentRoot.transform);
+        var sessionPanel = CreateContentPanel("SessionPanel", scrollView.ContentRoot.transform);
 
         BuildHomePanel(homePanel.transform, controller, font);
         var hostButton = BuildHostPanel(hostPanel.transform, controller, font);
@@ -94,6 +145,16 @@ public static class LobbySceneUiSetup
         canvasRect.offsetMax = Vector2.zero;
         canvasRect.localScale = Vector3.one;
 
+        var scaler = canvas.GetComponent<CanvasScaler>();
+        if (scaler == null)
+        {
+            scaler = canvas.gameObject.AddComponent<CanvasScaler>();
+        }
+
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = new Vector2(1080f, 1920f);
+        scaler.matchWidthOrHeight = 0.5f;
+
         var controllerRect = controller.GetComponent<RectTransform>();
         controllerRect.anchorMin = Vector2.zero;
         controllerRect.anchorMax = Vector2.one;
@@ -128,11 +189,11 @@ public static class LobbySceneUiSetup
 
     private static void BuildHomePanel(Transform parent, MultiplayerMenuController controller, Font font)
     {
-        CreateText("Title", parent, font, "Co-op Lobby", 34, TextAnchor.MiddleCenter, new Vector2(0.5f, 1f), new Vector2(0f, -44f), new Vector2(520f, 50f));
-        CreateText("Subtitle", parent, font, "Elige si quieres alojar la partida o unirte por codigo.", 18, TextAnchor.MiddleCenter, new Vector2(0.5f, 1f), new Vector2(0f, -96f), new Vector2(540f, 40f));
+        CreateSectionTitle("HomeTitle", parent, font, "Escoge modo de entrada");
+        CreateBodyText("HomeInfo", parent, font, "Aloja una sala si vas a iniciar la partida o unete con el codigo compartido por otra persona.");
 
-        var hostNavigationButton = CreateButton("OpenHostPanelButton", parent, font, "Host", new Vector2(0.5f, 0.5f), new Vector2(0f, 18f), new Vector2(240f, 52f));
-        var joinNavigationButton = CreateButton("OpenJoinPanelButton", parent, font, "Join", new Vector2(0.5f, 0.5f), new Vector2(0f, -48f), new Vector2(240f, 52f));
+        var hostNavigationButton = CreateActionButton("OpenHostPanelButton", parent, font, "Crear sala");
+        var joinNavigationButton = CreateActionButton("OpenJoinPanelButton", parent, font, "Unirse con codigo");
 
         UnityEventTools.AddPersistentListener(hostNavigationButton.onClick, controller.ShowHostPanel);
         UnityEventTools.AddPersistentListener(joinNavigationButton.onClick, controller.ShowJoinPanel);
@@ -140,11 +201,11 @@ public static class LobbySceneUiSetup
 
     private static Button BuildHostPanel(Transform parent, MultiplayerMenuController controller, Font font)
     {
-        CreateText("Title", parent, font, "Host Session", 30, TextAnchor.MiddleCenter, new Vector2(0.5f, 1f), new Vector2(0f, -46f), new Vector2(520f, 44f));
-        CreateText("Info", parent, font, "Crea la sala Relay y comparte el codigo con el resto del grupo.", 18, TextAnchor.MiddleCenter, new Vector2(0.5f, 1f), new Vector2(0f, -96f), new Vector2(560f, 40f));
+        CreateSectionTitle("HostTitle", parent, font, "Crear sesion");
+        CreateBodyText("HostInfo", parent, font, "Genera la sala Relay, comparte el codigo y vuelve al mapa cuando todo el grupo este listo.");
 
-        var hostButton = CreateButton("HostSessionButton", parent, font, "Create Lobby", new Vector2(0.5f, 0.5f), new Vector2(0f, -6f), new Vector2(240f, 52f));
-        var backButton = CreateButton("BackButton", parent, font, "Back", new Vector2(0.5f, 0.5f), new Vector2(0f, -72f), new Vector2(240f, 44f));
+        var hostButton = CreateActionButton("HostSessionButton", parent, font, "Crear lobby");
+        var backButton = CreateSecondaryButton("BackButton", parent, font, "Volver");
 
         UnityEventTools.AddPersistentListener(hostButton.onClick, controller.HostSession);
         UnityEventTools.AddPersistentListener(backButton.onClick, controller.ShowHomePanel);
@@ -153,12 +214,14 @@ public static class LobbySceneUiSetup
 
     private static (InputField inputField, Button joinButton) BuildJoinPanel(Transform parent, MultiplayerMenuController controller, Font font)
     {
-        CreateText("Title", parent, font, "Join Session", 30, TextAnchor.MiddleCenter, new Vector2(0.5f, 1f), new Vector2(0f, -46f), new Vector2(520f, 44f));
-        CreateText("Info", parent, font, "Introduce el codigo que te haya compartido el host.", 18, TextAnchor.MiddleCenter, new Vector2(0.5f, 1f), new Vector2(0f, -96f), new Vector2(560f, 40f));
+        CreateSectionTitle("JoinTitle", parent, font, "Unirse a sesion");
+        CreateBodyText("JoinInfo", parent, font, "Introduce el codigo del host. El campo queda visible en jerarquia para que puedas retocar placeholder, margenes y estilo.");
 
-        var inputField = CreateInputField("JoinCodeInput", parent, font, new Vector2(0.5f, 0.5f), new Vector2(0f, 6f), new Vector2(300f, 48f));
-        var joinButton = CreateButton("JoinSessionButton", parent, font, "Join Lobby", new Vector2(0.5f, 0.5f), new Vector2(0f, -64f), new Vector2(240f, 52f));
-        var backButton = CreateButton("BackButton", parent, font, "Back", new Vector2(0.5f, 0.5f), new Vector2(0f, -128f), new Vector2(240f, 44f));
+        var inputField = CreateInputField("JoinCodeInput", parent, font, "Codigo de acceso");
+        inputField.gameObject.AddComponent<LayoutElement>().preferredHeight = 60f;
+
+        var joinButton = CreateActionButton("JoinSessionButton", parent, font, "Entrar al lobby");
+        var backButton = CreateSecondaryButton("BackButton", parent, font, "Volver");
 
         UnityEventTools.AddPersistentListener(joinButton.onClick, controller.JoinSession);
         UnityEventTools.AddPersistentListener(backButton.onClick, controller.ShowHomePanel);
@@ -167,15 +230,24 @@ public static class LobbySceneUiSetup
 
     private static (Text statusLabel, Text joinCodeLabel, Text playerCountLabel, Text requirementsLabel, Button startMatchButton, Button leaveSessionButton, Button copyJoinCodeButton) BuildSessionPanel(Transform parent, MultiplayerMenuController controller, Font font)
     {
-        CreateText("Title", parent, font, "Lobby Status", 30, TextAnchor.MiddleCenter, new Vector2(0.5f, 1f), new Vector2(0f, -42f), new Vector2(560f, 44f));
-        var statusLabel = CreateText("StatusLabel", parent, font, "Esperando a que el host cree o abra la sala.", 18, TextAnchor.UpperLeft, new Vector2(0.5f, 1f), new Vector2(0f, -112f), new Vector2(640f, 88f));
-        var joinCodeLabel = CreateText("JoinCodeLabel", parent, font, "Join code: -", 20, TextAnchor.MiddleLeft, new Vector2(0.5f, 1f), new Vector2(0f, -212f), new Vector2(640f, 34f));
-        var playerCountLabel = CreateText("PlayerCountLabel", parent, font, "Players: 0/6 (minimum 2)", 20, TextAnchor.MiddleLeft, new Vector2(0.5f, 1f), new Vector2(0f, -252f), new Vector2(640f, 34f));
-        var requirementsLabel = CreateText("SessionRequirementsLabel", parent, font, "Lobby rule: 2-6 players", 18, TextAnchor.MiddleLeft, new Vector2(0.5f, 1f), new Vector2(0f, -288f), new Vector2(640f, 30f));
+        CreateSectionTitle("SessionTitle", parent, font, "Estado del lobby");
+        var statusLabel = CreateBodyText("StatusLabel", parent, font, "Esperando a que el host cree o abra la sala.");
+        statusLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 120f;
 
-        var copyJoinCodeButton = CreateButton("CopyJoinCodeButton", parent, font, "Copy Code", new Vector2(0.5f, 0f), new Vector2(-172f, 54f), new Vector2(180f, 46f));
-        var startMatchButton = CreateButton("StartMatchButton", parent, font, "Go To Map", new Vector2(0.5f, 0f), new Vector2(0f, 54f), new Vector2(180f, 46f));
-        var leaveSessionButton = CreateButton("LeaveSessionButton", parent, font, "Leave", new Vector2(0.5f, 0f), new Vector2(172f, 54f), new Vector2(180f, 46f));
+        var joinCodeLabel = CreateValueLabel("JoinCodeLabel", parent, font, "Join code: -");
+        var playerCountLabel = CreateValueLabel("PlayerCountLabel", parent, font, "Players: 0/6 (minimum 2)");
+        var requirementsLabel = CreateValueLabel("SessionRequirementsLabel", parent, font, "Lobby rule: 2-6 players");
+
+        var actionsRoot = CreateUiObject("ActionsRoot", parent, typeof(VerticalLayoutGroup));
+        var actionsLayout = actionsRoot.GetComponent<VerticalLayoutGroup>();
+        actionsLayout.spacing = 10f;
+        actionsLayout.childControlWidth = true;
+        actionsLayout.childControlHeight = true;
+        actionsLayout.childForceExpandHeight = false;
+
+        var copyJoinCodeButton = CreateActionButton("CopyJoinCodeButton", actionsRoot.transform, font, "Copiar codigo");
+        var startMatchButton = CreateActionButton("StartMatchButton", actionsRoot.transform, font, "Ir al mapa");
+        var leaveSessionButton = CreateSecondaryButton("LeaveSessionButton", actionsRoot.transform, font, "Salir de la sesion");
 
         UnityEventTools.AddPersistentListener(copyJoinCodeButton.onClick, controller.CopyJoinCode);
         UnityEventTools.AddPersistentListener(startMatchButton.onClick, controller.StartMatch);
@@ -219,105 +291,207 @@ public static class LobbySceneUiSetup
         serializedObject.ApplyModifiedPropertiesWithoutUndo();
     }
 
-    private static GameObject CreatePanel(string name, Transform parent, Vector2 anchor, Vector2 size, Color color)
+    private static GameObject CreateContentPanel(string name, Transform parent)
     {
-        var panel = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
-        panel.layer = 5;
-        panel.transform.SetParent(parent, false);
+        var panel = CreatePanel(name, parent, new Color(1f, 1f, 1f, 0.06f));
+        var layout = panel.AddComponent<VerticalLayoutGroup>();
+        layout.padding = new RectOffset(18, 18, 18, 18);
+        layout.spacing = 14f;
+        layout.childControlWidth = true;
+        layout.childControlHeight = true;
+        layout.childForceExpandWidth = true;
+        layout.childForceExpandHeight = false;
 
-        var rectTransform = panel.GetComponent<RectTransform>();
-        rectTransform.anchorMin = anchor;
-        rectTransform.anchorMax = anchor;
-        rectTransform.pivot = new Vector2(0.5f, 0.5f);
-        rectTransform.anchoredPosition = Vector2.zero;
-        rectTransform.sizeDelta = size;
+        var fitter = panel.AddComponent<ContentSizeFitter>();
+        fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+        fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
-        var image = panel.GetComponent<Image>();
-        image.color = color;
+        panel.AddComponent<LayoutElement>().preferredHeight = -1f;
         return panel;
     }
 
-    private static Text CreateText(string name, Transform parent, Font font, string value, int fontSize, TextAnchor alignment, Vector2 anchor, Vector2 anchoredPosition, Vector2 size)
+    private static Text CreateSectionTitle(string name, Transform parent, Font font, string value)
     {
-        var textObject = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(Text));
-        textObject.layer = 5;
-        textObject.transform.SetParent(parent, false);
+        var title = CreateText(name, parent, font, value, 28, TextAnchor.MiddleCenter, Color.white);
+        ConfigureAutoSizedText(title, 18, 28);
+        title.gameObject.AddComponent<LayoutElement>().preferredHeight = 52f;
+        return title;
+    }
 
-        var rectTransform = textObject.GetComponent<RectTransform>();
-        rectTransform.anchorMin = anchor;
-        rectTransform.anchorMax = anchor;
-        rectTransform.pivot = new Vector2(0.5f, 0.5f);
-        rectTransform.anchoredPosition = anchoredPosition;
-        rectTransform.sizeDelta = size;
-
-        var text = textObject.GetComponent<Text>();
-        text.font = font;
-        text.text = value;
-        text.fontSize = fontSize;
-        text.alignment = alignment;
-        text.color = Color.white;
-        text.horizontalOverflow = HorizontalWrapMode.Wrap;
-        text.verticalOverflow = VerticalWrapMode.Overflow;
+    private static Text CreateBodyText(string name, Transform parent, Font font, string value)
+    {
+        var text = CreateText(name, parent, font, value, 20, TextAnchor.UpperLeft, new Color(0.9f, 0.93f, 0.97f, 1f));
+        ConfigureAutoSizedText(text, 14, 20);
+        text.gameObject.AddComponent<LayoutElement>().preferredHeight = 88f;
         return text;
     }
 
-    private static Button CreateButton(string name, Transform parent, Font font, string label, Vector2 anchor, Vector2 anchoredPosition, Vector2 size)
+    private static Text CreateValueLabel(string name, Transform parent, Font font, string value)
     {
-        var buttonObject = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
-        buttonObject.layer = 5;
-        buttonObject.transform.SetParent(parent, false);
+        var text = CreateText(name, parent, font, value, 20, TextAnchor.MiddleLeft, Color.white);
+        ConfigureAutoSizedText(text, 14, 20);
+        text.gameObject.AddComponent<LayoutElement>().preferredHeight = 44f;
+        return text;
+    }
 
-        var rectTransform = buttonObject.GetComponent<RectTransform>();
-        rectTransform.anchorMin = anchor;
-        rectTransform.anchorMax = anchor;
-        rectTransform.pivot = new Vector2(0.5f, 0.5f);
-        rectTransform.anchoredPosition = anchoredPosition;
-        rectTransform.sizeDelta = size;
+    private static Button CreateActionButton(string name, Transform parent, Font font, string label)
+    {
+        var button = CreateButton(name, parent, font, label, new Color(0.24f, 0.41f, 0.69f, 1f));
+        button.gameObject.AddComponent<LayoutElement>().preferredHeight = 64f;
+        return button;
+    }
 
+    private static Button CreateSecondaryButton(string name, Transform parent, Font font, string label)
+    {
+        var button = CreateButton(name, parent, font, label, new Color(0.22f, 0.29f, 0.36f, 1f));
+        button.gameObject.AddComponent<LayoutElement>().preferredHeight = 60f;
+        return button;
+    }
+
+    private static Button CreateButton(string name, Transform parent, Font font, string label, Color backgroundColor)
+    {
+        var buttonObject = CreateUiObject(name, parent, typeof(Image), typeof(Button));
         var image = buttonObject.GetComponent<Image>();
-        image.color = new Color(0.24f, 0.41f, 0.69f, 1f);
+        image.color = backgroundColor;
 
         var button = buttonObject.GetComponent<Button>();
         button.targetGraphic = image;
         var colors = button.colors;
         colors.normalColor = image.color;
-        colors.highlightedColor = new Color(0.29f, 0.49f, 0.81f, 1f);
-        colors.pressedColor = new Color(0.19f, 0.32f, 0.54f, 1f);
+        colors.highlightedColor = image.color * 1.08f;
+        colors.pressedColor = image.color * 0.9f;
         colors.selectedColor = colors.highlightedColor;
         button.colors = colors;
 
-        CreateText("Label", buttonObject.transform, font, label, 20, TextAnchor.MiddleCenter, new Vector2(0.5f, 0.5f), Vector2.zero, size);
+        var labelText = CreateText("Label", buttonObject.transform, font, label, 20, TextAnchor.MiddleCenter, Color.white);
+        ConfigureAutoSizedText(labelText, 14, 20);
+        Stretch(labelText.rectTransform, new Vector2(16f, 10f), new Vector2(-16f, -10f));
         return button;
     }
 
-    private static InputField CreateInputField(string name, Transform parent, Font font, Vector2 anchor, Vector2 anchoredPosition, Vector2 size)
+    private static InputField CreateInputField(string name, Transform parent, Font font, string placeholderValue)
     {
-        var inputObject = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(InputField));
-        inputObject.layer = 5;
-        inputObject.transform.SetParent(parent, false);
-
-        var rectTransform = inputObject.GetComponent<RectTransform>();
-        rectTransform.anchorMin = anchor;
-        rectTransform.anchorMax = anchor;
-        rectTransform.pivot = new Vector2(0.5f, 0.5f);
-        rectTransform.anchoredPosition = anchoredPosition;
-        rectTransform.sizeDelta = size;
-
+        var inputObject = CreateUiObject(name, parent, typeof(Image), typeof(InputField));
         var image = inputObject.GetComponent<Image>();
-        image.color = new Color(0.92f, 0.92f, 0.92f, 1f);
+        image.color = new Color(0.95f, 0.96f, 0.98f, 1f);
 
-        var textComponent = CreateText("Text", inputObject.transform, font, string.Empty, 20, TextAnchor.MiddleLeft, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(size.x - 32f, size.y - 12f));
-        textComponent.color = new Color(0.12f, 0.12f, 0.12f, 1f);
-
-        var placeholderComponent = CreateText("Placeholder", inputObject.transform, font, "Join code", 20, TextAnchor.MiddleLeft, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(size.x - 32f, size.y - 12f));
-        placeholderComponent.color = new Color(0.45f, 0.45f, 0.45f, 0.75f);
+        var textComponent = CreateText("Text", inputObject.transform, font, string.Empty, 20, TextAnchor.MiddleLeft, new Color(0.12f, 0.12f, 0.14f, 1f));
+        var placeholderComponent = CreateText("Placeholder", inputObject.transform, font, placeholderValue, 20, TextAnchor.MiddleLeft, new Color(0.35f, 0.39f, 0.42f, 0.7f));
+        ConfigureAutoSizedText(textComponent, 14, 20);
+        ConfigureAutoSizedText(placeholderComponent, 14, 20);
+        Stretch(textComponent.rectTransform, new Vector2(18f, 10f), new Vector2(-18f, -10f));
+        Stretch(placeholderComponent.rectTransform, new Vector2(18f, 10f), new Vector2(-18f, -10f));
 
         var inputField = inputObject.GetComponent<InputField>();
         inputField.textComponent = textComponent;
         inputField.placeholder = placeholderComponent;
         inputField.characterLimit = 12;
         inputField.lineType = InputField.LineType.SingleLine;
-
         return inputField;
+    }
+
+    private static Text CreateText(string name, Transform parent, Font font, string value, int fontSize, TextAnchor alignment, Color color)
+    {
+        var textObject = CreateUiObject(name, parent, typeof(Text));
+        var text = textObject.GetComponent<Text>();
+        text.font = font;
+        text.text = value;
+        text.fontSize = fontSize;
+        text.alignment = alignment;
+        text.color = color;
+        text.horizontalOverflow = HorizontalWrapMode.Wrap;
+        text.verticalOverflow = VerticalWrapMode.Overflow;
+        return text;
+    }
+
+    private static void ConfigureAutoSizedText(Text text, int minSize, int maxSize)
+    {
+        text.resizeTextForBestFit = true;
+        text.resizeTextMinSize = minSize;
+        text.resizeTextMaxSize = maxSize;
+    }
+
+    private static GameObject CreatePanel(string name, Transform parent, Color color)
+    {
+        var panel = CreateUiObject(name, parent, typeof(Image));
+        panel.GetComponent<Image>().color = color;
+        return panel;
+    }
+
+    private static GameObject CreateUiObject(string name, Transform parent, params System.Type[] components)
+    {
+        var objectComponents = new System.Type[components.Length + 1];
+        objectComponents[0] = typeof(RectTransform);
+        for (var index = 0; index < components.Length; index++)
+        {
+            objectComponents[index + 1] = components[index];
+        }
+
+        var gameObject = new GameObject(name, objectComponents);
+        gameObject.layer = 5;
+        if (parent != null)
+        {
+            gameObject.transform.SetParent(parent, false);
+        }
+
+        return gameObject;
+    }
+
+    private static void Stretch(RectTransform rectTransform, Vector2 offsetMin, Vector2 offsetMax)
+    {
+        rectTransform.anchorMin = Vector2.zero;
+        rectTransform.anchorMax = Vector2.one;
+        rectTransform.pivot = new Vector2(0.5f, 0.5f);
+        rectTransform.offsetMin = offsetMin;
+        rectTransform.offsetMax = offsetMax;
+    }
+
+    private static ScrollViewReferences CreateScrollView(string name, Transform parent)
+    {
+        var root = CreateUiObject(name, parent, typeof(Image), typeof(ScrollRect));
+        root.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.04f);
+
+        var viewport = CreateUiObject("Viewport", root.transform, typeof(Image), typeof(Mask));
+        Stretch(viewport.GetComponent<RectTransform>(), Vector2.zero, Vector2.zero);
+        viewport.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.01f);
+        viewport.GetComponent<Mask>().showMaskGraphic = false;
+
+        var contentRoot = CreateUiObject("Content", viewport.transform, typeof(VerticalLayoutGroup), typeof(ContentSizeFitter));
+        var contentRect = contentRoot.GetComponent<RectTransform>();
+        contentRect.anchorMin = new Vector2(0f, 1f);
+        contentRect.anchorMax = new Vector2(1f, 1f);
+        contentRect.pivot = new Vector2(0.5f, 1f);
+        contentRect.offsetMin = Vector2.zero;
+        contentRect.offsetMax = Vector2.zero;
+
+        var contentLayout = contentRoot.GetComponent<VerticalLayoutGroup>();
+        contentLayout.spacing = 12f;
+        contentLayout.childControlWidth = true;
+        contentLayout.childControlHeight = true;
+        contentLayout.childForceExpandHeight = false;
+        contentRoot.GetComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+        var scrollRect = root.GetComponent<ScrollRect>();
+        scrollRect.viewport = viewport.GetComponent<RectTransform>();
+        scrollRect.content = contentRect;
+        scrollRect.horizontal = false;
+        scrollRect.vertical = true;
+        scrollRect.movementType = ScrollRect.MovementType.Clamped;
+
+        return new ScrollViewReferences(root, contentRoot, contentLayout);
+    }
+
+    private readonly struct ScrollViewReferences
+    {
+        public ScrollViewReferences(GameObject root, GameObject contentRoot, VerticalLayoutGroup contentLayout)
+        {
+            Root = root;
+            ContentRoot = contentRoot;
+            ContentLayout = contentLayout;
+        }
+
+        public GameObject Root { get; }
+        public GameObject ContentRoot { get; }
+        public VerticalLayoutGroup ContentLayout { get; }
     }
 }
