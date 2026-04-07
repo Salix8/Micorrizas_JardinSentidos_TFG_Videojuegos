@@ -110,7 +110,19 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
 
         public bool TryGetAssignedWordForLocalPlayer(out string assignedWord)
         {
-            return TryGetAssignedWord(GetLocalClientId(), out assignedWord);
+            if (TryGetAssignedWordsForLocalPlayer(out var assignedWords) && assignedWords.Count > 0)
+            {
+                assignedWord = assignedWords[0];
+                return true;
+            }
+
+            assignedWord = string.Empty;
+            return false;
+        }
+
+        public bool TryGetAssignedWordsForLocalPlayer(out IReadOnlyList<string> assignedWords)
+        {
+            return TryGetAssignedWords(GetLocalClientId(), out assignedWords);
         }
 
         public bool CanLocalSubmitAssignedWord()
@@ -118,23 +130,24 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
             return Stage == CooperativeMinigameStage.Playing &&
                    !IsRoundLocked &&
                    !IsLocalEmitter &&
-                   TryGetAssignedWordForLocalPlayer(out _);
+                   TryGetAssignedWordsForLocalPlayer(out var assignedWords) &&
+                   assignedWords.Count > 0;
         }
 
-        public void SubmitLocalAssignedWord()
+        public void SubmitLocalAssignedWord(string selectedWord)
         {
-            if (!CanLocalSubmitAssignedWord())
+            if (!CanLocalSubmitAssignedWord() || string.IsNullOrWhiteSpace(selectedWord))
             {
                 return;
             }
 
             if (IsServer)
             {
-                SubmitAssignedWordServer(GetLocalClientId());
+                SubmitAssignedWordServer(GetLocalClientId(), selectedWord);
                 return;
             }
 
-            SubmitAssignedWordServerRpc();
+            SubmitAssignedWordServerRpc(selectedWord);
         }
 
         protected override void InitializeMinigameServer()
@@ -164,7 +177,7 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
                 return;
             }
 
-            totalScheduledRounds.Value = participantIds.Count;
+            totalScheduledRounds.Value = audioWordConsensusMinigameConfig.ActiveRoundCount;
         }
 
         protected override void OnGameplayStartedServer()
@@ -182,12 +195,12 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
         }
 
         [Rpc(SendTo.Server)]
-        private void SubmitAssignedWordServerRpc(RpcParams rpcParams = default)
+        private void SubmitAssignedWordServerRpc(FixedString128Bytes selectedWord, RpcParams rpcParams = default)
         {
-            SubmitAssignedWordServer(rpcParams.Receive.SenderClientId);
+            SubmitAssignedWordServer(rpcParams.Receive.SenderClientId, selectedWord.ToString());
         }
 
-        private void SubmitAssignedWordServer(ulong senderClientId)
+        private void SubmitAssignedWordServer(ulong senderClientId, string selectedWord)
         {
             if (!IsServer || Stage != CooperativeMinigameStage.Playing || !serverGameplayActive || IsRoundLocked || HasPublishedResult)
             {
@@ -199,7 +212,23 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
                 return;
             }
 
-            if (!TryGetAssignedWord(senderClientId, out var selectedWord))
+            if (!TryGetAssignedWords(senderClientId, out var assignedWords))
+            {
+                return;
+            }
+
+            var isAssignedWord = false;
+            for (var index = 0; index < assignedWords.Count; index++)
+            {
+                if (string.Equals(assignedWords[index], selectedWord, StringComparison.OrdinalIgnoreCase))
+                {
+                    isAssignedWord = true;
+                    selectedWord = assignedWords[index];
+                    break;
+                }
+            }
+
+            if (!isAssignedWord)
             {
                 return;
             }
@@ -274,7 +303,7 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
             }
 
             var participantIds = GetParticipantIds();
-            if (roundIndex < 0 || roundIndex >= participantIds.Count)
+            if (roundIndex < 0 || roundIndex >= totalScheduledRounds.Value)
             {
                 CompleteMinigameServer(completedAllRounds: true);
                 return;
@@ -287,7 +316,7 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
                 return;
             }
 
-            var emitterClientId = participantIds[roundIndex];
+            var emitterClientId = participantIds[roundIndex % participantIds.Count];
             var receiverClientIds = new List<ulong>();
             for (var index = 0; index < participantIds.Count; index++)
             {
@@ -311,11 +340,15 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
             wordAssignments.Clear();
             foreach (var assignment in assignments)
             {
-                wordAssignments.Add(new AudioWordConsensusPlayerWordAssignmentNetworkState
+                for (var optionIndex = 0; optionIndex < assignment.Value.Count; optionIndex++)
                 {
-                    ClientId = assignment.Key,
-                    AssignedWord = new FixedString128Bytes(assignment.Value)
-                });
+                    wordAssignments.Add(new AudioWordConsensusPlayerWordAssignmentNetworkState
+                    {
+                        ClientId = assignment.Key,
+                        DisplayOrder = optionIndex,
+                        AssignedWord = new FixedString128Bytes(assignment.Value[optionIndex])
+                    });
+                }
             }
 
             activeRoundIndex.Value = roundIndex;
@@ -343,19 +376,32 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
                 completedAllRounds));
         }
 
-        private bool TryGetAssignedWord(ulong clientId, out string assignedWord)
+        private bool TryGetAssignedWords(ulong clientId, out IReadOnlyList<string> assignedWords)
         {
+            var clientAssignments = new List<AudioWordConsensusPlayerWordAssignmentNetworkState>();
             for (var index = 0; index < wordAssignments.Count; index++)
             {
                 if (wordAssignments[index].ClientId == clientId)
                 {
-                    assignedWord = wordAssignments[index].AssignedWord.ToString();
-                    return true;
+                    clientAssignments.Add(wordAssignments[index]);
                 }
             }
 
-            assignedWord = string.Empty;
-            return false;
+            if (clientAssignments.Count == 0)
+            {
+                assignedWords = Array.Empty<string>();
+                return false;
+            }
+
+            clientAssignments.Sort((left, right) => left.DisplayOrder.CompareTo(right.DisplayOrder));
+            var results = new List<string>(clientAssignments.Count);
+            for (var index = 0; index < clientAssignments.Count; index++)
+            {
+                results.Add(clientAssignments[index].AssignedWord.ToString());
+            }
+
+            assignedWords = results;
+            return true;
         }
 
         private int GetDisplaySlotForClient(ulong clientId)

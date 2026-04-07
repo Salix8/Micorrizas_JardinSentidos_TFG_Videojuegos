@@ -10,31 +10,43 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
             string correctWord,
             IReadOnlyList<string> distractorWords,
             int randomSeed,
-            out Dictionary<ulong, string> assignments)
+            out Dictionary<ulong, List<string>> assignments)
         {
-            assignments = new Dictionary<ulong, string>();
+            assignments = new Dictionary<ulong, List<string>>();
 
             if (receiverClientIds == null || receiverClientIds.Count == 0 || string.IsNullOrWhiteSpace(correctWord))
             {
                 return false;
             }
 
-            var requiredDistractorCount = Math.Max(0, receiverClientIds.Count - 1);
-            var sanitizedDistractors = SanitizeDistinctWords(distractorWords, correctWord);
-            if (sanitizedDistractors.Count < requiredDistractorCount)
-            {
-                return false;
-            }
-
+            var trimmedCorrectWord = correctWord.Trim();
+            var sanitizedDistractors = SanitizeDistinctWords(distractorWords, trimmedCorrectWord);
             var shuffledReceivers = new List<ulong>(receiverClientIds);
+            var optionWords = new List<string>(sanitizedDistractors.Count + 1)
+            {
+                trimmedCorrectWord
+            };
+
+            optionWords.AddRange(sanitizedDistractors);
+
             var random = new Random(randomSeed);
             ShuffleInPlace(shuffledReceivers, random);
-            ShuffleInPlace(sanitizedDistractors, random);
+            ShuffleInPlace(optionWords, random);
 
-            assignments[shuffledReceivers[0]] = correctWord.Trim();
-            for (var index = 1; index < shuffledReceivers.Count; index++)
+            for (var receiverIndex = 0; receiverIndex < shuffledReceivers.Count; receiverIndex++)
             {
-                assignments[shuffledReceivers[index]] = sanitizedDistractors[index - 1];
+                assignments[shuffledReceivers[receiverIndex]] = new List<string>();
+            }
+
+            for (var optionIndex = 0; optionIndex < optionWords.Count; optionIndex++)
+            {
+                var receiverId = shuffledReceivers[optionIndex % shuffledReceivers.Count];
+                assignments[receiverId].Add(optionWords[optionIndex]);
+            }
+
+            for (var receiverIndex = 0; receiverIndex < shuffledReceivers.Count; receiverIndex++)
+            {
+                ShuffleInPlace(assignments[shuffledReceivers[receiverIndex]], random);
             }
 
             return true;
@@ -43,8 +55,10 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
         private static List<string> SanitizeDistinctWords(IReadOnlyList<string> sourceWords, string forbiddenWord)
         {
             var results = new List<string>();
-            var seenWords = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            seenWords.Add(forbiddenWord.Trim());
+            var seenWords = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                forbiddenWord
+            };
 
             if (sourceWords == null)
             {

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using SmartCampus.Coop.Minigames;
@@ -18,8 +19,12 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
         [SerializeField] private Text localWordLabel;
         [SerializeField] private Button playSoundButton;
         [SerializeField] private Text playSoundButtonLabel;
+        [SerializeField] private Transform wordOptionsContainer;
+        [SerializeField] private Button wordOptionButtonTemplate;
         [SerializeField] private Button submitWordButton;
         [SerializeField] private Text submitWordButtonLabel;
+
+        private readonly List<Button> activeWordOptionButtons = new();
 
         private AudioWordConsensusMinigameSession TypedSession => audioWordConsensusMinigameSession != null
             ? audioWordConsensusMinigameSession
@@ -55,11 +60,7 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
                 playSoundButton.onClick.RemoveListener(HandlePlaySoundPressed);
             }
 
-            if (submitWordButton != null)
-            {
-                submitWordButton.onClick.RemoveListener(HandleSubmitWordPressed);
-            }
-
+            ClearGeneratedWordOptionButtons();
             base.OnDisable();
         }
 
@@ -114,7 +115,7 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
             }
 
             var isEmitter = TypedSession.IsLocalEmitter;
-            var hasAssignedWord = TypedSession.TryGetAssignedWordForLocalPlayer(out var assignedWord);
+            var hasAssignedWords = TypedSession.TryGetAssignedWordsForLocalPlayer(out var assignedWords);
             var roundDefinition = TypedSession.GetCurrentRoundDefinition();
 
             if (roleLabel != null)
@@ -128,7 +129,7 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
             {
                 localWordLabel.text = isEmitter
                     ? "En este turno no recibes palabra. Tu tarea es reproducir el sonido cuando el grupo lo necesite."
-                    : (hasAssignedWord ? $"Tu palabra es: {assignedWord}" : "Esperando a que el host prepare tu palabra.");
+                    : (hasAssignedWords ? "Opciones disponibles en tu dispositivo:" : "Esperando a que el host prepare tus opciones.");
             }
 
             if (playSoundButton != null)
@@ -144,16 +145,7 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
                     : config.MissingAudioClipLabel;
             }
 
-            if (submitWordButton != null)
-            {
-                submitWordButton.gameObject.SetActive(!isEmitter && hasAssignedWord);
-                submitWordButton.interactable = TypedSession.CanLocalSubmitAssignedWord();
-            }
-
-            if (submitWordButtonLabel != null)
-            {
-                submitWordButtonLabel.text = hasAssignedWord ? $"Pulsar \"{assignedWord}\"" : "Palabra pendiente";
-            }
+            RefreshWordOptionButtons(isEmitter, hasAssignedWords ? assignedWords : null);
         }
 
         private void RegisterLocalButtons()
@@ -164,10 +156,110 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
                 playSoundButton.onClick.AddListener(HandlePlaySoundPressed);
             }
 
-            if (submitWordButton != null)
+        }
+
+        private void RefreshWordOptionButtons(bool isEmitter, IReadOnlyList<string> assignedWords)
+        {
+            var templateButton = ResolveWordOptionTemplate();
+            if (templateButton == null)
             {
-                submitWordButton.onClick.RemoveListener(HandleSubmitWordPressed);
-                submitWordButton.onClick.AddListener(HandleSubmitWordPressed);
+                return;
+            }
+
+            var hasAssignedWords = assignedWords != null && assignedWords.Count > 0;
+            if (isEmitter || !hasAssignedWords)
+            {
+                ClearGeneratedWordOptionButtons();
+                templateButton.gameObject.SetActive(false);
+                return;
+            }
+
+            EnsureWordOptionButtonPool(assignedWords.Count);
+            for (var index = 0; index < activeWordOptionButtons.Count; index++)
+            {
+                var button = activeWordOptionButtons[index];
+                var shouldShow = index < assignedWords.Count;
+                button.gameObject.SetActive(shouldShow);
+
+                if (!shouldShow)
+                {
+                    continue;
+                }
+
+                var assignedWord = assignedWords[index];
+                var label = GetButtonLabel(button);
+                if (label != null)
+                {
+                    label.text = $"Pulsar \"{assignedWord}\"";
+                }
+
+                button.interactable = TypedSession.CanLocalSubmitAssignedWord();
+                button.onClick.RemoveAllListeners();
+                button.onClick.AddListener(() => HandleSubmitWordPressed(assignedWord));
+            }
+        }
+
+        private void EnsureWordOptionButtonPool(int requiredButtonCount)
+        {
+            var templateButton = ResolveWordOptionTemplate();
+            if (templateButton == null)
+            {
+                return;
+            }
+
+            if (activeWordOptionButtons.Count == 0)
+            {
+                activeWordOptionButtons.Add(templateButton);
+            }
+
+            while (activeWordOptionButtons.Count < requiredButtonCount)
+            {
+                var instance = Instantiate(templateButton, templateButton.transform.parent);
+                instance.name = $"{templateButton.name}_{activeWordOptionButtons.Count + 1}";
+                activeWordOptionButtons.Add(instance);
+            }
+        }
+
+        private Button ResolveWordOptionTemplate()
+        {
+            if (wordOptionButtonTemplate == null)
+            {
+                wordOptionButtonTemplate = submitWordButton;
+            }
+
+            if (wordOptionButtonTemplate != null && wordOptionsContainer == null)
+            {
+                wordOptionsContainer = wordOptionButtonTemplate.transform.parent;
+            }
+
+            return wordOptionButtonTemplate;
+        }
+
+        private static Text GetButtonLabel(Button button)
+        {
+            return button == null ? null : button.GetComponentInChildren<Text>(true);
+        }
+
+        private void ClearGeneratedWordOptionButtons()
+        {
+            for (var index = activeWordOptionButtons.Count - 1; index >= 1; index--)
+            {
+                var button = activeWordOptionButtons[index];
+                if (button != null)
+                {
+                    Destroy(button.gameObject);
+                }
+            }
+
+            if (activeWordOptionButtons.Count > 0)
+            {
+                var templateButton = activeWordOptionButtons[0];
+                if (templateButton != null)
+                {
+                    templateButton.onClick.RemoveAllListeners();
+                }
+
+                activeWordOptionButtons.Clear();
             }
         }
 
@@ -184,9 +276,9 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
             localAudioSource.Play();
         }
 
-        private void HandleSubmitWordPressed()
+        private void HandleSubmitWordPressed(string selectedWord)
         {
-            TypedSession?.SubmitLocalAssignedWord();
+            TypedSession?.SubmitLocalAssignedWord(selectedWord);
         }
 
         private void HandleStateChanged()

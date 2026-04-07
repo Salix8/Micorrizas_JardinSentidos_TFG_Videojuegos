@@ -1208,6 +1208,8 @@ MonoBehaviour:
   localWordLabel: {fileID: 1191588623}
   playSoundButton: {fileID: 1384895691}
   playSoundButtonLabel: {fileID: 1386032612}
+  wordOptionsContainer: {fileID: 8829971}
+  wordOptionButtonTemplate: {fileID: 1380102337}
   submitWordButton: {fileID: 1380102337}
   submitWordButtonLabel: {fileID: 238249330}
 --- !u!1 &512485482

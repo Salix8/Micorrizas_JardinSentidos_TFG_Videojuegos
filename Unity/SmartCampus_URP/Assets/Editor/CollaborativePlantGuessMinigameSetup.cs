@@ -363,22 +363,24 @@ public static class CollaborativePlantGuessMinigameSetup
     private static CollaborativePlantGuessHistoryRowView CreateHistoryTemplate(Transform parent, Font font, CollaborativePlantGuessMinigameConfig config)
     {
         var root = CreatePanel("HistoryRowTemplate", parent, new Color(1f, 1f, 1f, 0.58f));
-        var layout = root.AddComponent<VerticalLayoutGroup>();
+        var layout = root.AddComponent<HorizontalLayoutGroup>();
         layout.padding = new RectOffset(12, 12, 12, 12);
-        layout.spacing = 12f;
+        layout.spacing = 10f;
         layout.childControlHeight = true;
         layout.childControlWidth = true;
-        layout.childForceExpandWidth = true;
+        layout.childForceExpandWidth = false;
         layout.childForceExpandHeight = false;
         var rowLayoutElement = root.AddComponent<LayoutElement>();
-        rowLayoutElement.minHeight = 180f;
+        rowLayoutElement.minHeight = 136f;
         rowLayoutElement.preferredHeight = -1f;
         var rowFitter = root.AddComponent<ContentSizeFitter>();
         rowFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
         var infoColumn = CreateUiObject("InfoColumn", root.transform, typeof(VerticalLayoutGroup));
         var infoLayoutElement = infoColumn.AddComponent<LayoutElement>();
-        infoLayoutElement.flexibleWidth = 1f;
+        infoLayoutElement.minWidth = 196f;
+        infoLayoutElement.preferredWidth = 228f;
+        infoLayoutElement.flexibleWidth = 0f;
         var infoLayout = infoColumn.GetComponent<VerticalLayoutGroup>();
         infoLayout.spacing = 6f;
         infoLayout.childControlWidth = true;
@@ -387,6 +389,7 @@ public static class CollaborativePlantGuessMinigameSetup
 
         var guessedByLabel = CreateText("GuessedByLabel", infoColumn.transform, font, "Intento", 18, TextAnchor.MiddleLeft);
         guessedByLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 24f;
+        guessedByLabel.gameObject.SetActive(false);
         var plantImageRoot = CreatePanel("PlantImageRoot", infoColumn.transform, config.VisualSettings.NeutralCellColor);
         plantImageRoot.AddComponent<LayoutElement>().preferredHeight = 78f;
         var plantImage = CreateUiObject("PlantImage", plantImageRoot.transform, typeof(Image)).GetComponent<Image>();
@@ -397,20 +400,17 @@ public static class CollaborativePlantGuessMinigameSetup
         var plantNameLabel = CreateText("PlantNameLabel", infoColumn.transform, font, "Planta", 22, TextAnchor.MiddleLeft);
         plantNameLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = -1f;
 
-        var comparisonsRow = CreateUiObject("ComparisonsRow", root.transform, typeof(GridLayoutGroup), typeof(ResponsiveGridLayoutController));
+        var comparisonsRow = CreateUiObject("ComparisonsRow", root.transform, typeof(HorizontalLayoutGroup));
         var comparisonsRowLayoutElement = comparisonsRow.AddComponent<LayoutElement>();
         comparisonsRowLayoutElement.flexibleWidth = 1f;
-        var comparisonsLayout = comparisonsRow.GetComponent<GridLayoutGroup>();
+        var comparisonsLayout = comparisonsRow.GetComponent<HorizontalLayoutGroup>();
         comparisonsLayout.padding = new RectOffset(0, 0, 0, 0);
-        comparisonsLayout.spacing = new Vector2(8f, 8f);
-        comparisonsLayout.startAxis = GridLayoutGroup.Axis.Horizontal;
-        comparisonsLayout.startCorner = GridLayoutGroup.Corner.UpperLeft;
+        comparisonsLayout.spacing = 8f;
+        comparisonsLayout.childControlWidth = true;
+        comparisonsLayout.childControlHeight = true;
+        comparisonsLayout.childForceExpandWidth = true;
+        comparisonsLayout.childForceExpandHeight = false;
         comparisonsLayout.childAlignment = TextAnchor.UpperLeft;
-        comparisonsRow.GetComponent<ResponsiveGridLayoutController>().Configure(
-            3,
-            new Vector2(132f, 104f),
-            new Vector2(220f, 156f),
-            1.35f);
 
         var surfaceRoughnessCell = CreateComparisonCell("Rugosidad", comparisonsRow.transform, font, "Media", config.VisualSettings.NeutralCellColor);
         var leafTypeCell = CreateComparisonCell("Tipo de hoja", comparisonsRow.transform, font, "Lanceolada", config.VisualSettings.NeutralCellColor);
@@ -445,12 +445,12 @@ public static class CollaborativePlantGuessMinigameSetup
     {
         var root = CreatePanel($"{headerText}Cell", parent, backgroundColor);
         var layoutElement = root.AddComponent<LayoutElement>();
-        layoutElement.minWidth = 170f;
-        layoutElement.preferredWidth = 190f;
+        layoutElement.minWidth = 84f;
+        layoutElement.preferredWidth = 104f;
         layoutElement.flexibleWidth = 1f;
         var layout = root.AddComponent<VerticalLayoutGroup>();
-        layout.padding = new RectOffset(10, 10, 10, 12);
-        layout.spacing = 8f;
+        layout.padding = new RectOffset(6, 6, 6, 8);
+        layout.spacing = 4f;
         layout.childAlignment = TextAnchor.UpperCenter;
         layout.childControlWidth = true;
         layout.childControlHeight = true;
@@ -461,11 +461,11 @@ public static class CollaborativePlantGuessMinigameSetup
         var header = CreateText("HeaderLabel", root.transform, font, headerText, 16, TextAnchor.UpperCenter);
         header.horizontalOverflow = HorizontalWrapMode.Wrap;
         header.verticalOverflow = VerticalWrapMode.Overflow;
-        header.gameObject.AddComponent<LayoutElement>().minHeight = 24f;
+        header.gameObject.AddComponent<LayoutElement>().minHeight = 34f;
         var valueLabel = CreateText("ValueLabel", root.transform, font, value, 20, TextAnchor.UpperCenter);
         valueLabel.horizontalOverflow = HorizontalWrapMode.Wrap;
         valueLabel.verticalOverflow = VerticalWrapMode.Overflow;
-        valueLabel.gameObject.AddComponent<LayoutElement>().minHeight = 48f;
+        valueLabel.gameObject.AddComponent<LayoutElement>().minHeight = 36f;
 
         return new ComparisonCellReferences(root.GetComponent<Image>(), valueLabel);
     }

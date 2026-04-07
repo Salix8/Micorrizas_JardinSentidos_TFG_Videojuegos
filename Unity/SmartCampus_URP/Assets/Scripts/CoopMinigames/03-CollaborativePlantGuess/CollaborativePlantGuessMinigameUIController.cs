@@ -119,9 +119,7 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
 
             if (statusLabel != null)
             {
-                statusLabel.text = string.IsNullOrWhiteSpace(TypedSession.DataLoadError)
-                    ? TypedSession.SharedStatusMessage
-                    : TypedSession.DataLoadError;
+                statusLabel.text = BuildStatusMessage(config);
             }
 
             if (helperLabel != null)
@@ -183,6 +181,29 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             }
 
             return "Busca por nombre comun, cientifico o sinonimos. Cada intento se comparte con 6 pistas para comparar la planta elegida.";
+        }
+
+        private string BuildStatusMessage(CollaborativePlantGuessMinigameConfig config)
+        {
+            if (!string.IsNullOrWhiteSpace(TypedSession.DataLoadError))
+            {
+                return TypedSession.DataLoadError;
+            }
+
+            var sharedStatusMessage = TypedSession.SharedStatusMessage;
+            if (TypedSession.Stage != CooperativeMinigameStage.Playing || config == null)
+            {
+                return sharedStatusMessage;
+            }
+
+            if (!sharedStatusMessage.StartsWith("Intento ", System.StringComparison.Ordinal))
+            {
+                return sharedStatusMessage;
+            }
+
+            return TypedSession.HasLocalSubmittedMostRecentGuess()
+                ? $"Intento {TypedSession.AttemptsUsed}/{config.MaxAttempts}. Tu dispositivo hizo el ultimo intento; ahora debe responder otro."
+                : $"Intento {TypedSession.AttemptsUsed}/{config.MaxAttempts}. Tu dispositivo ya puede volver a responder.";
         }
 
         private void RefreshSuggestionList(CollaborativePlantGuessMinigameConfig config)

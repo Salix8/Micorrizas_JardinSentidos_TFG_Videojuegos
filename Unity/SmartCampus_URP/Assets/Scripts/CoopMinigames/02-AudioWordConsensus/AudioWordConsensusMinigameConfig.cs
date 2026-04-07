@@ -40,7 +40,7 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
         {
             return participantCount >= 2 &&
                    participantCount <= maxSupportedDevices &&
-                   roundDefinitions.Count >= participantCount;
+                   roundDefinitions.Count > 0;
         }
 
         private void OnValidate()

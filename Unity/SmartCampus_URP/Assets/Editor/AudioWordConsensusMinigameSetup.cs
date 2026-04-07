@@ -72,8 +72,8 @@ public static class AudioWordConsensusMinigameSetup
         serializedObject.FindProperty("subtitle").stringValue = "Una persona escucha, el resto compara palabras";
         serializedObject.FindProperty("bodyText").stringValue =
             "En cada ronda un dispositivo solo puede reproducir un sonido. Ese jugador no recibe ninguna palabra.\n\n" +
-            "El resto de dispositivos recibe una palabra distinta. Solo una coincide con el sonido reproducido.\n\n" +
-            "Debatid rapidamente y decidid quien debe pulsar. El minijuego termina cuando todos han sido emisor una vez o cuando se agota el tiempo.";
+            "El resto de dispositivos recibe varias opciones repartidas entre el grupo. Solo una coincide con el sonido reproducido.\n\n" +
+            "Debatid rapidamente y decidid en que dispositivo y sobre que palabra debe pulsarse. El minijuego termina cuando todos han sido emisor una vez o cuando se agota el tiempo.";
         serializedObject.ApplyModifiedPropertiesWithoutUndo();
         EditorUtility.SetDirty(asset);
         return asset;
@@ -203,12 +203,18 @@ public static class AudioWordConsensusMinigameSetup
         interactionLayout.childForceExpandHeight = false;
 
         var localWordLabel = CreateText("LocalWordLabel", interactionPanel.transform, font, "Palabra local", 30, TextAnchor.MiddleCenter);
-        localWordLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 140f;
+        localWordLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 96f;
+
+        var wordOptionsScrollView = CreateScrollView("WordOptionsScrollView", interactionPanel.transform);
+        var wordOptionsScrollLayout = wordOptionsScrollView.Root.AddComponent<LayoutElement>();
+        wordOptionsScrollLayout.flexibleHeight = 1f;
+        wordOptionsScrollLayout.minHeight = 220f;
+
+        var submitWordButton = CreateButton("SubmitWordButton", wordOptionsScrollView.ContentRoot.transform, font, "Pulsar palabra", 24, config.VisualSettings.ReceiverButtonColor);
+        submitWordButton.gameObject.AddComponent<LayoutElement>().preferredHeight = 82f;
 
         var playSoundButton = CreateButton("PlaySoundButton", interactionPanel.transform, font, "Reproducir sonido", 24, config.VisualSettings.PrimaryButtonColor);
         playSoundButton.gameObject.AddComponent<LayoutElement>().preferredHeight = 82f;
-        var submitWordButton = CreateButton("SubmitWordButton", interactionPanel.transform, font, "Pulsar palabra", 24, config.VisualSettings.ReceiverButtonColor);
-        submitWordButton.gameObject.AddComponent<LayoutElement>().preferredHeight = 82f;
 
         var tutorialPopup = CreateTutorialPopup(uiRoot.transform, font);
         tutorialPopup.gameObject.SetActive(false);
@@ -233,6 +239,8 @@ public static class AudioWordConsensusMinigameSetup
         serializedUiController.FindProperty("localWordLabel").objectReferenceValue = localWordLabel;
         serializedUiController.FindProperty("playSoundButton").objectReferenceValue = playSoundButton.GetComponent<Button>();
         serializedUiController.FindProperty("playSoundButtonLabel").objectReferenceValue = playSoundButton.GetComponentInChildren<Text>();
+        serializedUiController.FindProperty("wordOptionsContainer").objectReferenceValue = wordOptionsScrollView.ContentRoot.transform;
+        serializedUiController.FindProperty("wordOptionButtonTemplate").objectReferenceValue = submitWordButton.GetComponent<Button>();
         serializedUiController.FindProperty("submitWordButton").objectReferenceValue = submitWordButton.GetComponent<Button>();
         serializedUiController.FindProperty("submitWordButtonLabel").objectReferenceValue = submitWordButton.GetComponentInChildren<Text>();
         serializedUiController.ApplyModifiedPropertiesWithoutUndo();

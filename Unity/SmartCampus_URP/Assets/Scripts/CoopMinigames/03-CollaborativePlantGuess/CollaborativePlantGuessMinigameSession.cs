@@ -151,6 +151,14 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             return GetLocalSubmissionBlockReason(rawInput) == CollaborativePlantGuessSubmissionBlockReason.None;
         }
 
+        public bool HasLocalSubmittedMostRecentGuess()
+        {
+            return CollaborativePlantGuessGameplayRules.HasSubmittedPreviousGuess(
+                attemptsUsed.Value,
+                GetLocalClientId(),
+                lastGuessingClientId.Value);
+        }
+
         public CollaborativePlantGuessSubmissionBlockReason GetLocalSubmissionBlockReason(string rawInput)
         {
             if (collaborativePlantGuessMinigameConfig == null)
@@ -417,6 +425,10 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
                 FruitTypeOutcome = evaluation.FruitTypeOutcome,
                 IsExactPlantMatch = evaluation.IsExactPlantMatch
             });
+
+            var guessingPlayerSlot = GetPlayerDisplaySlot(senderClientId);
+            var displaySlotLabel = guessingPlayerSlot > 0 ? $"Dispositivo {guessingPlayerSlot}" : $"Cliente {senderClientId}";
+            Debug.Log($"[CollaborativePlantGuess] Intento {attemptsUsed.Value} registrado por {displaySlotLabel}: {guessedPlant.FullDisplayName} ({guessedPlant.PlantId})");
 
             if (evaluation.IsExactPlantMatch)
             {
