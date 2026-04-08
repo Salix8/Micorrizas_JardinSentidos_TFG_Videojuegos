@@ -192,10 +192,10 @@ public static class LobbySceneUiSetup
         CreateSectionTitle("HomeTitle", parent, font, "Escoge modo de entrada");
         CreateBodyText("HomeInfo", parent, font, "Aloja una sala si vas a iniciar la partida o unete con el codigo compartido por otra persona.");
 
-        var hostNavigationButton = CreateActionButton("OpenHostPanelButton", parent, font, "Crear sala");
+        var hostNavigationButton = CreateActionButton("CreateSessionButton", parent, font, "Crear sala");
         var joinNavigationButton = CreateActionButton("OpenJoinPanelButton", parent, font, "Unirse con codigo");
 
-        UnityEventTools.AddPersistentListener(hostNavigationButton.onClick, controller.ShowHostPanel);
+        UnityEventTools.AddPersistentListener(hostNavigationButton.onClick, controller.HostSession);
         UnityEventTools.AddPersistentListener(joinNavigationButton.onClick, controller.ShowJoinPanel);
     }
 

@@ -90,7 +90,7 @@ public sealed class MultiplayerMenuController : MonoBehaviour
             if (string.IsNullOrWhiteSpace(joinCode) && !relayConnectionService.IsSessionActive)
             {
                 relayConnectionService.ShutdownSession();
-                ShowHostPanel();
+                ShowHomePanel();
             }
         }
         finally

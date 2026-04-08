@@ -46,10 +46,10 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             BindPlantImage(plantDefinition);
 
             BindCell(surfaceRoughnessCell, surfaceRoughnessLabel, "Rugosidad", plantDefinition?.SurfaceRoughness, historyEntry.SurfaceRoughnessOutcome, config.VisualSettings, CollaborativePlantGuessHintProgressionService.ShouldRevealSurfaceRoughness(historyEntry.AttemptIndex, config));
-            BindCell(leafTypeCell, leafTypeLabel, "Tipo de hoja", plantDefinition?.LeafType, historyEntry.LeafTypeOutcome, config.VisualSettings, CollaborativePlantGuessHintProgressionService.ShouldRevealLeafType(historyEntry.AttemptIndex, config));
+            BindCell(leafTypeCell, leafTypeLabel, "Forma de hoja", plantDefinition?.LeafType, historyEntry.LeafTypeOutcome, config.VisualSettings, CollaborativePlantGuessHintProgressionService.ShouldRevealLeafType(historyEntry.AttemptIndex, config));
             BindCell(fruitCategoryCell, fruitCategoryLabel, "Categoria del fruto", plantDefinition?.FruitCategory, historyEntry.FruitCategoryOutcome, config.VisualSettings, CollaborativePlantGuessHintProgressionService.ShouldRevealFruitCategory(historyEntry.AttemptIndex, config));
             BindCell(fruitTypeCell, fruitTypeLabel, "Tipo de fruto", plantDefinition?.FruitType, historyEntry.FruitTypeOutcome, config.VisualSettings, CollaborativePlantGuessHintProgressionService.ShouldRevealFruitType(historyEntry.AttemptIndex, config));
-            BindCell(leafPersistenceCell, leafPersistenceLabel, "Hoja perenne/caduca", plantDefinition?.LeafPersistence, historyEntry.LeafPersistenceOutcome, config.VisualSettings, CollaborativePlantGuessHintProgressionService.ShouldRevealLeafPersistence(historyEntry.AttemptIndex, config));
+            BindCell(leafPersistenceCell, leafPersistenceLabel, "Tipo de hoja", plantDefinition?.LeafPersistence, historyEntry.LeafPersistenceOutcome, config.VisualSettings, CollaborativePlantGuessHintProgressionService.ShouldRevealLeafPersistence(historyEntry.AttemptIndex, config));
             BindCell(plantTypeCell, plantTypeLabel, "Tipo de planta", plantDefinition?.PlantType, historyEntry.PlantTypeOutcome, config.VisualSettings, CollaborativePlantGuessHintProgressionService.ShouldRevealPlantType(historyEntry.AttemptIndex, config));
 
             RefreshLayout();

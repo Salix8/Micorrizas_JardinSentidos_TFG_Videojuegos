@@ -1549,7 +1549,7 @@ GameObject:
   - component: {fileID: 308698757}
   - component: {fileID: 308698756}
   m_Layer: 5
-  m_Name: OpenHostPanelButton
+  m_Name: CreateSessionButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1641,7 +1641,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1144038925}
         m_TargetAssemblyTypeName: MultiplayerMenuController, Assembly-CSharp
-        m_MethodName: ShowHostPanel
+        m_MethodName: HostSession
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
