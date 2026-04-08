@@ -844,9 +844,7 @@ internal static class CoopMinigameSetupEditorUtility
             throw new InvalidOperationException("La escena UJI necesita un CoopMinigameLauncherUIController.");
         }
 
-        var serializedLauncherController = new SerializedObject(launcherController);
-        serializedLauncherController.FindProperty("minigameCatalogConfig").objectReferenceValue = catalogConfig;
-        serializedLauncherController.ApplyModifiedPropertiesWithoutUndo();
+        ApplyLauncherCatalogReference(launcherController, catalogConfig);
 
         var safeAreaRoot = ConfigureResponsiveMainMapCanvas(launcherController);
         var launcherPanel = launcherController.transform as RectTransform;
@@ -860,6 +858,7 @@ internal static class CoopMinigameSetupEditorUtility
             launcherPanel.SetParent(safeAreaRoot, false);
         }
 
+        var serializedLauncherController = new SerializedObject(launcherController);
         var entryRoot = serializedLauncherController.FindProperty("entryRoot").objectReferenceValue as Transform;
         var entryTemplate = serializedLauncherController.FindProperty("entryTemplate").objectReferenceValue as CoopMinigameLauncherEntryView;
         if (entryRoot == null || entryTemplate == null)
@@ -871,10 +870,19 @@ internal static class CoopMinigameSetupEditorUtility
         EnsureScrollableEntryRoot(launcherPanel, entryRoot);
         EnsureSceneVisibleEntries(entryRoot, entryTemplate, catalogConfig);
         SanitizeRectTransformTree(canvasRoot: safeAreaRoot != null ? safeAreaRoot : launcherPanel.root as RectTransform);
+        ApplyLauncherCatalogReference(launcherController, catalogConfig);
 
         EditorUtility.SetDirty(launcherController);
         EditorSceneManager.MarkSceneDirty(scene);
         EditorSceneManager.SaveScene(scene);
+    }
+
+    private static void ApplyLauncherCatalogReference(CoopMinigameLauncherUIController launcherController, CoopMinigameCatalogConfig catalogConfig)
+    {
+        var serializedLauncherController = new SerializedObject(launcherController);
+        serializedLauncherController.Update();
+        serializedLauncherController.FindProperty("minigameCatalogConfig").objectReferenceValue = catalogConfig;
+        serializedLauncherController.ApplyModifiedPropertiesWithoutUndo();
     }
 
     private static RectTransform ConfigureResponsiveMainMapCanvas(CoopMinigameLauncherUIController launcherController)

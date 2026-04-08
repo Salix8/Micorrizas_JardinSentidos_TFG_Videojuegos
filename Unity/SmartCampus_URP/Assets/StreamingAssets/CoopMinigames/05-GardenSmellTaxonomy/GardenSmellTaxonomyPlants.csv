@@ -1,0 +1,13 @@
+plantId,scientificName,imagePath,correctCategory
+lavandula_dentata,Lavandula dentata,Plants/lavandula-dentata.png,Decoracion
+jasminum_officinale,Jasminum officinale,Plants/jasminum-officinale.png,Decoracion
+rosa_damascena,Rosa damascena,Plants/rosa-damascena.png,Decoracion
+pelargonium_graveolens,Pelargonium graveolens,Plants/pelargonium-graveolens.png,Decoracion
+mentha_spicata,Mentha spicata,Plants/mentha-spicata.png,Alimentacion
+ocimum_basilicum,Ocimum basilicum,Plants/ocimum-basilicum.png,Alimentacion
+foeniculum_vulgare,Foeniculum vulgare,Plants/foeniculum-vulgare.png,Alimentacion
+laurus_nobilis,Laurus nobilis,Plants/laurus-nobilis.png,Alimentacion
+aloe_vera,Aloe vera,Plants/aloe-vera.png,Curacion
+matricaria_chamomilla,Matricaria chamomilla,Plants/matricaria-chamomilla.png,Curacion
+salvia_officinalis,Salvia officinalis,Plants/salvia-officinalis.png,Curacion
+thymus_vulgaris,Thymus vulgaris,Plants/thymus-vulgaris.png,Curacion

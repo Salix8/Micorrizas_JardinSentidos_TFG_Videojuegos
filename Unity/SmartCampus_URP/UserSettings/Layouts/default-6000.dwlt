@@ -19,7 +19,7 @@ MonoBehaviour:
     width: 1056
     height: 967.3334
   m_ShowMode: 4
-  m_Title: Hierarchy
+  m_Title: Game
   m_RootView: {fileID: 3}
   m_MinSize: {x: 875, y: 300}
   m_MaxSize: {x: 10000, y: 10000}
@@ -43,8 +43,8 @@ MonoBehaviour:
     y: 0
     width: 248.66669
     height: 618
-  m_MinSize: {x: 276, y: 76}
-  m_MaxSize: {x: 4001, y: 4026}
+  m_MinSize: {x: 275, y: 50}
+  m_MaxSize: {x: 4000, y: 4000}
   m_ActualView: {fileID: 16}
   m_Panes:
   - {fileID: 16}
@@ -219,8 +219,8 @@ MonoBehaviour:
     y: 0
     width: 245.33333
     height: 618
-  m_MinSize: {x: 201, y: 226}
-  m_MaxSize: {x: 4001, y: 4026}
+  m_MinSize: {x: 200, y: 200}
+  m_MaxSize: {x: 4000, y: 4000}
   m_ActualView: {fileID: 19}
   m_Panes:
   - {fileID: 19}
@@ -299,8 +299,8 @@ MonoBehaviour:
     y: 0
     width: 566
     height: 293.3333
-  m_MinSize: {x: 101, y: 126}
-  m_MaxSize: {x: 4001, y: 4026}
+  m_MinSize: {x: 100, y: 100}
+  m_MaxSize: {x: 4000, y: 4000}
   m_ActualView: {fileID: 21}
   m_Panes:
   - {fileID: 21}
@@ -895,18 +895,12 @@ MonoBehaviour:
   m_SceneHierarchy:
     m_TreeViewState:
       scrollPos: {x: 0, y: 0}
-      m_SelectedIDs: []
+      m_SelectedIDs:
+      - m_Data: 59122
       m_LastClickedID:
         m_Data: 0
       m_ExpandedIDs:
-      - m_Data: -1322
-      - m_Data: 59406
-      - m_Data: 59436
-      - m_Data: 59580
-      - m_Data: 59684
-      - m_Data: 59728
-      - m_Data: 59846
-      - m_Data: 59892
+      - m_Data: -1436
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -1614,13 +1608,13 @@ MonoBehaviour:
       m_Data: 59958
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 60130
-    - m_Data: 60132
-    - m_Data: 60134
-    - m_Data: 60136
-    - m_Data: 60138
-    - m_Data: 60140
-    - m_Data: 60142
+    - m_Data: 60208
+    - m_Data: 60210
+    - m_Data: 60212
+    - m_Data: 60214
+    - m_Data: 60216
+    - m_Data: 60218
+    - m_Data: 60220
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1653,13 +1647,13 @@ MonoBehaviour:
       m_Data: 0
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 60130
-    - m_Data: 60132
-    - m_Data: 60134
-    - m_Data: 60136
-    - m_Data: 60138
-    - m_Data: 60140
-    - m_Data: 60142
+    - m_Data: 60208
+    - m_Data: 60210
+    - m_Data: 60212
+    - m_Data: 60214
+    - m_Data: 60216
+    - m_Data: 60218
+    - m_Data: 60220
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1804,13 +1798,13 @@ MonoBehaviour:
       m_Data: 60566
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 60130
-    - m_Data: 60132
-    - m_Data: 60134
-    - m_Data: 60136
-    - m_Data: 60138
-    - m_Data: 60140
-    - m_Data: 60142
+    - m_Data: 60208
+    - m_Data: 60210
+    - m_Data: 60212
+    - m_Data: 60214
+    - m_Data: 60216
+    - m_Data: 60218
+    - m_Data: 60220
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1843,13 +1837,13 @@ MonoBehaviour:
       m_Data: 0
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 60130
-    - m_Data: 60132
-    - m_Data: 60134
-    - m_Data: 60136
-    - m_Data: 60138
-    - m_Data: 60140
-    - m_Data: 60142
+    - m_Data: 60208
+    - m_Data: 60210
+    - m_Data: 60212
+    - m_Data: 60214
+    - m_Data: 60216
+    - m_Data: 60218
+    - m_Data: 60220
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1986,13 +1980,13 @@ MonoBehaviour:
       m_Data: 209392
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 60130
-    - m_Data: 60132
-    - m_Data: 60134
-    - m_Data: 60136
-    - m_Data: 60138
-    - m_Data: 60140
-    - m_Data: 60142
+    - m_Data: 60208
+    - m_Data: 60210
+    - m_Data: 60212
+    - m_Data: 60214
+    - m_Data: 60216
+    - m_Data: 60218
+    - m_Data: 60220
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -2025,13 +2019,13 @@ MonoBehaviour:
       m_Data: 0
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 60130
-    - m_Data: 60132
-    - m_Data: 60134
-    - m_Data: 60136
-    - m_Data: 60138
-    - m_Data: 60140
-    - m_Data: 60142
+    - m_Data: 60208
+    - m_Data: 60210
+    - m_Data: 60212
+    - m_Data: 60214
+    - m_Data: 60216
+    - m_Data: 60218
+    - m_Data: 60220
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -2174,13 +2168,13 @@ MonoBehaviour:
       m_Data: 206138
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 60130
-    - m_Data: 60132
-    - m_Data: 60134
-    - m_Data: 60136
-    - m_Data: 60138
-    - m_Data: 60140
-    - m_Data: 60142
+    - m_Data: 60208
+    - m_Data: 60210
+    - m_Data: 60212
+    - m_Data: 60214
+    - m_Data: 60216
+    - m_Data: 60218
+    - m_Data: 60220
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -2213,13 +2207,13 @@ MonoBehaviour:
       m_Data: 0
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 60130
-    - m_Data: 60132
-    - m_Data: 60134
-    - m_Data: 60136
-    - m_Data: 60138
-    - m_Data: 60140
-    - m_Data: 60142
+    - m_Data: 60208
+    - m_Data: 60210
+    - m_Data: 60212
+    - m_Data: 60214
+    - m_Data: 60216
+    - m_Data: 60218
+    - m_Data: 60220
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -2418,18 +2412,18 @@ MonoBehaviour:
   m_FolderTreeState:
     scrollPos: {x: 0, y: 26}
     m_SelectedIDs:
-    - m_Data: 60130
+    - m_Data: 60208
     m_LastClickedID:
-      m_Data: 60130
+      m_Data: 60208
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 60130
-    - m_Data: 60132
-    - m_Data: 60134
-    - m_Data: 60136
-    - m_Data: 60138
-    - m_Data: 60140
-    - m_Data: 60142
+    - m_Data: 60208
+    - m_Data: 60210
+    - m_Data: 60212
+    - m_Data: 60214
+    - m_Data: 60216
+    - m_Data: 60218
+    - m_Data: 60220
     - m_Data: 1000000000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
@@ -2463,13 +2457,13 @@ MonoBehaviour:
       m_Data: 0
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 60130
-    - m_Data: 60132
-    - m_Data: 60134
-    - m_Data: 60136
-    - m_Data: 60138
-    - m_Data: 60140
-    - m_Data: 60142
+    - m_Data: 60208
+    - m_Data: 60210
+    - m_Data: 60212
+    - m_Data: 60214
+    - m_Data: 60216
+    - m_Data: 60218
+    - m_Data: 60220
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -2496,8 +2490,9 @@ MonoBehaviour:
       m_Icon: {fileID: 0}
       m_ResourceFile: 
   m_ListAreaState:
-    m_SelectedInstanceIDs: []
-    m_LastClickedInstanceID: 0
+    m_SelectedInstanceIDs:
+    - m_Data: 59122
+    m_LastClickedInstanceID: 59122
     m_HadKeyboardFocusLastEvent: 0
     m_ExpandedInstanceIDs: []
     m_RenameOverlay:

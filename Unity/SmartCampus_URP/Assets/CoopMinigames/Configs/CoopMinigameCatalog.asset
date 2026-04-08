@@ -32,3 +32,8 @@ MonoBehaviour:
     displayName: Minijuego 4 - Parejas distribuidas
     description: Minijuego cooperativo con informacion parcial repartida entre dispositivos.
     sceneName: DistributedPairsMinigame
+  - minigameIndex: 5
+    displayName: Minijuego 5 - Taxonomia del jardin del olfato
+    description: Clasifica en grupo cada planta entre decoracion, alimentacion y
+      curacion con feedback comun y nota compartida.
+    sceneName: GardenSmellTaxonomyMinigame

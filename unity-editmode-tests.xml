@@ -1,0 +1,436 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="54" result="Failed(Child)" total="54" passed="53" failed="1" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0,1170741">
+  <test-suite type="TestSuite" id="1000" name="SmartCampus" fullname="SmartCampus" runstate="Runnable" testcasecount="54" result="Failed" site="Child" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.117074" total="54" passed="53" failed="1" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="EditMode" />
+    </properties>
+    <failure>
+      <message><![CDATA[One or more child tests had errors]]></message>
+    </failure>
+    <test-suite type="Assembly" id="1073" name="Assembly-CSharp-Editor.dll" fullname="C:/Users/saulp/Documents/UJI/Micorrizas_JardinSentidos_TFG_Videojuegos/Unity/SmartCampus_URP/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="54" result="Failed" site="Child" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.109993" total="54" passed="53" failed="1" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="21552" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <failure>
+        <message><![CDATA[One or more child tests had errors]]></message>
+      </failure>
+      <test-suite type="TestSuite" id="1074" name="SmartCampus" fullname="SmartCampus" runstate="Runnable" testcasecount="54" result="Failed" site="Child" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.108873" total="54" passed="53" failed="1" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <test-suite type="TestSuite" id="1075" name="Testing" fullname="SmartCampus.Testing" runstate="Runnable" testcasecount="54" result="Failed" site="Child" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.108088" total="54" passed="53" failed="1" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <failure>
+            <message><![CDATA[One or more child tests had errors]]></message>
+          </failure>
+          <test-suite type="TestSuite" id="1076" name="Editor" fullname="SmartCampus.Testing.Editor" runstate="Runnable" testcasecount="54" result="Failed" site="Child" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.107059" total="54" passed="53" failed="1" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <failure>
+              <message><![CDATA[One or more child tests had errors]]></message>
+            </failure>
+            <test-suite type="TestSuite" id="1077" name="Core" fullname="SmartCampus.Testing.Editor.Core" runstate="Runnable" testcasecount="54" result="Failed" site="Child" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.102987" total="54" passed="53" failed="1" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <failure>
+                <message><![CDATA[One or more child tests had errors]]></message>
+              </failure>
+              <test-suite type="TestFixture" id="1001" name="AudioWordConsensusMinigameConfigTests" fullname="SmartCampus.Testing.Editor.Core.AudioWordConsensusMinigameConfigTests" classname="SmartCampus.Testing.Editor.Core.AudioWordConsensusMinigameConfigTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.021725" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1002" name="SupportsParticipantCount_AllowsFewerPlayersThanConfiguredRounds" fullname="SmartCampus.Testing.Editor.Core.AudioWordConsensusMinigameConfigTests.SupportsParticipantCount_AllowsFewerPlayersThanConfiguredRounds" methodname="SupportsParticipantCount_AllowsFewerPlayersThanConfiguredRounds" classname="SmartCampus.Testing.Editor.Core.AudioWordConsensusMinigameConfigTests" runstate="Runnable" seed="1946760476" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.008988" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1003" name="SupportsParticipantCount_RequiresAtLeastOneConfiguredRound" fullname="SmartCampus.Testing.Editor.Core.AudioWordConsensusMinigameConfigTests.SupportsParticipantCount_RequiresAtLeastOneConfiguredRound" methodname="SupportsParticipantCount_RequiresAtLeastOneConfiguredRound" classname="SmartCampus.Testing.Editor.Core.AudioWordConsensusMinigameConfigTests" runstate="Runnable" seed="1875564675" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.000548" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+              </test-suite>
+              <test-suite type="TestFixture" id="1004" name="AudioWordConsensusScoreServiceTests" fullname="SmartCampus.Testing.Editor.Core.AudioWordConsensusScoreServiceTests" classname="SmartCampus.Testing.Editor.Core.AudioWordConsensusScoreServiceTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.006342" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1005" name="CreateResult_AllRoundsCorrect_ReturnsTenOutOfTen" fullname="SmartCampus.Testing.Editor.Core.AudioWordConsensusScoreServiceTests.CreateResult_AllRoundsCorrect_ReturnsTenOutOfTen" methodname="CreateResult_AllRoundsCorrect_ReturnsTenOutOfTen" classname="SmartCampus.Testing.Editor.Core.AudioWordConsensusScoreServiceTests" runstate="Runnable" seed="1963796992" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.004341" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1007" name="CreateResult_NullConfig_UsesFallbackMessage" fullname="SmartCampus.Testing.Editor.Core.AudioWordConsensusScoreServiceTests.CreateResult_NullConfig_UsesFallbackMessage" methodname="CreateResult_NullConfig_UsesFallbackMessage" classname="SmartCampus.Testing.Editor.Core.AudioWordConsensusScoreServiceTests" runstate="Runnable" seed="1263961360" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.000195" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1006" name="CreateResult_TimeoutUsesScheduledRoundsAsBase" fullname="SmartCampus.Testing.Editor.Core.AudioWordConsensusScoreServiceTests.CreateResult_TimeoutUsesScheduledRoundsAsBase" methodname="CreateResult_TimeoutUsesScheduledRoundsAsBase" classname="SmartCampus.Testing.Editor.Core.AudioWordConsensusScoreServiceTests" runstate="Runnable" seed="164131442" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.000288" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+              </test-suite>
+              <test-suite type="TestFixture" id="1008" name="AudioWordConsensusWordAssignmentServiceTests" fullname="SmartCampus.Testing.Editor.Core.AudioWordConsensusWordAssignmentServiceTests" classname="SmartCampus.Testing.Editor.Core.AudioWordConsensusWordAssignmentServiceTests" runstate="Runnable" testcasecount="5" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.008114" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1009" name="TryBuildAssignments_AssignsCorrectWordExactlyOnceAcrossAllReceivers" fullname="SmartCampus.Testing.Editor.Core.AudioWordConsensusWordAssignmentServiceTests.TryBuildAssignments_AssignsCorrectWordExactlyOnceAcrossAllReceivers" methodname="TryBuildAssignments_AssignsCorrectWordExactlyOnceAcrossAllReceivers" classname="SmartCampus.Testing.Editor.Core.AudioWordConsensusWordAssignmentServiceTests" runstate="Runnable" seed="1628877477" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.004881" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1013" name="TryBuildAssignments_InvalidInput_ReturnsFalse" fullname="SmartCampus.Testing.Editor.Core.AudioWordConsensusWordAssignmentServiceTests.TryBuildAssignments_InvalidInput_ReturnsFalse" methodname="TryBuildAssignments_InvalidInput_ReturnsFalse" classname="SmartCampus.Testing.Editor.Core.AudioWordConsensusWordAssignmentServiceTests" runstate="Runnable" seed="498367475" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.000267" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1012" name="TryBuildAssignments_TrimsAndDeduplicatesDistractors" fullname="SmartCampus.Testing.Editor.Core.AudioWordConsensusWordAssignmentServiceTests.TryBuildAssignments_TrimsAndDeduplicatesDistractors" methodname="TryBuildAssignments_TrimsAndDeduplicatesDistractors" classname="SmartCampus.Testing.Editor.Core.AudioWordConsensusWordAssignmentServiceTests" runstate="Runnable" seed="642049041" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.000866" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1011" name="TryBuildAssignments_TwoPlayerRound_AssignsAllOptionsToOnlyReceiver" fullname="SmartCampus.Testing.Editor.Core.AudioWordConsensusWordAssignmentServiceTests.TryBuildAssignments_TwoPlayerRound_AssignsAllOptionsToOnlyReceiver" methodname="TryBuildAssignments_TwoPlayerRound_AssignsAllOptionsToOnlyReceiver" classname="SmartCampus.Testing.Editor.Core.AudioWordConsensusWordAssignmentServiceTests" runstate="Runnable" seed="780656107" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.000349" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1010" name="TryBuildAssignments_UsesAllConfiguredDistractorsAcrossReceiverDevices" fullname="SmartCampus.Testing.Editor.Core.AudioWordConsensusWordAssignmentServiceTests.TryBuildAssignments_UsesAllConfiguredDistractorsAcrossReceiverDevices" methodname="TryBuildAssignments_UsesAllConfiguredDistractorsAcrossReceiverDevices" classname="SmartCampus.Testing.Editor.Core.AudioWordConsensusWordAssignmentServiceTests" runstate="Runnable" seed="1123216425" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.000269" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+              </test-suite>
+              <test-suite type="TestFixture" id="1014" name="CollaborativePlantGuessAutocompleteServiceTests" fullname="SmartCampus.Testing.Editor.Core.CollaborativePlantGuessAutocompleteServiceTests" classname="SmartCampus.Testing.Editor.Core.CollaborativePlantGuessAutocompleteServiceTests" runstate="Runnable" testcasecount="5" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.004925" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1015" name="BuildSuggestions_PrioritizesPrefixAndIgnoresAccents" fullname="SmartCampus.Testing.Editor.Core.CollaborativePlantGuessAutocompleteServiceTests.BuildSuggestions_PrioritizesPrefixAndIgnoresAccents" methodname="BuildSuggestions_PrioritizesPrefixAndIgnoresAccents" classname="SmartCampus.Testing.Editor.Core.CollaborativePlantGuessAutocompleteServiceTests" runstate="Runnable" seed="897289964" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.002731" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1017" name="BuildSuggestions_ReturnsOnlyPrefixMatches_AndRespectLimit" fullname="SmartCampus.Testing.Editor.Core.CollaborativePlantGuessAutocompleteServiceTests.BuildSuggestions_ReturnsOnlyPrefixMatches_AndRespectLimit" methodname="BuildSuggestions_ReturnsOnlyPrefixMatches_AndRespectLimit" classname="SmartCampus.Testing.Editor.Core.CollaborativePlantGuessAutocompleteServiceTests" runstate="Runnable" seed="1741820190" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.000286" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1019" name="TryResolvePlant_DoesNotResolveAmbiguousPrefix" fullname="SmartCampus.Testing.Editor.Core.CollaborativePlantGuessAutocompleteServiceTests.TryResolvePlant_DoesNotResolveAmbiguousPrefix" methodname="TryResolvePlant_DoesNotResolveAmbiguousPrefix" classname="SmartCampus.Testing.Editor.Core.CollaborativePlantGuessAutocompleteServiceTests" runstate="Runnable" seed="1860392539" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.000325" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1016" name="TryResolvePlant_MatchesSynonym" fullname="SmartCampus.Testing.Editor.Core.CollaborativePlantGuessAutocompleteServiceTests.TryResolvePlant_MatchesSynonym" methodname="TryResolvePlant_MatchesSynonym" classname="SmartCampus.Testing.Editor.Core.CollaborativePlantGuessAutocompleteServiceTests" runstate="Runnable" seed="1964556192" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.000166" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1018" name="TryResolvePlant_ResolvesUniqueScientificPrefix" fullname="SmartCampus.Testing.Editor.Core.CollaborativePlantGuessAutocompleteServiceTests.TryResolvePlant_ResolvesUniqueScientificPrefix" methodname="TryResolvePlant_ResolvesUniqueScientificPrefix" classname="SmartCampus.Testing.Editor.Core.CollaborativePlantGuessAutocompleteServiceTests" runstate="Runnable" seed="54365453" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.000163" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+              </test-suite>
+              <test-suite type="TestFixture" id="1020" name="CollaborativePlantGuessComparisonAndScoreTests" fullname="SmartCampus.Testing.Editor.Core.CollaborativePlantGuessComparisonAndScoreTests" classname="SmartCampus.Testing.Editor.Core.CollaborativePlantGuessComparisonAndScoreTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.006496" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1022" name="CreateResult_SolvedOnFirstTry_ReturnsMaximumScore" fullname="SmartCampus.Testing.Editor.Core.CollaborativePlantGuessComparisonAndScoreTests.CreateResult_SolvedOnFirstTry_ReturnsMaximumScore" methodname="CreateResult_SolvedOnFirstTry_ReturnsMaximumScore" classname="SmartCampus.Testing.Editor.Core.CollaborativePlantGuessComparisonAndScoreTests" runstate="Runnable" seed="1630954248" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.001227" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1021" name="Evaluate_CloseRoughnessAndFruitCategory_ReturnsExpectedOutcomes" fullname="SmartCampus.Testing.Editor.Core.CollaborativePlantGuessComparisonAndScoreTests.Evaluate_CloseRoughnessAndFruitCategory_ReturnsExpectedOutcomes" methodname="Evaluate_CloseRoughnessAndFruitCategory_ReturnsExpectedOutcomes" classname="SmartCampus.Testing.Editor.Core.CollaborativePlantGuessComparisonAndScoreTests" runstate="Runnable" seed="875111713" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.001124" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1023" name="Evaluate_NullPlants_ThrowsArgumentNullException" fullname="SmartCampus.Testing.Editor.Core.CollaborativePlantGuessComparisonAndScoreTests.Evaluate_NullPlants_ThrowsArgumentNullException" methodname="Evaluate_NullPlants_ThrowsArgumentNullException" classname="SmartCampus.Testing.Editor.Core.CollaborativePlantGuessComparisonAndScoreTests" runstate="Runnable" seed="138434832" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.003070" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+              </test-suite>
+              <test-suite type="TestFixture" id="1024" name="CollaborativePlantGuessCsvServiceTests" fullname="SmartCampus.Testing.Editor.Core.CollaborativePlantGuessCsvServiceTests" classname="SmartCampus.Testing.Editor.Core.CollaborativePlantGuessCsvServiceTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.004221" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1027" name="TryParse_DuplicatePlantId_ReturnsFalse" fullname="SmartCampus.Testing.Editor.Core.CollaborativePlantGuessCsvServiceTests.TryParse_DuplicatePlantId_ReturnsFalse" methodname="TryParse_DuplicatePlantId_ReturnsFalse" classname="SmartCampus.Testing.Editor.Core.CollaborativePlantGuessCsvServiceTests" runstate="Runnable" seed="941187528" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.002172" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1026" name="TryParse_LegacyAliasesHeader_IsStillAccepted" fullname="SmartCampus.Testing.Editor.Core.CollaborativePlantGuessCsvServiceTests.TryParse_LegacyAliasesHeader_IsStillAccepted" methodname="TryParse_LegacyAliasesHeader_IsStillAccepted" classname="SmartCampus.Testing.Editor.Core.CollaborativePlantGuessCsvServiceTests" runstate="Runnable" seed="648463496" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.000311" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1028" name="TryParse_MissingNewSchemaColumn_ReturnsFalse" fullname="SmartCampus.Testing.Editor.Core.CollaborativePlantGuessCsvServiceTests.TryParse_MissingNewSchemaColumn_ReturnsFalse" methodname="TryParse_MissingNewSchemaColumn_ReturnsFalse" classname="SmartCampus.Testing.Editor.Core.CollaborativePlantGuessCsvServiceTests" runstate="Runnable" seed="728985129" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.000167" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1025" name="TryParse_ValidCsv_BuildsDefinitionsWithSearchNames" fullname="SmartCampus.Testing.Editor.Core.CollaborativePlantGuessCsvServiceTests.TryParse_ValidCsv_BuildsDefinitionsWithSearchNames" methodname="TryParse_ValidCsv_BuildsDefinitionsWithSearchNames" classname="SmartCampus.Testing.Editor.Core.CollaborativePlantGuessCsvServiceTests" runstate="Runnable" seed="547513931" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.000283" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+              </test-suite>
+              <test-suite type="TestFixture" id="1029" name="CollaborativePlantGuessEditorSetupTests" fullname="SmartCampus.Testing.Editor.Core.CollaborativePlantGuessEditorSetupTests" classname="SmartCampus.Testing.Editor.Core.CollaborativePlantGuessEditorSetupTests" runstate="Runnable" testcasecount="1" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.001454" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1030" name="CollaborativePlantGuessSetup_HasSingleMenuEntry" fullname="SmartCampus.Testing.Editor.Core.CollaborativePlantGuessEditorSetupTests.CollaborativePlantGuessSetup_HasSingleMenuEntry" methodname="CollaborativePlantGuessSetup_HasSingleMenuEntry" classname="SmartCampus.Testing.Editor.Core.CollaborativePlantGuessEditorSetupTests" runstate="Runnable" seed="1311472806" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.000745" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+              </test-suite>
+              <test-suite type="TestFixture" id="1031" name="CollaborativePlantGuessGameplayRulesTests" fullname="SmartCampus.Testing.Editor.Core.CollaborativePlantGuessGameplayRulesTests" classname="SmartCampus.Testing.Editor.Core.CollaborativePlantGuessGameplayRulesTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.001334" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1033" name="GetLocalSubmissionBlockReason_WhenOtherClientPlayedLast_AndGuessIsValid_ReturnsNone" fullname="SmartCampus.Testing.Editor.Core.CollaborativePlantGuessGameplayRulesTests.GetLocalSubmissionBlockReason_WhenOtherClientPlayedLast_AndGuessIsValid_ReturnsNone" methodname="GetLocalSubmissionBlockReason_WhenOtherClientPlayedLast_AndGuessIsValid_ReturnsNone" classname="SmartCampus.Testing.Editor.Core.CollaborativePlantGuessGameplayRulesTests" runstate="Runnable" seed="1325565931" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.000421" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1032" name="GetLocalSubmissionBlockReason_WhenSameClientSubmittedLastGuess_ReturnsWaitingForAnotherPlayer" fullname="SmartCampus.Testing.Editor.Core.CollaborativePlantGuessGameplayRulesTests.GetLocalSubmissionBlockReason_WhenSameClientSubmittedLastGuess_ReturnsWaitingForAnotherPlayer" methodname="GetLocalSubmissionBlockReason_WhenSameClientSubmittedLastGuess_ReturnsWaitingForAnotherPlayer" classname="SmartCampus.Testing.Editor.Core.CollaborativePlantGuessGameplayRulesTests" runstate="Runnable" seed="1461211280" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.000136" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+              </test-suite>
+              <test-suite type="TestFixture" id="1034" name="CollaborativePlantGuessHintProgressionServiceTests" fullname="SmartCampus.Testing.Editor.Core.CollaborativePlantGuessHintProgressionServiceTests" classname="SmartCampus.Testing.Editor.Core.CollaborativePlantGuessHintProgressionServiceTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.002220" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1036" name="FruitType_RevealsFromSecondAttempt" fullname="SmartCampus.Testing.Editor.Core.CollaborativePlantGuessHintProgressionServiceTests.FruitType_RevealsFromSecondAttempt" methodname="FruitType_RevealsFromSecondAttempt" classname="SmartCampus.Testing.Editor.Core.CollaborativePlantGuessHintProgressionServiceTests" runstate="Runnable" seed="1045188869" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.000618" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1037" name="LeafPersistence_RevealsFromFourthAttempt" fullname="SmartCampus.Testing.Editor.Core.CollaborativePlantGuessHintProgressionServiceTests.LeafPersistence_RevealsFromFourthAttempt" methodname="LeafPersistence_RevealsFromFourthAttempt" classname="SmartCampus.Testing.Editor.Core.CollaborativePlantGuessHintProgressionServiceTests" runstate="Runnable" seed="302737893" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.000222" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1035" name="LockedValue_RemainsQuestionMark" fullname="SmartCampus.Testing.Editor.Core.CollaborativePlantGuessHintProgressionServiceTests.LockedValue_RemainsQuestionMark" methodname="LockedValue_RemainsQuestionMark" classname="SmartCampus.Testing.Editor.Core.CollaborativePlantGuessHintProgressionServiceTests" runstate="Runnable" seed="771838505" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.000074" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1038" name="PlantType_RevealsFromSixthAttempt" fullname="SmartCampus.Testing.Editor.Core.CollaborativePlantGuessHintProgressionServiceTests.PlantType_RevealsFromSixthAttempt" methodname="PlantType_RevealsFromSixthAttempt" classname="SmartCampus.Testing.Editor.Core.CollaborativePlantGuessHintProgressionServiceTests" runstate="Runnable" seed="732415600" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.000165" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+              </test-suite>
+              <test-suite type="TestFixture" id="1039" name="DistributedPairsDistributionServiceTests" fullname="SmartCampus.Testing.Editor.Core.DistributedPairsDistributionServiceTests" classname="SmartCampus.Testing.Editor.Core.DistributedPairsDistributionServiceTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.017656" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1040" name="InitialDistribution_NeverAssignsBothCardsOfSamePairToSamePlayer" fullname="SmartCampus.Testing.Editor.Core.DistributedPairsDistributionServiceTests.InitialDistribution_NeverAssignsBothCardsOfSamePairToSamePlayer" methodname="InitialDistribution_NeverAssignsBothCardsOfSamePairToSamePlayer" classname="SmartCampus.Testing.Editor.Core.DistributedPairsDistributionServiceTests" runstate="Runnable" seed="1631544533" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.013006" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1042" name="PlanAssignments_NeverAssignsMoreCardsThanMissingSlots" fullname="SmartCampus.Testing.Editor.Core.DistributedPairsDistributionServiceTests.PlanAssignments_NeverAssignsMoreCardsThanMissingSlots" methodname="PlanAssignments_NeverAssignsMoreCardsThanMissingSlots" classname="SmartCampus.Testing.Editor.Core.DistributedPairsDistributionServiceTests" runstate="Runnable" seed="1602941191" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.001776" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1043" name="PlanAssignments_WithoutParticipantsOrCards_ReturnsEmptyAssignments" fullname="SmartCampus.Testing.Editor.Core.DistributedPairsDistributionServiceTests.PlanAssignments_WithoutParticipantsOrCards_ReturnsEmptyAssignments" methodname="PlanAssignments_WithoutParticipantsOrCards_ReturnsEmptyAssignments" classname="SmartCampus.Testing.Editor.Core.DistributedPairsDistributionServiceTests" runstate="Runnable" seed="1587313001" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.000692" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1041" name="TopUpDistribution_LeavesPlayerUnderTargetWhenNoValidCardExists" fullname="SmartCampus.Testing.Editor.Core.DistributedPairsDistributionServiceTests.TopUpDistribution_LeavesPlayerUnderTargetWhenNoValidCardExists" methodname="TopUpDistribution_LeavesPlayerUnderTargetWhenNoValidCardExists" classname="SmartCampus.Testing.Editor.Core.DistributedPairsDistributionServiceTests" runstate="Runnable" seed="1716732396" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.000805" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+              </test-suite>
+              <test-suite type="TestFixture" id="1044" name="DistributedPairsHandSlotServiceTests" fullname="SmartCampus.Testing.Editor.Core.DistributedPairsHandSlotServiceTests" classname="SmartCampus.Testing.Editor.Core.DistributedPairsHandSlotServiceTests" runstate="Runnable" testcasecount="2" result="Failed" site="Child" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.005232" total="2" passed="1" failed="1" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <failure>
+                  <message><![CDATA[One or more child tests had errors]]></message>
+                </failure>
+                <test-case id="1045" name="BuildSlots_AlwaysReturnsFixedSlotCountAndLeavesEmptyHoles" fullname="SmartCampus.Testing.Editor.Core.DistributedPairsHandSlotServiceTests.BuildSlots_AlwaysReturnsFixedSlotCountAndLeavesEmptyHoles" methodname="BuildSlots_AlwaysReturnsFixedSlotCountAndLeavesEmptyHoles" classname="SmartCampus.Testing.Editor.Core.DistributedPairsHandSlotServiceTests" runstate="Runnable" seed="369806029" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.000905" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1046" name="BuildSlots_FallsBackWhenHandOrderIsInvalidOrDuplicated" fullname="SmartCampus.Testing.Editor.Core.DistributedPairsHandSlotServiceTests.BuildSlots_FallsBackWhenHandOrderIsInvalidOrDuplicated" methodname="BuildSlots_FallsBackWhenHandOrderIsInvalidOrDuplicated" classname="SmartCampus.Testing.Editor.Core.DistributedPairsHandSlotServiceTests" runstate="Runnable" seed="1130909788" result="Failed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.003012" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                  <failure>
+                    <message><![CDATA[  Expected: 21
+  But was:  20
+]]></message>
+                    <stack-trace><![CDATA[at SmartCampus.Testing.Editor.Core.DistributedPairsHandSlotServiceTests.BuildSlots_FallsBackWhenHandOrderIsInvalidOrDuplicated () [0x000a0] in C:\Users\saulp\Documents\UJI\Micorrizas_JardinSentidos_TFG_Videojuegos\Unity\SmartCampus_URP\Assets\Test\Editor\Core\DistributedPairsHandSlotServiceTests.cs:40
+]]></stack-trace>
+                  </failure>
+                </test-case>
+              </test-suite>
+              <test-suite type="TestFixture" id="1047" name="DistributedPairsScoreServiceTests" fullname="SmartCampus.Testing.Editor.Core.DistributedPairsScoreServiceTests" classname="SmartCampus.Testing.Editor.Core.DistributedPairsScoreServiceTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.003968" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1049" name="AdditionalErrors_ReduceTheFinalScore" fullname="SmartCampus.Testing.Editor.Core.DistributedPairsScoreServiceTests.AdditionalErrors_ReduceTheFinalScore" methodname="AdditionalErrors_ReduceTheFinalScore" classname="SmartCampus.Testing.Editor.Core.DistributedPairsScoreServiceTests" runstate="Runnable" seed="118021200" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.001991" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1051" name="NullConfig_UsesFallbackSuccessMessage" fullname="SmartCampus.Testing.Editor.Core.DistributedPairsScoreServiceTests.NullConfig_UsesFallbackSuccessMessage" methodname="NullConfig_UsesFallbackSuccessMessage" classname="SmartCampus.Testing.Editor.Core.DistributedPairsScoreServiceTests" runstate="Runnable" seed="1603985225" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.000156" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1050" name="PartialCompletion_ReducesScoreComparedToPerfectRun" fullname="SmartCampus.Testing.Editor.Core.DistributedPairsScoreServiceTests.PartialCompletion_ReducesScoreComparedToPerfectRun" methodname="PartialCompletion_ReducesScoreComparedToPerfectRun" classname="SmartCampus.Testing.Editor.Core.DistributedPairsScoreServiceTests" runstate="Runnable" seed="1647394768" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.000326" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1048" name="PerfectRun_ReturnsMaximumScore" fullname="SmartCampus.Testing.Editor.Core.DistributedPairsScoreServiceTests.PerfectRun_ReturnsMaximumScore" methodname="PerfectRun_ReturnsMaximumScore" classname="SmartCampus.Testing.Editor.Core.DistributedPairsScoreServiceTests" runstate="Runnable" seed="1426913961" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.000246" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+              </test-suite>
+              <test-suite type="TestFixture" id="1052" name="GardenImageVotingCsvServiceTests" fullname="SmartCampus.Testing.Editor.Core.GardenImageVotingCsvServiceTests" classname="SmartCampus.Testing.Editor.Core.GardenImageVotingCsvServiceTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.005153" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1054" name="Parse_DuplicateImageInSameRound_WhenDuplicatesAreDisabled_Fails" fullname="SmartCampus.Testing.Editor.Core.GardenImageVotingCsvServiceTests.Parse_DuplicateImageInSameRound_WhenDuplicatesAreDisabled_Fails" methodname="Parse_DuplicateImageInSameRound_WhenDuplicatesAreDisabled_Fails" classname="SmartCampus.Testing.Editor.Core.GardenImageVotingCsvServiceTests" runstate="Runnable" seed="816423125" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.002703" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1056" name="Parse_MissingRequiredColumn_ReturnsFalse" fullname="SmartCampus.Testing.Editor.Core.GardenImageVotingCsvServiceTests.Parse_MissingRequiredColumn_ReturnsFalse" methodname="Parse_MissingRequiredColumn_ReturnsFalse" classname="SmartCampus.Testing.Editor.Core.GardenImageVotingCsvServiceTests" runstate="Runnable" seed="1609760255" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.000232" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1055" name="Parse_QuotedValuesAndLocalizedBoolean_ReturnsExpectedCardData" fullname="SmartCampus.Testing.Editor.Core.GardenImageVotingCsvServiceTests.Parse_QuotedValuesAndLocalizedBoolean_ReturnsExpectedCardData" methodname="Parse_QuotedValuesAndLocalizedBoolean_ReturnsExpectedCardData" classname="SmartCampus.Testing.Editor.Core.GardenImageVotingCsvServiceTests" runstate="Runnable" seed="1966932467" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.000669" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1053" name="Parse_ValidTemplate_ReturnsOrderedDefinitions" fullname="SmartCampus.Testing.Editor.Core.GardenImageVotingCsvServiceTests.Parse_ValidTemplate_ReturnsOrderedDefinitions" methodname="Parse_ValidTemplate_ReturnsOrderedDefinitions" classname="SmartCampus.Testing.Editor.Core.GardenImageVotingCsvServiceTests" runstate="Runnable" seed="1529185517" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.000288" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+              </test-suite>
+              <test-suite type="TestFixture" id="1057" name="GardenImageVotingExternalContentServiceTests" fullname="SmartCampus.Testing.Editor.Core.GardenImageVotingExternalContentServiceTests" classname="SmartCampus.Testing.Editor.Core.GardenImageVotingExternalContentServiceTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.001875" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1059" name="ResolveConfiguredPath_WhenImageIsAlreadyStreamingAssetsRelative_KeepsWorking" fullname="SmartCampus.Testing.Editor.Core.GardenImageVotingExternalContentServiceTests.ResolveConfiguredPath_WhenImageIsAlreadyStreamingAssetsRelative_KeepsWorking" methodname="ResolveConfiguredPath_WhenImageIsAlreadyStreamingAssetsRelative_KeepsWorking" classname="SmartCampus.Testing.Editor.Core.GardenImageVotingExternalContentServiceTests" runstate="Runnable" seed="2008434903" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.000849" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1058" name="ResolveConfiguredPath_WhenImageIsRelativeToCsv_ReturnsAbsolutePathInsideCsvFolder" fullname="SmartCampus.Testing.Editor.Core.GardenImageVotingExternalContentServiceTests.ResolveConfiguredPath_WhenImageIsRelativeToCsv_ReturnsAbsolutePathInsideCsvFolder" methodname="ResolveConfiguredPath_WhenImageIsRelativeToCsv_ReturnsAbsolutePathInsideCsvFolder" classname="SmartCampus.Testing.Editor.Core.GardenImageVotingExternalContentServiceTests" runstate="Runnable" seed="2120559452" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.000150" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+              </test-suite>
+              <test-suite type="TestFixture" id="1060" name="GardenImageVotingScoreServiceTests" fullname="SmartCampus.Testing.Editor.Core.GardenImageVotingScoreServiceTests" classname="SmartCampus.Testing.Editor.Core.GardenImageVotingScoreServiceTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.002623" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1061" name="CreateResult_AllCorrectAnswers_ReturnsMaximumScore" fullname="SmartCampus.Testing.Editor.Core.GardenImageVotingScoreServiceTests.CreateResult_AllCorrectAnswers_ReturnsMaximumScore" methodname="CreateResult_AllCorrectAnswers_ReturnsMaximumScore" classname="SmartCampus.Testing.Editor.Core.GardenImageVotingScoreServiceTests" runstate="Runnable" seed="751299884" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.001334" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1063" name="CreateResult_NullConfig_UsesFallbackMessage" fullname="SmartCampus.Testing.Editor.Core.GardenImageVotingScoreServiceTests.CreateResult_NullConfig_UsesFallbackMessage" methodname="CreateResult_NullConfig_UsesFallbackMessage" classname="SmartCampus.Testing.Editor.Core.GardenImageVotingScoreServiceTests" runstate="Runnable" seed="1743532067" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.000159" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1062" name="CreateResult_PartialSuccessOnTimeout_ScalesScoreToBaseTen" fullname="SmartCampus.Testing.Editor.Core.GardenImageVotingScoreServiceTests.CreateResult_PartialSuccessOnTimeout_ScalesScoreToBaseTen" methodname="CreateResult_PartialSuccessOnTimeout_ScalesScoreToBaseTen" classname="SmartCampus.Testing.Editor.Core.GardenImageVotingScoreServiceTests" runstate="Runnable" seed="10677786" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.000233" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+              </test-suite>
+              <test-suite type="TestFixture" id="1064" name="GardenSmellTaxonomyCsvServiceTests" fullname="SmartCampus.Testing.Editor.Core.GardenSmellTaxonomyCsvServiceTests" classname="SmartCampus.Testing.Editor.Core.GardenSmellTaxonomyCsvServiceTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.003087" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1067" name="TryParse_DuplicatePlantId_ReturnsFalse" fullname="SmartCampus.Testing.Editor.Core.GardenSmellTaxonomyCsvServiceTests.TryParse_DuplicatePlantId_ReturnsFalse" methodname="TryParse_DuplicatePlantId_ReturnsFalse" classname="SmartCampus.Testing.Editor.Core.GardenSmellTaxonomyCsvServiceTests" runstate="Runnable" seed="1256646047" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.001388" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1066" name="TryParse_InvalidCategory_ReturnsFalse" fullname="SmartCampus.Testing.Editor.Core.GardenSmellTaxonomyCsvServiceTests.TryParse_InvalidCategory_ReturnsFalse" methodname="TryParse_InvalidCategory_ReturnsFalse" classname="SmartCampus.Testing.Editor.Core.GardenSmellTaxonomyCsvServiceTests" runstate="Runnable" seed="1752568763" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.000149" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1065" name="TryParse_ValidCsv_BuildsDefinitions" fullname="SmartCampus.Testing.Editor.Core.GardenSmellTaxonomyCsvServiceTests.TryParse_ValidCsv_BuildsDefinitions" methodname="TryParse_ValidCsv_BuildsDefinitions" classname="SmartCampus.Testing.Editor.Core.GardenSmellTaxonomyCsvServiceTests" runstate="Runnable" seed="1640510357" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.000378" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+              </test-suite>
+              <test-suite type="TestFixture" id="1068" name="GardenSmellTaxonomyScoreServiceTests" fullname="SmartCampus.Testing.Editor.Core.GardenSmellTaxonomyScoreServiceTests" classname="SmartCampus.Testing.Editor.Core.GardenSmellTaxonomyScoreServiceTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.002500" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1069" name="CreateResult_AllPlantsResolvedCorrectly_ReturnsMaximumScore" fullname="SmartCampus.Testing.Editor.Core.GardenSmellTaxonomyScoreServiceTests.CreateResult_AllPlantsResolvedCorrectly_ReturnsMaximumScore" methodname="CreateResult_AllPlantsResolvedCorrectly_ReturnsMaximumScore" classname="SmartCampus.Testing.Editor.Core.GardenSmellTaxonomyScoreServiceTests" runstate="Runnable" seed="215237710" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.001278" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1070" name="CreateResult_TimeoutWithErrors_AppliesCompletionAndAccuracyWeights" fullname="SmartCampus.Testing.Editor.Core.GardenSmellTaxonomyScoreServiceTests.CreateResult_TimeoutWithErrors_AppliesCompletionAndAccuracyWeights" methodname="CreateResult_TimeoutWithErrors_AppliesCompletionAndAccuracyWeights" classname="SmartCampus.Testing.Editor.Core.GardenSmellTaxonomyScoreServiceTests" runstate="Runnable" seed="2099631872" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.000467" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+              </test-suite>
+              <test-suite type="TestFixture" id="1071" name="GardenSmellTaxonomySequenceServiceTests" fullname="SmartCampus.Testing.Editor.Core.GardenSmellTaxonomySequenceServiceTests" classname="SmartCampus.Testing.Editor.Core.GardenSmellTaxonomySequenceServiceTests" runstate="Runnable" testcasecount="1" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.001426" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1072" name="BuildSchedule_RespectsMaximumPlantCount" fullname="SmartCampus.Testing.Editor.Core.GardenSmellTaxonomySequenceServiceTests.BuildSchedule_RespectsMaximumPlantCount" methodname="BuildSchedule_RespectsMaximumPlantCount" classname="SmartCampus.Testing.Editor.Core.GardenSmellTaxonomySequenceServiceTests" runstate="Runnable" seed="130277588" result="Passed" start-time="2026-04-08 19:20:29Z" end-time="2026-04-08 19:20:29Z" duration="0.000551" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                  <output><![CDATA[Saving results to: C:/Users/saulp/AppData/LocalLow/DefaultCompany/SmartCampus\TestResults.xml
+]]></output>
+                </test-case>
+              </test-suite>
+            </test-suite>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

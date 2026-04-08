@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b823e944a6ef724fbb919335770f994, type: 3}
+  m_Name: GardenSmellTaxonomyTutorialContent
+  m_EditorClassIdentifier: Assembly-CSharp::SmartCampus.Coop.Minigames.MinigameTutorialContentConfig
+  title: Taxonomia del jardin del olfato
+  subtitle: Clasifica cada planta por su uso principal
+  bodyText: 'La planta activa aparece abajo con su imagen y nombre cientifico.
+
+
+    Arrastra
+    esa planta hacia una de las tres categorias centrales: decoracion, alimentacion
+    o curacion.
+
+
+    Si aciertas, su nombre cientifico quedara en verde dentro de
+    la categoria correcta. Si fallas, aparecera en rojo en la categoria real para
+    que todo el grupo vea donde debia ir.
+
+
+    El estado es compartido entre todos
+    los dispositivos y la nota final es grupal sobre 10.'
+  illustration: {fileID: 0}
+  videoClip: {fileID: 0}
+  customContentPrefab: {fileID: 0}
