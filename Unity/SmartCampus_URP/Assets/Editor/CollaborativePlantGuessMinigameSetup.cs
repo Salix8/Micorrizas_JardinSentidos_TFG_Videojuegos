@@ -191,28 +191,28 @@ public static class CollaborativePlantGuessMinigameSetup
         Stretch(uiRoot.GetComponent<RectTransform>(), Vector2.zero, Vector2.zero);
 
         var waitingPanel = CreatePanel("WaitingPanel", uiRoot.transform, new Color(0.12f, 0.17f, 0.21f, 0.86f));
-        waitingPanel.AddComponent<ResponsivePanelLayoutController>().Configure(canvas.GetComponent<RectTransform>(), 0.82f, 0.18f, new Vector2(280f, 180f), new Vector2(720f, 260f), new Vector2(24f, 24f));
+        waitingPanel.AddComponent<ResponsivePanelLayoutController>().Configure(canvas.GetComponent<RectTransform>(), 0.8f, 0.18f, new Vector2(280f, 180f), new Vector2(700f, 260f), new Vector2(32f, 32f));
         var waitingStatus = CreateText("WaitingStatus", waitingPanel.transform, font, "Esperando al resto del grupo.", 28, TextAnchor.MiddleCenter);
         Stretch(waitingStatus.GetComponent<RectTransform>(), new Vector2(28f, 28f), new Vector2(-28f, -28f));
 
         var gameplayPanel = CreateUiObject("GameplayPanel", uiRoot.transform, typeof(Image), typeof(VerticalLayoutGroup));
-        Stretch(gameplayPanel.GetComponent<RectTransform>(), new Vector2(28f, 28f), new Vector2(-28f, -28f));
+        Stretch(gameplayPanel.GetComponent<RectTransform>(), new Vector2(36f, 36f), new Vector2(-36f, -36f));
         gameplayPanel.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.12f);
         var gameplayLayout = gameplayPanel.GetComponent<VerticalLayoutGroup>();
-        gameplayLayout.padding = new RectOffset(18, 18, 18, 18);
-        gameplayLayout.spacing = 16f;
+        gameplayLayout.padding = new RectOffset(24, 24, 24, 24);
+        gameplayLayout.spacing = 18f;
         gameplayLayout.childControlHeight = true;
         gameplayLayout.childControlWidth = true;
         gameplayLayout.childForceExpandHeight = false;
 
         var titleLabel = CreateText("TitleLabel", gameplayPanel.transform, font, config.DisplayName, 40, TextAnchor.MiddleCenter);
-        titleLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 66f;
+        titleLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 64f;
 
         var statusPanel = CreatePanel("StatusPanel", gameplayPanel.transform, config.VisualSettings.PanelColor);
-        statusPanel.AddComponent<LayoutElement>().preferredHeight = 280f;
+        statusPanel.AddComponent<LayoutElement>().preferredHeight = 240f;
         var statusLayout = statusPanel.AddComponent<VerticalLayoutGroup>();
-        statusLayout.padding = new RectOffset(22, 22, 18, 18);
-        statusLayout.spacing = 8f;
+        statusLayout.padding = new RectOffset(24, 24, 18, 18);
+        statusLayout.spacing = 10f;
         statusLayout.childControlWidth = true;
         statusLayout.childControlHeight = true;
 
@@ -221,18 +221,18 @@ public static class CollaborativePlantGuessMinigameSetup
         var attemptsLabel = CreateText("AttemptsLabel", statusPanel.transform, font, "Intentos: 0/8", 24, TextAnchor.MiddleLeft);
         attemptsLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 30f;
         var statusLabel = CreateText("StatusLabel", statusPanel.transform, font, "Preparando la partida.", 20, TextAnchor.UpperLeft);
-        statusLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 70f;
+        statusLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 64f;
         var helperLabel = CreateText("HelperLabel", statusPanel.transform, font, "Escribe una planta del listado.", 18, TextAnchor.UpperLeft);
-        helperLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 56f;
+        helperLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 52f;
         var hintLabel = CreateText("HintLabel", statusPanel.transform, font, "Pista", 20, TextAnchor.UpperLeft);
         hintLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 42f;
         hintLabel.gameObject.SetActive(false);
 
         var inputPanel = CreatePanel("InputPanel", gameplayPanel.transform, config.VisualSettings.PanelColor);
-        inputPanel.AddComponent<LayoutElement>().preferredHeight = 300f;
+        inputPanel.AddComponent<LayoutElement>().preferredHeight = 240f;
         var inputLayout = inputPanel.AddComponent<VerticalLayoutGroup>();
-        inputLayout.padding = new RectOffset(22, 22, 18, 18);
-        inputLayout.spacing = 12f;
+        inputLayout.padding = new RectOffset(20, 20, 18, 18);
+        inputLayout.spacing = 10f;
         inputLayout.childControlWidth = true;
         inputLayout.childControlHeight = true;
 
@@ -242,7 +242,7 @@ public static class CollaborativePlantGuessMinigameSetup
         submitButton.gameObject.AddComponent<LayoutElement>().preferredHeight = 64f;
 
         var suggestionPanel = CreatePanel("SuggestionPanel", inputPanel.transform, new Color(1f, 1f, 1f, 0.55f));
-        suggestionPanel.AddComponent<LayoutElement>().preferredHeight = 120f;
+        suggestionPanel.AddComponent<LayoutElement>().preferredHeight = 96f;
         var suggestionLayout = suggestionPanel.AddComponent<VerticalLayoutGroup>();
         suggestionLayout.padding = new RectOffset(12, 12, 12, 12);
         suggestionLayout.spacing = 8f;
@@ -255,7 +255,7 @@ public static class CollaborativePlantGuessMinigameSetup
 
         var historyPanel = CreatePanel("HistoryPanel", gameplayPanel.transform, config.VisualSettings.PanelColor);
         historyPanel.AddComponent<LayoutElement>().flexibleHeight = 1f;
-        historyPanel.GetComponent<LayoutElement>().minHeight = 500f;
+        historyPanel.GetComponent<LayoutElement>().minHeight = 360f;
 
         var emptyHistoryLabel = CreateText("EmptyHistoryLabel", historyPanel.transform, font, "Todavia no hay intentos compartidos.", 22, TextAnchor.MiddleCenter);
         Stretch(emptyHistoryLabel.GetComponent<RectTransform>(), new Vector2(24f, 24f), new Vector2(-24f, -24f));
@@ -295,6 +295,7 @@ public static class CollaborativePlantGuessMinigameSetup
         serializedUiController.FindProperty("emptyHistoryLabel").objectReferenceValue = emptyHistoryLabel;
         serializedUiController.ApplyModifiedPropertiesWithoutUndo();
 
+        FantasyWoodenThemeUtility.ApplyThemeToOpenScene(scene);
         EditorSceneManager.SaveScene(scene, MinigameScenePath);
     }
 
@@ -313,7 +314,7 @@ public static class CollaborativePlantGuessMinigameSetup
         miniGameSceneNames.GetArrayElementAtIndex(MinigameIndex).stringValue = MinigameSceneName;
         serializedCoordinator.ApplyModifiedPropertiesWithoutUndo();
         EditorUtility.SetDirty(coordinator);
-        EditorSceneManager.MarkSceneDirty(scene);
+        FantasyWoodenThemeUtility.ApplyThemeToOpenScene(scene);
         EditorSceneManager.SaveScene(scene);
     }
 
@@ -546,10 +547,10 @@ public static class CollaborativePlantGuessMinigameSetup
         contentRect.anchorMax = new Vector2(0.5f, 0.5f);
         contentRect.pivot = new Vector2(0.5f, 0.5f);
         contentRect.anchoredPosition = Vector2.zero;
-        contentPanel.AddComponent<ResponsivePanelLayoutController>().Configure(popupRoot.GetComponent<RectTransform>(), 0.92f, 0.88f, new Vector2(320f, 460f), new Vector2(860f, 1180f), new Vector2(24f, 24f));
+        contentPanel.AddComponent<ResponsivePanelLayoutController>().Configure(popupRoot.GetComponent<RectTransform>(), 0.9f, 0.86f, new Vector2(320f, 460f), new Vector2(840f, 1160f), new Vector2(32f, 32f));
 
         var layout = contentPanel.AddComponent<VerticalLayoutGroup>();
-        layout.padding = new RectOffset(28, 28, 28, 28);
+        layout.padding = new RectOffset(30, 30, 30, 30);
         layout.spacing = 16f;
         layout.childControlHeight = true;
         layout.childControlWidth = true;
@@ -605,7 +606,7 @@ public static class CollaborativePlantGuessMinigameSetup
         contentRect.anchorMax = new Vector2(0.5f, 0.5f);
         contentRect.pivot = new Vector2(0.5f, 0.5f);
         contentRect.anchoredPosition = Vector2.zero;
-        contentPanel.AddComponent<ResponsivePanelLayoutController>().Configure(popupRoot.GetComponent<RectTransform>(), 0.84f, 0.42f, new Vector2(320f, 320f), new Vector2(700f, 560f), new Vector2(24f, 24f));
+        contentPanel.AddComponent<ResponsivePanelLayoutController>().Configure(popupRoot.GetComponent<RectTransform>(), 0.86f, 0.42f, new Vector2(320f, 320f), new Vector2(720f, 560f), new Vector2(32f, 32f));
 
         var layout = contentPanel.AddComponent<VerticalLayoutGroup>();
         layout.padding = new RectOffset(24, 24, 24, 24);
@@ -873,7 +874,7 @@ internal static class CoopMinigameSetupEditorUtility
         ApplyLauncherCatalogReference(launcherController, catalogConfig);
 
         EditorUtility.SetDirty(launcherController);
-        EditorSceneManager.MarkSceneDirty(scene);
+        FantasyWoodenThemeUtility.ApplyThemeToOpenScene(scene);
         EditorSceneManager.SaveScene(scene);
     }
 
@@ -919,16 +920,16 @@ internal static class CoopMinigameSetupEditorUtility
 
     private static void ConfigureLauncherPanel(RectTransform launcherPanel, CoopMinigameLauncherUIController launcherController, RectTransform safeAreaRoot)
     {
-        launcherPanel.anchorMin = new Vector2(0f, 1f);
-        launcherPanel.anchorMax = new Vector2(0f, 1f);
-        launcherPanel.pivot = new Vector2(0f, 1f);
-        launcherPanel.anchoredPosition = new Vector2(24f, -24f);
+        launcherPanel.anchorMin = new Vector2(0.5f, 1f);
+        launcherPanel.anchorMax = new Vector2(0.5f, 1f);
+        launcherPanel.pivot = new Vector2(0.5f, 1f);
+        launcherPanel.anchoredPosition = new Vector2(0f, -32f);
 
         var panelLayout = launcherPanel.GetComponent<VerticalLayoutGroup>();
         if (panelLayout != null)
         {
-            panelLayout.padding = new RectOffset(16, 16, 16, 16);
-            panelLayout.spacing = 12f;
+            panelLayout.padding = new RectOffset(24, 24, 24, 24);
+            panelLayout.spacing = 14f;
             panelLayout.childControlWidth = true;
             panelLayout.childControlHeight = true;
             panelLayout.childForceExpandWidth = true;
@@ -943,11 +944,11 @@ internal static class CoopMinigameSetupEditorUtility
 
         responsivePanel.Configure(
             safeAreaRoot != null ? safeAreaRoot : launcherPanel.parent as RectTransform,
-            0.46f,
-            0.78f,
-            new Vector2(300f, 320f),
-            new Vector2(560f, 1280f),
-            new Vector2(24f, 24f));
+            0.88f,
+            0.82f,
+            new Vector2(320f, 360f),
+            new Vector2(720f, 1280f),
+            new Vector2(32f, 32f));
 
         var helperLabelField = new SerializedObject(launcherController).FindProperty("helperLabel").objectReferenceValue as Text;
         if (helperLabelField != null)

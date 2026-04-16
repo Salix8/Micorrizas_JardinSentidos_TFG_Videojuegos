@@ -9,7 +9,7 @@ using SmartCampus.Coop.Minigames;
 
 public static class ResponsiveLayoutAudit
 {
-    private const string ReportPath = "C:/Users/saulp/Documents/UJI/Micorrizas_JardinSentidos_TFG_Videojuegos/responsive-layout-audit.txt";
+    private static string ReportPath => Path.Combine(Directory.GetCurrentDirectory(), "responsive-layout-audit.txt");
 
     [MenuItem("Tools/Coop/Audit Responsive Layout")]
     public static void GenerateReport()

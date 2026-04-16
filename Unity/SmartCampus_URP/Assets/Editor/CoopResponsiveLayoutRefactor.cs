@@ -13,8 +13,10 @@ public static class CoopResponsiveLayoutRefactor
         CollaborativePlantGuessMinigameSetup.SetupCollaborativePlantGuessMinigame();
         CollaborativePlantGuessMinigameSetup.RepairCollaborativePlantGuessInput();
         DistributedPairsMinigameSetup.SetupDistributedPairsMinigame();
+        GardenSmellTaxonomyMinigameSetup.SetupGardenSmellTaxonomyMinigame();
         CoopMinigameSetupEditorUtility.RefreshMainMapMinigameLauncher();
         ResponsiveLayoutAudit.GenerateReport();
+        MobileResponsiveValidation.RunValidation();
 
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();

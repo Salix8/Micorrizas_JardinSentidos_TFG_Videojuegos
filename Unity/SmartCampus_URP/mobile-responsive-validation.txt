@@ -1,0 +1,68 @@
+Mobile Responsive UI Validation
+================================
+
+Profiles:
+- Android Compact: 720x1280
+- Android Standard: 1080x1920
+- Android Tall: 1080x2400
+- Android Large: 1440x3040
+
+Assets/Scenes/AudioWordConsensusMinigame.unity
+  Canvas: AudioWordConsensusCanvas
+    CanvasScaler: mode=ScaleWithScreenSize ref=1080x1920 match=0,50
+    Android Compact: ok
+    Android Standard: ok
+    Android Tall: ok
+    Android Large: ok
+
+Assets/Scenes/CollaborativePlantGuessMinigame.unity
+  Canvas: CollaborativePlantGuessCanvas
+    CanvasScaler: mode=ScaleWithScreenSize ref=1080x1920 match=0,50
+    Android Compact: ok
+    Android Standard: ok
+    Android Tall: ok
+    Android Large: ok
+
+Assets/Scenes/DistributedPairsMinigame.unity
+  Canvas: DistributedPairsCanvas
+    CanvasScaler: mode=ScaleWithScreenSize ref=1080x1920 match=0,50
+    Android Compact: ok
+    Android Standard: ok
+    Android Tall: ok
+    Android Large: ok
+
+Assets/Scenes/GardenImageVotingMinigame.unity
+  Canvas: GardenImageVotingCanvas
+    CanvasScaler: mode=ScaleWithScreenSize ref=1080x1920 match=0,50
+    Android Compact: ok
+    Android Standard: ok
+    Android Tall: ok
+    Android Large: ok
+
+Assets/Scenes/GardenSmellTaxonomyMinigame.unity
+  Canvas: GardenSmellTaxonomyCanvas
+    CanvasScaler: mode=ScaleWithScreenSize ref=1080x1920 match=0,50
+    Android Compact: ok
+    Android Standard: ok
+    Android Tall: ok
+    Android Large: ok
+
+Assets/Scenes/Lobby.unity
+  Canvas: Canvas
+    CanvasScaler: mode=ScaleWithScreenSize ref=1080x1920 match=0,50
+    Android Compact: ok
+    Android Standard: ok
+    Android Tall: ok
+    Android Large: ok
+
+Assets/Scenes/MultiplayerPlayMode.unity
+  No UI canvas found.
+
+Assets/Scenes/UJI.unity
+  Canvas: CoopMinigameLauncherCanvas
+    CanvasScaler: mode=ScaleWithScreenSize ref=1080x1920 match=0,50
+    Android Compact: ok
+    Android Standard: ok
+    Android Tall: ok
+    Android Large: ok
+

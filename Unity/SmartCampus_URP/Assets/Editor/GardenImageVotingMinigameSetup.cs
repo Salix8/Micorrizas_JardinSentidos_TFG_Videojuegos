@@ -165,16 +165,16 @@ public static class GardenImageVotingMinigameSetup
 
         var waitingPanel = CreatePanel("WaitingPanel", uiRoot.transform, new Color(0.12f, 0.17f, 0.21f, 0.86f));
         var waitingResponsiveLayout = waitingPanel.AddComponent<ResponsivePanelLayoutController>();
-        waitingResponsiveLayout.Configure(canvas.GetComponent<RectTransform>(), 0.82f, 0.18f, new Vector2(280f, 180f), new Vector2(720f, 260f), new Vector2(24f, 24f));
+        waitingResponsiveLayout.Configure(canvas.GetComponent<RectTransform>(), 0.8f, 0.18f, new Vector2(280f, 180f), new Vector2(700f, 260f), new Vector2(32f, 32f));
         var waitingStatus = CreateText("WaitingStatus", waitingPanel.transform, font, "Esperando al resto del grupo.", 28, TextAnchor.MiddleCenter);
         Stretch(waitingStatus.GetComponent<RectTransform>(), new Vector2(28f, 28f), new Vector2(-28f, -28f));
 
         var gameplayPanel = CreateUiObject("GameplayPanel", uiRoot.transform, typeof(Image), typeof(VerticalLayoutGroup));
-        Stretch(gameplayPanel.GetComponent<RectTransform>(), new Vector2(32f, 32f), new Vector2(-32f, -32f));
+        Stretch(gameplayPanel.GetComponent<RectTransform>(), new Vector2(40f, 40f), new Vector2(-40f, -40f));
         gameplayPanel.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.14f);
         var gameplayLayout = gameplayPanel.GetComponent<VerticalLayoutGroup>();
-        gameplayLayout.padding = new RectOffset(24, 24, 24, 24);
-        gameplayLayout.spacing = 18f;
+        gameplayLayout.padding = new RectOffset(28, 28, 28, 28);
+        gameplayLayout.spacing = 16f;
         gameplayLayout.childControlHeight = true;
         gameplayLayout.childControlWidth = true;
         gameplayLayout.childForceExpandHeight = false;
@@ -183,7 +183,7 @@ public static class GardenImageVotingMinigameSetup
         titleLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 72f;
 
         var statusPanel = CreatePanel("StatusPanel", gameplayPanel.transform, new Color(1f, 1f, 1f, 0.75f));
-        statusPanel.AddComponent<LayoutElement>().preferredHeight = 240f;
+        statusPanel.AddComponent<LayoutElement>().preferredHeight = 220f;
         var statusLayout = statusPanel.AddComponent<VerticalLayoutGroup>();
         statusLayout.padding = new RectOffset(24, 24, 20, 20);
         statusLayout.spacing = 10f;
@@ -203,7 +203,7 @@ public static class GardenImageVotingMinigameSetup
         var cardPanel = CreatePanel("CardPanel", gameplayPanel.transform, new Color(1f, 1f, 1f, 0.88f));
         var cardPanelLayout = cardPanel.AddComponent<LayoutElement>();
         cardPanelLayout.flexibleHeight = 1f;
-        cardPanelLayout.minHeight = 420f;
+        cardPanelLayout.minHeight = 360f;
 
         var cardRoot = CreateUiObject("CardRoot", cardPanel.transform, typeof(Image), typeof(CanvasGroup), typeof(GardenImageVotingCardView), typeof(ResponsiveAspectRatioLayoutController));
         var cardRootRect = cardRoot.GetComponent<RectTransform>();
@@ -215,9 +215,9 @@ public static class GardenImageVotingMinigameSetup
         cardRoot.GetComponent<ResponsiveAspectRatioLayoutController>().Configure(
             cardPanel.GetComponent<RectTransform>(),
             640f / 920f,
-            new Vector2(240f, 360f),
-            new Vector2(720f, 1040f),
-            new Vector2(18f, 18f));
+            new Vector2(220f, 340f),
+            new Vector2(680f, 980f),
+            new Vector2(24f, 24f));
 
         var illustration = CreateUiObject("Illustration", cardRoot.transform, typeof(Image));
         var illustrationRect = illustration.GetComponent<RectTransform>();
@@ -261,7 +261,7 @@ public static class GardenImageVotingMinigameSetup
         decisionHintRect.offsetMax = Vector2.zero;
 
         var completionLabel = CreateText("CompletionLabel", gameplayPanel.transform, font, "Has terminado tus imagenes.", 20, TextAnchor.MiddleCenter);
-        completionLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 48f;
+        completionLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 44f;
         completionLabel.gameObject.SetActive(false);
 
         var tutorialPopup = CreateTutorialPopup(uiRoot.transform, font);
@@ -300,6 +300,7 @@ public static class GardenImageVotingMinigameSetup
         serializedUiController.FindProperty("completionLabel").objectReferenceValue = completionLabel;
         serializedUiController.ApplyModifiedPropertiesWithoutUndo();
 
+        FantasyWoodenThemeUtility.ApplyThemeToOpenScene(scene);
         EditorSceneManager.SaveScene(scene, MinigameScenePath);
     }
 
@@ -320,7 +321,7 @@ public static class GardenImageVotingMinigameSetup
         serializedCoordinator.ApplyModifiedPropertiesWithoutUndo();
 
         EditorUtility.SetDirty(coordinator);
-        EditorSceneManager.MarkSceneDirty(scene);
+        FantasyWoodenThemeUtility.ApplyThemeToOpenScene(scene);
         EditorSceneManager.SaveScene(scene);
     }
 
@@ -376,10 +377,10 @@ public static class GardenImageVotingMinigameSetup
         contentRect.anchorMin = new Vector2(0.5f, 0.5f);
         contentRect.anchorMax = new Vector2(0.5f, 0.5f);
         contentRect.anchoredPosition = Vector2.zero;
-        contentPanel.AddComponent<ResponsivePanelLayoutController>().Configure(popupRoot.GetComponent<RectTransform>(), 0.92f, 0.88f, new Vector2(320f, 460f), new Vector2(860f, 1180f), new Vector2(24f, 24f));
+        contentPanel.AddComponent<ResponsivePanelLayoutController>().Configure(popupRoot.GetComponent<RectTransform>(), 0.9f, 0.86f, new Vector2(320f, 460f), new Vector2(840f, 1160f), new Vector2(32f, 32f));
 
         var layout = contentPanel.AddComponent<VerticalLayoutGroup>();
-        layout.padding = new RectOffset(28, 28, 28, 28);
+        layout.padding = new RectOffset(30, 30, 30, 30);
         layout.spacing = 16f;
         layout.childControlHeight = true;
         layout.childControlWidth = true;
@@ -437,7 +438,7 @@ public static class GardenImageVotingMinigameSetup
         contentRect.anchorMin = new Vector2(0.5f, 0.5f);
         contentRect.anchorMax = new Vector2(0.5f, 0.5f);
         contentRect.anchoredPosition = Vector2.zero;
-        contentPanel.AddComponent<ResponsivePanelLayoutController>().Configure(popupRoot.GetComponent<RectTransform>(), 0.84f, 0.42f, new Vector2(320f, 320f), new Vector2(700f, 560f), new Vector2(24f, 24f));
+        contentPanel.AddComponent<ResponsivePanelLayoutController>().Configure(popupRoot.GetComponent<RectTransform>(), 0.86f, 0.42f, new Vector2(320f, 320f), new Vector2(720f, 560f), new Vector2(32f, 32f));
 
         var layout = contentPanel.AddComponent<VerticalLayoutGroup>();
         layout.padding = new RectOffset(24, 24, 24, 24);

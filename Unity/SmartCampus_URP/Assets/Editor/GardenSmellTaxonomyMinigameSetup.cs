@@ -168,57 +168,57 @@ public static class GardenSmellTaxonomyMinigameSetup
         Stretch(uiRoot.GetComponent<RectTransform>(), Vector2.zero, Vector2.zero);
 
         var waitingPanel = CreatePanel("WaitingPanel", uiRoot.transform, new Color(0.12f, 0.17f, 0.21f, 0.86f));
-        waitingPanel.AddComponent<ResponsivePanelLayoutController>().Configure(canvas.GetComponent<RectTransform>(), 0.82f, 0.2f, new Vector2(280f, 180f), new Vector2(760f, 260f), new Vector2(24f, 24f));
+        waitingPanel.AddComponent<ResponsivePanelLayoutController>().Configure(canvas.GetComponent<RectTransform>(), 0.8f, 0.2f, new Vector2(280f, 180f), new Vector2(720f, 260f), new Vector2(32f, 32f));
         var waitingStatus = CreateText("WaitingStatus", waitingPanel.transform, font, "Esperando al resto del grupo.", 28, TextAnchor.MiddleCenter);
         Stretch(waitingStatus.rectTransform, new Vector2(28f, 28f), new Vector2(-28f, -28f));
 
         var gameplayPanel = CreateUiObject("GameplayPanel", uiRoot.transform, typeof(Image), typeof(VerticalLayoutGroup));
-        Stretch(gameplayPanel.GetComponent<RectTransform>(), new Vector2(24f, 24f), new Vector2(-24f, -24f));
+        Stretch(gameplayPanel.GetComponent<RectTransform>(), new Vector2(32f, 32f), new Vector2(-32f, -32f));
         gameplayPanel.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.1f);
         var gameplayLayout = gameplayPanel.GetComponent<VerticalLayoutGroup>();
-        gameplayLayout.padding = new RectOffset(20, 20, 20, 20);
-        gameplayLayout.spacing = 16f;
+        gameplayLayout.padding = new RectOffset(24, 24, 20, 20);
+        gameplayLayout.spacing = 12f;
         gameplayLayout.childControlWidth = true;
         gameplayLayout.childControlHeight = true;
         gameplayLayout.childForceExpandHeight = false;
 
         var titleLabel = CreateText("TitleLabel", gameplayPanel.transform, font, config.DisplayName, 42, TextAnchor.MiddleCenter);
-        titleLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 68f;
+        titleLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 56f;
 
         var statusPanel = CreatePanel("StatusPanel", gameplayPanel.transform, config.VisualSettings.PanelColor);
-        statusPanel.AddComponent<LayoutElement>().preferredHeight = 220f;
+        statusPanel.AddComponent<LayoutElement>().preferredHeight = 176f;
         var statusLayout = statusPanel.AddComponent<VerticalLayoutGroup>();
-        statusLayout.padding = new RectOffset(24, 24, 18, 18);
+        statusLayout.padding = new RectOffset(20, 20, 16, 16);
         statusLayout.spacing = 8f;
         statusLayout.childControlWidth = true;
         statusLayout.childControlHeight = true;
         statusLayout.childForceExpandHeight = false;
 
         var timerLabel = CreateText("TimerLabel", statusPanel.transform, font, "Tiempo restante: 03:30", 24, TextAnchor.MiddleLeft);
-        timerLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 30f;
+        timerLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 28f;
         var progressLabel = CreateText("ProgressLabel", statusPanel.transform, font, "Plantas clasificadas: 0/0", 24, TextAnchor.MiddleLeft);
-        progressLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 30f;
+        progressLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 28f;
         var sharedScoreLabel = CreateText("SharedScoreLabel", statusPanel.transform, font, "Aciertos compartidos: 0   Fallos: 0", 24, TextAnchor.MiddleLeft);
-        sharedScoreLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 30f;
+        sharedScoreLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 28f;
         var statusLabel = CreateText("StatusLabel", statusPanel.transform, font, "Arrastra la planta activa hacia la categoria correcta.", 20, TextAnchor.UpperLeft);
-        statusLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 84f;
+        statusLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 64f;
 
         var centerArea = CreateUiObject("CenterArea", gameplayPanel.transform, typeof(HorizontalLayoutGroup));
         var centerAreaLayout = centerArea.GetComponent<HorizontalLayoutGroup>();
-        centerAreaLayout.spacing = 16f;
+        centerAreaLayout.spacing = 10f;
         centerAreaLayout.childControlWidth = true;
         centerAreaLayout.childControlHeight = true;
         centerAreaLayout.childForceExpandWidth = true;
         centerAreaLayout.childForceExpandHeight = true;
         centerArea.AddComponent<LayoutElement>().flexibleHeight = 1f;
-        centerArea.GetComponent<LayoutElement>().minHeight = 520f;
+        centerArea.GetComponent<LayoutElement>().minHeight = 320f;
 
         var decorationZone = CreateDropZone("DecorationZone", centerArea.transform, font, GardenSmellTaxonomyCategory.Decoration, config.VisualSettings);
         var foodZone = CreateDropZone("FoodZone", centerArea.transform, font, GardenSmellTaxonomyCategory.Food, config.VisualSettings);
         var healingZone = CreateDropZone("HealingZone", centerArea.transform, font, GardenSmellTaxonomyCategory.Healing, config.VisualSettings);
 
         var bottomArea = CreatePanel("BottomArea", gameplayPanel.transform, new Color(1f, 1f, 1f, 0.06f));
-        bottomArea.AddComponent<LayoutElement>().preferredHeight = 520f;
+        bottomArea.AddComponent<LayoutElement>().preferredHeight = 320f;
 
         var cardRoot = CreateUiObject(
             "PlantCard",
@@ -231,14 +231,14 @@ public static class GardenSmellTaxonomyMinigameSetup
         cardRect.anchorMin = new Vector2(0.5f, 0.5f);
         cardRect.anchorMax = new Vector2(0.5f, 0.5f);
         cardRect.pivot = new Vector2(0.5f, 0.5f);
-        cardRect.sizeDelta = new Vector2(520f, 460f);
+        cardRect.sizeDelta = new Vector2(480f, 400f);
         cardRoot.GetComponent<Image>().color = config.VisualSettings.CardColor;
         cardRoot.GetComponent<ResponsiveAspectRatioLayoutController>().Configure(
             bottomArea.GetComponent<RectTransform>(),
-            520f / 460f,
-            new Vector2(280f, 260f),
-            new Vector2(640f, 540f),
-            new Vector2(18f, 18f));
+            480f / 400f,
+            new Vector2(220f, 190f),
+            new Vector2(540f, 420f),
+            new Vector2(24f, 24f));
 
         var frame = CreateUiObject("Frame", cardRoot.transform, typeof(Image));
         Stretch(frame.GetComponent<RectTransform>(), new Vector2(6f, 6f), new Vector2(-6f, -6f));
@@ -308,6 +308,7 @@ public static class GardenSmellTaxonomyMinigameSetup
         serializedUiController.FindProperty("statusLabel").objectReferenceValue = statusLabel;
         serializedUiController.ApplyModifiedPropertiesWithoutUndo();
 
+        FantasyWoodenThemeUtility.ApplyThemeToOpenScene(scene);
         EditorSceneManager.SaveScene(scene, MinigameScenePath);
     }
 
@@ -317,25 +318,26 @@ public static class GardenSmellTaxonomyMinigameSetup
         zoneRoot.GetComponent<Image>().color = visuals.PanelColor;
         zoneRoot.GetComponent<LayoutElement>().flexibleWidth = 1f;
         zoneRoot.GetComponent<LayoutElement>().flexibleHeight = 1f;
+        zoneRoot.GetComponent<LayoutElement>().minWidth = 190f;
 
         var layout = zoneRoot.GetComponent<VerticalLayoutGroup>();
-        layout.padding = new RectOffset(16, 16, 16, 16);
-        layout.spacing = 10f;
+        layout.padding = new RectOffset(12, 12, 12, 12);
+        layout.spacing = 8f;
         layout.childControlWidth = true;
         layout.childControlHeight = true;
         layout.childForceExpandHeight = false;
 
         var accent = CreateUiObject("Accent", zoneRoot.transform, typeof(Image));
-        accent.AddComponent<LayoutElement>().preferredHeight = 10f;
+        accent.AddComponent<LayoutElement>().preferredHeight = 8f;
         accent.GetComponent<Image>().color = visuals.GetCategoryColor(category);
 
         var titleLabel = CreateText("TitleLabel", zoneRoot.transform, font, GardenSmellTaxonomyCategoryLabels.GetDisplayName(category), 28, TextAnchor.MiddleCenter);
-        titleLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 42f;
+        titleLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 36f;
 
         var badge = CreateUiObject("Badge", zoneRoot.transform, typeof(Image), typeof(LayoutElement));
         badge.GetComponent<Image>().color = visuals.GetCategoryColor(category);
-        badge.GetComponent<LayoutElement>().preferredWidth = 132f;
-        badge.GetComponent<LayoutElement>().preferredHeight = 132f;
+        badge.GetComponent<LayoutElement>().preferredWidth = 96f;
+        badge.GetComponent<LayoutElement>().preferredHeight = 96f;
 
         var badgeLabel = CreateText("BadgeLabel", badge.transform, font, GardenSmellTaxonomyCategoryLabels.GetBadgeLabel(category), 32, TextAnchor.MiddleCenter);
         Stretch(badgeLabel.rectTransform, Vector2.zero, Vector2.zero);
@@ -392,7 +394,7 @@ public static class GardenSmellTaxonomyMinigameSetup
         serializedCoordinator.ApplyModifiedPropertiesWithoutUndo();
 
         EditorUtility.SetDirty(coordinator);
-        EditorSceneManager.MarkSceneDirty(scene);
+        FantasyWoodenThemeUtility.ApplyThemeToOpenScene(scene);
         EditorSceneManager.SaveScene(scene);
     }
 
@@ -443,14 +445,14 @@ public static class GardenSmellTaxonomyMinigameSetup
         dismissButton.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.62f);
 
         var contentPanel = CreatePanel("ContentPanel", popupRoot.transform, new Color(0.95f, 0.97f, 0.94f, 1f));
-        contentPanel.AddComponent<ResponsivePanelLayoutController>().Configure(popupRoot.GetComponent<RectTransform>(), 0.92f, 0.88f, new Vector2(320f, 460f), new Vector2(860f, 1180f), new Vector2(24f, 24f));
+        contentPanel.AddComponent<ResponsivePanelLayoutController>().Configure(popupRoot.GetComponent<RectTransform>(), 0.9f, 0.86f, new Vector2(320f, 460f), new Vector2(840f, 1160f), new Vector2(32f, 32f));
         var contentRect = contentPanel.GetComponent<RectTransform>();
         contentRect.anchorMin = new Vector2(0.5f, 0.5f);
         contentRect.anchorMax = new Vector2(0.5f, 0.5f);
         contentRect.anchoredPosition = Vector2.zero;
 
         var layout = contentPanel.AddComponent<VerticalLayoutGroup>();
-        layout.padding = new RectOffset(28, 28, 28, 28);
+        layout.padding = new RectOffset(30, 30, 30, 30);
         layout.spacing = 16f;
         layout.childControlHeight = true;
         layout.childControlWidth = true;
@@ -503,7 +505,7 @@ public static class GardenSmellTaxonomyMinigameSetup
         background.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.62f);
 
         var contentPanel = CreatePanel("ContentPanel", popupRoot.transform, new Color(0.95f, 0.97f, 0.94f, 1f));
-        contentPanel.AddComponent<ResponsivePanelLayoutController>().Configure(popupRoot.GetComponent<RectTransform>(), 0.84f, 0.42f, new Vector2(320f, 320f), new Vector2(700f, 560f), new Vector2(24f, 24f));
+        contentPanel.AddComponent<ResponsivePanelLayoutController>().Configure(popupRoot.GetComponent<RectTransform>(), 0.86f, 0.42f, new Vector2(320f, 320f), new Vector2(720f, 560f), new Vector2(32f, 32f));
         var contentRect = contentPanel.GetComponent<RectTransform>();
         contentRect.anchorMin = new Vector2(0.5f, 0.5f);
         contentRect.anchorMax = new Vector2(0.5f, 0.5f);

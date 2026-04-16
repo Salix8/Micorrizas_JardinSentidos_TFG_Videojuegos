@@ -11,7 +11,7 @@ using SmartCampus.Coop.Minigames;
 public static class LobbySceneUiSetup
 {
     private const string ScenePath = "Assets/Scenes/Lobby.unity";
-    private const string ReportPath = "C:/Users/saulp/Documents/UJI/Micorrizas_JardinSentidos_TFG_Videojuegos/lobby-ui-setup-report.txt";
+    private static readonly string ReportPath = Path.Combine(Directory.GetCurrentDirectory(), "lobby-ui-setup-report.txt");
 
     [MenuItem("Tools/Coop/Setup Lobby UI")]
     public static void SetupLobbyUi()
@@ -51,41 +51,64 @@ public static class LobbySceneUiSetup
         surfaceRect.anchoredPosition = Vector2.zero;
         surfacePanel.AddComponent<ResponsivePanelLayoutController>().Configure(
             safeAreaRoot.GetComponent<RectTransform>(),
-            0.94f,
-            0.88f,
-            new Vector2(320f, 480f),
-            new Vector2(920f, 1560f),
-            new Vector2(24f, 24f));
+            0.86f,
+            0.82f,
+            new Vector2(320f, 500f),
+            new Vector2(820f, 1480f),
+            new Vector2(32f, 32f));
 
         var surfaceLayout = surfacePanel.AddComponent<VerticalLayoutGroup>();
-        surfaceLayout.padding = new RectOffset(28, 28, 28, 28);
-        surfaceLayout.spacing = 18f;
+        surfaceLayout.padding = new RectOffset(36, 36, 48, 32);
+        surfaceLayout.spacing = 24f;
+        surfaceLayout.childAlignment = TextAnchor.UpperCenter;
         surfaceLayout.childControlWidth = true;
         surfaceLayout.childControlHeight = true;
         surfaceLayout.childForceExpandWidth = true;
         surfaceLayout.childForceExpandHeight = false;
 
+        var headerTopSpacer = CreateUiObject("HeaderTopSpacer", surfacePanel.transform, typeof(LayoutElement));
+        var spacerLayout = headerTopSpacer.GetComponent<LayoutElement>();
+        spacerLayout.minHeight = 24f;
+        spacerLayout.flexibleHeight = 0.2f;
+
         var headerStack = CreateUiObject("HeaderStack", surfacePanel.transform, typeof(VerticalLayoutGroup));
+        headerStack.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
         var headerLayout = headerStack.GetComponent<VerticalLayoutGroup>();
-        headerLayout.spacing = 6f;
+        headerLayout.spacing = 8f;
+        headerLayout.childAlignment = TextAnchor.MiddleCenter;
         headerLayout.childControlWidth = true;
         headerLayout.childControlHeight = true;
         headerLayout.childForceExpandHeight = false;
-        headerStack.AddComponent<LayoutElement>().preferredHeight = 128f;
+        var headerElement = headerStack.AddComponent<LayoutElement>();
+        headerElement.minHeight = 112f;
 
         var appTitle = CreateText("AppTitle", headerStack.transform, font, "Co-op Lobby", 40, TextAnchor.MiddleCenter, Color.white);
         ConfigureAutoSizedText(appTitle, 22, 40);
-        appTitle.gameObject.AddComponent<LayoutElement>().preferredHeight = 60f;
+        appTitle.gameObject.AddComponent<LayoutElement>().minHeight = 52f;
 
         var appSubtitle = CreateText("AppSubtitle", headerStack.transform, font, "Multijugador editable y responsive para Android.", 20, TextAnchor.MiddleCenter, new Color(0.86f, 0.9f, 0.95f, 1f));
         ConfigureAutoSizedText(appSubtitle, 14, 20);
-        appSubtitle.gameObject.AddComponent<LayoutElement>().preferredHeight = 52f;
+        appSubtitle.gameObject.AddComponent<LayoutElement>().minHeight = 44f;
 
-        var scrollView = CreateScrollView("PanelScrollView", surfacePanel.transform);
+        var scrollFrame = CreateUiObject("ScrollFrame", surfacePanel.transform, typeof(HorizontalLayoutGroup), typeof(LayoutElement));
+        var scrollFrameLayout = scrollFrame.GetComponent<HorizontalLayoutGroup>();
+        scrollFrameLayout.padding = new RectOffset(12, 12, 0, 0);
+        scrollFrameLayout.childAlignment = TextAnchor.UpperCenter;
+        scrollFrameLayout.spacing = 0f;
+        scrollFrameLayout.childControlWidth = true;
+        scrollFrameLayout.childControlHeight = true;
+        scrollFrameLayout.childForceExpandWidth = false;
+        scrollFrameLayout.childForceExpandHeight = true;
+        var scrollFrameElement = scrollFrame.GetComponent<LayoutElement>();
+        scrollFrameElement.flexibleHeight = 1f;
+        scrollFrameElement.minHeight = 260f;
+
+        var scrollView = CreateScrollView("PanelScrollView", scrollFrame.transform);
         var scrollLayout = scrollView.Root.AddComponent<LayoutElement>();
         scrollLayout.flexibleHeight = 1f;
-        scrollLayout.minHeight = 240f;
-        scrollView.ContentLayout.spacing = 16f;
+        scrollLayout.flexibleWidth = 1f;
+        scrollLayout.minHeight = 220f;
+        scrollView.ContentLayout.spacing = 18f;
 
         var homePanel = CreateContentPanel("HomePanel", scrollView.ContentRoot.transform);
         var hostPanel = CreateContentPanel("HostPanel", scrollView.ContentRoot.transform);
@@ -122,7 +145,7 @@ public static class LobbySceneUiSetup
         EditorUtility.SetDirty(relayConnectionService);
         EditorUtility.SetDirty(coopSessionCoordinator);
         EditorUtility.SetDirty(canvas.gameObject);
-        EditorSceneManager.MarkSceneDirty(scene);
+        FantasyWoodenThemeUtility.ApplyThemeToOpenScene(scene);
         var saved = EditorSceneManager.SaveScene(scene);
         AssetDatabase.SaveAssets();
 
@@ -190,7 +213,8 @@ public static class LobbySceneUiSetup
     private static void BuildHomePanel(Transform parent, MultiplayerMenuController controller, Font font)
     {
         CreateSectionTitle("HomeTitle", parent, font, "Escoge modo de entrada");
-        CreateBodyText("HomeInfo", parent, font, "Aloja una sala si vas a iniciar la partida o unete con el codigo compartido por otra persona.");
+        var homeInfoFrame = CreatePaddedContentFrame("HomeInfoFrame", parent, 32, 32);
+        CreateBodyText("HomeInfo", homeInfoFrame.transform, font, "Aloja una sala si vas a iniciar la partida o unete con el codigo compartido por otra persona.");
 
         var hostNavigationButton = CreateActionButton("CreateSessionButton", parent, font, "Crear sala");
         var joinNavigationButton = CreateActionButton("OpenJoinPanelButton", parent, font, "Unirse con codigo");
@@ -295,8 +319,8 @@ public static class LobbySceneUiSetup
     {
         var panel = CreatePanel(name, parent, new Color(1f, 1f, 1f, 0.06f));
         var layout = panel.AddComponent<VerticalLayoutGroup>();
-        layout.padding = new RectOffset(18, 18, 18, 18);
-        layout.spacing = 14f;
+        layout.padding = new RectOffset(20, 20, 20, 20);
+        layout.spacing = 16f;
         layout.childControlWidth = true;
         layout.childControlHeight = true;
         layout.childForceExpandWidth = true;
@@ -308,6 +332,57 @@ public static class LobbySceneUiSetup
 
         panel.AddComponent<LayoutElement>().preferredHeight = -1f;
         return panel;
+    }
+
+    private static GameObject CreateCenteredWidthFrame(string name, Transform parent, float preferredWidth, float maxWidth)
+    {
+        var frame = CreateUiObject(name, parent, typeof(HorizontalLayoutGroup), typeof(LayoutElement));
+        var frameLayout = frame.GetComponent<HorizontalLayoutGroup>();
+        frameLayout.padding = new RectOffset(0, 0, 0, 0);
+        frameLayout.spacing = 0f;
+        frameLayout.childAlignment = TextAnchor.MiddleCenter;
+        frameLayout.childControlWidth = false;
+        frameLayout.childControlHeight = true;
+        frameLayout.childForceExpandWidth = false;
+        frameLayout.childForceExpandHeight = false;
+
+        var layoutElement = frame.GetComponent<LayoutElement>();
+        layoutElement.flexibleWidth = 1f;
+        layoutElement.minHeight = 88f;
+
+        var constrainedWidth = CreateUiObject("ConstrainedWidth", frame.transform, typeof(LayoutElement));
+        var constrainedLayout = constrainedWidth.GetComponent<LayoutElement>();
+        constrainedLayout.preferredWidth = preferredWidth;
+        constrainedLayout.minWidth = preferredWidth;
+        constrainedLayout.flexibleWidth = 1f;
+        constrainedLayout.layoutPriority = 1;
+        constrainedWidth.GetComponent<RectTransform>().sizeDelta = new Vector2(maxWidth, 0f);
+
+        return constrainedWidth;
+    }
+
+    private static GameObject CreatePaddedContentFrame(string name, Transform parent, int leftPadding, int rightPadding)
+    {
+        var frame = CreateUiObject(name, parent, typeof(HorizontalLayoutGroup), typeof(LayoutElement));
+        var frameLayout = frame.GetComponent<HorizontalLayoutGroup>();
+        frameLayout.padding = new RectOffset(leftPadding, rightPadding, 0, 0);
+        frameLayout.spacing = 0f;
+        frameLayout.childAlignment = TextAnchor.MiddleCenter;
+        frameLayout.childControlWidth = true;
+        frameLayout.childControlHeight = true;
+        frameLayout.childForceExpandWidth = true;
+        frameLayout.childForceExpandHeight = false;
+
+        var layoutElement = frame.GetComponent<LayoutElement>();
+        layoutElement.flexibleWidth = 1f;
+        layoutElement.minHeight = 88f;
+
+        var contentRoot = CreateUiObject("PaddedContent", frame.transform, typeof(LayoutElement));
+        var contentLayout = contentRoot.GetComponent<LayoutElement>();
+        contentLayout.flexibleWidth = 1f;
+        contentLayout.layoutPriority = 1;
+
+        return contentRoot;
     }
 
     private static Text CreateSectionTitle(string name, Transform parent, Font font, string value)
@@ -336,14 +411,16 @@ public static class LobbySceneUiSetup
 
     private static Button CreateActionButton(string name, Transform parent, Font font, string label)
     {
-        var button = CreateButton(name, parent, font, label, new Color(0.24f, 0.41f, 0.69f, 1f));
+        var buttonFrame = CreateCenteredWidthFrame($"{name}Frame", parent, 320f, 400f);
+        var button = CreateButton(name, buttonFrame.transform, font, label, new Color(0.24f, 0.41f, 0.69f, 1f));
         button.gameObject.AddComponent<LayoutElement>().preferredHeight = 64f;
         return button;
     }
 
     private static Button CreateSecondaryButton(string name, Transform parent, Font font, string label)
     {
-        var button = CreateButton(name, parent, font, label, new Color(0.22f, 0.29f, 0.36f, 1f));
+        var buttonFrame = CreateCenteredWidthFrame($"{name}Frame", parent, 320f, 400f);
+        var button = CreateButton(name, buttonFrame.transform, font, label, new Color(0.22f, 0.29f, 0.36f, 1f));
         button.gameObject.AddComponent<LayoutElement>().preferredHeight = 60f;
         return button;
     }

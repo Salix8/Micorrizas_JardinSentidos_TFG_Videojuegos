@@ -27,10 +27,14 @@ MonoBehaviour:
     y rojo significa fallo. El mismo dispositivo no puede enviar dos intentos seguidos.
 
 
-    La
-    rugosidad y la categoria del fruto aparecen desde el principio. El tipo de hoja
-    se revela en el intento 3, el detalle del fruto en el 5 y el tipo de planta en
-    el 7.'
+    Las
+    pistas aparecen en este orden: rugosidad, tipo de hoja, categoria del fruto,
+    tipo de fruto, hoja perenne o caduca y tipo de planta.
+
+
+    El tipo de fruto
+    se desbloquea en el intento 2, la persistencia de la hoja en el 4 y el tipo de
+    planta en el 6.'
   illustration: {fileID: 0}
   videoClip: {fileID: 0}
   customContentPrefab: {fileID: 0}

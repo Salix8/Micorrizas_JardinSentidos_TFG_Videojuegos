@@ -228,16 +228,16 @@ public static class DistributedPairsMinigameSetup
             0.18f,
             new Vector2(280f, 180f),
             new Vector2(720f, 260f),
-            new Vector2(24f, 24f));
+            new Vector2(32f, 32f));
         var waitingStatus = CreateText("WaitingStatus", waitingPanel.transform, font, "Esperando al resto del grupo.", 28, TextAnchor.MiddleCenter);
         Stretch(waitingStatus.GetComponent<RectTransform>(), new Vector2(28f, 28f), new Vector2(-28f, -28f));
 
         var gameplayPanel = CreateUiObject("GameplayPanel", uiRoot.transform, typeof(Image), typeof(VerticalLayoutGroup), typeof(ContentSizeFitter));
-        Stretch(gameplayPanel.GetComponent<RectTransform>(), new Vector2(32f, 32f), new Vector2(-32f, -32f));
+        Stretch(gameplayPanel.GetComponent<RectTransform>(), new Vector2(36f, 36f), new Vector2(-36f, -36f));
         gameplayPanel.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.14f);
         var gameplayLayout = gameplayPanel.GetComponent<VerticalLayoutGroup>();
         gameplayLayout.padding = new RectOffset(24, 24, 24, 24);
-        gameplayLayout.spacing = 18f;
+        gameplayLayout.spacing = 16f;
         gameplayLayout.childControlHeight = true;
         gameplayLayout.childControlWidth = true;
         gameplayLayout.childForceExpandHeight = false;
@@ -254,7 +254,7 @@ public static class DistributedPairsMinigameSetup
         statusLayout.childControlHeight = true;
         statusLayout.childControlWidth = true;
         statusLayout.childForceExpandHeight = false;
-        statusPanel.AddComponent<LayoutElement>().preferredHeight = 360f;
+        statusPanel.AddComponent<LayoutElement>().preferredHeight = 320f;
 
         var progressLabel = CreateText("ProgressLabel", statusPanel.transform, font, "Parejas: 0/0   Errores: 0", 24, TextAnchor.MiddleLeft);
         progressLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 34f;
@@ -264,7 +264,7 @@ public static class DistributedPairsMinigameSetup
         localSelectionLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 64f;
 
         var pileHudRow = CreateUiObject("PileHudRow", statusPanel.transform, typeof(HorizontalLayoutGroup));
-        pileHudRow.AddComponent<LayoutElement>().preferredHeight = 132f;
+        pileHudRow.AddComponent<LayoutElement>().preferredHeight = 116f;
         var pileHudLayout = pileHudRow.GetComponent<HorizontalLayoutGroup>();
         pileHudLayout.spacing = 12f;
         pileHudLayout.childControlWidth = true;
@@ -280,12 +280,12 @@ public static class DistributedPairsMinigameSetup
         var handPanel = CreatePanel("HandPanel", gameplayPanel.transform, new Color(1f, 1f, 1f, 0.72f));
         var handLayoutElement = handPanel.AddComponent<LayoutElement>();
         handLayoutElement.flexibleHeight = 1f;
-        handLayoutElement.minHeight = 420f;
+        handLayoutElement.minHeight = 360f;
 
         var handGrid = CreateUiObject("HandGrid", handPanel.transform, typeof(GridLayoutGroup), typeof(ResponsiveGridLayoutController), typeof(DistributedPairsHandView));
-        Stretch(handGrid.GetComponent<RectTransform>(), new Vector2(20f, 20f), new Vector2(-20f, -20f));
+        Stretch(handGrid.GetComponent<RectTransform>(), new Vector2(16f, 16f), new Vector2(-16f, -16f));
         var gridLayout = handGrid.GetComponent<GridLayoutGroup>();
-        gridLayout.spacing = new Vector2(18f, 18f);
+        gridLayout.spacing = new Vector2(14f, 14f);
         gridLayout.padding = new RectOffset(8, 8, 8, 8);
         gridLayout.startAxis = GridLayoutGroup.Axis.Horizontal;
         gridLayout.startCorner = GridLayoutGroup.Corner.UpperLeft;
@@ -308,7 +308,7 @@ public static class DistributedPairsMinigameSetup
         mismatchOverlay.SetActive(false);
         var mismatchResetLabel = CreateText("Label", mismatchOverlay.transform, font, "No coinciden. Toca para girarlas de nuevo.", 26, TextAnchor.MiddleCenter);
         mismatchResetLabel.color = Color.white;
-        Stretch(mismatchResetLabel.GetComponent<RectTransform>(), new Vector2(48f, 48f), new Vector2(-48f, -48f));
+        Stretch(mismatchResetLabel.GetComponent<RectTransform>(), new Vector2(32f, 48f), new Vector2(-32f, -48f));
 
         var tutorialPopup = CreateTutorialPopup(uiRoot.transform, font);
         tutorialPopup.gameObject.SetActive(false);
@@ -336,6 +336,7 @@ public static class DistributedPairsMinigameSetup
         serializedUiController.FindProperty("mismatchResetLabel").objectReferenceValue = mismatchResetLabel;
         serializedUiController.ApplyModifiedPropertiesWithoutUndo();
 
+        FantasyWoodenThemeUtility.ApplyThemeToOpenScene(scene);
         EditorSceneManager.SaveScene(scene, MinigameScenePath);
     }
 
@@ -357,7 +358,7 @@ public static class DistributedPairsMinigameSetup
         serializedCoordinator.ApplyModifiedPropertiesWithoutUndo();
 
         EditorUtility.SetDirty(coordinator);
-        EditorSceneManager.MarkSceneDirty(scene);
+        FantasyWoodenThemeUtility.ApplyThemeToOpenScene(scene);
         EditorSceneManager.SaveScene(scene);
     }
 
@@ -417,14 +418,14 @@ public static class DistributedPairsMinigameSetup
         var responsiveLayout = contentPanel.AddComponent<ResponsivePanelLayoutController>();
         responsiveLayout.Configure(
             popupRoot.GetComponent<RectTransform>(),
-            0.92f,
-            0.88f,
+            0.9f,
+            0.86f,
             new Vector2(320f, 460f),
-            new Vector2(860f, 1180f),
-            new Vector2(24f, 24f));
+            new Vector2(840f, 1160f),
+            new Vector2(32f, 32f));
 
         var layout = contentPanel.AddComponent<VerticalLayoutGroup>();
-        layout.padding = new RectOffset(28, 28, 28, 28);
+        layout.padding = new RectOffset(30, 30, 30, 30);
         layout.spacing = 16f;
         layout.childControlHeight = true;
         layout.childControlWidth = true;
@@ -486,11 +487,11 @@ public static class DistributedPairsMinigameSetup
         var responsiveLayout = contentPanel.AddComponent<ResponsivePanelLayoutController>();
         responsiveLayout.Configure(
             popupRoot.GetComponent<RectTransform>(),
-            0.84f,
+            0.86f,
             0.42f,
             new Vector2(320f, 320f),
-            new Vector2(700f, 560f),
-            new Vector2(24f, 24f));
+            new Vector2(720f, 560f),
+            new Vector2(32f, 32f));
 
         var layout = contentPanel.AddComponent<VerticalLayoutGroup>();
         layout.padding = new RectOffset(24, 24, 24, 24);

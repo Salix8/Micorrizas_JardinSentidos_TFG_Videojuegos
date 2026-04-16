@@ -155,16 +155,16 @@ public static class AudioWordConsensusMinigameSetup
         Stretch(uiRoot.GetComponent<RectTransform>(), Vector2.zero, Vector2.zero);
 
         var waitingPanel = CreatePanel("WaitingPanel", uiRoot.transform, new Color(0.12f, 0.17f, 0.21f, 0.86f));
-        waitingPanel.AddComponent<ResponsivePanelLayoutController>().Configure(canvas.GetComponent<RectTransform>(), 0.82f, 0.18f, new Vector2(280f, 180f), new Vector2(720f, 260f), new Vector2(24f, 24f));
+        waitingPanel.AddComponent<ResponsivePanelLayoutController>().Configure(canvas.GetComponent<RectTransform>(), 0.8f, 0.18f, new Vector2(280f, 180f), new Vector2(700f, 260f), new Vector2(32f, 32f));
         var waitingStatus = CreateText("WaitingStatus", waitingPanel.transform, font, "Esperando al resto del grupo.", 28, TextAnchor.MiddleCenter);
         Stretch(waitingStatus.GetComponent<RectTransform>(), new Vector2(28f, 28f), new Vector2(-28f, -28f));
 
         var gameplayPanel = CreateUiObject("GameplayPanel", uiRoot.transform, typeof(Image), typeof(VerticalLayoutGroup));
-        Stretch(gameplayPanel.GetComponent<RectTransform>(), new Vector2(32f, 32f), new Vector2(-32f, -32f));
+        Stretch(gameplayPanel.GetComponent<RectTransform>(), new Vector2(40f, 40f), new Vector2(-40f, -40f));
         gameplayPanel.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.14f);
         var gameplayLayout = gameplayPanel.GetComponent<VerticalLayoutGroup>();
-        gameplayLayout.padding = new RectOffset(24, 24, 24, 24);
-        gameplayLayout.spacing = 18f;
+        gameplayLayout.padding = new RectOffset(28, 28, 28, 28);
+        gameplayLayout.spacing = 16f;
         gameplayLayout.childControlHeight = true;
         gameplayLayout.childControlWidth = true;
         gameplayLayout.childForceExpandHeight = false;
@@ -173,10 +173,10 @@ public static class AudioWordConsensusMinigameSetup
         titleLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 72f;
 
         var statusPanel = CreatePanel("StatusPanel", gameplayPanel.transform, config.VisualSettings.PanelColor);
-        statusPanel.AddComponent<LayoutElement>().preferredHeight = 300f;
+        statusPanel.AddComponent<LayoutElement>().preferredHeight = 272f;
         var statusLayout = statusPanel.AddComponent<VerticalLayoutGroup>();
-        statusLayout.padding = new RectOffset(24, 24, 20, 20);
-        statusLayout.spacing = 10f;
+        statusLayout.padding = new RectOffset(24, 24, 18, 18);
+        statusLayout.spacing = 8f;
         statusLayout.childControlHeight = true;
         statusLayout.childControlWidth = true;
         statusLayout.childForceExpandHeight = false;
@@ -188,33 +188,33 @@ public static class AudioWordConsensusMinigameSetup
         var scoreLabel = CreateText("ScoreLabel", statusPanel.transform, font, "Aciertos: 0   Fallos: 0", 24, TextAnchor.MiddleLeft);
         scoreLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 34f;
         var statusLabel = CreateText("StatusLabel", statusPanel.transform, font, "Preparando la ronda cooperativa.", 22, TextAnchor.UpperLeft);
-        statusLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 96f;
+        statusLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 84f;
         var roleLabel = CreateText("RoleLabel", statusPanel.transform, font, "Tu rol se mostrara aqui.", 20, TextAnchor.UpperLeft);
-        roleLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 72f;
+        roleLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 64f;
 
         var interactionPanel = CreatePanel("InteractionPanel", gameplayPanel.transform, config.VisualSettings.PanelColor);
         interactionPanel.AddComponent<LayoutElement>().flexibleHeight = 1f;
-        interactionPanel.GetComponent<LayoutElement>().minHeight = 420f;
+        interactionPanel.GetComponent<LayoutElement>().minHeight = 360f;
         var interactionLayout = interactionPanel.AddComponent<VerticalLayoutGroup>();
         interactionLayout.padding = new RectOffset(24, 24, 24, 24);
-        interactionLayout.spacing = 20f;
+        interactionLayout.spacing = 16f;
         interactionLayout.childControlHeight = true;
         interactionLayout.childControlWidth = true;
         interactionLayout.childForceExpandHeight = false;
 
         var localWordLabel = CreateText("LocalWordLabel", interactionPanel.transform, font, "Palabra local", 30, TextAnchor.MiddleCenter);
-        localWordLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 96f;
+        localWordLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 84f;
 
         var wordOptionsScrollView = CreateScrollView("WordOptionsScrollView", interactionPanel.transform);
         var wordOptionsScrollLayout = wordOptionsScrollView.Root.AddComponent<LayoutElement>();
         wordOptionsScrollLayout.flexibleHeight = 1f;
-        wordOptionsScrollLayout.minHeight = 220f;
+        wordOptionsScrollLayout.minHeight = 200f;
 
         var submitWordButton = CreateButton("SubmitWordButton", wordOptionsScrollView.ContentRoot.transform, font, "Pulsar palabra", 24, config.VisualSettings.ReceiverButtonColor);
-        submitWordButton.gameObject.AddComponent<LayoutElement>().preferredHeight = 82f;
+        submitWordButton.gameObject.AddComponent<LayoutElement>().preferredHeight = 76f;
 
         var playSoundButton = CreateButton("PlaySoundButton", interactionPanel.transform, font, "Reproducir sonido", 24, config.VisualSettings.PrimaryButtonColor);
-        playSoundButton.gameObject.AddComponent<LayoutElement>().preferredHeight = 82f;
+        playSoundButton.gameObject.AddComponent<LayoutElement>().preferredHeight = 76f;
 
         var tutorialPopup = CreateTutorialPopup(uiRoot.transform, font);
         tutorialPopup.gameObject.SetActive(false);
@@ -245,6 +245,7 @@ public static class AudioWordConsensusMinigameSetup
         serializedUiController.FindProperty("submitWordButtonLabel").objectReferenceValue = submitWordButton.GetComponentInChildren<Text>();
         serializedUiController.ApplyModifiedPropertiesWithoutUndo();
 
+        FantasyWoodenThemeUtility.ApplyThemeToOpenScene(scene);
         EditorSceneManager.SaveScene(scene, MinigameScenePath);
     }
 
@@ -263,7 +264,7 @@ public static class AudioWordConsensusMinigameSetup
         miniGameSceneNames.GetArrayElementAtIndex(MinigameIndex).stringValue = MinigameSceneName;
         serializedCoordinator.ApplyModifiedPropertiesWithoutUndo();
         EditorUtility.SetDirty(coordinator);
-        EditorSceneManager.MarkSceneDirty(scene);
+        FantasyWoodenThemeUtility.ApplyThemeToOpenScene(scene);
         EditorSceneManager.SaveScene(scene);
     }
 
@@ -312,9 +313,9 @@ public static class AudioWordConsensusMinigameSetup
         contentRect.anchorMax = new Vector2(0.5f, 0.5f);
         contentRect.pivot = new Vector2(0.5f, 0.5f);
         contentRect.anchoredPosition = Vector2.zero;
-        contentPanel.AddComponent<ResponsivePanelLayoutController>().Configure(popupRoot.GetComponent<RectTransform>(), 0.92f, 0.88f, new Vector2(320f, 460f), new Vector2(860f, 1180f), new Vector2(24f, 24f));
+        contentPanel.AddComponent<ResponsivePanelLayoutController>().Configure(popupRoot.GetComponent<RectTransform>(), 0.9f, 0.86f, new Vector2(320f, 460f), new Vector2(840f, 1160f), new Vector2(32f, 32f));
         var layout = contentPanel.AddComponent<VerticalLayoutGroup>();
-        layout.padding = new RectOffset(28, 28, 28, 28);
+        layout.padding = new RectOffset(30, 30, 30, 30);
         layout.spacing = 16f;
         layout.childControlHeight = true;
         layout.childControlWidth = true;
@@ -370,7 +371,7 @@ public static class AudioWordConsensusMinigameSetup
         contentRect.anchorMax = new Vector2(0.5f, 0.5f);
         contentRect.pivot = new Vector2(0.5f, 0.5f);
         contentRect.anchoredPosition = Vector2.zero;
-        contentPanel.AddComponent<ResponsivePanelLayoutController>().Configure(popupRoot.GetComponent<RectTransform>(), 0.84f, 0.42f, new Vector2(320f, 320f), new Vector2(700f, 560f), new Vector2(24f, 24f));
+        contentPanel.AddComponent<ResponsivePanelLayoutController>().Configure(popupRoot.GetComponent<RectTransform>(), 0.86f, 0.42f, new Vector2(320f, 320f), new Vector2(720f, 560f), new Vector2(32f, 32f));
         var layout = contentPanel.AddComponent<VerticalLayoutGroup>();
         layout.padding = new RectOffset(24, 24, 24, 24);
         layout.spacing = 16f;

@@ -18,13 +18,13 @@ MonoBehaviour:
     no recibe ninguna palabra.
 
 
-    El resto de dispositivos recibe una palabra
-    distinta. Solo una coincide con el sonido reproducido.
+    El resto de dispositivos recibe varias opciones
+    repartidas entre el grupo. Solo una coincide con el sonido reproducido.
 
 
-    Debatid rapidamente
-    y decidid quien debe pulsar. El minijuego termina cuando todos han sido emisor
-    una vez o cuando se agota el tiempo.'
+    Debatid
+    rapidamente y decidid en que dispositivo y sobre que palabra debe pulsarse. El
+    minijuego termina cuando todos han sido emisor una vez o cuando se agota el tiempo.'
   illustration: {fileID: 0}
   videoClip: {fileID: 0}
   customContentPrefab: {fileID: 0}

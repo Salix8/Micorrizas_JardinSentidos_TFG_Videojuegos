@@ -91,8 +91,18 @@ namespace SmartCampus.Coop.Minigames
                     cellWidth = cellHeight * cardAspectRatio;
                 }
 
-                cellWidth = Mathf.Clamp(cellWidth, minCellSize.x, maxCellSize.x);
-                cellHeight = Mathf.Clamp(cellHeight, minCellSize.y, maxCellSize.y);
+                var allowsMinWidth = widthPerCell >= minCellSize.x;
+                var allowsMinHeight = heightPerCell >= minCellSize.y;
+                var clampedMaxWidth = Mathf.Min(maxCellSize.x, widthPerCell);
+                var clampedMaxHeight = Mathf.Min(maxCellSize.y, heightPerCell);
+
+                cellWidth = allowsMinWidth
+                    ? Mathf.Clamp(cellWidth, minCellSize.x, clampedMaxWidth)
+                    : Mathf.Clamp(cellWidth, 1f, clampedMaxWidth);
+
+                cellHeight = allowsMinHeight
+                    ? Mathf.Clamp(cellHeight, minCellSize.y, clampedMaxHeight)
+                    : Mathf.Clamp(cellHeight, 1f, clampedMaxHeight);
 
                 var area = cellWidth * cellHeight;
                 if (area > bestArea)

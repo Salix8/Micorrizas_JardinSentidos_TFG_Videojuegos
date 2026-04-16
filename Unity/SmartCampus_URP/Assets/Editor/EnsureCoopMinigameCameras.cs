@@ -6,7 +6,7 @@ using System.IO;
 
 public static class EnsureCoopMinigameCameras
 {
-    private const string ReportPath = "C:/Users/saulp/Documents/UJI/Micorrizas_JardinSentidos_TFG_Videojuegos/minigame-camera-report.txt";
+    private static readonly string ReportPath = Path.Combine(Directory.GetCurrentDirectory(), "minigame-camera-report.txt");
 
     private static readonly (string Path, Color BackgroundColor)[] MinigameScenes =
     {
