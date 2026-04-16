@@ -1620,7 +1620,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SmartCampus.Coop.Minigames.CoopMinigameLauncherUIController
   coopSessionCoordinator: {fileID: 0}
-  minigameCatalogConfig: {fileID: 0}
+  minigameCatalogConfig: {fileID: 11400000, guid: ef497b60053910d4d999ca24f25c6e58, type: 2}
   entryRoot: {fileID: 363153324}
   entryTemplate: {fileID: 1264930933}
   helperLabel: {fileID: 227387551}
