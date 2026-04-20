@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using Esri.ArcGISMapsSDK.Components;
 using Esri.ArcGISMapsSDK.Utils.GeoCoord;
 using Esri.GameEngine.Geometry;
@@ -14,6 +15,8 @@ public class ArcGISMobileGpsBlueDot : MonoBehaviour
 {
     private const string MarkerRootName = "GPS Blue Dot";
     private const string MarkerVisualName = "Blue Dot Visual";
+    private const string RemoteMarkerRootPrefix = "GPS Blue Dot Remote ";
+    private const string RemoteMarkerVisualName = "Remote Blue Dot Visual";
 
     [Header("Location Service")]
     [SerializeField] private bool startOnEnable = true;
@@ -26,9 +29,13 @@ public class ArcGISMobileGpsBlueDot : MonoBehaviour
     [SerializeField] private ArcGISSurfacePlacementMode surfacePlacementMode = ArcGISSurfacePlacementMode.RelativeToGround;
     [SerializeField] private float surfaceOffsetMeters = 1.5f;
     [SerializeField] private Color markerColor = new(0.15f, 0.48f, 1f, 1f);
-    [SerializeField] private float minMarkerScale = 4f;
-    [SerializeField] private float maxMarkerScale = 30f;
-    [SerializeField] private float distanceScaleFactor = 0.02f;
+    [SerializeField] private float minMarkerScale = 10f;
+    [SerializeField] private float maxMarkerScale = 45f;
+    [SerializeField] private float distanceScaleFactor = 0.03f;
+
+    [Header("Co-op Marker")]
+    [SerializeField] private Color remoteMarkerColor = new(1f, 0.62f, 0.15f, 1f);
+    [SerializeField] private float remoteMarkerScaleMultiplier = 1.15f;
 
 #if UNITY_EDITOR
     [Header("Editor Simulation")]
@@ -36,6 +43,7 @@ public class ArcGISMobileGpsBlueDot : MonoBehaviour
     [SerializeField] private double simulatedLatitude = 39.9936;
     [SerializeField] private double simulatedLongitude = -0.0665;
     [SerializeField] private double simulatedAltitude = 0.0;
+    [SerializeField] private float simulatedPlayerSpacingMeters = 6f;
 #endif
 
     private ArcGISMapComponent mapComponent;
@@ -51,6 +59,8 @@ public class ArcGISMobileGpsBlueDot : MonoBehaviour
     private LocationInfo lastLocationInfo;
     private ArcGISPoint currentGeographicPosition;
     private Vector3 currentEnginePosition;
+    private CoopSessionCoordinator coopSessionCoordinator;
+    private readonly Dictionary<ulong, RemoteMarkerView> remoteMarkers = new();
 #if UNITY_EDITOR
     private bool loggedEditorSimulation;
 #endif
@@ -59,6 +69,12 @@ public class ArcGISMobileGpsBlueDot : MonoBehaviour
     public ArcGISPoint CurrentGeographicPosition => currentGeographicPosition;
     public Vector3 CurrentEnginePosition => currentEnginePosition;
     public LocationInfo LastLocationInfo => lastLocationInfo;
+    public ArcGISMapComponent MapComponent => mapComponent;
+    public ArcGISSurfacePlacementMode SurfacePlacementMode => surfacePlacementMode;
+    public float SurfaceOffsetMeters => surfaceOffsetMeters;
+    public float MinMarkerScale => minMarkerScale;
+    public float MaxMarkerScale => maxMarkerScale;
+    public float DistanceScaleFactor => distanceScaleFactor;
 
     public event Action<ArcGISPoint, Vector3, LocationInfo> LocationUpdated;
 
@@ -80,6 +96,9 @@ public class ArcGISMobileGpsBlueDot : MonoBehaviour
 
     private void OnEnable()
     {
+        ResolveSessionCoordinatorIfNeeded();
+        AttachToSessionCoordinator();
+
         if (!startOnEnable || !Application.isPlaying)
         {
             return;
@@ -90,6 +109,8 @@ public class ArcGISMobileGpsBlueDot : MonoBehaviour
 
     private void OnDisable()
     {
+        DetachFromSessionCoordinator();
+
         if (locationStartupCoroutine != null)
         {
             StopCoroutine(locationStartupCoroutine);
@@ -106,6 +127,7 @@ public class ArcGISMobileGpsBlueDot : MonoBehaviour
 #endif
 
         UpdateMarkerVisibility(false);
+        ClearRemoteMarkers();
     }
 
     private void Update()
@@ -116,6 +138,7 @@ public class ArcGISMobileGpsBlueDot : MonoBehaviour
         }
 
         ResolveCameraIfNeeded();
+        ResolveSessionCoordinatorIfNeeded();
 
 #if UNITY_EDITOR
         if (ShouldUseEditorSimulation())
@@ -126,10 +149,11 @@ public class ArcGISMobileGpsBlueDot : MonoBehaviour
                 loggedEditorSimulation = true;
             }
 
+            var simulatedPosition = GetEditorSimulationPosition();
             ApplyGeographicPosition(
-                simulatedLatitude,
-                simulatedLongitude,
-                simulatedAltitude,
+                simulatedPosition.latitude,
+                simulatedPosition.longitude,
+                simulatedPosition.altitude,
                 new LocationInfo());
 
             return;
@@ -139,6 +163,7 @@ public class ArcGISMobileGpsBlueDot : MonoBehaviour
         PollDeviceLocation();
         RefreshCurrentEnginePosition();
         UpdateMarkerScale();
+        RefreshRemoteMarkers();
     }
 
     public void StartTracking()
@@ -270,6 +295,8 @@ public class ArcGISMobileGpsBlueDot : MonoBehaviour
         UpdateMarkerVisibility(true);
         RefreshCurrentEnginePosition();
         UpdateMarkerScale();
+        PublishLocalPositionToSessionCoordinator();
+        RefreshRemoteMarkers();
         LocationUpdated?.Invoke(currentGeographicPosition, currentEnginePosition, locationInfo);
     }
 
@@ -328,52 +355,7 @@ public class ArcGISMobileGpsBlueDot : MonoBehaviour
             markerRenderer = visual.GetComponent<Renderer>();
         }
 
-        ConfigureMarkerMaterial();
-    }
-
-    private void ConfigureMarkerMaterial()
-    {
-        if (markerRenderer == null)
-        {
-            return;
-        }
-
-        var shader = Shader.Find("Universal Render Pipeline/Unlit") ??
-                     Shader.Find("Standard") ??
-                     Shader.Find("Unlit/Color") ??
-                     Shader.Find("HDRP/Unlit");
-
-        if (shader == null)
-        {
-            return;
-        }
-
-        var material = new Material(shader)
-        {
-            name = "GPS Blue Dot Material"
-        };
-
-        if (material.HasProperty("_BaseColor"))
-        {
-            material.SetColor("_BaseColor", markerColor);
-        }
-
-        if (material.HasProperty("_Color"))
-        {
-            material.SetColor("_Color", markerColor);
-        }
-
-        if (material.HasProperty("_EmissiveColor"))
-        {
-            material.EnableKeyword("_EMISSION");
-            material.SetColor("_EmissiveColor", markerColor * 2f);
-        }
-
-        markerRenderer.sharedMaterial = material;
-        markerRenderer.shadowCastingMode = ShadowCastingMode.Off;
-        markerRenderer.receiveShadows = false;
-        markerRenderer.lightProbeUsage = LightProbeUsage.Off;
-        markerRenderer.reflectionProbeUsage = ReflectionProbeUsage.Off;
+        ConfigureMarkerMaterial(markerRenderer, markerColor, "GPS Blue Dot Material");
     }
 
     private void UpdateMarkerVisibility(bool visible)
@@ -403,6 +385,226 @@ public class ArcGISMobileGpsBlueDot : MonoBehaviour
         markerVisual.localScale = Vector3.one * scale;
     }
 
+    private void ResolveSessionCoordinatorIfNeeded()
+    {
+        if (coopSessionCoordinator != null)
+        {
+            return;
+        }
+
+        coopSessionCoordinator = FindFirstObjectByType<CoopSessionCoordinator>(FindObjectsInactive.Include);
+    }
+
+    private void AttachToSessionCoordinator()
+    {
+        if (coopSessionCoordinator == null)
+        {
+            return;
+        }
+
+        coopSessionCoordinator.PlayerGpsStatesChanged -= HandlePlayerGpsStatesChanged;
+        coopSessionCoordinator.SlotsChanged -= HandlePlayerGpsStatesChanged;
+        coopSessionCoordinator.PlayerGpsStatesChanged += HandlePlayerGpsStatesChanged;
+        coopSessionCoordinator.SlotsChanged += HandlePlayerGpsStatesChanged;
+    }
+
+    private void DetachFromSessionCoordinator()
+    {
+        if (coopSessionCoordinator == null)
+        {
+            return;
+        }
+
+        coopSessionCoordinator.PlayerGpsStatesChanged -= HandlePlayerGpsStatesChanged;
+        coopSessionCoordinator.SlotsChanged -= HandlePlayerGpsStatesChanged;
+    }
+
+    private void HandlePlayerGpsStatesChanged()
+    {
+        RefreshRemoteMarkers();
+    }
+
+    private void PublishLocalPositionToSessionCoordinator()
+    {
+        if (!Application.isPlaying || !hasLocationFix)
+        {
+            return;
+        }
+
+        ResolveSessionCoordinatorIfNeeded();
+        if (coopSessionCoordinator == null)
+        {
+            return;
+        }
+
+        coopSessionCoordinator.SubmitLocalPlayerGpsPosition(
+            currentGeographicPosition.Y,
+            currentGeographicPosition.X,
+            currentGeographicPosition.Z);
+    }
+
+    private void RefreshRemoteMarkers()
+    {
+        if (coopSessionCoordinator == null || !coopSessionCoordinator.IsSpawned)
+        {
+            ClearRemoteMarkers();
+            return;
+        }
+
+        var localClientId = coopSessionCoordinator.NetworkManager != null
+            ? coopSessionCoordinator.NetworkManager.LocalClientId
+            : ulong.MaxValue;
+
+        var activeClientIds = new HashSet<ulong>();
+        for (var index = 0; index < coopSessionCoordinator.PlayerGpsStateCount; index++)
+        {
+            if (!coopSessionCoordinator.TryGetPlayerGpsState(index, out var playerGpsState) ||
+                !playerGpsState.HasLocationFix ||
+                playerGpsState.ClientId == localClientId)
+            {
+                continue;
+            }
+
+            activeClientIds.Add(playerGpsState.ClientId);
+            UpdateRemoteMarker(playerGpsState);
+        }
+
+        var staleMarkers = new List<ulong>();
+        foreach (var markerEntry in remoteMarkers)
+        {
+            if (!activeClientIds.Contains(markerEntry.Key))
+            {
+                staleMarkers.Add(markerEntry.Key);
+            }
+        }
+
+        for (var index = 0; index < staleMarkers.Count; index++)
+        {
+            RemoveRemoteMarker(staleMarkers[index]);
+        }
+    }
+
+    private void UpdateRemoteMarker(CoopPlayerGpsState playerGpsState)
+    {
+        var marker = GetOrCreateRemoteMarker(playerGpsState.ClientId);
+        if (marker == null)
+        {
+            return;
+        }
+
+        var geographicPosition = new ArcGISPoint(
+            playerGpsState.Longitude,
+            playerGpsState.Latitude,
+            playerGpsState.Altitude,
+            wgs84);
+
+        marker.Location.SurfacePlacementMode = surfacePlacementMode;
+        marker.Location.SurfacePlacementOffset =
+            surfacePlacementMode == ArcGISSurfacePlacementMode.AbsoluteHeight ? 0.0 : surfaceOffsetMeters;
+        marker.Location.Position = geographicPosition;
+        marker.Location.Rotation = new ArcGISRotation(0.0, 0.0, 0.0);
+
+        if (!marker.Root.activeSelf)
+        {
+            marker.Root.SetActive(true);
+        }
+
+        UpdateRemoteMarkerScale(marker);
+    }
+
+    private RemoteMarkerView GetOrCreateRemoteMarker(ulong clientId)
+    {
+        if (remoteMarkers.TryGetValue(clientId, out var existingMarker) && existingMarker.Root != null)
+        {
+            return existingMarker;
+        }
+
+        var rootName = RemoteMarkerRootPrefix + clientId;
+        var existingRoot = transform.Find(rootName);
+        var root = existingRoot != null ? existingRoot.gameObject : new GameObject(rootName);
+        root.transform.SetParent(transform, false);
+
+        var location = root.GetComponent<ArcGISLocationComponent>();
+        if (location == null)
+        {
+            location = root.AddComponent<ArcGISLocationComponent>();
+        }
+
+        var visualTransform = root.transform.Find(RemoteMarkerVisualName);
+        Renderer visualRenderer;
+        if (visualTransform == null)
+        {
+            var visual = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            visual.name = RemoteMarkerVisualName;
+            visual.transform.SetParent(root.transform, false);
+            visualRenderer = visual.GetComponent<Renderer>();
+
+            var collider = visual.GetComponent<Collider>();
+            if (collider != null)
+            {
+                Destroy(collider);
+            }
+
+            visualTransform = visual.transform;
+        }
+        else
+        {
+            visualRenderer = visualTransform.GetComponent<Renderer>();
+        }
+
+        ConfigureMarkerMaterial(visualRenderer, remoteMarkerColor, "GPS Remote Dot Material");
+        var marker = new RemoteMarkerView(root, location, visualTransform);
+        remoteMarkers[clientId] = marker;
+        return marker;
+    }
+
+    private void UpdateRemoteMarkerScale(RemoteMarkerView marker)
+    {
+        if (marker == null || marker.Root == null || marker.Visual == null || !marker.Root.activeInHierarchy)
+        {
+            return;
+        }
+
+        ResolveCameraIfNeeded();
+        if (targetCamera == null)
+        {
+            return;
+        }
+
+        var cameraDistance = Vector3.Distance(targetCamera.transform.position, marker.Root.transform.position);
+        var scale = Mathf.Clamp(cameraDistance * distanceScaleFactor, minMarkerScale, maxMarkerScale) * remoteMarkerScaleMultiplier;
+        marker.Visual.localPosition = Vector3.up * (scale * 0.5f);
+        marker.Visual.localScale = Vector3.one * scale;
+    }
+
+    private void RemoveRemoteMarker(ulong clientId)
+    {
+        if (!remoteMarkers.TryGetValue(clientId, out var marker))
+        {
+            return;
+        }
+
+        if (marker.Root != null)
+        {
+            Destroy(marker.Root);
+        }
+
+        remoteMarkers.Remove(clientId);
+    }
+
+    private void ClearRemoteMarkers()
+    {
+        foreach (var markerEntry in remoteMarkers)
+        {
+            if (markerEntry.Value.Root != null)
+            {
+                Destroy(markerEntry.Value.Root);
+            }
+        }
+
+        remoteMarkers.Clear();
+    }
+
     private void ResolveCameraIfNeeded()
     {
         if (targetCamera != null)
@@ -429,10 +631,127 @@ public class ArcGISMobileGpsBlueDot : MonoBehaviour
         }
     }
 
+    private static void ConfigureMarkerMaterial(Renderer targetRenderer, Color color, string materialName)
+    {
+        if (targetRenderer == null)
+        {
+            return;
+        }
+
+        var shader = Shader.Find("Universal Render Pipeline/Unlit") ??
+                     Shader.Find("Standard") ??
+                     Shader.Find("Unlit/Color") ??
+                     Shader.Find("HDRP/Unlit");
+
+        if (shader == null)
+        {
+            return;
+        }
+
+        var material = new Material(shader)
+        {
+            name = materialName
+        };
+
+        if (material.HasProperty("_BaseColor"))
+        {
+            material.SetColor("_BaseColor", color);
+        }
+
+        if (material.HasProperty("_Color"))
+        {
+            material.SetColor("_Color", color);
+        }
+
+        if (material.HasProperty("_EmissiveColor"))
+        {
+            material.EnableKeyword("_EMISSION");
+            material.SetColor("_EmissiveColor", color * 2f);
+        }
+
+        targetRenderer.sharedMaterial = material;
+        targetRenderer.shadowCastingMode = ShadowCastingMode.Off;
+        targetRenderer.receiveShadows = false;
+        targetRenderer.lightProbeUsage = LightProbeUsage.Off;
+        targetRenderer.reflectionProbeUsage = ReflectionProbeUsage.Off;
+    }
+
 #if UNITY_EDITOR
     private bool ShouldUseEditorSimulation()
     {
         return simulateLocationInEditor && !Application.isMobilePlatform;
     }
+
+    private (double latitude, double longitude, double altitude) GetEditorSimulationPosition()
+    {
+        var localPlayerSlot = GetEditorSimulationPlayerSlot();
+        if (localPlayerSlot <= 0 || simulatedPlayerSpacingMeters <= 0f)
+        {
+            return (simulatedLatitude, simulatedLongitude, simulatedAltitude);
+        }
+
+        var ringIndex = Mathf.CeilToInt(localPlayerSlot / 4f);
+        var ringRadiusMeters = simulatedPlayerSpacingMeters * ringIndex;
+        var directionIndex = (localPlayerSlot - 1) % 4;
+
+        var eastMeters = 0f;
+        var northMeters = 0f;
+
+        switch (directionIndex)
+        {
+            case 0:
+                eastMeters = ringRadiusMeters;
+                break;
+            case 1:
+                northMeters = ringRadiusMeters;
+                break;
+            case 2:
+                eastMeters = -ringRadiusMeters;
+                break;
+            default:
+                northMeters = -ringRadiusMeters;
+                break;
+        }
+
+        const double metersPerLatitudeDegree = 111320.0;
+        var longitudeScale = Math.Cos(simulatedLatitude * Math.PI / 180.0);
+        if (Math.Abs(longitudeScale) < 0.0001d)
+        {
+            longitudeScale = 0.0001d;
+        }
+
+        var latitudeOffset = northMeters / metersPerLatitudeDegree;
+        var longitudeOffset = eastMeters / (metersPerLatitudeDegree * longitudeScale);
+
+        return (
+            simulatedLatitude + latitudeOffset,
+            simulatedLongitude + longitudeOffset,
+            simulatedAltitude);
+    }
+
+    private int GetEditorSimulationPlayerSlot()
+    {
+        ResolveSessionCoordinatorIfNeeded();
+        if (coopSessionCoordinator == null || !coopSessionCoordinator.IsSpawned)
+        {
+            return 0;
+        }
+
+        return Mathf.Max(coopSessionCoordinator.GetLocalPlayerSlot(), 0);
+    }
 #endif
+
+    private sealed class RemoteMarkerView
+    {
+        public RemoteMarkerView(GameObject root, ArcGISLocationComponent location, Transform visual)
+        {
+            Root = root;
+            Location = location;
+            Visual = visual;
+        }
+
+        public GameObject Root { get; }
+        public ArcGISLocationComponent Location { get; }
+        public Transform Visual { get; }
+    }
 }

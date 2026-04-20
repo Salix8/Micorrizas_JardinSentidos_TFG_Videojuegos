@@ -544,9 +544,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Esri.HPFramework::Esri.HPFramework.HPRoot
   m_LocalPosition:
-    x: -7235.7669015627835
+    x: -7235.766901562783
     y: 0
-    z: 4864924.093597775
+    z: 4451999.616058955
   m_LocalRotation:
     value:
       x: 0
@@ -1605,7 +1605,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
   m_AnchoredPosition: {x: 0, y: -32}
-  m_SizeDelta: {x: 506.88, y: 360}
+  m_SizeDelta: {x: 720, y: 1280}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &756439482
 MonoBehaviour:
@@ -4135,7 +4135,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1770552170
 Transform:
   m_ObjectHideFlags: 0
@@ -8970,6 +8970,7 @@ GameObject:
   - component: {fileID: 1823688471}
   - component: {fileID: 1823688470}
   - component: {fileID: 1823688473}
+  - component: {fileID: 1823688474}
   m_Layer: 0
   m_Name: ArcGISCamera
   m_TagString: MainCamera
@@ -9017,7 +9018,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 1000
+  far clip plane: 5000
   field of view: 26.991467
   orthographic: 0
   orthographic size: 5
@@ -9044,15 +9045,15 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1823688464}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.23870896, y: -0.48063084, z: 0.13781868, w: 0.83247703}
-  m_LocalPosition: {x: 556.5975, y: 1000, z: -434.88046}
+  m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: -166.97923, y: 850, z: 67.57093}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1770552170}
   - {fileID: 53355883}
   m_Father: {fileID: 77495828}
-  m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
+  m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
 --- !u!114 &1823688469
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9060,7 +9061,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1823688464}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 618b0e3f6c65dd247a4a016150006c57, type: 3}
   m_Name: 
@@ -9083,17 +9084,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ArcGISMapsSDK::Esri.ArcGISMapsSDK.Components.ArcGISLocationComponent
   position:
-    X: -0.06
-    Y: 39.99
-    Z: 1000
+    X: -0.0665
+    Y: 39.9936
+    Z: 850
     SRWkid: 4326
     SpatialReference:
       WKID: 4326
       VerticalWKID: 0
     version: 1
   rotation:
-    Heading: 300
-    Pitch: 58
+    Heading: 0
+    Pitch: 0
     Roll: 0
   surfacePlacementMode: 0
   surfacePlacementOffset: 0
@@ -9132,15 +9133,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Esri.HPFramework::Esri.HPFramework.HPTransform
   m_IsInitialized: 1
   m_LocalPosition:
-    x: -6679.169447596414
-    y: 1000
-    z: 4864489.213147095
+    x: -7402.746137752693
+    y: 850
+    z: 4452067.186989866
   m_LocalRotation:
     value:
-      x: -0.23870896
-      y: 0.48063084
-      z: -0.13781868
-      w: -0.83247703
+      x: 0
+      y: 0
+      z: 0
+      w: 1
   m_LocalScale:
     x: 1
     y: 1
@@ -9189,6 +9190,37 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
+--- !u!114 &1823688474
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1823688464}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a38423f5b6b4f078a6cf91778b77021, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetCamera: {fileID: 1823688466}
+  cameraLocation: {fileID: 1823688470}
+  gpsTracker: {fileID: 2032301234}
+  recenterButton: {fileID: 0}
+  fallbackLatitude: 39.9936
+  fallbackLongitude: -0.0665
+  cameraAltitudeMeters: 850
+  cameraHeadingDegrees: 0
+  cameraPitchDegrees: 0
+  forceUnityTopDownRotation: 1
+  unityTopDownYawDegrees: 0
+  fieldOfView: 45
+  farClipPlane: 5000
+  boundsCenterLatitude: 39.9936
+  boundsCenterLongitude: -0.0665
+  boundsHalfSizeMeters: {x: 280, y: 280}
+  panSensitivity: 1
+  followGpsUntilManualPan: 1
+  createRecenterButtonOnStart: 1
 --- !u!1 &1834098073
 GameObject:
   m_ObjectHideFlags: 0
@@ -9972,13 +10004,16 @@ MonoBehaviour:
   surfacePlacementMode: 2
   surfaceOffsetMeters: 1.5
   markerColor: {r: 0.15, g: 0.48, b: 1, a: 1}
-  minMarkerScale: 4
-  maxMarkerScale: 30
-  distanceScaleFactor: 0.02
-  simulateLocationInEditor: 0
+  minMarkerScale: 10
+  maxMarkerScale: 45
+  distanceScaleFactor: 0.03
+  remoteMarkerColor: {r: 1, g: 0.62, b: 0.15, a: 1}
+  remoteMarkerScaleMultiplier: 1.15
+  simulateLocationInEditor: 1
   simulatedLatitude: 39.9936
   simulatedLongitude: -0.0665
   simulatedAltitude: 0
+  simulatedPlayerSpacingMeters: 6
 --- !u!114 &2032301235
 MonoBehaviour:
   m_ObjectHideFlags: 0

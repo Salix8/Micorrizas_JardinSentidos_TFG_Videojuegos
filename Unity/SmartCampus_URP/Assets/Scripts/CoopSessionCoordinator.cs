@@ -1,8 +1,8 @@
 using System;
+using SmartCampus.Coop;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using SmartCampus.Coop;
 
 [DisallowMultipleComponent]
 public sealed class CoopSessionCoordinator : NetworkBehaviour
@@ -23,6 +23,7 @@ public sealed class CoopSessionCoordinator : NetworkBehaviour
     private readonly NetworkVariable<CoopGamePhase> currentPhase = new(CoopGamePhase.Lobby);
     private readonly NetworkVariable<int> activeMiniGameIndex = new(-1);
     private readonly NetworkList<ulong> playerSlots = new();
+    private readonly NetworkList<CoopPlayerGpsState> playerGpsStates = new();
 
     public CoopGamePhase CurrentPhase => currentPhase.Value;
     public int ActiveMiniGameIndex => activeMiniGameIndex.Value;
@@ -31,9 +32,11 @@ public sealed class CoopSessionCoordinator : NetworkBehaviour
     public CoopSessionRules SessionRules => new(minPlayersToStart, maxPlayers);
     public int ConnectedPlayerCount => NetworkManager == null ? 0 : NetworkManager.ConnectedClientsIds.Count;
     public bool CanStartMainMap => IsServer && SessionRules.CanStart(ConnectedPlayerCount);
+    public int PlayerGpsStateCount => playerGpsStates.Count;
 
     public event Action<CoopGamePhase> PhaseChanged;
     public event Action SlotsChanged;
+    public event Action PlayerGpsStatesChanged;
 
     private void Awake()
     {
@@ -64,6 +67,7 @@ public sealed class CoopSessionCoordinator : NetworkBehaviour
 
         currentPhase.OnValueChanged += HandlePhaseChanged;
         playerSlots.OnListChanged += HandlePlayerSlotsChanged;
+        playerGpsStates.OnListChanged += HandlePlayerGpsStatesChanged;
 
         if (IsServer && NetworkManager != null)
         {
@@ -73,6 +77,7 @@ public sealed class CoopSessionCoordinator : NetworkBehaviour
         }
 
         SlotsChanged?.Invoke();
+        PlayerGpsStatesChanged?.Invoke();
         PhaseChanged?.Invoke(currentPhase.Value);
     }
 
@@ -80,6 +85,7 @@ public sealed class CoopSessionCoordinator : NetworkBehaviour
     {
         currentPhase.OnValueChanged -= HandlePhaseChanged;
         playerSlots.OnListChanged -= HandlePlayerSlotsChanged;
+        playerGpsStates.OnListChanged -= HandlePlayerGpsStatesChanged;
 
         if (IsServer && NetworkManager != null)
         {
@@ -211,14 +217,43 @@ public sealed class CoopSessionCoordinator : NetworkBehaviour
         return localSlot < 0 ? -1 : localSlot % channelCount;
     }
 
+    public bool TryGetPlayerGpsState(int index, out CoopPlayerGpsState playerGpsState)
+    {
+        if (index < 0 || index >= playerGpsStates.Count)
+        {
+            playerGpsState = default;
+            return false;
+        }
+
+        playerGpsState = playerGpsStates[index];
+        return true;
+    }
+
+    public void SubmitLocalPlayerGpsPosition(double latitude, double longitude, double altitude)
+    {
+        if (!IsSpawned || NetworkManager == null)
+        {
+            return;
+        }
+
+        if (IsServer)
+        {
+            UpsertPlayerGpsState(NetworkManager.LocalClientId, latitude, longitude, altitude, true);
+            return;
+        }
+
+        SubmitPlayerGpsPositionServerRpc(latitude, longitude, altitude);
+    }
+
     private void HandleClientConnected(ulong _)
     {
         RebuildPlayerSlots();
     }
 
-    private void HandleClientDisconnected(ulong _)
+    private void HandleClientDisconnected(ulong clientId)
     {
         RebuildPlayerSlots();
+        RemovePlayerGpsState(clientId);
     }
 
     private void RebuildPlayerSlots()
@@ -246,6 +281,66 @@ public sealed class CoopSessionCoordinator : NetworkBehaviour
         }
     }
 
+    [ServerRpc(RequireOwnership = false)]
+    private void SubmitPlayerGpsPositionServerRpc(
+        double latitude,
+        double longitude,
+        double altitude,
+        ServerRpcParams serverRpcParams = default)
+    {
+        UpsertPlayerGpsState(serverRpcParams.Receive.SenderClientId, latitude, longitude, altitude, true);
+    }
+
+    private void UpsertPlayerGpsState(
+        ulong clientId,
+        double latitude,
+        double longitude,
+        double altitude,
+        bool hasLocationFix)
+    {
+        if (!IsServer)
+        {
+            return;
+        }
+
+        var nextState = new CoopPlayerGpsState(clientId, latitude, longitude, altitude, hasLocationFix);
+        var existingIndex = FindPlayerGpsStateIndex(clientId);
+        if (existingIndex >= 0)
+        {
+            playerGpsStates[existingIndex] = nextState;
+            return;
+        }
+
+        playerGpsStates.Add(nextState);
+    }
+
+    private void RemovePlayerGpsState(ulong clientId)
+    {
+        if (!IsServer)
+        {
+            return;
+        }
+
+        var existingIndex = FindPlayerGpsStateIndex(clientId);
+        if (existingIndex >= 0)
+        {
+            playerGpsStates.RemoveAt(existingIndex);
+        }
+    }
+
+    private int FindPlayerGpsStateIndex(ulong clientId)
+    {
+        for (var index = 0; index < playerGpsStates.Count; index++)
+        {
+            if (playerGpsStates[index].ClientId == clientId)
+            {
+                return index;
+            }
+        }
+
+        return -1;
+    }
+
     private void LoadScene(string sceneName)
     {
         if (NetworkManager == null)
@@ -271,5 +366,52 @@ public sealed class CoopSessionCoordinator : NetworkBehaviour
     private void HandlePlayerSlotsChanged(NetworkListEvent<ulong> _)
     {
         SlotsChanged?.Invoke();
+    }
+
+    private void HandlePlayerGpsStatesChanged(NetworkListEvent<CoopPlayerGpsState> _)
+    {
+        PlayerGpsStatesChanged?.Invoke();
+    }
+}
+
+public struct CoopPlayerGpsState : INetworkSerializable, IEquatable<CoopPlayerGpsState>
+{
+    public ulong ClientId;
+    public double Latitude;
+    public double Longitude;
+    public double Altitude;
+    public bool HasLocationFix;
+
+    public CoopPlayerGpsState(
+        ulong clientId,
+        double latitude,
+        double longitude,
+        double altitude,
+        bool hasLocationFix)
+    {
+        ClientId = clientId;
+        Latitude = latitude;
+        Longitude = longitude;
+        Altitude = altitude;
+        HasLocationFix = hasLocationFix;
+    }
+
+    public void NetworkSerialize<T>(BufferSerializer<T> serializer)
+        where T : IReaderWriter
+    {
+        serializer.SerializeValue(ref ClientId);
+        serializer.SerializeValue(ref Latitude);
+        serializer.SerializeValue(ref Longitude);
+        serializer.SerializeValue(ref Altitude);
+        serializer.SerializeValue(ref HasLocationFix);
+    }
+
+    public bool Equals(CoopPlayerGpsState other)
+    {
+        return ClientId == other.ClientId &&
+               Latitude.Equals(other.Latitude) &&
+               Longitude.Equals(other.Longitude) &&
+               Altitude.Equals(other.Altitude) &&
+               HasLocationFix == other.HasLocationFix;
     }
 }
