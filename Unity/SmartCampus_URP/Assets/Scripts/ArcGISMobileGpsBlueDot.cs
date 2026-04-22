@@ -32,10 +32,12 @@ public class ArcGISMobileGpsBlueDot : MonoBehaviour
     [SerializeField] private float minMarkerScale = 10f;
     [SerializeField] private float maxMarkerScale = 45f;
     [SerializeField] private float distanceScaleFactor = 0.03f;
+    [SerializeField] private float markerVisualHeightOffset = 35f;
 
     [Header("Co-op Marker")]
     [SerializeField] private Color remoteMarkerColor = new(1f, 0.62f, 0.15f, 1f);
     [SerializeField] private float remoteMarkerScaleMultiplier = 1.15f;
+    [SerializeField] private float networkPublishIntervalSeconds = 0.5f;
 
 #if UNITY_EDITOR
     [Header("Editor Simulation")]
@@ -60,9 +62,12 @@ public class ArcGISMobileGpsBlueDot : MonoBehaviour
     private ArcGISPoint currentGeographicPosition;
     private Vector3 currentEnginePosition;
     private CoopSessionCoordinator coopSessionCoordinator;
+    private bool sessionCoordinatorEventsAttached;
+    private float nextNetworkPublishTime;
     private readonly Dictionary<ulong, RemoteMarkerView> remoteMarkers = new();
 #if UNITY_EDITOR
     private bool loggedEditorSimulation;
+    private bool wasUsingEditorSimulation;
 #endif
 
     public bool HasLocationFix => hasLocationFix;
@@ -75,6 +80,25 @@ public class ArcGISMobileGpsBlueDot : MonoBehaviour
     public float MinMarkerScale => minMarkerScale;
     public float MaxMarkerScale => maxMarkerScale;
     public float DistanceScaleFactor => distanceScaleFactor;
+    public float DesiredAccuracyInMeters => desiredAccuracyInMeters;
+    public float UpdateDistanceInMeters => updateDistanceInMeters;
+    public double LastLocationTimestamp => lastLocationTimestamp;
+    public LocationServiceStatus DeviceLocationStatus => Input.location.status;
+    public bool IsDeviceLocationEnabledByUser => Input.location.isEnabledByUser;
+    public bool IsMarkerVisible => markerRoot != null && markerRoot.activeInHierarchy;
+    public Vector3 MarkerRootWorldPosition => markerRoot != null ? markerRoot.transform.position : Vector3.zero;
+    public Vector3 MarkerVisualWorldPosition => markerVisual != null ? markerVisual.position : Vector3.zero;
+    public string ActiveLocationSource
+    {
+        get
+        {
+#if UNITY_EDITOR
+            return ShouldUseEditorSimulation() ? "Editor simulation" : "Device GPS";
+#else
+            return "Device GPS";
+#endif
+        }
+    }
 
     public event Action<ArcGISPoint, Vector3, LocationInfo> LocationUpdated;
 
@@ -96,8 +120,7 @@ public class ArcGISMobileGpsBlueDot : MonoBehaviour
 
     private void OnEnable()
     {
-        ResolveSessionCoordinatorIfNeeded();
-        AttachToSessionCoordinator();
+        ResolveAndAttachSessionCoordinatorIfNeeded();
 
         if (!startOnEnable || !Application.isPlaying)
         {
@@ -138,10 +161,11 @@ public class ArcGISMobileGpsBlueDot : MonoBehaviour
         }
 
         ResolveCameraIfNeeded();
-        ResolveSessionCoordinatorIfNeeded();
+        ResolveAndAttachSessionCoordinatorIfNeeded();
 
 #if UNITY_EDITOR
-        if (ShouldUseEditorSimulation())
+        var usingEditorSimulation = ShouldUseEditorSimulation();
+        if (usingEditorSimulation)
         {
             if (!loggedEditorSimulation)
             {
@@ -149,6 +173,7 @@ public class ArcGISMobileGpsBlueDot : MonoBehaviour
                 loggedEditorSimulation = true;
             }
 
+            wasUsingEditorSimulation = true;
             var simulatedPosition = GetEditorSimulationPosition();
             ApplyGeographicPosition(
                 simulatedPosition.latitude,
@@ -158,11 +183,23 @@ public class ArcGISMobileGpsBlueDot : MonoBehaviour
 
             return;
         }
+
+        if (wasUsingEditorSimulation)
+        {
+            wasUsingEditorSimulation = false;
+            loggedEditorSimulation = false;
+
+            if (startOnEnable && locationStartupCoroutine == null && Input.location.status != LocationServiceStatus.Running)
+            {
+                StartTracking();
+            }
+        }
 #endif
 
         PollDeviceLocation();
         RefreshCurrentEnginePosition();
         UpdateMarkerScale();
+        PublishLocalPositionToSessionCoordinator();
         RefreshRemoteMarkers();
     }
 
@@ -342,7 +379,7 @@ public class ArcGISMobileGpsBlueDot : MonoBehaviour
             var visual = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             visual.name = MarkerVisualName;
             visual.transform.SetParent(markerRoot.transform, false);
-            visual.transform.localPosition = Vector3.up * (minMarkerScale * 0.5f);
+            visual.transform.localPosition = GetMarkerVisualLocalPosition(minMarkerScale);
             visual.transform.localScale = Vector3.one * minMarkerScale;
 
             var collider = visual.GetComponent<Collider>();
@@ -381,8 +418,18 @@ public class ArcGISMobileGpsBlueDot : MonoBehaviour
 
         var cameraDistance = Vector3.Distance(targetCamera.transform.position, markerRoot.transform.position);
         var scale = Mathf.Clamp(cameraDistance * distanceScaleFactor, minMarkerScale, maxMarkerScale);
-        markerVisual.localPosition = Vector3.up * (scale * 0.5f);
+        markerVisual.localPosition = GetMarkerVisualLocalPosition(scale);
         markerVisual.localScale = Vector3.one * scale;
+    }
+
+    private void ResolveAndAttachSessionCoordinatorIfNeeded()
+    {
+        ResolveSessionCoordinatorIfNeeded();
+
+        if (!sessionCoordinatorEventsAttached)
+        {
+            AttachToSessionCoordinator();
+        }
     }
 
     private void ResolveSessionCoordinatorIfNeeded()
@@ -406,17 +453,20 @@ public class ArcGISMobileGpsBlueDot : MonoBehaviour
         coopSessionCoordinator.SlotsChanged -= HandlePlayerGpsStatesChanged;
         coopSessionCoordinator.PlayerGpsStatesChanged += HandlePlayerGpsStatesChanged;
         coopSessionCoordinator.SlotsChanged += HandlePlayerGpsStatesChanged;
+        sessionCoordinatorEventsAttached = true;
     }
 
     private void DetachFromSessionCoordinator()
     {
         if (coopSessionCoordinator == null)
         {
+            sessionCoordinatorEventsAttached = false;
             return;
         }
 
         coopSessionCoordinator.PlayerGpsStatesChanged -= HandlePlayerGpsStatesChanged;
         coopSessionCoordinator.SlotsChanged -= HandlePlayerGpsStatesChanged;
+        sessionCoordinatorEventsAttached = false;
     }
 
     private void HandlePlayerGpsStatesChanged()
@@ -426,17 +476,23 @@ public class ArcGISMobileGpsBlueDot : MonoBehaviour
 
     private void PublishLocalPositionToSessionCoordinator()
     {
-        if (!Application.isPlaying || !hasLocationFix)
+        if (!Application.isPlaying || !hasLocationFix || currentGeographicPosition == null)
         {
             return;
         }
 
-        ResolveSessionCoordinatorIfNeeded();
-        if (coopSessionCoordinator == null)
+        ResolveAndAttachSessionCoordinatorIfNeeded();
+        if (coopSessionCoordinator == null || !coopSessionCoordinator.IsSpawned)
         {
             return;
         }
 
+        if (Time.unscaledTime < nextNetworkPublishTime)
+        {
+            return;
+        }
+
+        nextNetworkPublishTime = Time.unscaledTime + Mathf.Max(0.05f, networkPublishIntervalSeconds);
         coopSessionCoordinator.SubmitLocalPlayerGpsPosition(
             currentGeographicPosition.Y,
             currentGeographicPosition.X,
@@ -573,8 +629,13 @@ public class ArcGISMobileGpsBlueDot : MonoBehaviour
 
         var cameraDistance = Vector3.Distance(targetCamera.transform.position, marker.Root.transform.position);
         var scale = Mathf.Clamp(cameraDistance * distanceScaleFactor, minMarkerScale, maxMarkerScale) * remoteMarkerScaleMultiplier;
-        marker.Visual.localPosition = Vector3.up * (scale * 0.5f);
+        marker.Visual.localPosition = GetMarkerVisualLocalPosition(scale);
         marker.Visual.localScale = Vector3.one * scale;
+    }
+
+    private Vector3 GetMarkerVisualLocalPosition(float scale)
+    {
+        return Vector3.up * (markerVisualHeightOffset + scale * 0.5f);
     }
 
     private void RemoveRemoteMarker(ulong clientId)
