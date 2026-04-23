@@ -3,6 +3,7 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using SmartCampus.Dialogue;
 
 namespace SmartCampus.Coop.Minigames
 {
@@ -14,12 +15,16 @@ namespace SmartCampus.Coop.Minigames
         [SerializeField] private Transform entryRoot;
         [SerializeField] private CoopMinigameLauncherEntryView entryTemplate;
         [SerializeField] private Text helperLabel;
+        [SerializeField] private DialogueSettingsConfig dialogueSettings;
+        [SerializeField] private DialogueUIController dialogueController;
 
         private readonly List<CoopMinigameLauncherEntryView> instantiatedEntries = new();
+        private CoopMinigameCatalogEntry pendingEntryAfterStoryDialogue;
 
         private void Awake()
         {
             ResolveCoordinator();
+            ResolveDialogueController();
         }
 
         private void OnEnable()
@@ -33,6 +38,11 @@ namespace SmartCampus.Coop.Minigames
                 coopSessionCoordinator.SlotsChanged += HandleSlotsChanged;
             }
 
+            if (dialogueController != null)
+            {
+                dialogueController.DialogueCompleted += HandleStoryDialogueCompleted;
+            }
+
             RefreshEntries();
         }
 
@@ -42,6 +52,11 @@ namespace SmartCampus.Coop.Minigames
             {
                 coopSessionCoordinator.PhaseChanged -= HandleCoordinatorPhaseChanged;
                 coopSessionCoordinator.SlotsChanged -= HandleSlotsChanged;
+            }
+
+            if (dialogueController != null)
+            {
+                dialogueController.DialogueCompleted -= HandleStoryDialogueCompleted;
             }
         }
 
@@ -58,6 +73,11 @@ namespace SmartCampus.Coop.Minigames
         private void ResolveCoordinator()
         {
             coopSessionCoordinator ??= FindFirstObjectByType<CoopSessionCoordinator>(FindObjectsInactive.Include);
+        }
+
+        private void ResolveDialogueController()
+        {
+            dialogueController ??= FindFirstObjectByType<DialogueUIController>(FindObjectsInactive.Include);
         }
 
         private void BuildEntries()
@@ -141,6 +161,57 @@ namespace SmartCampus.Coop.Minigames
         }
 
         private void LaunchMinigame(CoopMinigameCatalogEntry entry)
+        {
+            if (TryLaunchStoryDialogueBeforeMinigame(entry))
+            {
+                return;
+            }
+
+            LaunchMinigameImmediately(entry);
+        }
+
+        private bool TryLaunchStoryDialogueBeforeMinigame(CoopMinigameCatalogEntry entry)
+        {
+            if (entry == null ||
+                !entry.HasStoryDialogue ||
+                !DialogueSettingsConfig.AreStoryDialoguesEnabled(dialogueSettings))
+            {
+                return false;
+            }
+
+            ResolveDialogueController();
+            if (dialogueController == null)
+            {
+                Debug.LogWarning("El catalogo tiene un dialogo previo configurado, pero no hay DialogueUIController en la escena.", this);
+                return false;
+            }
+
+            pendingEntryAfterStoryDialogue = entry;
+            var started = entry.HasStoryDialogueLineIds
+                ? dialogueController.PlayLineIds(entry.StoryDialogueLineIds)
+                : dialogueController.PlayActOrLocation(entry.StoryDialogueActOrLocation);
+
+            if (!started)
+            {
+                pendingEntryAfterStoryDialogue = null;
+            }
+
+            return started;
+        }
+
+        private void HandleStoryDialogueCompleted()
+        {
+            if (pendingEntryAfterStoryDialogue == null)
+            {
+                return;
+            }
+
+            var entry = pendingEntryAfterStoryDialogue;
+            pendingEntryAfterStoryDialogue = null;
+            LaunchMinigameImmediately(entry);
+        }
+
+        private void LaunchMinigameImmediately(CoopMinigameCatalogEntry entry)
         {
             ResolveCoordinator();
 

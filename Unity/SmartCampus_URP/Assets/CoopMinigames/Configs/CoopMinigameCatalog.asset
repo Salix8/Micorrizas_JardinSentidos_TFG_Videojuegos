@@ -18,22 +18,37 @@ MonoBehaviour:
     description: Cada dispositivo decide con un gesto si una imagen pertenece o no
       al jardin. La puntuacion se comparte entre todo el grupo.
     sceneName: GardenImageVotingMinigame
+    storyDialogueActOrLocation: 
+    storyDialogueLineIds:
+    - DL_DEEPROOT_ACT1_01
+    - DL_DEEPROOT_ACT1_02
+    - DL_DEEPROOT_ACT1_03
+    - DL_DEEPROOT_SIGHT_01
+    - DL_DEEPROOT_SIGHT_02
   - minigameIndex: 2
     displayName: Minijuego 2 - Sonido y consenso
     description: Un dispositivo reproduce un sonido y el resto compara palabras diferentes
       para decidir en grupo cual debe pulsarse.
     sceneName: AudioWordConsensusMinigame
+    storyDialogueActOrLocation: Garden of Sound
+    storyDialogueLineIds: []
   - minigameIndex: 3
     displayName: Minijuego 3 - Adivina la planta
     description: Adivina una planta entre todos con historial compartido, autocompletado
       y pistas de atributos tipo Loldle.
     sceneName: CollaborativePlantGuessMinigame
+    storyDialogueActOrLocation: Garden of Touch
+    storyDialogueLineIds: []
   - minigameIndex: 4
     displayName: Minijuego 4 - Parejas distribuidas
     description: Minijuego cooperativo con informacion parcial repartida entre dispositivos.
     sceneName: DistributedPairsMinigame
+    storyDialogueActOrLocation: Garden of Taste
+    storyDialogueLineIds: []
   - minigameIndex: 5
     displayName: Minijuego 5 - Taxonomia del jardin del olfato
     description: Clasifica en grupo cada planta entre decoracion, alimentacion y
       curacion con feedback comun y nota compartida.
     sceneName: GardenSmellTaxonomyMinigame
+    storyDialogueActOrLocation: Garden of Smell
+    storyDialogueLineIds: []
