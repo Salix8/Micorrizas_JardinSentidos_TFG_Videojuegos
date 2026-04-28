@@ -5,7 +5,6 @@ using Esri.ArcGISMapsSDK.Utils.GeoCoord;
 using Esri.GameEngine.Geometry;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
@@ -16,14 +15,10 @@ using UnityEngine.InputSystem;
 public sealed class ArcGISTopDownCameraController : MonoBehaviour
 {
     private const double EarthRadiusMeters = 6378137.0;
-    private const string RuntimeCanvasName = "MapCameraControlsCanvas";
-    private const string RecenterButtonName = "RecenterLocationButton";
 
     [Header("References")]
     [SerializeField] private Camera targetCamera;
     [SerializeField] private ArcGISLocationComponent cameraLocation;
-    [SerializeField] private ArcGISMobileGpsBlueDot gpsTracker;
-    [SerializeField] private Button recenterButton;
 
     [Header("Top Down Camera")]
     [SerializeField] private double fallbackLatitude = 39.9936;
@@ -41,15 +36,9 @@ public sealed class ArcGISTopDownCameraController : MonoBehaviour
     [SerializeField] private double boundsCenterLongitude = -0.0665;
     [SerializeField] private Vector2 boundsHalfSizeMeters = new(280f, 280f);
     [SerializeField] private float panSensitivity = 1f;
-    [SerializeField] private bool followGpsUntilManualPan = true;
-    [SerializeField] private bool createRecenterButtonOnStart = true;
 
     private readonly List<RaycastResult> uiRaycastResults = new();
     private ArcGISSpatialReference wgs84;
-    private ArcGISPoint lastGpsPosition;
-    private bool hasGpsPosition;
-    private bool hasCenteredOnFirstGps;
-    private bool hasUserPanned;
     private bool isDragging;
     private int activePointerId;
     private Vector2 lastPointerPosition;
@@ -70,21 +59,6 @@ public sealed class ArcGISTopDownCameraController : MonoBehaviour
         UnityEngine.InputSystem.EnhancedTouch.EnhancedTouchSupport.Enable();
 #endif
         ResolveReferences();
-        AttachGpsTracker();
-        AttachRecenterButton();
-    }
-
-    private void OnDisable()
-    {
-        if (gpsTracker != null)
-        {
-            gpsTracker.LocationUpdated -= HandleGpsLocationUpdated;
-        }
-
-        if (recenterButton != null)
-        {
-            recenterButton.onClick.RemoveListener(CenterOnCurrentGps);
-        }
     }
 
     private void Update()
@@ -100,24 +74,8 @@ public sealed class ArcGISTopDownCameraController : MonoBehaviour
         HandlePanInput();
     }
 
-    public void CenterOnCurrentGps()
+    public void CenterOnDefaultPosition()
     {
-        hasUserPanned = false;
-
-        if (gpsTracker != null && gpsTracker.HasLocationFix)
-        {
-            CenterOnGpsPosition(gpsTracker.CurrentGeographicPosition);
-            hasCenteredOnFirstGps = true;
-            return;
-        }
-
-        if (hasGpsPosition)
-        {
-            CenterOnGpsPosition(lastGpsPosition);
-            hasCenteredOnFirstGps = true;
-            return;
-        }
-
         SetCameraPosition(fallbackLatitude, fallbackLongitude);
     }
 
@@ -132,66 +90,6 @@ public sealed class ArcGISTopDownCameraController : MonoBehaviour
         {
             cameraLocation = GetComponent<ArcGISLocationComponent>();
         }
-
-        if (gpsTracker == null)
-        {
-            gpsTracker = FindFirstObjectByType<ArcGISMobileGpsBlueDot>(FindObjectsInactive.Include);
-        }
-
-        if (recenterButton == null && createRecenterButtonOnStart && Application.isPlaying)
-        {
-            recenterButton = FindOrCreateRecenterButton();
-        }
-    }
-
-    private void AttachGpsTracker()
-    {
-        if (gpsTracker == null)
-        {
-            return;
-        }
-
-        gpsTracker.LocationUpdated -= HandleGpsLocationUpdated;
-        gpsTracker.LocationUpdated += HandleGpsLocationUpdated;
-
-        if (gpsTracker.HasLocationFix)
-        {
-            CenterOnGpsPosition(gpsTracker.CurrentGeographicPosition);
-            hasCenteredOnFirstGps = true;
-        }
-    }
-
-    private void AttachRecenterButton()
-    {
-        if (recenterButton == null)
-        {
-            return;
-        }
-
-        recenterButton.onClick.RemoveListener(CenterOnCurrentGps);
-        recenterButton.onClick.AddListener(CenterOnCurrentGps);
-    }
-
-    private void HandleGpsLocationUpdated(ArcGISPoint geographicPosition, Vector3 _, LocationInfo __)
-    {
-        hasGpsPosition = true;
-        lastGpsPosition = geographicPosition;
-
-        if (!hasCenteredOnFirstGps || (followGpsUntilManualPan && !hasUserPanned))
-        {
-            CenterOnGpsPosition(geographicPosition);
-            hasCenteredOnFirstGps = true;
-        }
-    }
-
-    private void CenterOnGpsPosition(ArcGISPoint geographicPosition)
-    {
-        if (geographicPosition == null)
-        {
-            return;
-        }
-
-        SetCameraPosition(geographicPosition.Y, geographicPosition.X);
     }
 
     private void HandlePanInput()
@@ -250,7 +148,6 @@ public sealed class ArcGISTopDownCameraController : MonoBehaviour
         currentOffset.y = Mathf.Clamp(currentOffset.y, -boundsHalfSizeMeters.y, boundsHalfSizeMeters.y);
 
         var clampedPosition = MetersOffsetToGeographic(currentOffset);
-        hasUserPanned = true;
         SetCameraPosition(clampedPosition.latitude, clampedPosition.longitude);
     }
 
@@ -336,81 +233,13 @@ public sealed class ArcGISTopDownCameraController : MonoBehaviour
 
         for (var index = 0; index < uiRaycastResults.Count; index++)
         {
-            if (uiRaycastResults[index].gameObject.GetComponentInParent<Selectable>() != null)
+            if (uiRaycastResults[index].gameObject.GetComponentInParent<UnityEngine.UI.Selectable>() != null)
             {
                 return true;
             }
         }
 
         return false;
-    }
-
-    private Button FindOrCreateRecenterButton()
-    {
-        var existingButton = GameObject.Find(RecenterButtonName);
-        if (existingButton != null && existingButton.TryGetComponent<Button>(out var existing))
-        {
-            return existing;
-        }
-
-        var canvas = FindOrCreateRuntimeCanvas();
-        var buttonObject = new GameObject(RecenterButtonName, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
-        buttonObject.transform.SetParent(canvas.transform, false);
-
-        var rectTransform = buttonObject.GetComponent<RectTransform>();
-        rectTransform.anchorMin = new Vector2(1f, 0f);
-        rectTransform.anchorMax = new Vector2(1f, 0f);
-        rectTransform.pivot = new Vector2(1f, 0f);
-        rectTransform.anchoredPosition = new Vector2(-36f, 36f);
-        rectTransform.sizeDelta = new Vector2(112f, 112f);
-
-        var image = buttonObject.GetComponent<Image>();
-        image.color = new Color(0.08f, 0.28f, 0.55f, 0.92f);
-
-        var button = buttonObject.GetComponent<Button>();
-        button.targetGraphic = image;
-        button.navigation = new Navigation { mode = Navigation.Mode.None };
-
-        var labelObject = new GameObject("Label", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text));
-        labelObject.transform.SetParent(buttonObject.transform, false);
-
-        var labelRect = labelObject.GetComponent<RectTransform>();
-        labelRect.anchorMin = Vector2.zero;
-        labelRect.anchorMax = Vector2.one;
-        labelRect.offsetMin = Vector2.zero;
-        labelRect.offsetMax = Vector2.zero;
-
-        var label = labelObject.GetComponent<Text>();
-        label.text = "GPS";
-        label.alignment = TextAnchor.MiddleCenter;
-        label.fontSize = 30;
-        label.fontStyle = FontStyle.Bold;
-        label.color = Color.white;
-        label.raycastTarget = false;
-        label.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-
-        return button;
-    }
-
-    private static Canvas FindOrCreateRuntimeCanvas()
-    {
-        var existingCanvas = GameObject.Find(RuntimeCanvasName);
-        if (existingCanvas != null && existingCanvas.TryGetComponent<Canvas>(out var canvas))
-        {
-            return canvas;
-        }
-
-        var canvasObject = new GameObject(RuntimeCanvasName, typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
-        canvas = canvasObject.GetComponent<Canvas>();
-        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-        canvas.sortingOrder = 500;
-
-        var canvasScaler = canvasObject.GetComponent<CanvasScaler>();
-        canvasScaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        canvasScaler.referenceResolution = new Vector2(1080f, 1920f);
-        canvasScaler.matchWidthOrHeight = 0.5f;
-
-        return canvas;
     }
 
     private bool TryGetPointerSample(out PointerSample sample)

@@ -3977,6 +3977,7 @@ GameObject:
   - component: {fileID: 1175332713}
   - component: {fileID: 1175332712}
   - component: {fileID: 1175332714}
+  - component: {fileID: 1175332715}
   m_Layer: 0
   m_Name: CoopSession
   m_TagString: Untagged
@@ -4050,6 +4051,19 @@ MonoBehaviour:
   - CollaborativePlantGuessMinigame
   - DistributedPairsMinigame
   - GardenSmellTaxonomyMinigame
+--- !u!114 &1175332715
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1175332711}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c49740d24204e2692cfcc5dcd41ba7f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!1 &1181732422
 GameObject:
   m_ObjectHideFlags: 0
