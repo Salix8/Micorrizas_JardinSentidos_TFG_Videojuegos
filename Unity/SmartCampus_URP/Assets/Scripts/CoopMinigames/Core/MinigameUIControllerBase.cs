@@ -1,4 +1,5 @@
 using UnityEngine;
+using TMPro;
 using UnityEngine.UI;
 
 namespace SmartCampus.Coop.Minigames
@@ -15,7 +16,7 @@ namespace SmartCampus.Coop.Minigames
         [SerializeField] private GameObject gameplayPanel;
 
         [Header("Labels")]
-        [SerializeField] private Text waitingStatusLabel;
+        [SerializeField] private TMP_Text waitingStatusLabel;
 
         protected CooperativeMinigameBase Session => minigameSession;
 

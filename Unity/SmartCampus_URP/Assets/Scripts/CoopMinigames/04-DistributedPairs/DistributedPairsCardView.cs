@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using TMPro;
 using UnityEngine.UI;
 
 namespace SmartCampus.Coop.Minigames.DistributedPairs
@@ -12,11 +13,11 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
         [SerializeField] private GameObject frontFaceRoot;
         [SerializeField] private Image frontFaceBackground;
         [SerializeField] private Image illustrationImage;
-        [SerializeField] private Text titleLabel;
-        [SerializeField] private Text descriptionLabel;
+        [SerializeField] private TMP_Text titleLabel;
+        [SerializeField] private TMP_Text descriptionLabel;
         [SerializeField] private GameObject backFaceRoot;
         [SerializeField] private Image backFaceBackground;
-        [SerializeField] private Text backFaceLabel;
+        [SerializeField] private TMP_Text backFaceLabel;
 
         private RectTransform cachedRectTransform;
 

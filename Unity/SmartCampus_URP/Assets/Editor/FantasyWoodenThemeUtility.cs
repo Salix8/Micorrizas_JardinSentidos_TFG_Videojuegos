@@ -6,6 +6,7 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using TMPro;
 
 internal static class FantasyWoodenThemeUtility
 {
@@ -99,7 +100,9 @@ internal static class FantasyWoodenThemeUtility
     {
         foreach (var image in canvas.GetComponentsInChildren<Image>(true))
         {
-            if (image.GetComponent<Button>() != null || image.GetComponent<InputField>() != null)
+            if (image.GetComponent<Button>() != null ||
+                image.GetComponent<InputField>() != null ||
+                image.GetComponent<TMP_InputField>() != null)
             {
                 continue;
             }
@@ -112,12 +115,22 @@ internal static class FantasyWoodenThemeUtility
             ApplyInputTheme(inputField);
         }
 
+        foreach (var inputField in canvas.GetComponentsInChildren<TMP_InputField>(true))
+        {
+            ApplyInputTheme(inputField);
+        }
+
         foreach (var button in canvas.GetComponentsInChildren<Button>(true))
         {
             ApplyButtonTheme(button);
         }
 
         foreach (var text in canvas.GetComponentsInChildren<Text>(true))
+        {
+            ApplyTextTheme(text);
+        }
+
+        foreach (var text in canvas.GetComponentsInChildren<TMP_Text>(true))
         {
             ApplyTextTheme(text);
         }
@@ -225,6 +238,33 @@ internal static class FantasyWoodenThemeUtility
         }
     }
 
+    private static void ApplyInputTheme(TMP_InputField inputField)
+    {
+        if (inputField == null)
+        {
+            return;
+        }
+
+        var image = inputField.GetComponent<Image>();
+        if (image != null)
+        {
+            ApplySlicedSprite(image, cachedAssets.SmallBoard, new Color(1f, 1f, 1f, 1f));
+        }
+
+        if (inputField.textComponent != null)
+        {
+            inputField.textComponent.color = new Color(0.23f, 0.14f, 0.08f, 1f);
+            inputField.textComponent.alignment = TextAlignmentOptions.Center;
+            ConfigureGraphicShadow(inputField.textComponent, new Color(0.93f, 0.87f, 0.74f, 0.45f), new Vector2(1f, -1f));
+        }
+
+        if (inputField.placeholder is TMP_Text placeholder)
+        {
+            placeholder.color = new Color(0.43f, 0.29f, 0.16f, 0.78f);
+            placeholder.alignment = TextAlignmentOptions.Center;
+        }
+    }
+
     private static void ApplyButtonTheme(Button button)
     {
         if (button == null)
@@ -306,6 +346,50 @@ internal static class FantasyWoodenThemeUtility
 
         text.color = new Color(0.25f, 0.15f, 0.08f, 1f);
         ConfigureTextShadow(text, new Color(0.96f, 0.9f, 0.8f, 0.35f), new Vector2(1f, -1f));
+    }
+
+    private static void ApplyTextTheme(TMP_Text text)
+    {
+        if (text == null)
+        {
+            return;
+        }
+
+        var objectName = text.gameObject.name;
+        var parentName = text.transform.parent != null ? text.transform.parent.name : string.Empty;
+
+        if (string.Equals(parentName, "DismissBackground", StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        if (string.Equals(objectName, "Label", StringComparison.OrdinalIgnoreCase) &&
+            text.GetComponentInParent<Button>(true) != null)
+        {
+            text.color = new Color(0.27f, 0.13f, 0.03f, 1f);
+            text.fontStyle = FontStyles.Bold;
+            ConfigureGraphicShadow(text, new Color(0.95f, 0.84f, 0.62f, 0.85f), new Vector2(1f, -1f));
+            return;
+        }
+
+        if (IsTitleLike(objectName))
+        {
+            text.color = new Color(0.33f, 0.18f, 0.07f, 1f);
+            text.fontStyle = FontStyles.Bold;
+            ConfigureGraphicShadow(text, new Color(0.98f, 0.92f, 0.78f, 0.9f), new Vector2(1f, -1f));
+            return;
+        }
+
+        if (IsImportantStatus(objectName))
+        {
+            text.color = new Color(0.29f, 0.16f, 0.07f, 1f);
+            text.fontStyle = FontStyles.Bold;
+            ConfigureGraphicShadow(text, new Color(0.94f, 0.88f, 0.75f, 0.55f), new Vector2(1f, -1f));
+            return;
+        }
+
+        text.color = new Color(0.25f, 0.15f, 0.08f, 1f);
+        ConfigureGraphicShadow(text, new Color(0.96f, 0.9f, 0.8f, 0.35f), new Vector2(1f, -1f));
     }
 
     private static ButtonStyle ResolveButtonStyle(string objectName)
@@ -426,10 +510,15 @@ internal static class FantasyWoodenThemeUtility
 
     private static void ConfigureTextShadow(Text text, Color color, Vector2 distance)
     {
-        var shadow = text.GetComponent<Shadow>();
+        ConfigureGraphicShadow(text, color, distance);
+    }
+
+    private static void ConfigureGraphicShadow(Graphic graphic, Color color, Vector2 distance)
+    {
+        var shadow = graphic.GetComponent<Shadow>();
         if (shadow == null)
         {
-            shadow = text.gameObject.AddComponent<Shadow>();
+            shadow = graphic.gameObject.AddComponent<Shadow>();
         }
 
         shadow.effectColor = color;

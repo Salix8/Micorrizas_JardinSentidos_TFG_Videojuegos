@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 using UnityEngine.UI;
 using SmartCampus.Coop.Minigames;
 
@@ -10,19 +11,19 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
     {
         [SerializeField] private AudioWordConsensusMinigameSession audioWordConsensusMinigameSession;
         [SerializeField] private AudioSource localAudioSource;
-        [SerializeField] private Text titleLabel;
-        [SerializeField] private Text roundLabel;
-        [SerializeField] private Text timerLabel;
-        [SerializeField] private Text scoreLabel;
-        [SerializeField] private Text statusLabel;
-        [SerializeField] private Text roleLabel;
-        [SerializeField] private Text localWordLabel;
+        [SerializeField] private TMP_Text titleLabel;
+        [SerializeField] private TMP_Text roundLabel;
+        [SerializeField] private TMP_Text timerLabel;
+        [SerializeField] private TMP_Text scoreLabel;
+        [SerializeField] private TMP_Text statusLabel;
+        [SerializeField] private TMP_Text roleLabel;
+        [SerializeField] private TMP_Text localWordLabel;
         [SerializeField] private Button playSoundButton;
-        [SerializeField] private Text playSoundButtonLabel;
+        [SerializeField] private TMP_Text playSoundButtonLabel;
         [SerializeField] private Transform wordOptionsContainer;
         [SerializeField] private Button wordOptionButtonTemplate;
         [SerializeField] private Button submitWordButton;
-        [SerializeField] private Text submitWordButtonLabel;
+        [SerializeField] private TMP_Text submitWordButtonLabel;
 
         private readonly List<Button> activeWordOptionButtons = new();
 
@@ -235,9 +236,9 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
             return wordOptionButtonTemplate;
         }
 
-        private static Text GetButtonLabel(Button button)
+        private static TMP_Text GetButtonLabel(Button button)
         {
-            return button == null ? null : button.GetComponentInChildren<Text>(true);
+            return button == null ? null : button.GetComponentInChildren<TMP_Text>(true);
         }
 
         private void ClearGeneratedWordOptionButtons()

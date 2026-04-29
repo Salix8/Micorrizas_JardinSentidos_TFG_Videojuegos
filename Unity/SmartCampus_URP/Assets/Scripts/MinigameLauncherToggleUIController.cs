@@ -1,4 +1,5 @@
 using UnityEngine;
+using TMPro;
 using UnityEngine.UI;
 
 [DisallowMultipleComponent]
@@ -7,7 +8,7 @@ public sealed class MinigameLauncherToggleUIController : MonoBehaviour
     [Header("References")]
     [SerializeField] private GameObject targetPanel;
     [SerializeField] private Button toggleButton;
-    [SerializeField] private Text toggleButtonLabel;
+    [SerializeField] private TMP_Text toggleButtonLabel;
 
     [Header("Labels")]
     [SerializeField] private string visibleStateLabel = "Ocultar\nminijuegos";
@@ -71,6 +72,12 @@ public sealed class MinigameLauncherToggleUIController : MonoBehaviour
             {
                 targetPanel = panel;
             }
+        }
+
+        toggleButton ??= GetComponentInChildren<Button>(true);
+        if (toggleButtonLabel == null && toggleButton != null)
+        {
+            toggleButtonLabel = toggleButton.GetComponentInChildren<TMP_Text>(true);
         }
     }
 }

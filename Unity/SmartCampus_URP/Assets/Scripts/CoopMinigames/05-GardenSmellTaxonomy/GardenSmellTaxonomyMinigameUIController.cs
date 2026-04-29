@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 using UnityEngine.UI;
 using SmartCampus.Coop.Minigames;
 
@@ -13,11 +14,11 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
         [SerializeField] private GardenSmellTaxonomyDropZoneView decorationDropZone;
         [SerializeField] private GardenSmellTaxonomyDropZoneView foodDropZone;
         [SerializeField] private GardenSmellTaxonomyDropZoneView healingDropZone;
-        [SerializeField] private Text titleLabel;
-        [SerializeField] private Text timerLabel;
-        [SerializeField] private Text progressLabel;
-        [SerializeField] private Text sharedScoreLabel;
-        [SerializeField] private Text statusLabel;
+        [SerializeField] private TMP_Text titleLabel;
+        [SerializeField] private TMP_Text timerLabel;
+        [SerializeField] private TMP_Text progressLabel;
+        [SerializeField] private TMP_Text sharedScoreLabel;
+        [SerializeField] private TMP_Text statusLabel;
 
         private readonly List<GardenSmellTaxonomyClassificationEntryNetworkState> decorationEntries = new();
         private readonly List<GardenSmellTaxonomyClassificationEntryNetworkState> foodEntries = new();

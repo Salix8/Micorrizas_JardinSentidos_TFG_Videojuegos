@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using TMPro;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
@@ -13,18 +14,18 @@ namespace SmartCampus.Coop.Minigames
         [SerializeField] private CoopMinigameCatalogConfig minigameCatalogConfig;
         [SerializeField] private Transform entryRoot;
         [SerializeField] private CoopMinigameLauncherEntryView entryTemplate;
-        [SerializeField] private Text helperLabel;
+        [SerializeField] private TMP_Text helperLabel;
 
         private readonly List<CoopMinigameLauncherEntryView> instantiatedEntries = new();
 
         private void Awake()
         {
-            ResolveCoordinator();
+            ResolveReferences();
         }
 
         private void OnEnable()
         {
-            ResolveCoordinator();
+            ResolveReferences();
             BuildEntries();
 
             if (coopSessionCoordinator != null)
@@ -47,21 +48,35 @@ namespace SmartCampus.Coop.Minigames
 
         private void HandleCoordinatorPhaseChanged(CoopGamePhase _)
         {
+            ResolveReferences();
             RefreshEntries();
         }
 
         private void HandleSlotsChanged()
         {
+            ResolveReferences();
             RefreshEntries();
         }
 
-        private void ResolveCoordinator()
+        private void ResolveReferences()
         {
             coopSessionCoordinator ??= FindFirstObjectByType<CoopSessionCoordinator>(FindObjectsInactive.Include);
+            helperLabel ??= transform.Find("HelperLabel")?.GetComponent<TMP_Text>();
+
+            if (entryRoot == null)
+            {
+                entryRoot = transform.Find("EntriesScrollView/Viewport/EntriesContent");
+            }
+
+            if (entryTemplate == null && entryRoot != null)
+            {
+                entryTemplate = entryRoot.GetComponentInChildren<CoopMinigameLauncherEntryView>(true);
+            }
         }
 
         private void BuildEntries()
         {
+            ResolveReferences();
             if (entryRoot == null || entryTemplate == null || minigameCatalogConfig == null)
             {
                 return;
@@ -105,7 +120,7 @@ namespace SmartCampus.Coop.Minigames
 
         private void RefreshEntries()
         {
-            ResolveCoordinator();
+            ResolveReferences();
 
             if (minigameCatalogConfig == null)
             {
@@ -142,7 +157,7 @@ namespace SmartCampus.Coop.Minigames
 
         private void LaunchMinigame(CoopMinigameCatalogEntry entry)
         {
-            ResolveCoordinator();
+            ResolveReferences();
 
             if (coopSessionCoordinator != null && coopSessionCoordinator.IsSpawned && coopSessionCoordinator.IsServer)
             {

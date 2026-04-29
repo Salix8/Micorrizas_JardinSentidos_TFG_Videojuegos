@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Serialization;
+using TMPro;
 using UnityEngine.UI;
 using SmartCampus.Coop.Minigames;
 
@@ -8,22 +9,22 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
     [DisallowMultipleComponent]
     public sealed class CollaborativePlantGuessHistoryRowView : MonoBehaviour
     {
-        [SerializeField] private Text guessedByLabel;
-        [SerializeField] private Text plantNameLabel;
+        [SerializeField] private TMP_Text guessedByLabel;
+        [SerializeField] private TMP_Text plantNameLabel;
         [SerializeField] private Image plantImage;
         [SerializeField] private GameObject plantImagePlaceholder;
         [SerializeField] [FormerlySerializedAs("leafPersistenceCell")] private Image plantTypeCell;
-        [SerializeField] [FormerlySerializedAs("leafPersistenceLabel")] private Text plantTypeLabel;
+        [SerializeField] [FormerlySerializedAs("leafPersistenceLabel")] private TMP_Text plantTypeLabel;
         [SerializeField] [FormerlySerializedAs("leafSizeCell")] private Image surfaceRoughnessCell;
-        [SerializeField] [FormerlySerializedAs("leafSizeLabel")] private Text surfaceRoughnessLabel;
+        [SerializeField] [FormerlySerializedAs("leafSizeLabel")] private TMP_Text surfaceRoughnessLabel;
         [SerializeField] private Image leafPersistenceCell;
-        [SerializeField] private Text leafPersistenceLabel;
+        [SerializeField] private TMP_Text leafPersistenceLabel;
         [SerializeField] [FormerlySerializedAs("leafTextureCell")] private Image leafTypeCell;
-        [SerializeField] [FormerlySerializedAs("leafTextureLabel")] private Text leafTypeLabel;
+        [SerializeField] [FormerlySerializedAs("leafTextureLabel")] private TMP_Text leafTypeLabel;
         [SerializeField] private Image fruitCategoryCell;
-        [SerializeField] private Text fruitCategoryLabel;
+        [SerializeField] private TMP_Text fruitCategoryLabel;
         [SerializeField] private Image fruitTypeCell;
-        [SerializeField] private Text fruitTypeLabel;
+        [SerializeField] private TMP_Text fruitTypeLabel;
 
         private bool responsiveLayoutConfigured;
         private Coroutine imageLoadingCoroutine;
@@ -62,7 +63,7 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
 
         private void BindCell(
             Image cellImage,
-            Text label,
+            TMP_Text label,
             string header,
             string value,
             CollaborativePlantGuessComparisonOutcome outcome,
@@ -280,17 +281,17 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             ConfigureCellValueLabel(ResolveValueLabel(cellImage));
         }
 
-        private static void ConfigureCellHeader(Text headerLabel)
+        private static void ConfigureCellHeader(TMP_Text headerLabel)
         {
             if (headerLabel == null)
             {
                 return;
             }
 
-            headerLabel.alignment = TextAnchor.UpperCenter;
-            headerLabel.horizontalOverflow = HorizontalWrapMode.Wrap;
-            headerLabel.verticalOverflow = VerticalWrapMode.Overflow;
-            headerLabel.resizeTextForBestFit = false;
+            headerLabel.alignment = TextAlignmentOptions.Top;
+            headerLabel.enableWordWrapping = true;
+            headerLabel.overflowMode = TextOverflowModes.Overflow;
+            headerLabel.enableAutoSizing = false;
 
             var layoutElement = headerLabel.GetComponent<LayoutElement>();
             if (layoutElement == null)
@@ -302,18 +303,18 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             layoutElement.preferredHeight = -1f;
         }
 
-        private static void ConfigureCellValueLabel(Text valueLabel)
+        private static void ConfigureCellValueLabel(TMP_Text valueLabel)
         {
             if (valueLabel == null)
             {
                 return;
             }
 
-            valueLabel.alignment = TextAnchor.UpperCenter;
-            valueLabel.horizontalOverflow = HorizontalWrapMode.Wrap;
-            valueLabel.verticalOverflow = VerticalWrapMode.Overflow;
-            valueLabel.resizeTextForBestFit = false;
-            valueLabel.supportRichText = true;
+            valueLabel.alignment = TextAlignmentOptions.Top;
+            valueLabel.enableWordWrapping = true;
+            valueLabel.overflowMode = TextOverflowModes.Overflow;
+            valueLabel.enableAutoSizing = false;
+            valueLabel.richText = true;
 
             var layoutElement = valueLabel.GetComponent<LayoutElement>();
             if (layoutElement == null)
@@ -326,17 +327,17 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             layoutElement.flexibleHeight = 0f;
         }
 
-        private static void ConfigureInfoText(Text label, TextAnchor alignment, int maxLines)
+        private static void ConfigureInfoText(TMP_Text label, TextAnchor alignment, int maxLines)
         {
             if (label == null)
             {
                 return;
             }
 
-            label.alignment = alignment;
-            label.horizontalOverflow = HorizontalWrapMode.Wrap;
-            label.verticalOverflow = VerticalWrapMode.Overflow;
-            label.resizeTextForBestFit = false;
+            label.alignment = ConvertAlignment(alignment);
+            label.enableWordWrapping = true;
+            label.overflowMode = TextOverflowModes.Overflow;
+            label.enableAutoSizing = false;
 
             var layoutElement = label.GetComponent<LayoutElement>();
             if (layoutElement == null)
@@ -356,7 +357,7 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             }
         }
 
-        private static Text ResolveHeaderLabel(Image cellImage)
+        private static TMP_Text ResolveHeaderLabel(Image cellImage)
         {
             if (cellImage == null)
             {
@@ -364,10 +365,10 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             }
 
             var headerTransform = cellImage.transform.Find("HeaderLabel");
-            return headerTransform == null ? null : headerTransform.GetComponent<Text>();
+            return headerTransform == null ? null : headerTransform.GetComponent<TMP_Text>();
         }
 
-        private static Text ResolveValueLabel(Image cellImage)
+        private static TMP_Text ResolveValueLabel(Image cellImage)
         {
             if (cellImage == null)
             {
@@ -375,7 +376,7 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             }
 
             var valueTransform = cellImage.transform.Find("ValueLabel");
-            return valueTransform == null ? null : valueTransform.GetComponent<Text>();
+            return valueTransform == null ? null : valueTransform.GetComponent<TMP_Text>();
         }
 
         private Transform ResolveComparisonsRow()
@@ -489,25 +490,44 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             var cellObject = new GameObject(objectName, typeof(RectTransform), typeof(Image), typeof(VerticalLayoutGroup));
             cellObject.transform.SetParent(parent, false);
 
-            var headerObject = new GameObject("HeaderLabel", typeof(RectTransform), typeof(Text));
+            var headerObject = new GameObject("HeaderLabel", typeof(RectTransform), typeof(TextMeshProUGUI));
             headerObject.transform.SetParent(cellObject.transform, false);
-            var headerLabel = headerObject.GetComponent<Text>();
-            headerLabel.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            var headerLabel = headerObject.GetComponent<TextMeshProUGUI>();
             headerLabel.fontSize = 15;
-            headerLabel.alignment = TextAnchor.UpperCenter;
+            headerLabel.alignment = TextAlignmentOptions.Top;
             headerLabel.color = new Color(0.16f, 0.2f, 0.18f, 1f);
+            headerLabel.enableWordWrapping = true;
+            headerLabel.overflowMode = TextOverflowModes.Overflow;
             headerLabel.text = headerText;
 
-            var valueObject = new GameObject("ValueLabel", typeof(RectTransform), typeof(Text));
+            var valueObject = new GameObject("ValueLabel", typeof(RectTransform), typeof(TextMeshProUGUI));
             valueObject.transform.SetParent(cellObject.transform, false);
-            var valueLabel = valueObject.GetComponent<Text>();
-            valueLabel.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            var valueLabel = valueObject.GetComponent<TextMeshProUGUI>();
             valueLabel.fontSize = 17;
-            valueLabel.alignment = TextAnchor.UpperCenter;
+            valueLabel.alignment = TextAlignmentOptions.Top;
             valueLabel.color = new Color(0.1f, 0.12f, 0.11f, 1f);
+            valueLabel.enableWordWrapping = true;
+            valueLabel.overflowMode = TextOverflowModes.Overflow;
             valueLabel.text = CollaborativePlantGuessHintProgressionService.LockedValue;
 
             return cellObject.GetComponent<Image>();
+        }
+
+        private static TextAlignmentOptions ConvertAlignment(TextAnchor alignment)
+        {
+            return alignment switch
+            {
+                TextAnchor.UpperLeft => TextAlignmentOptions.TopLeft,
+                TextAnchor.UpperCenter => TextAlignmentOptions.Top,
+                TextAnchor.UpperRight => TextAlignmentOptions.TopRight,
+                TextAnchor.MiddleLeft => TextAlignmentOptions.Left,
+                TextAnchor.MiddleCenter => TextAlignmentOptions.Center,
+                TextAnchor.MiddleRight => TextAlignmentOptions.Right,
+                TextAnchor.LowerLeft => TextAlignmentOptions.BottomLeft,
+                TextAnchor.LowerCenter => TextAlignmentOptions.Bottom,
+                TextAnchor.LowerRight => TextAlignmentOptions.BottomRight,
+                _ => TextAlignmentOptions.TopLeft
+            };
         }
 
         private void BindPlantImage(CollaborativePlantGuessPlantDefinition plantDefinition)

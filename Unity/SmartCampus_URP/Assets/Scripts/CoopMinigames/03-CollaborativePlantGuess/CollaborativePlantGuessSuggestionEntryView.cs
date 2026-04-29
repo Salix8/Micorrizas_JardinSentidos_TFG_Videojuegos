@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using TMPro;
 using UnityEngine.UI;
 
 namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
@@ -8,7 +9,7 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
     public sealed class CollaborativePlantGuessSuggestionEntryView : MonoBehaviour
     {
         [SerializeField] private Button selectionButton;
-        [SerializeField] private Text titleLabel;
+        [SerializeField] private TMP_Text titleLabel;
 
         public void Bind(string displayName, Action onSelected)
         {

@@ -3,6 +3,7 @@ using UnityEditor;
 using UnityEditor.Events;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using TMPro;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using SmartCampus.Coop;
@@ -236,7 +237,7 @@ public static class LobbySceneUiSetup
         return hostButton;
     }
 
-    private static (InputField inputField, Button joinButton) BuildJoinPanel(Transform parent, MultiplayerMenuController controller, Font font)
+    private static (TMP_InputField inputField, Button joinButton) BuildJoinPanel(Transform parent, MultiplayerMenuController controller, Font font)
     {
         CreateSectionTitle("JoinTitle", parent, font, "Unirse a sesion");
         CreateBodyText("JoinInfo", parent, font, "Introduce el codigo del host. El campo queda visible en jerarquia para que puedas retocar placeholder, margenes y estilo.");
@@ -252,7 +253,7 @@ public static class LobbySceneUiSetup
         return (inputField, joinButton);
     }
 
-    private static (Text statusLabel, Text joinCodeLabel, Text playerCountLabel, Text requirementsLabel, Button startMatchButton, Button leaveSessionButton, Button copyJoinCodeButton) BuildSessionPanel(Transform parent, MultiplayerMenuController controller, Font font)
+    private static (TMP_Text statusLabel, TMP_Text joinCodeLabel, TMP_Text playerCountLabel, TMP_Text requirementsLabel, Button startMatchButton, Button leaveSessionButton, Button copyJoinCodeButton) BuildSessionPanel(Transform parent, MultiplayerMenuController controller, Font font)
     {
         CreateSectionTitle("SessionTitle", parent, font, "Estado del lobby");
         var statusLabel = CreateBodyText("StatusLabel", parent, font, "Esperando a que el host cree o abra la sala.");
@@ -286,11 +287,11 @@ public static class LobbySceneUiSetup
         GameObject hostPanel,
         GameObject joinPanel,
         GameObject sessionPanel,
-        InputField joinCodeInput,
-        Text statusLabel,
-        Text joinCodeLabel,
-        Text playerCountLabel,
-        Text requirementsLabel,
+        TMP_InputField joinCodeInput,
+        TMP_Text statusLabel,
+        TMP_Text joinCodeLabel,
+        TMP_Text playerCountLabel,
+        TMP_Text requirementsLabel,
         Button hostButton,
         Button joinButton,
         Button startMatchButton,
@@ -353,7 +354,7 @@ public static class LobbySceneUiSetup
         var constrainedWidth = CreateUiObject("ConstrainedWidth", frame.transform, typeof(LayoutElement));
         var constrainedLayout = constrainedWidth.GetComponent<LayoutElement>();
         constrainedLayout.preferredWidth = preferredWidth;
-        constrainedLayout.minWidth = preferredWidth;
+        constrainedLayout.minWidth = Mathf.Min(preferredWidth, 240f);
         constrainedLayout.flexibleWidth = 1f;
         constrainedLayout.layoutPriority = 1;
         constrainedWidth.GetComponent<RectTransform>().sizeDelta = new Vector2(maxWidth, 0f);
@@ -385,7 +386,7 @@ public static class LobbySceneUiSetup
         return contentRoot;
     }
 
-    private static Text CreateSectionTitle(string name, Transform parent, Font font, string value)
+    private static TMP_Text CreateSectionTitle(string name, Transform parent, Font font, string value)
     {
         var title = CreateText(name, parent, font, value, 28, TextAnchor.MiddleCenter, Color.white);
         ConfigureAutoSizedText(title, 18, 28);
@@ -393,7 +394,7 @@ public static class LobbySceneUiSetup
         return title;
     }
 
-    private static Text CreateBodyText(string name, Transform parent, Font font, string value)
+    private static TMP_Text CreateBodyText(string name, Transform parent, Font font, string value)
     {
         var text = CreateText(name, parent, font, value, 20, TextAnchor.UpperLeft, new Color(0.9f, 0.93f, 0.97f, 1f));
         ConfigureAutoSizedText(text, 14, 20);
@@ -401,7 +402,7 @@ public static class LobbySceneUiSetup
         return text;
     }
 
-    private static Text CreateValueLabel(string name, Transform parent, Font font, string value)
+    private static TMP_Text CreateValueLabel(string name, Transform parent, Font font, string value)
     {
         var text = CreateText(name, parent, font, value, 20, TextAnchor.MiddleLeft, Color.white);
         ConfigureAutoSizedText(text, 14, 20);
@@ -411,7 +412,7 @@ public static class LobbySceneUiSetup
 
     private static Button CreateActionButton(string name, Transform parent, Font font, string label)
     {
-        var buttonFrame = CreateCenteredWidthFrame($"{name}Frame", parent, 320f, 400f);
+        var buttonFrame = CreateCenteredWidthFrame($"{name}Frame", parent, 280f, 360f);
         var button = CreateButton(name, buttonFrame.transform, font, label, new Color(0.24f, 0.41f, 0.69f, 1f));
         button.gameObject.AddComponent<LayoutElement>().preferredHeight = 64f;
         return button;
@@ -419,7 +420,7 @@ public static class LobbySceneUiSetup
 
     private static Button CreateSecondaryButton(string name, Transform parent, Font font, string label)
     {
-        var buttonFrame = CreateCenteredWidthFrame($"{name}Frame", parent, 320f, 400f);
+        var buttonFrame = CreateCenteredWidthFrame($"{name}Frame", parent, 280f, 360f);
         var button = CreateButton(name, buttonFrame.transform, font, label, new Color(0.22f, 0.29f, 0.36f, 1f));
         button.gameObject.AddComponent<LayoutElement>().preferredHeight = 60f;
         return button;
@@ -446,9 +447,9 @@ public static class LobbySceneUiSetup
         return button;
     }
 
-    private static InputField CreateInputField(string name, Transform parent, Font font, string placeholderValue)
+    private static TMP_InputField CreateInputField(string name, Transform parent, Font font, string placeholderValue)
     {
-        var inputObject = CreateUiObject(name, parent, typeof(Image), typeof(InputField));
+        var inputObject = CreateUiObject(name, parent, typeof(Image), typeof(TMP_InputField));
         var image = inputObject.GetComponent<Image>();
         image.color = new Color(0.95f, 0.96f, 0.98f, 1f);
 
@@ -459,33 +460,49 @@ public static class LobbySceneUiSetup
         Stretch(textComponent.rectTransform, new Vector2(18f, 10f), new Vector2(-18f, -10f));
         Stretch(placeholderComponent.rectTransform, new Vector2(18f, 10f), new Vector2(-18f, -10f));
 
-        var inputField = inputObject.GetComponent<InputField>();
+        var inputField = inputObject.GetComponent<TMP_InputField>();
         inputField.textComponent = textComponent;
         inputField.placeholder = placeholderComponent;
         inputField.characterLimit = 12;
-        inputField.lineType = InputField.LineType.SingleLine;
+        inputField.lineType = TMP_InputField.LineType.SingleLine;
         return inputField;
     }
 
-    private static Text CreateText(string name, Transform parent, Font font, string value, int fontSize, TextAnchor alignment, Color color)
+    private static TMP_Text CreateText(string name, Transform parent, Font font, string value, int fontSize, TextAnchor alignment, Color color)
     {
-        var textObject = CreateUiObject(name, parent, typeof(Text));
-        var text = textObject.GetComponent<Text>();
-        text.font = font;
+        var textObject = CreateUiObject(name, parent, typeof(TextMeshProUGUI));
+        var text = textObject.GetComponent<TextMeshProUGUI>();
         text.text = value;
         text.fontSize = fontSize;
-        text.alignment = alignment;
+        text.alignment = ConvertAlignment(alignment);
         text.color = color;
-        text.horizontalOverflow = HorizontalWrapMode.Wrap;
-        text.verticalOverflow = VerticalWrapMode.Overflow;
+        text.enableWordWrapping = true;
+        text.overflowMode = TextOverflowModes.Overflow;
         return text;
     }
 
-    private static void ConfigureAutoSizedText(Text text, int minSize, int maxSize)
+    private static void ConfigureAutoSizedText(TMP_Text text, int minSize, int maxSize)
     {
-        text.resizeTextForBestFit = true;
-        text.resizeTextMinSize = minSize;
-        text.resizeTextMaxSize = maxSize;
+        text.enableAutoSizing = true;
+        text.fontSizeMin = minSize;
+        text.fontSizeMax = maxSize;
+    }
+
+    private static TextAlignmentOptions ConvertAlignment(TextAnchor alignment)
+    {
+        return alignment switch
+        {
+            TextAnchor.UpperLeft => TextAlignmentOptions.TopLeft,
+            TextAnchor.UpperCenter => TextAlignmentOptions.Top,
+            TextAnchor.MiddleLeft => TextAlignmentOptions.Left,
+            TextAnchor.MiddleCenter => TextAlignmentOptions.Center,
+            TextAnchor.UpperRight => TextAlignmentOptions.TopRight,
+            TextAnchor.MiddleRight => TextAlignmentOptions.Right,
+            TextAnchor.LowerLeft => TextAlignmentOptions.BottomLeft,
+            TextAnchor.LowerCenter => TextAlignmentOptions.Bottom,
+            TextAnchor.LowerRight => TextAlignmentOptions.BottomRight,
+            _ => TextAlignmentOptions.TopLeft
+        };
     }
 
     private static GameObject CreatePanel(string name, Transform parent, Color color)

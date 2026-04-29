@@ -1,4 +1,5 @@
 using UnityEngine;
+using TMPro;
 using UnityEngine.UI;
 
 namespace SmartCampus.Coop.Minigames
@@ -6,16 +7,18 @@ namespace SmartCampus.Coop.Minigames
     [DisallowMultipleComponent]
     public sealed class CoopMinigameLauncherEntryView : MonoBehaviour
     {
-        [SerializeField] private Text titleLabel;
-        [SerializeField] private Text descriptionLabel;
+        [SerializeField] private TMP_Text titleLabel;
+        [SerializeField] private TMP_Text descriptionLabel;
         [SerializeField] private Button launchButton;
-        [SerializeField] private Text buttonLabel;
+        [SerializeField] private TMP_Text buttonLabel;
         [SerializeField] private bool preserveSceneTitleText;
         [SerializeField] private bool preserveSceneDescriptionText;
         [SerializeField] private bool preserveSceneButtonText;
 
         public void Bind(string displayName, string description, bool isInteractable, UnityEngine.Events.UnityAction onClick)
         {
+            ResolveReferences();
+
             if (titleLabel != null)
             {
                 if (!preserveSceneTitleText || string.IsNullOrWhiteSpace(titleLabel.text))
@@ -36,7 +39,7 @@ namespace SmartCampus.Coop.Minigames
 
             if (launchButton != null)
             {
-                buttonLabel ??= launchButton.GetComponentInChildren<Text>(true);
+                buttonLabel ??= launchButton.GetComponentInChildren<TMP_Text>(true);
                 if (buttonLabel != null && (!preserveSceneButtonText || string.IsNullOrWhiteSpace(buttonLabel.text)))
                 {
                     buttonLabel.text = "Abrir";
@@ -63,7 +66,8 @@ namespace SmartCampus.Coop.Minigames
 
         public void ConfigureForSceneAuthoredPresentation(string displayName, string description, string buttonText)
         {
-            buttonLabel ??= launchButton != null ? launchButton.GetComponentInChildren<Text>(true) : null;
+            ResolveReferences();
+            buttonLabel ??= launchButton != null ? launchButton.GetComponentInChildren<TMP_Text>(true) : null;
             preserveSceneTitleText = true;
             preserveSceneDescriptionText = true;
             preserveSceneButtonText = true;
@@ -82,6 +86,14 @@ namespace SmartCampus.Coop.Minigames
             {
                 buttonLabel.text = buttonText;
             }
+        }
+
+        private void ResolveReferences()
+        {
+            titleLabel ??= transform.Find("TitleLabel")?.GetComponent<TMP_Text>();
+            descriptionLabel ??= transform.Find("DescriptionLabel")?.GetComponent<TMP_Text>();
+            launchButton ??= transform.Find("LaunchButton")?.GetComponent<Button>();
+            buttonLabel ??= launchButton != null ? launchButton.GetComponentInChildren<TMP_Text>(true) : null;
         }
     }
 }

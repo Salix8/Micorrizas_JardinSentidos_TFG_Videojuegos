@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using TMPro;
 using UnityEngine.UI;
 
 namespace SmartCampus.Coop.Minigames
@@ -8,14 +9,14 @@ namespace SmartCampus.Coop.Minigames
     public sealed class MinigameResultView : MonoBehaviour
     {
         [Header("Labels")]
-        [SerializeField] private Text titleLabel;
-        [SerializeField] private Text scoreLabel;
-        [SerializeField] private Text summaryLabel;
+        [SerializeField] private TMP_Text titleLabel;
+        [SerializeField] private TMP_Text scoreLabel;
+        [SerializeField] private TMP_Text summaryLabel;
 
         [Header("Buttons")]
         [SerializeField] private Button returnButton;
-        [SerializeField] private Text returnButtonLabel;
-        [SerializeField] private Text waitingHostLabel;
+        [SerializeField] private TMP_Text returnButtonLabel;
+        [SerializeField] private TMP_Text waitingHostLabel;
 
         [Header("Summary Formatting")]
         [SerializeField] private string successfulActionsLabel = "Aciertos";

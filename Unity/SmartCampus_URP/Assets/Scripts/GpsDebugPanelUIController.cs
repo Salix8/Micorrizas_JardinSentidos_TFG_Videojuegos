@@ -1,6 +1,7 @@
 using System.Text;
 using Unity.Netcode;
 using UnityEngine;
+using TMPro;
 using UnityEngine.UI;
 
 [DisallowMultipleComponent]
@@ -10,10 +11,10 @@ public sealed class GpsDebugPanelUIController : MonoBehaviour
     [SerializeField] private DeviceGpsService deviceGpsService;
     [SerializeField] private CoopGpsStateSync gpsStateSync;
     [SerializeField] private CoopSessionCoordinator coopSessionCoordinator;
-    [SerializeField] private Text summaryText;
-    [SerializeField] private Text detailsText;
+    [SerializeField] private TMP_Text summaryText;
+    [SerializeField] private TMP_Text detailsText;
     [SerializeField] private Button detailsToggleButton;
-    [SerializeField] private Text detailsToggleLabel;
+    [SerializeField] private TMP_Text detailsToggleLabel;
 
     [Header("Labels")]
     [SerializeField] private string showDetailsLabel = "Mas info";
@@ -230,5 +231,97 @@ private void RefreshUi(bool forceConsoleLog)
         deviceGpsService ??= FindFirstObjectByType<DeviceGpsService>(FindObjectsInactive.Include);
         gpsStateSync ??= FindFirstObjectByType<CoopGpsStateSync>(FindObjectsInactive.Include);
         coopSessionCoordinator ??= FindFirstObjectByType<CoopSessionCoordinator>(FindObjectsInactive.Include);
+        summaryText ??= FindOrCreateTextByName("SummaryText", 18f, TextAlignmentOptions.TopLeft);
+        detailsText ??= FindOrCreateTextByName("DetailsText", 18f, TextAlignmentOptions.TopLeft);
+        detailsToggleButton ??= FindComponentInChild<Button>("DetailsToggleButton");
+
+        if (detailsToggleLabel == null)
+        {
+            var toggleTransform = FindChildRecursive(transform, "DetailsToggleButton");
+            if (toggleTransform != null)
+            {
+                var labelTransform = FindChildRecursive(toggleTransform, "Label");
+                if (labelTransform != null)
+                {
+                    detailsToggleLabel = EnsureTextComponent(
+                        labelTransform.gameObject,
+                        18f,
+                        TextAlignmentOptions.Center);
+                }
+                else
+                {
+                    detailsToggleLabel = toggleTransform.GetComponentInChildren<TMP_Text>(true);
+                }
+            }
+        }
+    }
+
+    private TMP_Text FindOrCreateTextByName(
+        string childName,
+        float fontSize,
+        TextAlignmentOptions alignment)
+    {
+        var child = FindChildRecursive(transform, childName);
+        return child != null
+            ? EnsureTextComponent(child.gameObject, fontSize, alignment)
+            : null;
+    }
+
+    private T FindComponentInChild<T>(string childName) where T : Component
+    {
+        var child = FindChildRecursive(transform, childName);
+        return child != null ? child.GetComponent<T>() : null;
+    }
+
+    private static Transform FindChildRecursive(Transform parent, string childName)
+    {
+        if (parent == null)
+        {
+            return null;
+        }
+
+        for (var index = 0; index < parent.childCount; index++)
+        {
+            var child = parent.GetChild(index);
+            if (child.name == childName)
+            {
+                return child;
+            }
+
+            var nested = FindChildRecursive(child, childName);
+            if (nested != null)
+            {
+                return nested;
+            }
+        }
+
+        return null;
+    }
+
+    private static TMP_Text EnsureTextComponent(
+        GameObject target,
+        float fontSize,
+        TextAlignmentOptions alignment)
+    {
+        if (target == null)
+        {
+            return null;
+        }
+
+        var existingText = target.GetComponent<TMP_Text>();
+        if (existingText != null)
+        {
+            return existingText;
+        }
+
+        var createdText = target.AddComponent<TextMeshProUGUI>();
+        createdText.raycastTarget = false;
+        createdText.fontSize = fontSize;
+        createdText.enableAutoSizing = false;
+        createdText.alignment = alignment;
+        createdText.textWrappingMode = TextWrappingModes.Normal;
+        createdText.overflowMode = TextOverflowModes.Overflow;
+        createdText.color = Color.white;
+        return createdText;
     }
 }

@@ -5,6 +5,7 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
+using TMPro;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using SmartCampus.Coop.Minigames;
@@ -274,8 +275,8 @@ public static class DistributedPairsMinigameSetup
         var deckPanel = CreatePileHudPanel("DeckPanel", pileHudRow.transform, font, "Mazo");
         var discardPanel = CreatePileHudPanel("DiscardPanel", pileHudRow.transform, font, "Descartes");
         var drawPileAnchor = deckPanel.transform.Find("CardAnchor") as RectTransform;
-        var drawPileCountLabel = deckPanel.transform.Find("CountLabel")?.GetComponent<Text>();
-        var discardPileCountLabel = discardPanel.transform.Find("CountLabel")?.GetComponent<Text>();
+        var drawPileCountLabel = deckPanel.transform.Find("CountLabel")?.GetComponent<TMP_Text>();
+        var discardPileCountLabel = discardPanel.transform.Find("CountLabel")?.GetComponent<TMP_Text>();
 
         var handPanel = CreatePanel("HandPanel", gameplayPanel.transform, new Color(1f, 1f, 1f, 0.72f));
         var handLayoutElement = handPanel.AddComponent<LayoutElement>();
@@ -511,7 +512,7 @@ public static class DistributedPairsMinigameSetup
         var waitingLabel = CreateText("WaitingHostLabel", contentPanel.transform, font, "Esperando a que el host vuelva al mapa.", 22, TextAnchor.MiddleCenter);
         waitingLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 44f;
 
-        var returnButtonLabel = returnButton.GetComponentInChildren<Text>();
+        var returnButtonLabel = returnButton.GetComponentInChildren<TMP_Text>();
 
         var resultView = popupRoot.GetComponent<MinigameResultView>();
         var serializedResultView = new SerializedObject(resultView);
@@ -706,18 +707,34 @@ public static class DistributedPairsMinigameSetup
         return gameObject;
     }
 
-    private static Text CreateText(string name, Transform parent, Font font, string value, int fontSize, TextAnchor alignment)
+    private static TMP_Text CreateText(string name, Transform parent, Font font, string value, int fontSize, TextAnchor alignment)
     {
-        var textObject = CreateUiObject(name, parent, typeof(Text));
-        var text = textObject.GetComponent<Text>();
-        text.font = font;
+        var textObject = CreateUiObject(name, parent, typeof(TextMeshProUGUI));
+        var text = textObject.GetComponent<TextMeshProUGUI>();
         text.text = value;
         text.fontSize = fontSize;
-        text.alignment = alignment;
+        text.alignment = ConvertAlignment(alignment);
         text.color = new Color(0.12f, 0.15f, 0.17f, 1f);
-        text.horizontalOverflow = HorizontalWrapMode.Wrap;
-        text.verticalOverflow = VerticalWrapMode.Overflow;
+        text.enableWordWrapping = true;
+        text.overflowMode = TextOverflowModes.Overflow;
         return text;
+    }
+
+    private static TextAlignmentOptions ConvertAlignment(TextAnchor alignment)
+    {
+        return alignment switch
+        {
+            TextAnchor.UpperLeft => TextAlignmentOptions.TopLeft,
+            TextAnchor.UpperCenter => TextAlignmentOptions.Top,
+            TextAnchor.MiddleLeft => TextAlignmentOptions.Left,
+            TextAnchor.MiddleCenter => TextAlignmentOptions.Center,
+            TextAnchor.UpperRight => TextAlignmentOptions.TopRight,
+            TextAnchor.MiddleRight => TextAlignmentOptions.Right,
+            TextAnchor.LowerLeft => TextAlignmentOptions.BottomLeft,
+            TextAnchor.LowerCenter => TextAlignmentOptions.Bottom,
+            TextAnchor.LowerRight => TextAlignmentOptions.BottomRight,
+            _ => TextAlignmentOptions.TopLeft
+        };
     }
 
     private static GameObject CreateButton(string name, Transform parent, Font font, string label, int fontSize)

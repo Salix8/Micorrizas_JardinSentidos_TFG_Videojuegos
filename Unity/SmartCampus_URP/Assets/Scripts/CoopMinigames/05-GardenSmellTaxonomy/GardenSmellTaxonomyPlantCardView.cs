@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using TMPro;
 using UnityEngine.UI;
 using SmartCampus.Coop.Minigames;
 
@@ -15,8 +16,8 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
         [SerializeField] private Image frameImage;
         [SerializeField] private Image illustrationImage;
         [SerializeField] private GameObject illustrationPlaceholderRoot;
-        [SerializeField] private Text scientificNameLabel;
-        [SerializeField] private Text helperLabel;
+        [SerializeField] private TMP_Text scientificNameLabel;
+        [SerializeField] private TMP_Text helperLabel;
 
         private Func<Vector2, Camera, GardenSmellTaxonomyCategory?> resolveDropCategory;
         private Action<GardenSmellTaxonomyCategory?> onHoverCategoryChanged;

@@ -1,4 +1,5 @@
 using UnityEngine;
+using TMPro;
 using UnityEngine.UI;
 
 [DisallowMultipleComponent]
@@ -15,11 +16,11 @@ public sealed class MultiplayerMenuController : MonoBehaviour
     [SerializeField] private GameObject sessionPanel;
 
     [Header("UI")]
-    [SerializeField] private InputField joinCodeInput;
-    [SerializeField] private Text statusLabel;
-    [SerializeField] private Text joinCodeLabel;
-    [SerializeField] private Text playerCountLabel;
-    [SerializeField] private Text sessionRequirementsLabel;
+    [SerializeField] private TMP_InputField joinCodeInput;
+    [SerializeField] private TMP_Text statusLabel;
+    [SerializeField] private TMP_Text joinCodeLabel;
+    [SerializeField] private TMP_Text playerCountLabel;
+    [SerializeField] private TMP_Text sessionRequirementsLabel;
     [SerializeField] private Button hostButton;
     [SerializeField] private Button joinButton;
     [SerializeField] private Button startMatchButton;

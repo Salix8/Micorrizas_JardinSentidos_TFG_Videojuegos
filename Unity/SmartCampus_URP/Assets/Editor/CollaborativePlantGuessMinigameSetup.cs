@@ -7,6 +7,7 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
+using TMPro;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using SmartCampus.Coop.Minigames;
@@ -287,7 +288,7 @@ public static class CollaborativePlantGuessMinigameSetup
         serializedUiController.FindProperty("hintLabel").objectReferenceValue = hintLabel;
         serializedUiController.FindProperty("guessInputField").objectReferenceValue = inputField;
         serializedUiController.FindProperty("submitGuessButton").objectReferenceValue = submitButton.GetComponent<Button>();
-        serializedUiController.FindProperty("submitGuessButtonLabel").objectReferenceValue = submitButton.GetComponentInChildren<Text>();
+        serializedUiController.FindProperty("submitGuessButtonLabel").objectReferenceValue = submitButton.GetComponentInChildren<TMP_Text>();
         serializedUiController.FindProperty("suggestionRoot").objectReferenceValue = suggestionPanel.transform;
         serializedUiController.FindProperty("suggestionTemplate").objectReferenceValue = suggestionTemplate;
         serializedUiController.FindProperty("historyRoot").objectReferenceValue = scrollView.ContentRoot.transform;
@@ -356,7 +357,7 @@ public static class CollaborativePlantGuessMinigameSetup
         var suggestionView = buttonObject.AddComponent<CollaborativePlantGuessSuggestionEntryView>();
         var serializedSuggestionView = new SerializedObject(suggestionView);
         serializedSuggestionView.FindProperty("selectionButton").objectReferenceValue = buttonObject.GetComponent<Button>();
-        serializedSuggestionView.FindProperty("titleLabel").objectReferenceValue = buttonObject.GetComponentInChildren<Text>();
+        serializedSuggestionView.FindProperty("titleLabel").objectReferenceValue = buttonObject.GetComponentInChildren<TMP_Text>();
         serializedSuggestionView.ApplyModifiedPropertiesWithoutUndo();
         return suggestionView;
     }
@@ -460,12 +461,12 @@ public static class CollaborativePlantGuessMinigameSetup
         fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
         var header = CreateText("HeaderLabel", root.transform, font, headerText, 16, TextAnchor.UpperCenter);
-        header.horizontalOverflow = HorizontalWrapMode.Wrap;
-        header.verticalOverflow = VerticalWrapMode.Overflow;
+        header.enableWordWrapping = true;
+        header.overflowMode = TextOverflowModes.Overflow;
         header.gameObject.AddComponent<LayoutElement>().minHeight = 34f;
         var valueLabel = CreateText("ValueLabel", root.transform, font, value, 20, TextAnchor.UpperCenter);
-        valueLabel.horizontalOverflow = HorizontalWrapMode.Wrap;
-        valueLabel.verticalOverflow = VerticalWrapMode.Overflow;
+        valueLabel.enableWordWrapping = true;
+        valueLabel.overflowMode = TextOverflowModes.Overflow;
         valueLabel.gameObject.AddComponent<LayoutElement>().minHeight = 36f;
 
         return new ComparisonCellReferences(root.GetComponent<Image>(), valueLabel);
@@ -507,10 +508,10 @@ public static class CollaborativePlantGuessMinigameSetup
         return new ScrollViewReferences(root, contentRoot, verticalLayout);
     }
 
-    private static InputField CreateInputField(string name, Transform parent, Font font, string placeholder)
+    private static TMP_InputField CreateInputField(string name, Transform parent, Font font, string placeholder)
     {
         var root = CreatePanel(name, parent, Color.white);
-        var inputField = root.AddComponent<InputField>();
+        var inputField = root.AddComponent<TMP_InputField>();
         var textLabel = CreateText("Text", root.transform, font, string.Empty, 22, TextAnchor.MiddleLeft);
         var placeholderLabel = CreateText("Placeholder", root.transform, font, placeholder, 22, TextAnchor.MiddleLeft);
         placeholderLabel.color = new Color(0.35f, 0.39f, 0.42f, 0.7f);
@@ -529,7 +530,7 @@ public static class CollaborativePlantGuessMinigameSetup
         inputField.targetGraphic = root.GetComponent<Image>();
         inputField.textComponent = textLabel;
         inputField.placeholder = placeholderLabel;
-        inputField.lineType = InputField.LineType.SingleLine;
+        inputField.lineType = TMP_InputField.LineType.SingleLine;
         return inputField;
     }
 
@@ -631,7 +632,7 @@ public static class CollaborativePlantGuessMinigameSetup
         serializedResultView.FindProperty("scoreLabel").objectReferenceValue = score;
         serializedResultView.FindProperty("summaryLabel").objectReferenceValue = summary;
         serializedResultView.FindProperty("returnButton").objectReferenceValue = returnButton.GetComponent<Button>();
-        serializedResultView.FindProperty("returnButtonLabel").objectReferenceValue = returnButton.GetComponentInChildren<Text>();
+        serializedResultView.FindProperty("returnButtonLabel").objectReferenceValue = returnButton.GetComponentInChildren<TMP_Text>();
         serializedResultView.FindProperty("waitingHostLabel").objectReferenceValue = waitingLabel;
         serializedResultView.FindProperty("successfulActionsLabel").stringValue = "Plantas acertadas";
         serializedResultView.FindProperty("failedActionsLabel").stringValue = "Intentos fallidos";
@@ -717,17 +718,16 @@ public static class CollaborativePlantGuessMinigameSetup
         return gameObject;
     }
 
-    private static Text CreateText(string name, Transform parent, Font font, string value, int fontSize, TextAnchor alignment)
+    private static TMP_Text CreateText(string name, Transform parent, Font font, string value, int fontSize, TextAnchor alignment)
     {
-        var textObject = CreateUiObject(name, parent, typeof(Text));
-        var text = textObject.GetComponent<Text>();
-        text.font = font;
+        var textObject = CreateUiObject(name, parent, typeof(TextMeshProUGUI));
+        var text = textObject.GetComponent<TextMeshProUGUI>();
         text.text = value;
         text.fontSize = fontSize;
-        text.alignment = alignment;
+        text.alignment = ConvertAlignment(alignment);
         text.color = new Color(0.12f, 0.15f, 0.17f, 1f);
-        text.horizontalOverflow = HorizontalWrapMode.Wrap;
-        text.verticalOverflow = VerticalWrapMode.Overflow;
+        text.enableWordWrapping = true;
+        text.overflowMode = TextOverflowModes.Overflow;
         return text;
     }
 
@@ -751,6 +751,23 @@ public static class CollaborativePlantGuessMinigameSetup
         return buttonObject;
     }
 
+    private static TextAlignmentOptions ConvertAlignment(TextAnchor alignment)
+    {
+        return alignment switch
+        {
+            TextAnchor.UpperLeft => TextAlignmentOptions.TopLeft,
+            TextAnchor.UpperCenter => TextAlignmentOptions.Top,
+            TextAnchor.UpperRight => TextAlignmentOptions.TopRight,
+            TextAnchor.MiddleLeft => TextAlignmentOptions.Left,
+            TextAnchor.MiddleCenter => TextAlignmentOptions.Center,
+            TextAnchor.MiddleRight => TextAlignmentOptions.Right,
+            TextAnchor.LowerLeft => TextAlignmentOptions.BottomLeft,
+            TextAnchor.LowerCenter => TextAlignmentOptions.Bottom,
+            TextAnchor.LowerRight => TextAlignmentOptions.BottomRight,
+            _ => TextAlignmentOptions.Center
+        };
+    }
+
     private static void Stretch(RectTransform rectTransform, Vector2 offsetMin, Vector2 offsetMax)
     {
         rectTransform.anchorMin = Vector2.zero;
@@ -762,14 +779,14 @@ public static class CollaborativePlantGuessMinigameSetup
 
     private readonly struct ComparisonCellReferences
     {
-        public ComparisonCellReferences(Image rootImage, Text valueLabel)
+        public ComparisonCellReferences(Image rootImage, TMP_Text valueLabel)
         {
             RootImage = rootImage;
             ValueLabel = valueLabel;
         }
 
         public Image RootImage { get; }
-        public Text ValueLabel { get; }
+        public TMP_Text ValueLabel { get; }
     }
 
     private readonly struct ScrollViewReferences
@@ -846,6 +863,7 @@ internal static class CoopMinigameSetupEditorUtility
         }
 
         ApplyLauncherCatalogReference(launcherController, catalogConfig);
+        EnsureLauncherSceneBindings(launcherController, catalogConfig);
 
         var safeAreaRoot = ConfigureResponsiveMainMapCanvas(launcherController);
         var launcherPanel = launcherController.transform as RectTransform;
@@ -860,6 +878,7 @@ internal static class CoopMinigameSetupEditorUtility
         }
 
         var serializedLauncherController = new SerializedObject(launcherController);
+        serializedLauncherController.Update();
         var entryRoot = serializedLauncherController.FindProperty("entryRoot").objectReferenceValue as Transform;
         var entryTemplate = serializedLauncherController.FindProperty("entryTemplate").objectReferenceValue as CoopMinigameLauncherEntryView;
         if (entryRoot == null || entryTemplate == null)
@@ -870,11 +889,14 @@ internal static class CoopMinigameSetupEditorUtility
         ConfigureLauncherPanel(launcherPanel, launcherController, safeAreaRoot);
         EnsureScrollableEntryRoot(launcherPanel, entryRoot);
         EnsureSceneVisibleEntries(entryRoot, entryTemplate, catalogConfig);
+        EnsureLauncherSceneBindings(launcherController, catalogConfig);
+        EnsureToggleLauncherBindings();
         SanitizeRectTransformTree(canvasRoot: safeAreaRoot != null ? safeAreaRoot : launcherPanel.root as RectTransform);
         ApplyLauncherCatalogReference(launcherController, catalogConfig);
+        EnsureLauncherSceneBindings(launcherController, catalogConfig);
+        EnsureToggleLauncherBindings();
 
         EditorUtility.SetDirty(launcherController);
-        FantasyWoodenThemeUtility.ApplyThemeToOpenScene(scene);
         EditorSceneManager.SaveScene(scene);
     }
 
@@ -950,13 +972,281 @@ internal static class CoopMinigameSetupEditorUtility
             new Vector2(720f, 1280f),
             new Vector2(32f, 32f));
 
-        var helperLabelField = new SerializedObject(launcherController).FindProperty("helperLabel").objectReferenceValue as Text;
+        var helperLabelField = new SerializedObject(launcherController).FindProperty("helperLabel").objectReferenceValue as TMP_Text;
         if (helperLabelField != null)
         {
-            helperLabelField.resizeTextForBestFit = false;
-            helperLabelField.horizontalOverflow = HorizontalWrapMode.Wrap;
-            helperLabelField.verticalOverflow = VerticalWrapMode.Overflow;
+            helperLabelField.enableAutoSizing = false;
+            helperLabelField.enableWordWrapping = true;
+            helperLabelField.overflowMode = TextOverflowModes.Overflow;
         }
+    }
+
+    private static void EnsureLauncherSceneBindings(CoopMinigameLauncherUIController launcherController, CoopMinigameCatalogConfig catalogConfig)
+    {
+        if (launcherController == null)
+        {
+            return;
+        }
+
+        var launcherPanel = launcherController.transform as RectTransform;
+        if (launcherPanel == null)
+        {
+            return;
+        }
+
+        var font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        var headerLabel = EnsureTextLabel(
+            launcherPanel,
+            "Header",
+            "Hub de minijuegos cooperativos",
+            34,
+            TextAnchor.MiddleCenter,
+            40f,
+            new Color(0.33f, 0.18f, 0.07f, 1f),
+            new Color(0.98f, 0.92f, 0.78f, 0.9f));
+        var helperLabel = EnsureTextLabel(
+            launcherPanel,
+            "HelperLabel",
+            "Elige el siguiente minijuego para todo el grupo.",
+            18,
+            TextAnchor.UpperLeft,
+            54f,
+            new Color(0.25f, 0.15f, 0.08f, 1f),
+            new Color(0.96f, 0.9f, 0.8f, 0.35f));
+
+        var entryRoot = launcherController.transform.Find("EntriesScrollView/Viewport/EntriesContent");
+        if (entryRoot == null)
+        {
+            var rootObject = new GameObject("EntriesContent", typeof(RectTransform), typeof(VerticalLayoutGroup));
+            rootObject.layer = launcherPanel.gameObject.layer;
+            rootObject.transform.SetParent(launcherPanel, false);
+            entryRoot = rootObject.transform;
+        }
+
+        var entryTemplate = entryRoot.GetComponentInChildren<CoopMinigameLauncherEntryView>(true);
+        if (entryTemplate == null)
+        {
+            entryTemplate = CreateLauncherEntryTemplate(entryRoot, font);
+        }
+
+        EnsureLauncherEntryTemplateBindings(entryTemplate, font);
+
+        var serializedLauncherController = new SerializedObject(launcherController);
+        serializedLauncherController.Update();
+        if (catalogConfig != null)
+        {
+            serializedLauncherController.FindProperty("minigameCatalogConfig").objectReferenceValue = catalogConfig;
+        }
+        serializedLauncherController.FindProperty("entryRoot").objectReferenceValue = entryRoot;
+        serializedLauncherController.FindProperty("entryTemplate").objectReferenceValue = entryTemplate;
+        serializedLauncherController.FindProperty("helperLabel").objectReferenceValue = helperLabel;
+        serializedLauncherController.ApplyModifiedPropertiesWithoutUndo();
+
+        if (headerLabel != null)
+        {
+            EditorUtility.SetDirty(headerLabel);
+        }
+
+        EditorUtility.SetDirty(launcherController);
+    }
+
+    private static void EnsureLauncherEntryTemplateBindings(CoopMinigameLauncherEntryView entryTemplate, Font font)
+    {
+        if (entryTemplate == null)
+        {
+            return;
+        }
+
+        var titleLabel = EnsureTextLabel(
+            entryTemplate.transform,
+            "TitleLabel",
+            "Minijuego",
+            24,
+            TextAnchor.MiddleLeft,
+            34f,
+            new Color(0.33f, 0.18f, 0.07f, 1f),
+            new Color(0.98f, 0.92f, 0.78f, 0.9f));
+        var descriptionLabel = EnsureTextLabel(
+            entryTemplate.transform,
+            "DescriptionLabel",
+            "Descripcion",
+            18,
+            TextAnchor.UpperLeft,
+            64f,
+            new Color(0.25f, 0.15f, 0.08f, 1f),
+            new Color(0.96f, 0.9f, 0.8f, 0.35f));
+
+        var buttonTransform = entryTemplate.transform.Find("LaunchButton");
+        Button launchButton;
+        if (buttonTransform == null)
+        {
+            var buttonObject = new GameObject("LaunchButton", typeof(RectTransform), typeof(Image), typeof(Button), typeof(LayoutElement));
+            buttonObject.layer = entryTemplate.gameObject.layer;
+            buttonObject.transform.SetParent(entryTemplate.transform, false);
+            var image = buttonObject.GetComponent<Image>();
+            image.color = Color.white;
+            launchButton = buttonObject.GetComponent<Button>();
+            launchButton.targetGraphic = image;
+            buttonObject.GetComponent<LayoutElement>().preferredHeight = 52f;
+        }
+        else
+        {
+            launchButton = buttonTransform.GetComponent<Button>();
+        }
+
+        var buttonLabel = EnsureButtonLabel(launchButton, "Lanzar", 20, font);
+        var serializedEntryView = new SerializedObject(entryTemplate);
+        serializedEntryView.Update();
+        serializedEntryView.FindProperty("titleLabel").objectReferenceValue = titleLabel;
+        serializedEntryView.FindProperty("descriptionLabel").objectReferenceValue = descriptionLabel;
+        serializedEntryView.FindProperty("launchButton").objectReferenceValue = launchButton;
+        serializedEntryView.FindProperty("buttonLabel").objectReferenceValue = buttonLabel;
+        serializedEntryView.ApplyModifiedPropertiesWithoutUndo();
+        EditorUtility.SetDirty(entryTemplate);
+    }
+
+    private static CoopMinigameLauncherEntryView CreateLauncherEntryTemplate(Transform parent, Font font)
+    {
+        var entryRoot = new GameObject("EntryTemplate", typeof(RectTransform), typeof(Image), typeof(VerticalLayoutGroup), typeof(CoopMinigameLauncherEntryView));
+        entryRoot.layer = parent.gameObject.layer;
+        entryRoot.transform.SetParent(parent, false);
+
+        var image = entryRoot.GetComponent<Image>();
+        image.color = new Color(1f, 1f, 1f, 0.12f);
+
+        var layout = entryRoot.GetComponent<VerticalLayoutGroup>();
+        layout.padding = new RectOffset(12, 12, 12, 12);
+        layout.spacing = 6f;
+        layout.childControlHeight = true;
+        layout.childControlWidth = true;
+        layout.childForceExpandHeight = false;
+
+        var entryView = entryRoot.GetComponent<CoopMinigameLauncherEntryView>();
+        EnsureLauncherEntryTemplateBindings(entryView, font);
+        return entryView;
+    }
+
+    private static TMP_Text EnsureTextLabel(
+        Transform parent,
+        string objectName,
+        string defaultText,
+        int fontSize,
+        TextAnchor alignment,
+        float preferredHeight,
+        Color color,
+        Color shadowColor)
+    {
+        var labelTransform = parent.Find(objectName);
+        if (labelTransform == null)
+        {
+            var labelObject = new GameObject(objectName, typeof(RectTransform), typeof(TextMeshProUGUI));
+            labelObject.layer = parent.gameObject.layer;
+            labelObject.transform.SetParent(parent, false);
+            labelTransform = labelObject.transform;
+        }
+
+        var text = labelTransform.GetComponent<TMP_Text>() ?? labelTransform.gameObject.AddComponent<TextMeshProUGUI>();
+        text.text = string.IsNullOrWhiteSpace(text.text) ? defaultText : text.text;
+        text.fontSize = fontSize;
+        text.alignment = ConvertAlignment(alignment);
+        text.color = color;
+        text.enableWordWrapping = true;
+        text.overflowMode = TextOverflowModes.Overflow;
+        text.raycastTarget = false;
+
+        var layoutElement = labelTransform.GetComponent<LayoutElement>() ?? labelTransform.gameObject.AddComponent<LayoutElement>();
+        layoutElement.preferredHeight = preferredHeight;
+
+        var shadow = labelTransform.GetComponent<Shadow>() ?? labelTransform.gameObject.AddComponent<Shadow>();
+        shadow.effectColor = shadowColor;
+        shadow.effectDistance = new Vector2(1f, -1f);
+        shadow.useGraphicAlpha = true;
+
+        return text;
+    }
+
+    private static TMP_Text EnsureButtonLabel(Button button, string defaultText, int fontSize, Font font)
+    {
+        if (button == null)
+        {
+            return null;
+        }
+
+        var labelTransform = button.transform.Find("Label");
+        if (labelTransform == null)
+        {
+            var labelObject = new GameObject("Label", typeof(RectTransform), typeof(TextMeshProUGUI));
+            labelObject.layer = button.gameObject.layer;
+            labelObject.transform.SetParent(button.transform, false);
+            labelTransform = labelObject.transform;
+        }
+
+        var text = labelTransform.GetComponent<TMP_Text>() ?? labelTransform.gameObject.AddComponent<TextMeshProUGUI>();
+        text.text = string.IsNullOrWhiteSpace(text.text) ? defaultText : text.text;
+        text.fontSize = fontSize;
+        text.alignment = TextAlignmentOptions.Center;
+        text.color = new Color(0.27f, 0.13f, 0.03f, 1f);
+        text.enableWordWrapping = true;
+        text.overflowMode = TextOverflowModes.Overflow;
+        text.raycastTarget = false;
+
+        if (text is TextMeshProUGUI textMeshPro)
+        {
+            textMeshPro.enableAutoSizing = true;
+            textMeshPro.fontSizeMin = 14f;
+            textMeshPro.fontSizeMax = fontSize;
+        }
+
+        Stretch(text.rectTransform, new Vector2(16f, 10f), new Vector2(-16f, -10f));
+        var shadow = labelTransform.GetComponent<Shadow>() ?? labelTransform.gameObject.AddComponent<Shadow>();
+        shadow.effectColor = new Color(0.95f, 0.84f, 0.62f, 0.85f);
+        shadow.effectDistance = new Vector2(1f, -1f);
+        shadow.useGraphicAlpha = true;
+        return text;
+    }
+
+    private static void EnsureToggleLauncherBindings()
+    {
+        var toggleController = UnityEngine.Object.FindFirstObjectByType<MinigameLauncherToggleUIController>(FindObjectsInactive.Include);
+        if (toggleController == null)
+        {
+            return;
+        }
+
+        var font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        var serializedToggle = new SerializedObject(toggleController);
+        serializedToggle.Update();
+
+        var toggleButton = serializedToggle.FindProperty("toggleButton").objectReferenceValue as Button;
+        if (toggleButton == null)
+        {
+            toggleButton = toggleController.GetComponentInChildren<Button>(true);
+        }
+
+        var visibleLabel = serializedToggle.FindProperty("visibleStateLabel").stringValue;
+        var buttonLabel = EnsureButtonLabel(toggleButton, string.IsNullOrWhiteSpace(visibleLabel) ? "Ocultar\nminijuegos" : visibleLabel, 20, font);
+
+        serializedToggle.FindProperty("toggleButton").objectReferenceValue = toggleButton;
+        serializedToggle.FindProperty("toggleButtonLabel").objectReferenceValue = buttonLabel;
+        serializedToggle.ApplyModifiedPropertiesWithoutUndo();
+        EditorUtility.SetDirty(toggleController);
+    }
+
+    private static TextAlignmentOptions ConvertAlignment(TextAnchor alignment)
+    {
+        return alignment switch
+        {
+            TextAnchor.UpperLeft => TextAlignmentOptions.TopLeft,
+            TextAnchor.UpperCenter => TextAlignmentOptions.Top,
+            TextAnchor.MiddleLeft => TextAlignmentOptions.Left,
+            TextAnchor.MiddleCenter => TextAlignmentOptions.Center,
+            TextAnchor.UpperRight => TextAlignmentOptions.TopRight,
+            TextAnchor.MiddleRight => TextAlignmentOptions.Right,
+            TextAnchor.LowerLeft => TextAlignmentOptions.BottomLeft,
+            TextAnchor.LowerCenter => TextAlignmentOptions.Bottom,
+            TextAnchor.LowerRight => TextAlignmentOptions.BottomRight,
+            _ => TextAlignmentOptions.TopLeft
+        };
     }
 
     private static void EnsureScrollableEntryRoot(RectTransform launcherPanel, Transform entryRoot)

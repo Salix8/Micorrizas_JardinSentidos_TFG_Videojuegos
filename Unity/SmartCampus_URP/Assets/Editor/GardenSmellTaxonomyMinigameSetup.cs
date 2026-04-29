@@ -5,6 +5,7 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
+using TMPro;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using SmartCampus.Coop.Minigames;
@@ -535,7 +536,7 @@ public static class GardenSmellTaxonomyMinigameSetup
         serializedResultView.FindProperty("scoreLabel").objectReferenceValue = score;
         serializedResultView.FindProperty("summaryLabel").objectReferenceValue = summary;
         serializedResultView.FindProperty("returnButton").objectReferenceValue = returnButton.GetComponent<Button>();
-        serializedResultView.FindProperty("returnButtonLabel").objectReferenceValue = returnButton.GetComponentInChildren<Text>();
+        serializedResultView.FindProperty("returnButtonLabel").objectReferenceValue = returnButton.GetComponentInChildren<TMP_Text>();
         serializedResultView.FindProperty("waitingHostLabel").objectReferenceValue = waitingLabel;
         serializedResultView.FindProperty("successfulActionsLabel").stringValue = "Aciertos";
         serializedResultView.FindProperty("failedActionsLabel").stringValue = "Fallos";
@@ -657,18 +658,34 @@ public static class GardenSmellTaxonomyMinigameSetup
         return gameObject;
     }
 
-    private static Text CreateText(string name, Transform parent, Font font, string value, int fontSize, TextAnchor alignment)
+    private static TMP_Text CreateText(string name, Transform parent, Font font, string value, int fontSize, TextAnchor alignment)
     {
-        var textObject = CreateUiObject(name, parent, typeof(Text));
-        var text = textObject.GetComponent<Text>();
-        text.font = font;
+        var textObject = CreateUiObject(name, parent, typeof(TextMeshProUGUI));
+        var text = textObject.GetComponent<TextMeshProUGUI>();
         text.text = value;
         text.fontSize = fontSize;
-        text.alignment = alignment;
+        text.alignment = ConvertAlignment(alignment);
         text.color = new Color(0.12f, 0.15f, 0.17f, 1f);
-        text.horizontalOverflow = HorizontalWrapMode.Wrap;
-        text.verticalOverflow = VerticalWrapMode.Overflow;
+        text.enableWordWrapping = true;
+        text.overflowMode = TextOverflowModes.Overflow;
         return text;
+    }
+
+    private static TextAlignmentOptions ConvertAlignment(TextAnchor alignment)
+    {
+        return alignment switch
+        {
+            TextAnchor.UpperLeft => TextAlignmentOptions.TopLeft,
+            TextAnchor.UpperCenter => TextAlignmentOptions.Top,
+            TextAnchor.MiddleLeft => TextAlignmentOptions.Left,
+            TextAnchor.MiddleCenter => TextAlignmentOptions.Center,
+            TextAnchor.UpperRight => TextAlignmentOptions.TopRight,
+            TextAnchor.MiddleRight => TextAlignmentOptions.Right,
+            TextAnchor.LowerLeft => TextAlignmentOptions.BottomLeft,
+            TextAnchor.LowerCenter => TextAlignmentOptions.Bottom,
+            TextAnchor.LowerRight => TextAlignmentOptions.BottomRight,
+            _ => TextAlignmentOptions.TopLeft
+        };
     }
 
     private static GameObject CreateButton(string name, Transform parent, Font font, string label, int fontSize, Color backgroundColor)

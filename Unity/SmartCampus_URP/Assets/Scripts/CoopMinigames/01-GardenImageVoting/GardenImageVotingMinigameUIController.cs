@@ -1,4 +1,5 @@
 using UnityEngine;
+using TMPro;
 using UnityEngine.UI;
 using SmartCampus.Coop.Minigames;
 
@@ -9,12 +10,12 @@ namespace SmartCampus.Coop.Minigames.GardenImageVoting
     {
         [SerializeField] private GardenImageVotingMinigameSession gardenImageVotingMinigameSession;
         [SerializeField] private GardenImageVotingCardView cardView;
-        [SerializeField] private Text titleLabel;
-        [SerializeField] private Text timerLabel;
-        [SerializeField] private Text scoreLabel;
-        [SerializeField] private Text progressLabel;
-        [SerializeField] private Text statusLabel;
-        [SerializeField] private Text completionLabel;
+        [SerializeField] private TMP_Text titleLabel;
+        [SerializeField] private TMP_Text timerLabel;
+        [SerializeField] private TMP_Text scoreLabel;
+        [SerializeField] private TMP_Text progressLabel;
+        [SerializeField] private TMP_Text statusLabel;
+        [SerializeField] private TMP_Text completionLabel;
 
         private GardenImageVotingMinigameSession TypedSession => gardenImageVotingMinigameSession != null
             ? gardenImageVotingMinigameSession

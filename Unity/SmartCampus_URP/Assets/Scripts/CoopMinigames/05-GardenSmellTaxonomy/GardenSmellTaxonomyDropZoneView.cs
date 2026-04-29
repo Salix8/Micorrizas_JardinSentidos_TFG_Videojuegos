@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 using UnityEngine.UI;
 
 namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
@@ -12,14 +13,14 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
         [SerializeField] private Image panelImage;
         [SerializeField] private Image accentImage;
         [SerializeField] private Image badgeImage;
-        [SerializeField] private Text badgeLabel;
-        [SerializeField] private Text titleLabel;
-        [SerializeField] private Text subtitleLabel;
-        [SerializeField] private Text emptyStateLabel;
+        [SerializeField] private TMP_Text badgeLabel;
+        [SerializeField] private TMP_Text titleLabel;
+        [SerializeField] private TMP_Text subtitleLabel;
+        [SerializeField] private TMP_Text emptyStateLabel;
         [SerializeField] private Transform historyRoot;
-        [SerializeField] private Text historyEntryTemplate;
+        [SerializeField] private TMP_Text historyEntryTemplate;
 
-        private readonly List<Text> historyEntryPool = new();
+        private readonly List<TMP_Text> historyEntryPool = new();
 
         public GardenSmellTaxonomyCategory Category => category;
 

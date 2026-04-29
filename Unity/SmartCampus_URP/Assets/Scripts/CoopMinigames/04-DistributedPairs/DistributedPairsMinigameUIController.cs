@@ -1,4 +1,5 @@
 using UnityEngine;
+using TMPro;
 using UnityEngine.UI;
 using SmartCampus.Coop.Minigames;
 
@@ -9,15 +10,15 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
     {
         [SerializeField] private DistributedPairsMinigameSession distributedPairsMinigameSession;
         [SerializeField] private DistributedPairsHandView localHandView;
-        [SerializeField] private Text titleLabel;
-        [SerializeField] private Text progressLabel;
-        [SerializeField] private Text sharedStatusLabel;
-        [SerializeField] private Text localSelectionLabel;
+        [SerializeField] private TMP_Text titleLabel;
+        [SerializeField] private TMP_Text progressLabel;
+        [SerializeField] private TMP_Text sharedStatusLabel;
+        [SerializeField] private TMP_Text localSelectionLabel;
         [SerializeField] private RectTransform drawPileAnchor;
-        [SerializeField] private Text drawPileCountLabel;
-        [SerializeField] private Text discardPileCountLabel;
+        [SerializeField] private TMP_Text drawPileCountLabel;
+        [SerializeField] private TMP_Text discardPileCountLabel;
         [SerializeField] private Button mismatchResetButton;
-        [SerializeField] private Text mismatchResetLabel;
+        [SerializeField] private TMP_Text mismatchResetLabel;
 
         private DistributedPairsMinigameSession TypedSession => distributedPairsMinigameSession != null
             ? distributedPairsMinigameSession
@@ -169,8 +170,6 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
                 return;
             }
 
-            var font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-
             if (drawPileCountLabel == null || discardPileCountLabel == null || drawPileAnchor == null)
             {
                 var pileHudRoot = CreateUiObject("RuntimePileHud", rootRect, typeof(Image));
@@ -185,14 +184,14 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
                 pileHudImage.color = new Color(0.12f, 0.17f, 0.21f, 0.18f);
                 pileHudImage.raycastTarget = false;
 
-                var deckPanel = CreatePilePanel("DeckPanel", pileHudRoot.transform, font, "Mazo");
+                var deckPanel = CreatePilePanel("DeckPanel", pileHudRoot.transform, "Mazo");
                 var deckRect = deckPanel.GetComponent<RectTransform>();
                 deckRect.anchorMin = new Vector2(0f, 0f);
                 deckRect.anchorMax = new Vector2(0.48f, 1f);
                 deckRect.offsetMin = new Vector2(0f, 0f);
                 deckRect.offsetMax = new Vector2(-8f, 0f);
 
-                var discardPanel = CreatePilePanel("DiscardPanel", pileHudRoot.transform, font, "Descartes");
+                var discardPanel = CreatePilePanel("DiscardPanel", pileHudRoot.transform, "Descartes");
                 var discardRect = discardPanel.GetComponent<RectTransform>();
                 discardRect.anchorMin = new Vector2(0.52f, 0f);
                 discardRect.anchorMax = new Vector2(1f, 1f);
@@ -200,8 +199,8 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
                 discardRect.offsetMax = new Vector2(0f, 0f);
 
                 drawPileAnchor = deckPanel.transform.Find("CardAnchor") as RectTransform;
-                drawPileCountLabel = deckPanel.transform.Find("CountLabel")?.GetComponent<Text>();
-                discardPileCountLabel = discardPanel.transform.Find("CountLabel")?.GetComponent<Text>();
+                drawPileCountLabel = deckPanel.transform.Find("CountLabel")?.GetComponent<TMP_Text>();
+                discardPileCountLabel = discardPanel.transform.Find("CountLabel")?.GetComponent<TMP_Text>();
             }
 
             if (mismatchResetButton == null)
@@ -219,7 +218,7 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
                 mismatchResetButton = overlay.GetComponent<Button>();
                 mismatchResetButton.targetGraphic = overlayImage;
 
-                mismatchResetLabel = CreateText("Label", overlay.transform, font, "No coinciden. Toca para girarlas de nuevo.", 26, TextAnchor.MiddleCenter);
+                mismatchResetLabel = CreateText("Label", overlay.transform, "No coinciden. Toca para girarlas de nuevo.", 26, TextAnchor.MiddleCenter);
                 var labelRect = mismatchResetLabel.rectTransform;
                 labelRect.anchorMin = new Vector2(0.5f, 0.5f);
                 labelRect.anchorMax = new Vector2(0.5f, 0.5f);
@@ -230,7 +229,7 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
             }
         }
 
-        private static GameObject CreatePilePanel(string name, Transform parent, Font font, string title)
+        private static GameObject CreatePilePanel(string name, Transform parent, string title)
         {
             var panel = CreateUiObject(name, parent, typeof(Image));
             var image = panel.GetComponent<Image>();
@@ -248,7 +247,7 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
             cardAnchorImage.color = new Color(0.16f, 0.29f, 0.35f, 1f);
             cardAnchorImage.raycastTarget = false;
 
-            var titleLabel = CreateText("TitleLabel", panel.transform, font, title, 18, TextAnchor.MiddleCenter);
+            var titleLabel = CreateText("TitleLabel", panel.transform, title, 18, TextAnchor.MiddleCenter);
             var titleRect = titleLabel.rectTransform;
             titleRect.anchorMin = new Vector2(0.5f, 1f);
             titleRect.anchorMax = new Vector2(0.5f, 1f);
@@ -256,7 +255,7 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
             titleRect.anchoredPosition = new Vector2(0f, -126f);
             titleRect.sizeDelta = new Vector2(110f, 24f);
 
-            var countLabel = CreateText("CountLabel", panel.transform, font, $"{title}\n0", 22, TextAnchor.UpperCenter);
+            var countLabel = CreateText("CountLabel", panel.transform, $"{title}\n0", 22, TextAnchor.UpperCenter);
             var countRect = countLabel.rectTransform;
             countRect.anchorMin = new Vector2(0.5f, 0f);
             countRect.anchorMax = new Vector2(0.5f, 0f);
@@ -282,19 +281,28 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
             return gameObject;
         }
 
-        private static Text CreateText(string name, Transform parent, Font font, string value, int fontSize, TextAnchor alignment)
+        private static TMP_Text CreateText(string name, Transform parent, string value, int fontSize, TextAnchor alignment)
         {
-            var textObject = CreateUiObject(name, parent, typeof(Text));
-            var text = textObject.GetComponent<Text>();
-            text.font = font;
+            var textObject = CreateUiObject(name, parent, typeof(TextMeshProUGUI));
+            var text = textObject.GetComponent<TextMeshProUGUI>();
             text.text = value;
             text.fontSize = fontSize;
-            text.alignment = alignment;
+            text.alignment = ConvertAlignment(alignment);
             text.color = new Color(0.12f, 0.15f, 0.17f, 1f);
-            text.horizontalOverflow = HorizontalWrapMode.Wrap;
-            text.verticalOverflow = VerticalWrapMode.Overflow;
+            text.enableWordWrapping = true;
+            text.overflowMode = TextOverflowModes.Overflow;
             text.raycastTarget = false;
             return text;
+        }
+
+        private static TextAlignmentOptions ConvertAlignment(TextAnchor alignment)
+        {
+            return alignment switch
+            {
+                TextAnchor.UpperCenter => TextAlignmentOptions.Top,
+                TextAnchor.MiddleCenter => TextAlignmentOptions.Center,
+                _ => TextAlignmentOptions.Center
+            };
         }
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using TMPro;
 using UnityEngine.UI;
 using UnityEngine.Video;
 
@@ -10,9 +11,9 @@ namespace SmartCampus.Coop.Minigames
     {
         [SerializeField] private Button backgroundDismissButton;
         [SerializeField] private Button closeButton;
-        [SerializeField] private Text titleLabel;
-        [SerializeField] private Text subtitleLabel;
-        [SerializeField] private Text bodyLabel;
+        [SerializeField] private TMP_Text titleLabel;
+        [SerializeField] private TMP_Text subtitleLabel;
+        [SerializeField] private TMP_Text bodyLabel;
         [SerializeField] private Image illustrationImage;
         [SerializeField] private RawImage videoSurface;
         [SerializeField] private VideoPlayer videoPlayer;

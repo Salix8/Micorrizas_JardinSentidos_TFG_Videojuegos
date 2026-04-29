@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using TMPro;
 using UnityEngine.UI;
 
 namespace SmartCampus.Coop.Minigames.GardenImageVoting
@@ -14,10 +15,10 @@ namespace SmartCampus.Coop.Minigames.GardenImageVoting
         [SerializeField] private Image frameImage;
         [SerializeField] private Image illustrationImage;
         [SerializeField] private GameObject illustrationPlaceholderRoot;
-        [SerializeField] private Text topicLabel;
-        [SerializeField] private Text titleLabel;
-        [SerializeField] private Text bodyLabel;
-        [SerializeField] private Text decisionHintLabel;
+        [SerializeField] private TMP_Text topicLabel;
+        [SerializeField] private TMP_Text titleLabel;
+        [SerializeField] private TMP_Text bodyLabel;
+        [SerializeField] private TMP_Text decisionHintLabel;
 
         private Action<bool> onDecisionCommitted;
         private Coroutine animationCoroutine;

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 using UnityEngine.UI;
 using SmartCampus.Coop.Minigames;
 
@@ -9,20 +10,20 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
     public sealed class CollaborativePlantGuessMinigameUIController : MinigameUIControllerBase
     {
         [SerializeField] private CollaborativePlantGuessMinigameSession collaborativePlantGuessMinigameSession;
-        [SerializeField] private Text titleLabel;
-        [SerializeField] private Text timerLabel;
-        [SerializeField] private Text attemptsLabel;
-        [SerializeField] private Text statusLabel;
-        [SerializeField] private Text helperLabel;
-        [SerializeField] private Text hintLabel;
-        [SerializeField] private InputField guessInputField;
+        [SerializeField] private TMP_Text titleLabel;
+        [SerializeField] private TMP_Text timerLabel;
+        [SerializeField] private TMP_Text attemptsLabel;
+        [SerializeField] private TMP_Text statusLabel;
+        [SerializeField] private TMP_Text helperLabel;
+        [SerializeField] private TMP_Text hintLabel;
+        [SerializeField] private TMP_InputField guessInputField;
         [SerializeField] private Button submitGuessButton;
-        [SerializeField] private Text submitGuessButtonLabel;
+        [SerializeField] private TMP_Text submitGuessButtonLabel;
         [SerializeField] private Transform suggestionRoot;
         [SerializeField] private CollaborativePlantGuessSuggestionEntryView suggestionTemplate;
         [SerializeField] private Transform historyRoot;
         [SerializeField] private CollaborativePlantGuessHistoryRowView historyRowTemplate;
-        [SerializeField] private Text emptyHistoryLabel;
+        [SerializeField] private TMP_Text emptyHistoryLabel;
 
         private readonly List<CollaborativePlantGuessSuggestionEntryView> suggestionViews = new();
         private readonly List<CollaborativePlantGuessHistoryRowView> historyRowViews = new();
