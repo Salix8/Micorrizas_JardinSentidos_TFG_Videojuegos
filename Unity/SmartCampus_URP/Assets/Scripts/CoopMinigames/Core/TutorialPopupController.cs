@@ -21,20 +21,14 @@ namespace SmartCampus.Coop.Minigames
 
         private GameObject customContentInstance;
         private RenderTexture renderTexture;
+        private bool dismissListenersRegistered;
 
         public event Action Closed;
 
         private void Awake()
         {
-            if (backgroundDismissButton != null)
-            {
-                backgroundDismissButton.onClick.AddListener(NotifyClosed);
-            }
-
-            if (closeButton != null)
-            {
-                closeButton.onClick.AddListener(NotifyClosed);
-            }
+            ResolveReferences();
+            RegisterDismissListeners();
         }
 
         private void OnDisable()
@@ -42,8 +36,16 @@ namespace SmartCampus.Coop.Minigames
             ClearDynamicContent();
         }
 
+        private void OnDestroy()
+        {
+            UnregisterDismissListeners();
+            ReleaseRenderTexture();
+        }
+
         public void Bind(MinigameTutorialContentConfig content)
         {
+            ResolveReferences();
+
             if (content == null)
             {
                 return;
@@ -78,6 +80,8 @@ namespace SmartCampus.Coop.Minigames
 
         public void SetDismissButtonsInteractable(bool interactable)
         {
+            ResolveReferences();
+
             if (backgroundDismissButton != null)
             {
                 backgroundDismissButton.interactable = interactable;
@@ -92,6 +96,98 @@ namespace SmartCampus.Coop.Minigames
         private void NotifyClosed()
         {
             Closed?.Invoke();
+        }
+
+        private void ResolveReferences()
+        {
+            backgroundDismissButton = ResolveButton(
+                backgroundDismissButton,
+                "DismissBackground");
+            closeButton = ResolveButton(
+                closeButton,
+                "ContentPanel/ContentScrollView/Viewport/Content/CloseButton");
+            titleLabel = ResolveComponent(titleLabel, "ContentPanel/ContentScrollView/Viewport/Content/TitleLabel");
+            subtitleLabel = ResolveComponent(subtitleLabel, "ContentPanel/ContentScrollView/Viewport/Content/SubtitleLabel");
+            bodyLabel = ResolveComponent(bodyLabel, "ContentPanel/ContentScrollView/Viewport/Content/BodyLabel");
+            illustrationImage = ResolveComponent(illustrationImage, "ContentPanel/ContentScrollView/Viewport/Content/Illustration");
+            videoSurface = ResolveComponent(videoSurface, "ContentPanel/ContentScrollView/Viewport/Content/VideoSurface");
+            customContentRoot = ResolveComponent(customContentRoot, "ContentPanel/ContentScrollView/Viewport/Content/CustomContentRoot");
+            videoPlayer ??= GetComponent<VideoPlayer>();
+        }
+
+        private void RegisterDismissListeners()
+        {
+            if (dismissListenersRegistered)
+            {
+                return;
+            }
+
+            if (backgroundDismissButton != null)
+            {
+                backgroundDismissButton.onClick.AddListener(NotifyClosed);
+            }
+
+            if (closeButton != null)
+            {
+                closeButton.onClick.AddListener(NotifyClosed);
+            }
+
+            dismissListenersRegistered = true;
+        }
+
+        private void UnregisterDismissListeners()
+        {
+            if (!dismissListenersRegistered)
+            {
+                return;
+            }
+
+            if (backgroundDismissButton != null)
+            {
+                backgroundDismissButton.onClick.RemoveListener(NotifyClosed);
+            }
+
+            if (closeButton != null)
+            {
+                closeButton.onClick.RemoveListener(NotifyClosed);
+            }
+
+            dismissListenersRegistered = false;
+        }
+
+        private T ResolveComponent<T>(T currentReference, string relativePath) where T : Component
+        {
+            if (currentReference != null)
+            {
+                return currentReference;
+            }
+
+            var child = transform.Find(relativePath);
+            return child == null ? null : child.GetComponent<T>();
+        }
+
+        private Button ResolveButton(Button currentReference, string relativePath)
+        {
+            if (currentReference != null)
+            {
+                return currentReference;
+            }
+
+            var child = transform.Find(relativePath);
+            if (child == null)
+            {
+                return null;
+            }
+
+            var button = child.GetComponent<Button>();
+            if (button != null)
+            {
+                return button;
+            }
+
+            button = child.gameObject.AddComponent<Button>();
+            button.targetGraphic = child.GetComponent<Graphic>();
+            return button;
         }
 
         private void SetupVideo(VideoClip videoClip)

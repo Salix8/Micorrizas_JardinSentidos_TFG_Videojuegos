@@ -366,63 +366,7 @@ public static class GardenImageVotingMinigameSetup
 
     private static TutorialPopupController CreateTutorialPopup(Transform parent, Font font)
     {
-        var popupRoot = CreateUiObject("TutorialPopup", parent, typeof(TutorialPopupController));
-        Stretch(popupRoot.GetComponent<RectTransform>(), Vector2.zero, Vector2.zero);
-
-        var dismissButton = CreateUiObject("DismissBackground", popupRoot.transform, typeof(Image), typeof(Button));
-        Stretch(dismissButton.GetComponent<RectTransform>(), Vector2.zero, Vector2.zero);
-        dismissButton.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.62f);
-
-        var contentPanel = CreatePanel("ContentPanel", popupRoot.transform, new Color(0.95f, 0.97f, 0.94f, 1f));
-        var contentRect = contentPanel.GetComponent<RectTransform>();
-        contentRect.anchorMin = new Vector2(0.5f, 0.5f);
-        contentRect.anchorMax = new Vector2(0.5f, 0.5f);
-        contentRect.anchoredPosition = Vector2.zero;
-        contentPanel.AddComponent<ResponsivePanelLayoutController>().Configure(popupRoot.GetComponent<RectTransform>(), 0.9f, 0.86f, new Vector2(320f, 460f), new Vector2(840f, 1160f), new Vector2(32f, 32f));
-
-        var layout = contentPanel.AddComponent<VerticalLayoutGroup>();
-        layout.padding = new RectOffset(30, 30, 30, 30);
-        layout.spacing = 16f;
-        layout.childControlHeight = true;
-        layout.childControlWidth = true;
-        layout.childForceExpandHeight = false;
-
-        var closeButton = CreateButton("CloseButton", contentPanel.transform, font, "X", 20);
-        closeButton.gameObject.AddComponent<LayoutElement>().preferredHeight = 52f;
-
-        var scrollView = CreateScrollView("ContentScrollView", contentPanel.transform);
-        var scrollLayout = scrollView.Root.AddComponent<LayoutElement>();
-        scrollLayout.flexibleHeight = 1f;
-        scrollLayout.minHeight = 220f;
-
-        var title = CreateText("TitleLabel", scrollView.ContentRoot.transform, font, "Tutorial", 36, TextAnchor.MiddleCenter);
-        title.gameObject.AddComponent<LayoutElement>().preferredHeight = 56f;
-        var subtitle = CreateText("SubtitleLabel", scrollView.ContentRoot.transform, font, "Subtitulo", 24, TextAnchor.MiddleCenter);
-        subtitle.gameObject.AddComponent<LayoutElement>().preferredHeight = 44f;
-        var body = CreateText("BodyLabel", scrollView.ContentRoot.transform, font, "Contenido del tutorial", 22, TextAnchor.UpperLeft);
-        body.gameObject.AddComponent<LayoutElement>().preferredHeight = 180f;
-        var illustration = CreateUiObject("Illustration", scrollView.ContentRoot.transform, typeof(Image));
-        illustration.AddComponent<LayoutElement>().preferredHeight = 220f;
-        var videoSurface = CreateUiObject("VideoSurface", scrollView.ContentRoot.transform, typeof(RawImage));
-        videoSurface.AddComponent<LayoutElement>().preferredHeight = 220f;
-        var customContentRoot = CreateUiObject("CustomContentRoot", scrollView.ContentRoot.transform, typeof(ContentSizeFitter));
-        customContentRoot.GetComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-        var videoPlayer = popupRoot.AddComponent<UnityEngine.Video.VideoPlayer>();
-
-        var controller = popupRoot.GetComponent<TutorialPopupController>();
-        var serializedController = new SerializedObject(controller);
-        serializedController.FindProperty("backgroundDismissButton").objectReferenceValue = dismissButton.GetComponent<Button>();
-        serializedController.FindProperty("closeButton").objectReferenceValue = closeButton.GetComponent<Button>();
-        serializedController.FindProperty("titleLabel").objectReferenceValue = title;
-        serializedController.FindProperty("subtitleLabel").objectReferenceValue = subtitle;
-        serializedController.FindProperty("bodyLabel").objectReferenceValue = body;
-        serializedController.FindProperty("illustrationImage").objectReferenceValue = illustration.GetComponent<Image>();
-        serializedController.FindProperty("videoSurface").objectReferenceValue = videoSurface.GetComponent<RawImage>();
-        serializedController.FindProperty("videoPlayer").objectReferenceValue = videoPlayer;
-        serializedController.FindProperty("customContentRoot").objectReferenceValue = customContentRoot.transform;
-        serializedController.ApplyModifiedPropertiesWithoutUndo();
-
-        return controller;
+        return TutorialPopupPrefabUtility.InstantiateTutorialPopup(parent);
     }
 
     private static MinigameResultView CreateResultPopup(Transform parent, Font font)
