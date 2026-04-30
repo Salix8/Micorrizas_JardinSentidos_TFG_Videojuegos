@@ -30,6 +30,7 @@ public sealed class CoopSessionCoordinator : NetworkBehaviour
     public int MaximumPlayers => maxPlayers;
     public CoopSessionRules SessionRules => new(minPlayersToStart, maxPlayers);
     public int ConnectedPlayerCount => NetworkManager == null ? 0 : NetworkManager.ConnectedClientsIds.Count;
+    public int RegisteredPlayerCount => playerSlots.Count;
     public bool CanStartMainMap => IsServer && SessionRules.CanStart(ConnectedPlayerCount);
 
     public event Action<CoopGamePhase> PhaseChanged;
@@ -209,6 +210,18 @@ public sealed class CoopSessionCoordinator : NetworkBehaviour
 
         var localSlot = GetLocalPlayerSlot();
         return localSlot < 0 ? -1 : localSlot % channelCount;
+    }
+
+    public bool TryGetPlayerClientIdAtSlot(int slotIndex, out ulong clientId)
+    {
+        if (slotIndex >= 0 && slotIndex < playerSlots.Count)
+        {
+            clientId = playerSlots[slotIndex];
+            return true;
+        }
+
+        clientId = default;
+        return false;
     }
 
     private void HandleClientConnected(ulong _)

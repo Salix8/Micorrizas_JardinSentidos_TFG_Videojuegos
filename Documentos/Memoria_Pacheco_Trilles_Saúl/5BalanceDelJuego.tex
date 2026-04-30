@@ -1,0 +1,158 @@
+\chapter{Balance de juego}
+
+\section{Relaciones}
+\subsection*{Relaciones transitivas}
+Se refieren a cómo una mecánica o acción puede ser directa y perceptiblemente mejor que otra en ciertas situaciones, aunque eso sí, siempre a un costo.
+% shadow cost, cada mecanica debe estar balanceada transitivas 
+% cada mecanica aporta algo bueno pero por un coste
+\paragraph{Shadow cost}: Cada mecánica debe tener un beneficio claro, pero también un costo asociado. Esto se puede ver en cualquier tienda, tú vas a comprar un objeto y te cuesta un recurso, en este caso piezas de oro. Pero siempre es mucho más interesante que estas decisiones se tengan que tomar más rápido, como por ejemplo en el turno de los personajes. En este juego, como en muchos otros juegos, cada personaje tiene distintas habilidades y hay habilidades que solo se pueden usar 1 vez por combate o una vez cada 3 turnos. Esto quiere decir que el jugador debe decidir cuando es mejor usar estas habilidades porque si gastas una habilidad que solo se puede hacer 1 vez por combate es decir una vez por nivel cuando la gastes ya no podrás usarla entonces el jugador debe decidir el momento idóneo para gastarla.
+
+
+\subsection*{Relaciones intransitivas}
+% Tipos de armas resistencias y debebilidades
+\paragraph{Resistencia y debilidades}: La resistencia significa que cuando le hacen daño a algo en realidad solo le quita la mitad de vida/durabilidad (redondeando hacia abajo), y las debilidades son básicamente lo contrario, cuando le hacen a algo pues te hacen el doble de daño. En Ruku se ve comúnmente esto de las resistencias y debilidades, o bien porque les viene de base por la raza o bien porque en los escenarios hay elementos que provocan esto; por ejemplo, estas en el agua, pues tendrás resistencia al fuego, pero vulnerabilidad al rayo o por último cambiarlo mediante conjuros. Las resistencias no se pueden \textit{stackear}.
+\paragraph{Tipos de daños}: En Ruku hay distintos tipos de daño. Las armas marciales podemos clasificarlas en 3 tipos de daño: cortante, perforante y contundente. Y en cuanto a las magias, podemos clasificar el daño en x tipos: fuego, frío, rayo y ácido. Esto, junto con el sistema de las resistencias y debilidades, dota al sistema de una versatilidad y estrategia que comban muy bien.
+
+\section{Otros aspectos del balance}
+
+\subsection*{Momentos injustos}
+\paragraph{Aleatoriedad controlada}: En un sistema que se basa en los dados, el dejarlo todo en manos de la aleatoriedad puede ser peligroso y frustrante, sobretodo, cuando llevas una mala racha. Todo esto es subjetivo, pero es comprensible que si te salen unas cuantas tiradas malas y a los enemigos muy buenas (que es casualidad pero probable), pues te frustres. Para evitar estos sentimientos en nuestros jugadores Ruku por defecto tiene activados unos "dados trucados" para evitar esto que evitan las malas rachas. 
+
+¿Cómo se hace esto? Bien, pues si a un jugador le salen muchas veces tiradas bajas, se le suma un número proporcional a una cantidad de fallos. Esto provoca que en las tiradas la probabilidad de que salga x número esté más cerca del promedio. Por ejemplo, en 1d20 hay la misma probabilidad de que te toque cualquier valor, pero si tiras muchas veces bajo este sistema lo que hace es que estés más cerca del 10 y 11 que serían los valores medios, pero mucho cuidado porque también funciona a la inversa, si tienes una racha de dados muy alta, en vez de sumar, te restan, para que sea más equitativo. Hablando de equidad, cuando tienes esta acción activada también la tienen los enemigos, es decir, los dados se activan y desactivan para todos.
+\paragraph{Transparencia en las reglas}: Ruku tiene un libro en digital para poder explorar todas las reglas. Esto quiere decir que los jugadores tienen en todo momento la información de qué pasa si hacen cualquier cosa, por lo que si caen al agua y esta está electrificada, pueden ver porqué se han hecho daño. Esto no implica que estén los caminos secretos o cualquier cosa relacionada. 
+\paragraph{Personalización}: Tienes una gran gama de variables que puedes cambiar a tu gusto, una vez ya desarrollado que más nos da que los propios jugadores puedan elegir más cosas si eso les va a hacer felices. Me refiero, podemos poner fácilmente un modo de juego que sea personalizado, que aunque estén desactivados los logros, el jugador pueda disfrutar de la experiencia que a él le gustaría experimentar.
+
+\subsection{Evolución de la dificultad}
+\paragraph{Dificultad}: La dificultad como tal varía en función del contexto en el que estemos, como bien explica \href{https://as.com/meristation/2020/11/09/reportajes/1604907622_249520.html}{\emph{MeriStation}}. Ruku cuenta con distintos tipos de dificultad: "dificultad lógica" que parte de asimilar y aplicar de forma adecuada las reglas propias del mundo y "dificultad táctica" que es la dificultad que parte de realizar estrategias óptimas. Luego también cuenta con la versión más clásica de los niveles de dificultad, los típicos "fácil", "medio" y "difícil". Estos van desde aumentar el daño y la cantidad de los enemigos cómo poner situaciones que sean más complejas o sencillas de resolver (por ejemplo que haya una explosión y en esa parte el terreno haga daño cuando pases por el, o si queremos hacerlo mas fácil poner coberturas para los personajes del jugador y otras cosas similares que hagan el fuego más fácil o difícil según el usuario haya elegido). 
+
+Incluso dentro del modo medio se puede implementar la dificultad adaptativa o dinámica. Si bien hay características fijas en los otros modos de dificultad como puede ser la regeneración de vida o un incremento de la vida y nivel o bien todo lo contrario para su antónimo, en el modo de dificultad medio se puede aplicar este tipo de dificultad, que en función de la habilidad del jugador se tomen ciertas decisiones como lo hace \textit{Residen Evil 4}, que cuando un jugador intenta un nivel varias veces, quita algunos enemigos, para mantener así la tensión y diversión constante que va buscando el jugador.
+
+\paragraph{Escalado de recursos}: Los recursos hay de distintos tipos. Por ejemplo, el equipamiento al principio será abundante aunque no tan poderoso y a medida que se avance en el juego, irán apareciendo mejores equipamientos. Pero, por ejemplo, un recurso como las monedas de oro al principio tendrás poco y a medida que el jugador avance en el juego irá consiguiendo más, pero las cosas también costarán más monedas, por lo que tendrás que elegir en qué gastarte las monedas.
+
+\paragraph{Escalado de enemigos}: El escalado de enemigos parte con una base común con los jugadores en los modificadores de los \textit{stats} (los cuales se han explicado anteriormente en el capítulo de reglas) estos se suman a los dados para ver si un ataque acierta o no, para calcular el daño y curaciones. Estos modificadores irán subiendo progresivamente a medida que los personajes de los jugadores vayan subiendo de nivel (esto no quiere decir que suban cada nivel, hay niveles que no subirán). 
+
+Al principio habrá enemigos más débiles con menos vida como se ve en el ejemplo de la página de abajo en el caso del Slaad Rojo, y poco a poco según se vaya avanzando en el juego se irán cogiendo los siguientes Slaads. 
+
+En el primer continente solo se verán el Slaad rojo y el Slaad azul, dichos slaads aparecerán progresivamente, y el \textit{boss} de este continente podría ser perfectamente el Slaad verde.
+
+El Bono de competencia (BC) juega un papel bastante importante aquí, ya que se puede usar como estabilizador de encuentros, eso quiere decir que si un nivel es muy difícil y el jugador lo ha repetido 5 veces se le ofrezca antes de que empiece el nivel una opción de rebajar un poco la dificultad de este. 
+
+¿Que implica esto? Pues que los enemigos te acierten menos con sus habilidades ya que este valor influye en la dificultad que tienen los enemigos para darte y también rebaja el daño que te hacen los enemigos.
+
+Nota: si este valor se pone por debajo de 0, hay que implementar que el daño mínimo sea = 1 (porque en una acción a \textit{melé} como las descritas mas adelante si tiras cualquier dado para calcular el daño que te hacen y sale un 1 y en el BC tiene un -2, -1 de daño queda un poco raro ¿no?).
+
+
+
+
+
+
+
+
+\newpage
+
+\section{Fichas Slaads}
+Nota (del funcionamiento explicado en las reglas y mecánicas): en una acción como "Sable" se tira un dado de 20 (1d20) y se suma el bono de competencia y la fuerza "+6 (BC+Fue)" los paréntesis solo son una aclaración para saber de donde sale ese numero (+6), al igual que en el daño "1d8+2 (Fue)" el ataque hace 1d8 + el modificador de Fuerza pero para ganar claridad a la hora de leer ponemos 1d8+2. 
+\begin{segment}
+\subsection{Slaad rojo}
+    \noindent
+    \begin{itemize}
+        \item Stats
+    \end{itemize}
+    \textbf{HP:} 20 \tabto{2cm} \textbf{CA:} 12 \tabto{4cm} \textbf{BC:} +2 
+    \newline
+    Fue:+2, Des:+0, Con:+2, Int:-3, Sab:-3, Car:-2
+    \begin{itemize}
+        \item Acciones
+    \end{itemize}
+    \textbf{Sable}: ataque a \textit{melé} +4 (BC+Fue) a impactar, hace 1d8+2 (Fue) de daño cortante.
+
+\subsection{Slaad azul}
+    \noindent
+    \begin{itemize}
+        \item Stats
+    \end{itemize}
+    \textbf{HP:} 40 \tabto{2cm} \textbf{CA:} 15 \tabto{4cm} \textbf{BC:} +2 
+    \newline
+    Fue:+3, Des:+2, Con:+3, Int:-2, Sab:-2, Car:-1 \newline
+    \textbf{Regeneración}: Si no está muerto al inicio de su turno se regenera 3 (Con) HP.
+    \begin{itemize}
+        \item Acciones
+    \end{itemize}
+    \textbf{Sable}: ataque a \textit{melé} +5 (BC+Fue) a impactar 2d6+3 (Fue) de daño cortante.
+\end{segment}
+
+\begin{segment}
+\subsection{Slaad verde}
+    \noindent   
+    \begin{itemize}
+        \item Stats
+    \end{itemize}
+    \textbf{HP:} 40 \tabto{2cm} \textbf{CA:} 15 \tabto{4cm} \textbf{BC:} +3 
+    \newline
+    Fue:+2, Des:+2, Con:+2, Int:+0, Sab:-2, Car:+2 \newline
+    \textbf{Resistente} a ácido, frío, fuego, rayo.
+    \begin{itemize}
+        \item Acciones
+    \end{itemize}
+    \textbf{Sable}: ataque a \textit{melé} +5 (BC+Fue) a impactar, hace 1d8+3 (Fue) de daño cortante.\newline
+    \textbf{Petardo}: ataque a distancia +5 (BC+Fue) a impactar 2d6 de daño de rayo.\newline
+    \textbf{Red de energía}: a distancia +5 (BC+Car) a impactar movilidad del objetivo a 0 durante 3 turnos.\newline
+    \textbf{Kit de auxilio}: curación a \textit{melé} 2d8+2 (Car)
+    \vspace{2cm}
+\subsection{Slaad negro}
+
+    \noindent
+    \begin{itemize}
+        \item Stats
+    \end{itemize}
+    \textbf{HP:} 150 \tabto{2cm} \textbf{CA:} 17 \tabto{4cm} \textbf{BC:} +4 
+    \newline
+    Fue:+4, Des:+2, Con:+4, Int:+2, Sab:+0, Car:+3 \newline
+    \textbf{Resistente} a ácido, frío, fuego, rayo y a la magia.\newline
+    \textbf{Chaleco de regeneración} Si no está muerto al inicio de su turno se regenera 1d4+4 (Con) HP.
+    \begin{itemize}
+        \item Acciones
+    \end{itemize}
+    \textbf{Espada de energía}: ataque a \textit{melé} +8 (BC+Fue) a impactar, hace 2d6+4 (Fue) de daño cortante. \newline
+\end{segment}
+\begin{segment}
+\subsection{Slaad gris}
+    \noindent
+    \begin{itemize}
+        \item Stats
+    \end{itemize}
+    \textbf{HP:} 40 \tabto{2cm} \textbf{CA:} 15 \tabto{4cm} \textbf{BC:} +4 
+    \newline
+    Fue:+2, Des:+3, Con:+2, Int:+1, Sab:-1, Car:+2 \newline
+    \textbf{Resistente} a ácido, frío, fuego, rayo y a la magia.\newline
+    \begin{itemize}
+        \item Acciones
+    \end{itemize}
+    \textbf{Sable}: ataque a \textit{melé} +6 (BC+Fue) a impactar, hace 1d8+2 (Fue) de daño cortante.\newline
+    \textbf{Petardo}: ataque a distancia +6 (BC+Car) a impactar 3d10 de daño de rayo.\newline
+    \textbf{Red de energía}: a distancia +6 (BC+Car) a impactar movilidad del objetivo a 0 durante 3 turnos.\newline
+    \textbf{Granada repulsiva}: ataque a distancia +6 (BC+Car) a impactar empuja a una criatura 3 casillas.\newline
+    \textbf{Granada}: ataque a distancia +6 (BC+Car) a objetivo que impacte un cuadrado de 2x2 casillas se llena de fuego 2d8 de daño de fuego. \newline
+    \textbf{Jetpack}: otorgas la habilidad de volar a una criatura aliada durante 3 turnos (solo 1 por combate).
+\subsection{Boss}
+    \noindent
+    \begin{itemize}
+        \item Stats
+    \end{itemize}
+    \textbf{HP:} 200 \tabto{2cm} \textbf{CA:} 20 \tabto{4cm} \textbf{BC:} +5 
+    \newline
+    Fue:+5, Des:+2, Con:+5, Int:+2, Sab:+0, Car:+3 \newline
+    \textbf{Resistente} a ácido, frío, fuego, rayo y a la magia.\newline
+    \textbf{Chaleco de regeneración} Si no está muerto al inicio de su turno se regenera 2d4+5 (Con) HP.
+    \begin{itemize}
+        \item Acciones
+    \end{itemize}
+    \textbf{Multiataque}: puedes realizar dos ataques a \textit{melé}
+    \textbf{Espada de energía}: ataque a \textit{melé} +10 (BC+Fue) a impactar, hace 2d6+5 (Fue) de daño cortante. \newline
+    \textbf{Petardo}: ataque a distancia +7 (BC+Car) a impactar 4d10 de daño de rayo.\newline
+    \begin{itemize}
+        \item Acciones legendarias 3/3
+    \end{itemize}
+    \textbf{Moverse}: se puede mover 3 casillas. \newline
+    \textbf{Acción}: realiza una acción (sin multiataque).
+\end{segment}

@@ -156,6 +156,20 @@ private void UpdateMarker(ulong clientId, double latitude, double longitude, dou
         }
     }
 
+    public bool TryGetMarkerWorldPosition(ulong clientId, out Vector3 worldPosition)
+    {
+        if (markerViews.TryGetValue(clientId, out var markerView) &&
+            markerView.Root != null &&
+            markerView.Root.activeInHierarchy)
+        {
+            worldPosition = markerView.Root.transform.position;
+            return true;
+        }
+
+        worldPosition = default;
+        return false;
+    }
+
     private void RemoveInactiveMarkers(HashSet<ulong> activeClientIds)
     {
         var staleClientIds = ListPool<ulong>.Get();

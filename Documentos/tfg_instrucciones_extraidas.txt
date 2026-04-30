@@ -1,0 +1,418 @@
+--- PAGE 1 ---
+ 
+Grado en Diseño y Desarrollo de Videojuegos 
+VJ1241 – Trabajo de Final de Grado 
+Rúbrica evaluación TFG 
+ 
+El presente documento recoge las directrices básicas para la evaluación homogénea de 
+los proyectos de Final de Grado de la titulación de Diseño y Desarrollo de Videojuegos. 
+La evaluación del TFG considera cuatro aspectos del trabajo realizado con la siguiente 
+distribución de pesos: 
+A. Calidad de la memoria (25%).  
+B. Calidad del trabajo realizado (50%). 
+C. Demostración (10%). 
+D. Presentación técnica (15%). 
+A continuación, se indican los diferentes apartados que forman parte de los elementos a 
+considerar por parte del tribunal a la hora de evaluar el TFG. 
+En cada uno de los apartados se indica a cuál de los cuatro aspectos arriba indicados 
+corresponde dicho apartado. 
+1. Portada (A). 
+La primera página de la memoria debe contener el logo de la UJI, el nombre de la 
+titulación, el título del proyecto, nombre y apellidos del/de la alumno/a, nombre del/de la 
+tutor/a y fecha de la defensa. 
+2. Maquetación, estética, ortografía y redacción (A). 
+El documento debe estar adecuadamente maquetado. Las páginas deben estar numeradas. 
+Los capítulos deben empezar en una página impar. 
+Dado que se trata de una titulación con aspectos artísticos, el estilo estético es 
+relativamente libre, pero debe contar con una adecuada elección de tipo y tamaño de letra, 
+así como de combinación de colores que hagan fácil y agradable la lectura del documento. 
+La ortografía debe ser correcta, resultando admisible (aunque siempre penalizable) la 
+presencia de algunas erratas. 
+
+
+--- PAGE 2 ---
+La redacción debe ser clara y fluida, con una exposición ordenada de las ideas y conceptos 
+y una adecuada construcción de frases. 
+3. Índice (A). 
+En el índice deben recogerse todos los contenidos del documento, como el propio índice, 
+palabras clave, introducción y cualquier otro preámbulo o postámbulo que contenga el 
+documento. 
+Debe figurar los números de página. 
+No es obligatorio pero se valorará el hecho de que los ítems del índice estén enlazados a 
+los puntos correspondientes del documento. 
+4. Palabras clave (A). 
+Debe haber una breve lista de palabras fundamentales relacionadas con el contenido del 
+documento y, por tanto, el objeto del proyecto. 
+5. Introducción (A). 
+Se debe realizar una explicación del objeto del proyecto con una descripción de los 
+conceptos involucrados de forma que sean inteligibles para aquellos/as lectores/as no 
+versados en las disciplinas relacionadas con el mismo. 
+Si procede, se debe incluir un comentario sobre las posibles aportaciones o innovaciones 
+del proyecto, destacando en qué medida podría resultar inédito. 
+6. Motivaciones (A). 
+Se comentarán las razones por las que se ha decidido realizar este proyecto en concreto, 
+indicado si se trata de motivaciones personales, profesionales, etc. 
+7. Planificación (B). 
+Objetivos. Es necesario exponer los objetivos establecidos antes de iniciar la realización 
+del proyecto, detallando qué se pretende conseguir en cada aspecto y, en su caso, las 
+expectativas de conseguirlo. 
+Planificación. Se debe confeccionar una descomposición del proyecto en tareas y éstas, a 
+su vez, en subtareas simples, estimando la duración de cada una de ellas. Hay que tener 
+en cuenta que la duración estimada del desarrollo del TFG es de 300 horas, de las cuales 
+aproximadamente 50 horas se estima que se dedicarán a la confección de documentación 
+(propuesta técnica, GDD, memoria y presentación). 
+Costes. La estimación del coste económico del proyecto se enfoca desde el punto de vista 
+de una entidad que desee realizar y financiar por completo el desarrollo del proyecto.  
+ Hay que estimar el coste de las horas de trabajo necesarias para llevar a cabo el 
+proyecto, considerando, en su caso, a qué categoría profesional corresponde cada 
+una de dichas horas. Se debe estimar el coste de las horas utilizando una referencia 
+acreditada y citándola. 
+ Se debe estimar el coste del hardware necesario para la realización del proyecto. 
+Aunque ya se hay adquirido, se debe incluir el coste equivalente, o el coste 
+
+--- PAGE 3 ---
+proporcional que supone el uso de dicho hardware durante el tiempo de desarrollo 
+que haya requerido el proyecto. 
+ En cuanto al software, el planteamiento es idéntico. Se debe indicar cuál sería el 
+coste del software empleado en el proyecto, tanto total como, si procede, el 
+proporcional al tiempo empleado. 
+ Se pueden incluir gastos como alquiler de espacios de trabajo, coste energético y 
+cualquier otro gasto adicional involucrado en el desarrollo del proyecto. 
+Comprobación. Al final del capítulo de planificación o en el capítulo de resultados se 
+debe incluir una tabla de tiempos donde se comparen las horas reales dedicadas a cada 
+una de las tareas con las inicialmente planificadas, justificando las desviaciones 
+importantes que pudiese haber. 
+8. Análisis (B). 
+En este capítulo se analizan los requisitos, diseño y arquitectura del trabajo propuesto, así 
+como, en su caso, el diseño de su interfaz. 
+En la sección de análisis de requisitos se deben indicar los requisitos funcionales y no 
+funcionales del proyecto, que deben distinguirse claramente de los objetivos del mismo. 
+Los requisitos funcionales describen, como su nombre indica, funciones del sistema a ser 
+desarrollado. Estos requisitos se describen mediante un conjunto de entradas, su 
+comportamiento y sus salidas. Pueden consistir en cálculos, manipulaciones de datos, 
+procesos o cualquier otro tipo de funcionalidad que describa las acciones que se supone 
+que el sistema va a realizar. Deberá haber una sección “Diseño del sistema” que recoja la 
+forma en que se implementarán los requisitos funcionales. Conviene ilustrar el diseño con 
+diagramas funcionales. 
+Los requisitos no funcionales imponen condiciones al diseño o a la implementación, 
+como restricciones de rendimiento, seguridad o fiabilidad. Deberá haber una sección 
+“Arquitectura del sistema” que recoja la forma en que se implementarán los requisitos no 
+funcionales en la que también se incluirán los requisitos hardware, la estructura de 
+componentes y los requisitos mínimos para el funcionamiento del sistema desarrollado. 
+9. Desarrollo (B). 
+En este capítulo se deben describir los aspectos fundamentales del trabajo desarrollado. 
+Es necesario indicar los hitos alcanzados, los problemas encontrados y resueltos, así como 
+manifestar y justificar cualquier posible desviación respecto de la planificación inicial. 
+Solamente se debe incluir en este capítulo la información técnica estrictamente necesaria 
+para la comprensión del trabajo desarrollado, presentada de forma que sea inteligible por 
+cualquiera que no sea experto en los temas desarrollados. Cualquier información técnica 
+necesaria para la comprensión del trabajo realizado debe incluirse en los apéndices y 
+citarse adecuadamente. 
+10. Resultados (B). 
+Se muestran los resultados del proyecto realizado, respecto de los objetivos iniciales. La 
+explicación debe centrarse en los hitos alcanzados y evitar los detalles técnicos en la 
+medida de lo posible. 
+
+--- PAGE 4 ---
+También pueden comentarse en este capítulo las posibles aplicaciones del proyecto 
+desarrollado, así como posibles medios de acceso al mismo como repositorios, páginas 
+web, etc. 
+11. Conclusiones y trabajo futuro (B). 
+Hay que tener en cuenta algunos aspectos a la hora de confeccionar las conclusiones (11): 
+ Las conclusiones han de coincidir con el contenido del trabajo. No quiere decir 
+que haya que repetir lo que ya se ha expuesto, pero tampoco desvincularse del 
+contenido del proyecto, porque en ese caso carecen de argumentación que las 
+respalde. 
+ No se puede añadir información en este apartado. En este caso no sería una 
+conclusión, sino una argumentación que debería haberse expuesto con 
+anterioridad. 
+ No deben contener notas al pie, porque se supone que son propias del autor y no 
+de otros. 
+Si el trabajo tiene visos de ser continuado es conveniente indicar en este capítulo de qué 
+forma se haría y, en su caso, si esa continuación correría a cargo del/de la alumno/a o de 
+otras personas o equipos de trabajo. 
+12. Bibliografía (A). 
+A lo largo de documento se deben citar todas las fuentes de donde se haya obtenido 
+información para realizar tanto el proyecto como el propio documento. Cualquier 
+contenido que haya sido copiado literalmente debe mostrarse entrecomillado y con la 
+correspondiente cita. 
+No se deben incluir en la bibliografía fuentes consultadas pero no citadas. 
+Al igual que en el caso del índice, se valorará la existencia de citas enlazadas con la 
+bibliografía. 
+13. Apéndices (A). 
+La existencia de apéndices está justificada cuando se desea mostrar información que no 
+tiene cabida en el propio texto ni en la bibliografía. 
+Un caso particular de información que podría aparecer en un apéndice es el código fuente. 
+En este caso es admisible que aparezcan fragmentos especialmente significativos, pero 
+nunca el código completo, que se debe referenciar en el texto mediante un enlace al 
+repositorio correspondiente. 
+14. Presentación (C). 
+La presentación consta del documento que contiene las transparencias a mostrar y de la 
+disertación que el/la alumno/a realizará ante el tribunal. 
+ 
+1 Fernández Fernández, Antonio. Claves para la correcta elaboración, dirección y gesƟón de un TFG. Guía 
+prácƟca para el alumno, el tutor y el coordinador de la asignatura. Colección SapienƟa, num 173, UJI, 
+2020 
+
+--- PAGE 5 ---
+Las transparencias deben contener una cantidad reducida de texto, recogiendo los 
+conceptos elementales a exponer, correspondiendo a la disertación la aportación de los 
+detalles adicionales. 
+La disertación debe ser fluida, lineal y coherente. La postura, la actitud, el volumen y 
+entonación deben ser adecuados. 
+En la ronda de preguntas del tribunal, el/la alumno/a debe responder con claridad y 
+precisión a las cuestiones planteadas por los/as profesores/as. 
+15. Demostración (D). 
+Formando parte de la defensa del TFG, el/la alumno/a deberá mostrar al tribunal el 
+funcionamiento del proyecto realizado. Dicha demostración debe consistir, si resulta 
+posible, en la ejecución del código desarrollado en lugar de en la grabación de un video 
+de ejemplo. 
+  
+
+--- PAGE 6 ---
+RÚBRICA 
+A continuación, se muestran los criterios a aplicar en la evaluación del TFG, considerando 
+lo expuesto anteriormente. 
+Para cada uno de los ítems considerados, se mostrarán cinco niveles de calificación 
+dependiendo del grado de consecución de los criterios anteriormente expuestos. 
+1 – Portada. 
+ 4 – La portada contiene el logo de la UJI, el nombre de la titulación, el nombre 
+del proyecto, el nombre del/de la alumno/a, el nombre del/de la tutor/a y la fecha de 
+defensa adecuadamente organizados y alineados, con tamaños y tipos de letra legibles. 
+ 3 – La información de la portada no aparece adecuadamente alineada, los tipos 
+y/o tamaños de letra no son adecuados o no aparece el logo de la UJI. 
+2 – La información mostrada en la portada es insuficiente, no apareciendo 
+alguno(s) de los elementos requeridos. 
+ 1 – Faltan varios de los elementos requeridos y hay deficiencias de formato y 
+alineación de los textos. 
+ 0 – No hay portada. 
+2 – Maquetación, estética, ortografía y redacción. 
+ 4 – La redacción es fluida y la exposición de las ideas es clara. No hay faltas de 
+ortografía. Las páginas están numeradas. La maquetación es adecuada. El tipo y tamaño 
+de letra hacen que la lectura resulte cómoda. 
+ 3 – La redacción es aceptable. No hay faltas de ortografía. Las páginas están 
+numeradas. La maquetación y estética del documento son aceptables. 
+2 – La redacción es mejorable. Hay alguna falta de ortografía. Hay deficiencias en 
+la numeración de las páginas. El tipo o tamaño de la letra no es del todo adecuado. La 
+estética del documento presenta alguna característica poco apropiada. 
+ 1 – La redacción es deficiente y las explicaciones son difíciles de entender. Se usa 
+la primera persona del singular en los apartados técnicos. Hay faltas de ortografía. Las 
+páginas no están numeradas. La estética del documento lo hace difícil o incómodo de leer. 
+ 0 – La redacción es muy deficiente. Se usa la primera persona del singular en los 
+apartados técnicos. Contiene multitud de faltas graves de ortografía. El documento carece 
+de orden y homogeneidad estética, no hay índice ni páginas numeradas. Se ha presentado 
+en un idioma diferente del inglés.  
+ 
+3 – Índice. 
+ 4 – El  índice es correcto y está enlazado con los capítulos y apartados del 
+documento. 
+
+--- PAGE 7 ---
+ 3 – En el índice aparecen todos los capítulos y apartados del documento y hay 
+números de página. 
+2 – En el índice no hay números de página. 
+ 1 – En el índice se muestran los capítulos pero no los apartados y no aparecen los 
+números de página. 
+ 0 – No hay índice. 
+4 – Palabras clave. 
+ 4 – Las palabras clave representan correctamente los conceptos fundamentales 
+relacionados con el proyecto realizado. 
+ 3 – Hay demasiadas palabras clave. 
+2 – Algunas palabras clave no representan el contenido del documento. 
+ 1 – No hay suficientes palabras clave. 
+ 0 – No hay apartado de palabras clave. 
+ 
+5 – Introducción. 
+ 4 – Se describe breve y correctamente el estado del arte relativo al proyecto, los 
+objetivos e implicaciones de éste, aclarando en todo momento los conceptos técnicos 
+involucrados. 
+ 3 – Se describe el ámbito del proyecto y sus objetivos, pero sin explicar algunos 
+conceptos técnicos específicos relacionados con el mismo. 
+2 – En la introducción no se citan los objetivos del proyecto. 
+ 1 – La introducción no pone en antecedentes al lector del ámbito, propósito y 
+objetivos del proyecto. 
+ 0 – No hay capítulo de introducción. 
+ 
+6 – Motivaciones. 
+ 4 – Se describe la motivación o inspiración que llevó a elegir el tema del proyecto, 
+las ideas o necesidades que lo provocaron. Se explica por qué se ha realizado el proyecto. 
+ 3 – Se explican y justifican las razones por las que se eligió el tema del proyecto. 
+2 – No se explica adecuadamente por qué se eligió el tema de proyecto. 
+ 1 – No hay apartado de motivaciones. 
+ 0 – Nunca. 
+
+--- PAGE 8 ---
+ 
+7 – Planificación. 
+ 4 – Se exponen y detallan los objetivos del proyecto, así como las expectativas de 
+alcanzarlos. Se muestra la organización en tareas y subtareas del proyecto, así como la 
+estimación del coste en horas de cada una de ellas. Se muestra una estimación de los 
+costes económicos del proyecto incluyendo horas de trabajo, hardware, software y costes 
+indirectos. 
+ 3 – Se exponen y detallan los objetivos del proyecto, así como las expectativas de 
+alcanzarlos. Se muestra la organización en tareas del proyecto, así como la estimación del 
+coste en horas de cada una de ellas. Se muestra una estimación de los costes económicos 
+del proyecto incluyendo horas de trabajo, hardware, software. 
+2 – Alguno o varios de los apartados que debe incluir el capítulo es deficiente. 
+ 1 – No se incluyen objetivos, planificación o estimación de costes en este capítulo. 
+ 0 – No hay capítulo de planificación. 
+ 
+8 – Análisis. 
+ 4 – Los requisitos funcionales y no funcionales están adecuadamente expuestos. 
+Se detalla la forma en que se implementarán los requisitos funcionales, ilustrándola con 
+diagramas. Se detalla arquitectura del sistema, así como los requisitos mínimos para el 
+funcionamiento del sistema desarrollado. 
+ 3 – Los requisitos funcionales y no funcionales están adecuadamente expuestos. 
+Se detalla la forma en que se implementarán los requisitos funcionales, ilustrándola con 
+diagramas. Se muestra arquitectura del sistema. 
+2 – Los requisitos funcionales y no funcionales están adecuadamente expuestos. 
+Se muestra arquitectura del sistema. 
+ 1 – No se exponen los requisitos funcionales, los requisitos no funcionales o la 
+arquitectura del sistema. 
+ 0 – No hay capítulo de análisis. 
+ 
+9 – Desarrollo. 
+ 4 – Se describe de forma organizada y completa el proceso de implementación del 
+proyecto, especificando los problemas surgidos y los hitos alcanzados. Se exponen y 
+justifican las posibles desviaciones respecto de la planificación inicial. La explicaciones 
+contienen los conceptos técnicos imprescindibles para su comprensión y los que son 
+susceptibles de ser explicados, están incluidos en los apéndices y correctamente citados. 
+
+--- PAGE 9 ---
+ 3 – Se describe el proceso de implementación del proyecto, especificando los 
+problemas surgidos y los hitos alcanzados. Se exponen y justifican las posibles 
+desviaciones respecto de la planificación inicial. Las explicaciones incluyen conceptos 
+técnicos específicos que están explicados en los apéndices y adecuadamente citados. 
+2 – El proceso de implementación del proyecto se describe de forma incompleta 
+o insuficiente. No se especifican posibles problemas ni hitos alcanzados. No se 
+especifican posibles desviaciones respecto de la planificación inicial. Las explicaciones 
+contienen conceptos técnicos innecesarios o no explicados. 
+ 1 – El proceso de implementación del proyecto se describe de forma deficiente o 
+no se describe. No se especifican los posibles problemas surgidos, hitos alcanzados y/o 
+las desviaciones respecto de la planificación inicial. Las explicaciones usan demasiados 
+conceptos técnicos sin describirlos, lo cual dificulta su comprensión. 
+ 0 – No hay capítulo de desarrollo del proyecto. 
+ 
+10 – Resultados. 
+ 4 – Se describen adecuadamente los resultados alcanzados comparándolos con los 
+objetivos iniciales. Asimismo, se muestran las tareas y subtareas realizadas 
+comparándolas con la planificación inicial y justificando las posibles diferencias. Se 
+indican y describen las posibles aplicaciones del proyecto desarrollado. 
+ 3 – Se describen los resultados alcanzados comparándolos con los objetivos 
+iniciales. Se muestran las tareas y subtareas realizadas comparándolas con la planificación 
+inicial y justificando las posibles diferencias. Se indican las posibles aplicaciones del 
+proyecto desarrollado. 
+2 – Se muestran los resultados alcanzados sin compararlos con los objetivos 
+iniciales. Se muestran las tareas desarrolladas y los tiempos invertidos en ellas pero no se 
+comparan con la planificación inicial o no se justifican las posibles diferencias. No se 
+indican las posibles aplicaciones del proyecto. 
+ 1 – No se muestran los resultados alcanzados, no se comparan con los objetivos 
+iniciales o no se comparan las tareas con la planificación inicial. No se indican las posibles 
+aplicaciones del proyecto. 
+ 0 – No hay capítulo de resultados. 
+ 
+11 – Conclusiones y trabajo futuro. 
+ 4 – Las conclusiones son personales y se refieren al contenido del proyecto. No 
+hay información externa o adicional. No hay notas al pie ni citas. Si el proyecto es 
+susceptible de ser continuado, se indica de qué forma lo sería. 
+
+--- PAGE 10 ---
+ 3 – Las conclusiones son personales y se refieren al contenido del proyecto. No 
+hay información externa o adicional. Hay notas al pie o citas. Si el proyecto es susceptible 
+de ser continuado, se indica de qué forma lo sería. 
+2 – Algunas de las conclusiones no se refieren al contenido del proyecto. Hay 
+información externa o adicional no incluida previamente en el documento. Si el proyecto 
+es susceptible de ser continuado, no se indica de qué forma lo sería. 
+ 1 – Las conclusiones expuestas no se corresponden con el contenido del proyecto. 
+ 0 – No hay capítulo de conclusiones y trabajo futuro. 
+ 
+12 – Bibliografía. 
+ 4 – Las citas bibliográficas presentan una estructura homogénea, están ordenadas 
+según un criterio concreto y están enlazadas en el texto. 
+ 3 – Las citas bibliográficas presentan una estructura homogénea, están ordenadas 
+según un criterio concreto pero no están enlazadas en el texto. 
+2 – Las citas bibliográficas no presentan una estructura homogénea o no están 
+ordenadas según un criterio concreto. 
+ 1 – Las citas bibliográficas están incompletas o son erróneas. 
+ 0 – No hay bibliografía. 
+ 
+13 – Apéndices. 
+ 4 – Se incluye la cantidad justa de información adicional en los apéndices y está 
+adecuadamente referenciada en el texto. El documento no presenta apéndices pero resulta 
+evidente que no son necesarios. 
+ 3 – Se incluye demasiada información en los apéndices, como el código completo 
+del proyecto desarrollado, que puede proporcionarse a través de un repositorio. 
+2 – La información en los apéndices es insuficiente o incorrectamente 
+referenciada. 
+ 1 – No se incluyen apéndices cuando el contenido del documento lo requiere. 
+ 0 – Nunca. 
+ 
+  
+
+--- PAGE 11 ---
+14 – Presentación. 
+14.1 – Organización 
+ 4 – La presentación está adecuadamente estructurada. Los textos son breves y 
+concisos y no invitan al espectador a leerlos mientras el orador está hablando. La estética 
+es agradable. La extensión de la presentación es adecuada. 
+ 3 – La presentación está adecuadamente estructurada. Los textos son breves y 
+concisos. La estética es agradable. La extensión de la presentación es insuficiente o 
+excesiva. 
+2 – La presentación está adecuadamente estructurada. Los textos son demasiado 
+extensos. La estética es agradable. 
+ 1 – La presentación está adecuadamente estructurada o la estética no es agradable. 
+ 0 – La presentación es deficiente en todos los aspectos. 
+14.2 – Locución 
+ 4 – El/la alumno/a adopta una postura correcta, relajada y con seguridad. Mantiene 
+el contacto visual con los/as miembros del tribunal. Habla con fluidez, pronuncia con 
+claridad y mantiene el interés de la audiencia. La duración de la exposición está dentro 
+del tiempo estipulado. 
+ 3 – El/la alumno/a adopta una postura correcta. Mantiene el contacto visual con 
+los/as miembros del tribunal. Habla con fluidez, pronuncia con claridad y mantiene el 
+interés de la audiencia. Se perciben nervios e inseguridad. La duración de la exposición 
+está dentro del tiempo estipulado. 
+2 – El/la alumno/a ocasionalmente adopta una postura correcta y establece 
+contacto visual con los/as miembros del tribunal. El discurso no siempre es fluido y hay 
+pérdidas de continuidad. Se perciben nervios e inseguridad. La duración de la exposición 
+es claramente excesiva. 
+ 1 –El/la alumno/a no adopta una postura correcta. El discurso no siempre es fluido 
+y hay pérdidas de continuidad. Se perciben muchos nervios. No siempre se expresa 
+correctamente. La duración de la exposición es insuficiente. 
+ 0 – El/la alumno/a no se expresa adecuadamente. 
+14.3 – Defensa 
+ 4 – El/la alumno/a responde con rapidez y precisión a todas las preguntas del 
+tribunal. Se dirige al tribunal con el debido respeto. 
+ 3 – El/la alumno/a responde con rapidez y precisión a la mayoría de las preguntas 
+del tribunal. Se dirige al tribunal con el debido respeto. 
+2 – El/la alumno/a responde con rapidez y precisión a algunas de las preguntas del 
+tribunal. En ocasiones tutea a algún/a miembro del tribunal. 
+
+--- PAGE 12 ---
+ 1 – El/la alumno/a responde, en parte, de manera inadecuada a las preguntas del 
+tribunal. Tutea a los/as miembros del tribunal. 
+ 0 – El/la alumno/a no puede responder a las preguntas del tribunal o las responde 
+de forma inadecuada. 
+ 
+15 – Demostración. 
+ 4 – La demo está adecuadamente estructurada, mostrando todos los aspectos 
+relevantes del proyecto desarrollado. El/la alumno/a realiza una explicación fluida y clara 
+de lo que está mostrando en cada momento. La duración de la demo está dentro del tiempo 
+estipulado. 
+ 3 – La demo está adecuadamente estructurada, mostrando todos los aspectos 
+relevantes del proyecto desarrollado. La explicación del/de la alumno/a es clara pero 
+presenta algunos instantes de duda. La duración de la demo está dentro del tiempo 
+estipulado. 
+2 – La estructura de la demo es mejorable. Las explicaciones presentan ligeras 
+deficiencias. La duración de la demo es claramente excesiva. 
+ 1 – La estructura de la demo es deficiente. Las explicaciones no son adecuadas. 
+La duración de la demo es totalmente insuficiente. 
+ 0 – La demo no muestra el funcionamiento del proyecto y las explicaciones son 
+claramente deficientes. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+

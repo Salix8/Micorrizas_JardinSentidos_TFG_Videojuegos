@@ -1,0 +1,164 @@
+\chapter{Mecánicas}
+
+\section*{Mecánicas de los personajes}
+\begin{segment}
+    
+    
+    \paragraph{Personalización}: En la creación de los personajes tu puedes elegir casi todo lo que se te ocurra, nombre, raza, facciones de la cara, pelo, clase, subclase, objetos que llevar tanto útiles como armas y accesorios sin ninguna utilidad más que estética, los \textit{stats}. Pero es que esto no acaba aquí lo más importante es que también puedes personalizar tu historia, ya que tu eliges a que personajes quieres o no a tu lado y si les quieres ayudar o no, esto por supuesto tiene consecuencias pero es lo que hay, todos los actos tienen consecuencias. Y por último para los jugadores que sin querer hayan elegido un camino que no pueden completar por que se ha vuelto muy dificil o por el motivo que sea, hay ciertos \textit{
+power-Ups} que aunque te desactivan los logros y todo este tipo de elementos que impliquen recompensa de algún tipo, hacen que esos jugadores se puedan pasar el juego sin llegar a frustrarse.
+\end{segment}
+
+\section*{Mecánicas de los NPCs}
+\begin{segment}
+    \paragraph{Interacciones}: Ahora que acabamos de comentar que puedes estar con los NPCs o ir por libre incluso ir en contra de estos traicionándoles. Esto implica que el juego puede ser más fácil si tienes aliados o más difícil si no los tienes incluso aun más difícil si no solo no es que vayas ni con ellos ni dejar de ir con ellos si no que ellos también pueden ir en tu contra y traicionarte si saben que en otro continente has hecho otras cosas que perjudique a las facciones en resistencia. Esto también significa que aquí cada jugador elije su dificultad de esta manera, mediante sus acciones.
+    \vspace{2cm}
+    
+    \paragraph{Comportamientos}: Los patrones de las criaturas en el campo de batalla están implementados mediante un híbrido entre acciones predefinidas que tiene que hacer una criatura en determinado lugar con determinado objeto y patrones que son controlados por una IA. Un  ejemplo de acción predefinida seria que en el primer turno un Slaad lanze una granada incendiaria, para que se incendie una zona y el terreno este en llamas esto dificulta el paso y hace pensar al jugador. Y otras que una IA calcule cual puede ser de los mejores movimientos y haga uno de estos y a medida que se acerquen al final los movimientos serán mejores y los enemigos tendrán más \textit{buffs}.
+\end{segment}
+
+\section*{Mecánicas core}
+\begin{segment}
+    \paragraph{Iniciativa}: Se ha mencionado en algún apartado anterior pero aquí vamos a entrar en detalle, además vamos a añadir otros eventos a la iniciativa. Hasta donde sabemos cada criatura tiene una iniciativa esta se calcula mediante un porcentaje sumándole los \textit{stats} lo que se representa lanzando un dado que visualmente se lanza en el margen derecho del juego, el dado sera un d20 para acercarnos al sistema de Dungeons and Dragons que como hemos dicho anteriormente eran parte el publico objetivo. Y ahora lo que acabamos de decir los eventos del mundo, aquí puede entrar el daño de la lluvia ácida o por ejemplo el cuando salta una trampa que lanza fuego en una de las bases etc. Todo esto tiene un orden fijo en la iniciativa, al igual que las criaturas en cada turno tiene que tirar el d20 y sumar su \textit{stat}, estos eventos del mundo tiene una iniciativa fija en cada turno que es igual a 20.
+\end{segment}
+    \vspace{1cm}
+
+    \paragraph{Economía de Acción}: Una vez ya tenemos la iniciativa tenemos que ver como funciona cada uno de estos turnos. Bien pues si nada dice lo contrario cada criatura puede moverse 6 casillas usar su acción y su acción adicional, hay clases que carecen de acciones adicionales por lo que tendrán que buscar objetos que tengan habilidades que utilicen su acción adicional. A esto es a lo que llamamos economía de acción, a cuantas cosas puedes hacer en tu turno aunque esto se suele mirar más en cuanto a la \textit{party vs} los enemigos (es decir es más grupal). Por ejemplo la \textit{party} no tiene una buena economía de acción si tiene por ejemplo 3 personajes cada uno con una acción viable pero luego se enfrentan a 10 enemigos que tendrán cada uno una acción.
+    
+    Esto también es muy importante a la hora de planificar los niveles, por ejemplo si quieres que la \textit{party} se enfrente a un \textit{boss} y que sea satisfactorio para el jugador, tiene que de alguna manera hacer que el \textit{boss} actué más veces. Si esto no es así tendrás a 4 o 5 personajes que están pegando a un solo enemigo y al enemigo no le va a dar tiempo ha hacer nada porque hay 5 turnos en los que solo esta ahí para servir como bolsa de vida.Entonces esto lo solucionamos con lo que llamamos acciones legendarias, son igual que las acciones pero son propias de los enemigos y se usan después del turno de un personaje que controle el jugador, esto provoca que cuando un personaje le haga algo como pegarle este \textit{boss} pueda responder al ataque y se vuelva un combate más dinámico y satisfactorio.
+
+
+    Por tanto resumen, cada criatura tiene movimiento 6 casillas, acción y acción adicional (depende de las habilidades de la criatura) y ocasionalmente una reacción. Adicionalmente algunas criaturas tendrán acciones legendarias, y algunas zonas tendrán su acción en iniciativa 20.
+
+
+
+
+\newpage
+\section*{Acciones del usuario}
+\begin{tablebox}{Acciones del usuario 1}
+\begin{tabulary}{\linewidth}{c L L L}
+    \textbf{Acciones} & \textbf{Descripción} & \textbf{Acciones-Dinámicas} & \textbf{Triggers} \\
+    \hline
+    Seleccionar personaje & El jugador clica en un personaje para poder controlarlo & Cuando se seleccione un personaje te aparecerá en la UI todas las propiedades y habilidades que tenga el personaje & click izquierdo sobre el personaje \\
+    
+    Movimiento & El personaje se mueve desde su posición actual hasta la casilla clicada &  El personaje se mueve con todo lo que esto implica & click izquierdo en una casilla valida \\
+
+    Acción & Es un termino paraguas que se gasta cuando los jugadores hacen la gran mayoría de habilidades sobre todo las que son más grandes &  Depende de la habilidad o conjuro que haya utilizado el personaje (muy variadas) & click izquierdo primeo para seleccionar la habilidad a usar, y posteriormente click al target (puede ser criatura o casilla) \\
+
+    Acción adicional & Es en termino generales como la acción solo que es un consumible distinto y suelen ser cosas que cuestan menos &  Depende de la habilidad o conjuro que haya utilizado el personaje (muy variadas) & idéntico a la acción \\
+
+    Reacción & Acción ocasional fuera de turno en respuesta a algo & Depende de la habilidad o conjuro que haya utilizado el personaje (muy variadas) & esta intrínseco en la definición así que aquí va un ejemplo, normalmente cuando un enemigo sale del combate a \textit{melé} \\
+    
+\end{tabulary}
+\end{tablebox}
+
+\begin{tablebox}{Acciones del usuario 2}
+\begin{tabulary}{\linewidth}{c L L L}
+    \textbf{Acciones} & \textbf{Atributos} & \textbf{Recursos} & \textbf{Notas} \\
+    \hline
+    Seleccionar personaje & idPersonaje &  & Si se hace click fuera del mapa se deselecciona el personaje. Las habilidades que no pueda hacer no se podrán seleccionar y tendrán unos colores más apagados sin perder sus colores originales. \\
+    
+    Movimiento & int mov, bool tDifícil, int daño & movimiento del turno & El atributo de daño (se ve más adelante) corresponde al daño que se recibe al atravesar por superficies dañinas \\
+
+    Acción & bool isUsed & acción del turno & Hay una acción que es la de usar objetos como pociones o granadas por ejemplo \\
+
+    Acción adicional & bool isUsed &  acción adicional del turno & \\
+
+    Reacción & bool isUsed &  reacción de la ronda & No suele ser muy común los enemigos saben que puedes hacerles daño si huyen\\
+    
+
+\end{tabulary}
+\end{tablebox}
+
+\newpage
+\section*{Elementos generales}
+\begin{tablebox}{Elementos generales 1}
+\begin{tabulary}{\linewidth}{c L L L}
+    \textbf{Acciones} & \textbf{Descripción} & \textbf{Acciones-Dinámicas} & \textbf{Triggers} \\
+    \hline
+    Nivel & Es el centro del juego cada en cada nivel entras en un campo de batalla es decir un tablero de casillas muy variadas &  & Iniciar nivel \\
+
+    Casillas & Cada cuadrado del campo de batalla, pueden ser normales con diferentes \textit{skins} o pueden ser de terreno difícil, que hagan daño etc & Una casilla que dañe aplicara el daño la primera vez que entre en esa zona o si la criatura acaba el turno ahí  & Al iniciar el nivel se crea el tablero de juego \\
+
+    Interactuables & Todos los objetos que tenga el campo de batalla ya sean equipables por las criaturas como un arma como un barril explosivo & Depende mucho del objeto/interactuable puede ser un botón que abra una puerta o un explosivo & Que alguna criatura interactúe con este \\
+    
+    Base & Es una zona del mapa que es segura y beneficiosa para uno de los bandos & Muy variadas depende del continente &  \\
+
+    Personajes & Los personajes son los que haya creado o reclutado el jugador a lo largo de su aventura &  &  \\
+
+    Enemigos & Los enemigos son generalmente Slaads &  &  \\
+    
+\end{tabulary}
+\end{tablebox}
+\begin{tablebox}{Elementos generales 2}
+\begin{tabulary}{\linewidth}{c L L L}
+    \textbf{Entidades} & \textbf{Atributos} & \textbf{Recursos} & \textbf{Notas} \\
+    \hline
+    Nivel & bool isCompletado, string[] winConditions &  &  \\
+
+    Casillas & bool isTDificil, int damages &  & \\
+
+    Interactuables & Item objeto &  & puede activarse ser accidentalmente, como las trampas \\
+    
+    Base & Personajes[] personajes, Acción[] acciones & Acciones de zona & \\
+
+    Personajes & Personaje personaje & Tienen una economía de acción en la que pueden gastar una ver por turno: el movimiento, la acción, la acción adicional y la reacción & Lo puede crear el jugador o reclutarlo \\
+
+    Enemigos & Personaje criatura & La economía de acción que tienen es igual que la de los personajes (a excepción de los \textit{bosses}) & Criaturas salvajes del mundo también pueden ser enemigos \\
+
+\end{tabulary}
+\end{tablebox}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\section*{Niveles}
+
+
+Los niveles están divididos en 5 continentes:
+La nomenclatura de continente es orientativa, esto no quiere decir que las personas descritas en un continente no estén en otro continente. Para que nos entendamos es una forma de agrupar los niveles, todos los humanos en estos continentes tienen esa filosofía de vida o comparten esos rasgos.
+
+Los niveles están divididos en dos tipos unos que son más libres y otros que tienen unos objetivos que restringen en parte la libertad del jugador. Por ejemplo en un nivel puede tener como objetivo no gastes más de tantos conjuros o inflige X daño como mínimo. Esto obliga al jugador ha cambiar las tácticas que utiliza normalmente para cumplir con estos retos. Antes de elegir el nivel en la pantalla de elección de niveles se verá que niveles tienen una mayor libertad y cuales tienen estas restricciones.
+
+
+\begin{demonbox}{Continentes}
+
+    \begin{itemize}
+        \item \textbf{Thalvaren} los devotos
+    \end{itemize}
+    Los habitantes de Thalvaren son los más devotos de toda la faz de Ruku. Cuentan con conjuros de deidades benignas lo que les da acceso a conjuros de curación. Estos lugares suelen caracterizarse por sus escudos y símbolos sagrados. Los humanos aquí alternan entre usar artes marciales o magicas.
+    
+    \begin{itemize}
+        \item \textbf{Durmon} los domadores
+    \end{itemize}
+    Sus habitantes han logrado vivir en sincronía con la naturaleza. Viven en zonas tropicales o con densos bosques en los cuales junto con sus criaturas enfrentan a los Slaads. Sus criaturas depende de la zona del mundo en que vivan, pero principalmente usan osos, panteras, elementales sobre todo de tierra, águilas para vigilar desde los cielos y entre los puestos más altos de sus lideres hay algún que otro grifo.
+
+    \begin{itemize}
+        \item \textbf{Iryndor} los nomadas
+    \end{itemize}
+    Esta facción va en grupos reducidos de un lado para otro eludiendo la influencia de los Slaad. Se concentran en trampantojos, engaños y magias de ilusión. Son conocedores de mundo y llevan la información de un lado para otro, para comunicar a diferentes facciones humanas. 
+
+    \begin{itemize}
+        \item \textbf{Nytheria} los topos
+    \end{itemize}
+    Estos humanos se han acostumbrado a vivir bajo tierra, tienen una extensa red de túneles y habitáculos bajo la tierra que aprovechan para sorprender y perder a los enemigos. Han desarrollado una visión casi sobrenatural que le permite ver en la penumbra. Además cuentan con \textit{casters} competentes que ayudan a la supervivencia de estas colonias. 
+
+    \begin{itemize}
+        \item \textbf{Kaedhyr} los tramperos
+    \end{itemize}
+    Los humanos dentro de estos refugios tienen una gran habilidad de improvisación y anticipación las cuales usan para llenar el campo de trampas para sus enemigos. Además han aprendido a reparar los dispositivos tecnológicos de los enemigos y se han asentado en bases que les han robado a los Slaads.
+    
+\end{demonbox}
+ 
