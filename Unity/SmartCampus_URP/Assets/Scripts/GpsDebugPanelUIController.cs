@@ -11,6 +11,7 @@ public sealed class GpsDebugPanelUIController : MonoBehaviour
     [SerializeField] private DeviceGpsService deviceGpsService;
     [SerializeField] private CoopGpsStateSync gpsStateSync;
     [SerializeField] private CoopSessionCoordinator coopSessionCoordinator;
+    [SerializeField] private CoopGpsMarkerController gpsMarkerController;
     [SerializeField] private TMP_Text summaryText;
     [SerializeField] private TMP_Text detailsText;
     [SerializeField] private Button detailsToggleButton;
@@ -95,6 +96,10 @@ private void RefreshUi(bool forceConsoleLog)
         }
 
         summaryBuilder.AppendLine();
+        summaryBuilder.AppendLine("[Marcador]");
+        AppendMarkerStatus(summaryBuilder);
+
+        summaryBuilder.AppendLine();
         summaryBuilder.AppendLine("[Sync Red]");
         if (gpsStateSync != null && gpsStateSync.PlayerStates.Count > 0)
         {
@@ -132,6 +137,10 @@ private void RefreshUi(bool forceConsoleLog)
         {
             detailsBuilder.AppendLine("Sin servicio GPS local");
         }
+
+        detailsBuilder.AppendLine();
+        detailsBuilder.AppendLine("[Marcador]");
+        AppendMarkerStatus(detailsBuilder);
 
         detailsBuilder.AppendLine();
         detailsBuilder.AppendLine("[Sync Red]");
@@ -231,6 +240,7 @@ private void RefreshUi(bool forceConsoleLog)
         deviceGpsService ??= FindFirstObjectByType<DeviceGpsService>(FindObjectsInactive.Include);
         gpsStateSync ??= FindFirstObjectByType<CoopGpsStateSync>(FindObjectsInactive.Include);
         coopSessionCoordinator ??= FindFirstObjectByType<CoopSessionCoordinator>(FindObjectsInactive.Include);
+        gpsMarkerController ??= FindFirstObjectByType<CoopGpsMarkerController>(FindObjectsInactive.Include);
         summaryText ??= FindOrCreateTextByName("SummaryText", 18f, TextAlignmentOptions.TopLeft);
         detailsText ??= FindOrCreateTextByName("DetailsText", 18f, TextAlignmentOptions.TopLeft);
         detailsToggleButton ??= FindComponentInChild<Button>("DetailsToggleButton");
@@ -254,6 +264,24 @@ private void RefreshUi(bool forceConsoleLog)
                 }
             }
         }
+    }
+
+    private void AppendMarkerStatus(StringBuilder builder)
+    {
+        if (gpsMarkerController == null)
+        {
+            builder.AppendLine("Sin controlador de marcadores");
+            return;
+        }
+
+        if (gpsMarkerController.TryGetLocalMarkerWorldPosition(out var markerPosition))
+        {
+            builder.AppendLine($"Marcador local visible: si");
+            builder.AppendLine($"Pos Unity: {markerPosition.x:F1}, {markerPosition.y:F1}, {markerPosition.z:F1}");
+            return;
+        }
+
+        builder.AppendLine("Marcador local visible: no");
     }
 
     private TMP_Text FindOrCreateTextByName(

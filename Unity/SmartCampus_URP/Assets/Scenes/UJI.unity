@@ -13436,6 +13436,9 @@ MonoBehaviour:
   markerScale: 10
   markerVisualHeightOffset: 6
   markerAltitudeOffsetMeters: 1.5
+  allowOfflineLocalMarker: 1
+  overrideMarkerAltitude: 1
+  markerAbsoluteAltitudeMeters: 850
 --- !u!1 &2143100010
 GameObject:
   m_ObjectHideFlags: 0
@@ -13461,7 +13464,7 @@ Transform:
   m_GameObject: {fileID: 2143100010}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 50, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -13664,6 +13667,7 @@ MonoBehaviour:
   deviceGpsService: {fileID: 2143100002}
   gpsStateSync: {fileID: 0}
   coopSessionCoordinator: {fileID: 0}
+  gpsMarkerController: {fileID: 0}
   summaryText: {fileID: 0}
   detailsText: {fileID: 0}
   detailsToggleButton: {fileID: 2143200044}

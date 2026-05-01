@@ -6,6 +6,8 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public sealed class CoopGpsMarkerController : MonoBehaviour
 {
+    private const ulong OfflineLocalMarkerClientId = ulong.MaxValue;
+
     [Header("References")]
     [SerializeField] private DeviceGpsService deviceGpsService;
     [SerializeField] private CoopGpsStateSync gpsStateSync;
@@ -21,8 +23,12 @@ public sealed class CoopGpsMarkerController : MonoBehaviour
     [SerializeField] private Color localPlayerColor = new(0.12f, 0.52f, 0.95f, 1f);
     [SerializeField] private Color remotePlayerColor = new(1f, 0.52f, 0.08f, 1f);
     [SerializeField] [Min(0.1f)] private float markerScale = 10f;
-    [SerializeField] [Min(0f)] private float markerVisualHeightOffset = 6f;
+    [SerializeField] [Min(0f)] private float markerVisualHeightOffset = 20f;
     [SerializeField] private double markerAltitudeOffsetMeters = 1.5d;
+    [SerializeField] private bool allowOfflineLocalMarker = true;
+    [SerializeField] private bool overrideMarkerAltitude = true;
+    [SerializeField] private double markerAbsoluteAltitudeMeters = 860d;
+    [SerializeField] private bool lockMarkerHeightToRoot = true;
 
     private readonly Dictionary<ulong, PlayerMarkerView> markerViews = new();
     private DeviceGpsReading latestLocalReading;
@@ -68,18 +74,16 @@ public sealed class CoopGpsMarkerController : MonoBehaviour
         ResolveReferences();
         SubscribeToGpsSync();
 
-        if (!hasLocalReading || gpsStateSync == null)
+        if (!hasLocalReading)
         {
             return;
         }
 
-        if (Time.unscaledTime < nextPublishTime)
+        if (gpsStateSync != null && Time.unscaledTime >= nextPublishTime)
         {
-            return;
+            nextPublishTime = Time.unscaledTime + publishIntervalSeconds;
+            gpsStateSync.SubmitLocalReading(latestLocalReading);
         }
-
-        nextPublishTime = Time.unscaledTime + publishIntervalSeconds;
-        gpsStateSync.SubmitLocalReading(latestLocalReading);
     }
 
     private void HandleLocalReadingUpdated(DeviceGpsReading reading)
@@ -87,10 +91,9 @@ public sealed class CoopGpsMarkerController : MonoBehaviour
         latestLocalReading = reading;
         hasLocalReading = true;
 
-        if (NetworkManager.Singleton != null)
+        if (TryGetResolvedLocalMarkerClientId(out var localMarkerClientId))
         {
-            var localClientId = NetworkManager.Singleton.LocalClientId;
-            UpdateMarker(localClientId, reading.Latitude, reading.Longitude, reading.Altitude, reading.HasFix, true);
+            UpdateMarker(localMarkerClientId, reading.Latitude, reading.Longitude, reading.Altitude, reading.HasFix, true);
         }
     }
 
@@ -101,22 +104,20 @@ public sealed class CoopGpsMarkerController : MonoBehaviour
 
     private void RefreshAllMarkers()
     {
-        if (gpsStateSync == null || NetworkManager.Singleton == null)
-        {
-            return;
-        }
-
         var activeClientIds = new HashSet<ulong>();
-        var localClientId = NetworkManager.Singleton.LocalClientId;
+        var hasLocalClientId = TryGetResolvedLocalMarkerClientId(out var localClientId);
 
-        foreach (var state in gpsStateSync.PlayerStates)
+        if (gpsStateSync != null && NetworkManager.Singleton != null)
         {
-            var isLocal = state.ClientId == localClientId;
-            activeClientIds.Add(state.ClientId);
-            UpdateMarker(state.ClientId, state.Latitude, state.Longitude, state.Altitude, state.HasFix, isLocal);
+            foreach (var state in gpsStateSync.PlayerStates)
+            {
+                var isLocal = hasLocalClientId && state.ClientId == localClientId;
+                activeClientIds.Add(state.ClientId);
+                UpdateMarker(state.ClientId, state.Latitude, state.Longitude, state.Altitude, state.HasFix, isLocal);
+            }
         }
 
-        if (hasLocalReading)
+        if (hasLocalReading && hasLocalClientId)
         {
             activeClientIds.Add(localClientId);
             UpdateMarker(localClientId, latestLocalReading.Latitude, latestLocalReading.Longitude, latestLocalReading.Altitude, latestLocalReading.HasFix, true);
@@ -148,7 +149,10 @@ private void UpdateMarker(ulong clientId, double latitude, double longitude, dou
             markerView.LocationComponent,
             latitude,
             longitude,
-            altitude + markerAltitudeOffsetMeters);
+            ResolveMarkerAltitude(altitude));
+
+        ApplyRootHeight(markerView);
+        ApplyVisualSettings(markerView);
 
         if (markerView.Renderer != null && markerView.Renderer.material != null)
         {
@@ -164,6 +168,17 @@ private void UpdateMarker(ulong clientId, double latitude, double longitude, dou
         {
             worldPosition = markerView.Root.transform.position;
             return true;
+        }
+
+        worldPosition = default;
+        return false;
+    }
+
+    public bool TryGetLocalMarkerWorldPosition(out Vector3 worldPosition)
+    {
+        if (TryGetResolvedLocalMarkerClientId(out var localClientId))
+        {
+            return TryGetMarkerWorldPosition(localClientId, out worldPosition);
         }
 
         worldPosition = default;
@@ -194,7 +209,7 @@ private void UpdateMarker(ulong clientId, double latitude, double longitude, dou
         ListPool<ulong>.Release(staleClientIds);
     }
 
-private PlayerMarkerView CreateMarker(ulong clientId, bool isLocal)
+    private PlayerMarkerView CreateMarker(ulong clientId, bool isLocal)
     {
         if (markerTemplate == null)
         {
@@ -221,7 +236,58 @@ private PlayerMarkerView CreateMarker(ulong clientId, bool isLocal)
             visualTransform.localScale = Vector3.one * markerScale;
         }
 
-        return new PlayerMarkerView(root, locationComponent, renderer);
+        return new PlayerMarkerView(root, locationComponent, renderer, visualTransform);
+    }
+
+    private bool TryGetResolvedLocalMarkerClientId(out ulong clientId)
+    {
+        if (NetworkManager.Singleton != null)
+        {
+            clientId = NetworkManager.Singleton.LocalClientId;
+            return true;
+        }
+
+        if (allowOfflineLocalMarker)
+        {
+            clientId = OfflineLocalMarkerClientId;
+            return true;
+        }
+
+        clientId = default;
+        return false;
+    }
+
+    private double ResolveMarkerAltitude(double deviceAltitudeMeters)
+    {
+        if (overrideMarkerAltitude)
+        {
+            return markerAbsoluteAltitudeMeters;
+        }
+
+        return deviceAltitudeMeters + markerAltitudeOffsetMeters;
+    }
+
+    private void ApplyVisualSettings(PlayerMarkerView markerView)
+    {
+        if (markerView.VisualTransform == null)
+        {
+            return;
+        }
+
+        markerView.VisualTransform.localPosition = Vector3.up * markerVisualHeightOffset;
+        markerView.VisualTransform.localScale = Vector3.one * markerScale;
+    }
+
+    private void ApplyRootHeight(PlayerMarkerView markerView)
+    {
+        if (!lockMarkerHeightToRoot || markerRoot == null || markerView.Root == null)
+        {
+            return;
+        }
+
+        var worldPosition = markerView.Root.transform.position;
+        worldPosition.y = markerRoot.position.y;
+        markerView.Root.transform.position = worldPosition;
     }
 
     private void ResolveReferences()
@@ -275,16 +341,18 @@ private PlayerMarkerView CreateMarker(ulong clientId, bool isLocal)
 
     private readonly struct PlayerMarkerView
     {
-        public PlayerMarkerView(GameObject root, ArcGISLocationComponent locationComponent, MeshRenderer renderer)
+        public PlayerMarkerView(GameObject root, ArcGISLocationComponent locationComponent, MeshRenderer renderer, Transform visualTransform)
         {
             Root = root;
             LocationComponent = locationComponent;
             Renderer = renderer;
+            VisualTransform = visualTransform;
         }
 
         public GameObject Root { get; }
         public ArcGISLocationComponent LocationComponent { get; }
         public MeshRenderer Renderer { get; }
+        public Transform VisualTransform { get; }
     }
 
     private static class ListPool<T>
