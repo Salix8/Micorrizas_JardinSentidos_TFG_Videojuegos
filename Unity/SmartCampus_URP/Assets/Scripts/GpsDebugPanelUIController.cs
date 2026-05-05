@@ -1,3 +1,4 @@
+using System;
 using System.Text;
 using Unity.Netcode;
 using UnityEngine;
@@ -77,7 +78,7 @@ public sealed class GpsDebugPanelUIController : MonoBehaviour
         RefreshUi(logExpandedReportToConsole);
     }
 
-private void RefreshUi(bool forceConsoleLog)
+    private void RefreshUi(bool forceConsoleLog)
     {
         summaryBuilder.Clear();
         detailsBuilder.Clear();
@@ -85,86 +86,36 @@ private void RefreshUi(bool forceConsoleLog)
         summaryBuilder.AppendLine("GPS Debug");
         summaryBuilder.AppendLine();
         summaryBuilder.AppendLine("[Local Unity]");
-        if (deviceGpsService != null)
-        {
-            var reading = deviceGpsService.CurrentReading;
-            summaryBuilder.AppendLine($"Disp local: {reading.Latitude:F6}, {reading.Longitude:F6}");
-        }
-        else
-        {
-            summaryBuilder.AppendLine("Sin servicio GPS local");
-        }
+        AppendLocalGpsSection(summaryBuilder, includeDetails: false);
 
         summaryBuilder.AppendLine();
-        summaryBuilder.AppendLine("[Marcador]");
-        AppendMarkerStatus(summaryBuilder);
+        summaryBuilder.AppendLine("[GPS Sincronizado]");
+        AppendSyncSection(summaryBuilder, includeDetails: false);
 
         summaryBuilder.AppendLine();
-        summaryBuilder.AppendLine("[Sync Red]");
-        if (gpsStateSync != null && gpsStateSync.PlayerStates.Count > 0)
-        {
-            foreach (var state in gpsStateSync.PlayerStates)
-            {
-                var label = BuildPlayerLabel(state.ClientId);
-                summaryBuilder.AppendLine($"{label}: {state.Latitude:F6}, {state.Longitude:F6}");
-            }
-        }
-        else if (gpsStateSync != null)
-        {
-            summaryBuilder.AppendLine("Sin estados sincronizados todavia");
-        }
-        else
-        {
-            summaryBuilder.AppendLine("Sin servicio de sincronizacion GPS");
-        }
+        summaryBuilder.AppendLine("[ArcGIS Proyeccion]");
+        AppendProjectionSection(summaryBuilder, includeDetails: false);
+
+        summaryBuilder.AppendLine();
+        summaryBuilder.AppendLine("[Marcador Mundo]");
+        AppendMarkerWorldSection(summaryBuilder, includeDetails: false);
 
         detailsBuilder.AppendLine("GPS Debug Detallado");
         detailsBuilder.AppendLine();
         detailsBuilder.AppendLine("[Local Unity]");
-        if (deviceGpsService != null)
-        {
-            var reading = deviceGpsService.CurrentReading;
-            detailsBuilder.AppendLine("Disp local");
-            detailsBuilder.AppendLine($"Lat {reading.Latitude:F6} | Lon {reading.Longitude:F6}");
-            detailsBuilder.AppendLine($"Alt {reading.Altitude:F2} | Prec {reading.HorizontalAccuracy:F1}m");
-            detailsBuilder.AppendLine($"Estado {reading.Status} | Fix {reading.HasFix}");
-            detailsBuilder.AppendLine($"Timestamp {reading.DeviceTimestamp:F0}");
-            detailsBuilder.AppendLine($"Permiso {deviceGpsService.HasLocationPermission} | SO habilitado {deviceGpsService.IsLocationServiceEnabledByUser}");
-            detailsBuilder.AppendLine($"Tracking {deviceGpsService.IsTrackingRequested} | Intentos {deviceGpsService.StartupAttemptCount}");
-            detailsBuilder.AppendLine($"Diag: {deviceGpsService.LastDiagnosticMessage}");
-        }
-        else
-        {
-            detailsBuilder.AppendLine("Sin servicio GPS local");
-        }
+        AppendLocalGpsSection(detailsBuilder, includeDetails: true);
 
         detailsBuilder.AppendLine();
-        detailsBuilder.AppendLine("[Marcador]");
-        AppendMarkerStatus(detailsBuilder);
+        detailsBuilder.AppendLine("[GPS Sincronizado]");
+        AppendSyncSection(detailsBuilder, includeDetails: true);
 
         detailsBuilder.AppendLine();
-        detailsBuilder.AppendLine("[Sync Red]");
-        if (gpsStateSync != null && gpsStateSync.PlayerStates.Count > 0)
-        {
-            foreach (var state in gpsStateSync.PlayerStates)
-            {
-                var label = BuildPlayerLabel(state.ClientId);
-                detailsBuilder.AppendLine(label);
-                detailsBuilder.AppendLine($"Lat {state.Latitude:F6} | Lon {state.Longitude:F6}");
-                detailsBuilder.AppendLine($"Alt {state.Altitude:F2} | Prec {state.HorizontalAccuracy:F1}m");
-                detailsBuilder.AppendLine($"Estado {(LocationServiceStatus)state.GpsStatus} | Fix {state.HasFix}");
-                detailsBuilder.AppendLine($"Timestamp {state.DeviceTimestamp:F0}");
-                detailsBuilder.AppendLine();
-            }
-        }
-        else if (gpsStateSync != null)
-        {
-            detailsBuilder.AppendLine("Sin estados sincronizados todavia");
-        }
-        else
-        {
-            detailsBuilder.AppendLine("Sin servicio de sincronizacion GPS");
-        }
+        detailsBuilder.AppendLine("[ArcGIS Proyeccion]");
+        AppendProjectionSection(detailsBuilder, includeDetails: true);
+
+        detailsBuilder.AppendLine();
+        detailsBuilder.AppendLine("[Marcador Mundo]");
+        AppendMarkerWorldSection(detailsBuilder, includeDetails: true);
 
         if (summaryText != null)
         {
@@ -188,51 +139,63 @@ private void RefreshUi(bool forceConsoleLog)
         }
     }
 
-    private void AppendPlayerState(CoopPlayerGpsState state)
+    private void AppendLocalGpsSection(StringBuilder builder, bool includeDetails)
     {
-        var label = BuildPlayerLabel(state.ClientId);
-        summaryBuilder.AppendLine($"{label}: {state.Latitude:F6}, {state.Longitude:F6}");
-
-        detailsBuilder.AppendLine(label);
-        detailsBuilder.AppendLine($"Lat {state.Latitude:F6} | Lon {state.Longitude:F6}");
-        detailsBuilder.AppendLine($"Alt {state.Altitude:F2} | Prec {state.HorizontalAccuracy:F1}m");
-        detailsBuilder.AppendLine($"Estado {(LocationServiceStatus)state.GpsStatus} | Fix {state.HasFix}");
-        detailsBuilder.AppendLine($"Timestamp {state.DeviceTimestamp:F0}");
-        detailsBuilder.AppendLine();
-    }
-
-    private void AppendLocalOnlyState(DeviceGpsReading reading)
-    {
-        var label = "Disp local";
-        summaryBuilder.AppendLine($"{label}: {reading.Latitude:F6}, {reading.Longitude:F6}");
-
-        detailsBuilder.AppendLine(label);
-        detailsBuilder.AppendLine($"Lat {reading.Latitude:F6} | Lon {reading.Longitude:F6}");
-        detailsBuilder.AppendLine($"Alt {reading.Altitude:F2} | Prec {reading.HorizontalAccuracy:F1}m");
-        detailsBuilder.AppendLine($"Estado {reading.Status} | Fix {reading.HasFix}");
-        detailsBuilder.AppendLine($"Timestamp {reading.DeviceTimestamp:F0}");
-
-        if (deviceGpsService != null)
+        if (deviceGpsService == null)
         {
-            detailsBuilder.AppendLine($"Permiso {deviceGpsService.HasLocationPermission} | SO habilitado {deviceGpsService.IsLocationServiceEnabledByUser}");
-            detailsBuilder.AppendLine($"Tracking {deviceGpsService.IsTrackingRequested} | Intentos {deviceGpsService.StartupAttemptCount}");
-            detailsBuilder.AppendLine($"Diag: {deviceGpsService.LastDiagnosticMessage}");
+            builder.AppendLine("Sin servicio GPS local");
+            return;
         }
+
+        var reading = deviceGpsService.CurrentReading;
+        builder.AppendLine($"Estado {reading.Status} | Fix {reading.HasFix}");
+        builder.AppendLine($"Lat {reading.Latitude:F6} | Lon {reading.Longitude:F6}");
+
+        if (!includeDetails)
+        {
+            return;
+        }
+
+        builder.AppendLine($"Alt {reading.Altitude:F2} | Prec {reading.HorizontalAccuracy:F1}m");
+        builder.AppendLine($"Timestamp {reading.DeviceTimestamp:F0}");
+        builder.AppendLine($"Permiso {deviceGpsService.HasLocationPermission} | SO habilitado {deviceGpsService.IsLocationServiceEnabledByUser}");
+        builder.AppendLine($"Tracking {deviceGpsService.IsTrackingRequested} | Intentos {deviceGpsService.StartupAttemptCount}");
+        builder.AppendLine($"Diag: {deviceGpsService.LastDiagnosticMessage}");
     }
 
-    private string BuildPlayerLabel(ulong clientId)
+    private void AppendSyncSection(StringBuilder builder, bool includeDetails)
     {
-        if (coopSessionCoordinator != null)
+        if (gpsStateSync == null)
         {
-            var slot = coopSessionCoordinator.GetPlayerSlot(clientId);
-            if (slot >= 0)
+            builder.AppendLine("Sin servicio de sincronizacion GPS");
+            return;
+        }
+
+        if (gpsStateSync.HasSubmittedLocalState)
+        {
+            var submitted = gpsStateSync.LastSubmittedLocalState;
+            builder.AppendLine($"Enviado local: {submitted.Latitude:F6}, {submitted.Longitude:F6}");
+            builder.AppendLine($"Estado {(LocationServiceStatus)submitted.GpsStatus} | Fix {submitted.HasFix}");
+        }
+        else
+        {
+            builder.AppendLine("Sin envios locales todavia");
+        }
+
+        if (gpsStateSync.HasReceivedState)
+        {
+            var received = gpsStateSync.LastReceivedState;
+            builder.AppendLine($"Ultimo recibido {BuildPlayerLabel(received.ClientId)}: {received.Latitude:F6}, {received.Longitude:F6}");
+            if (includeDetails)
             {
-                var isLocal = NetworkManager.Singleton != null && NetworkManager.Singleton.LocalClientId == clientId;
-                return isLocal ? $"Disp {slot + 1} (yo)" : $"Disp {slot + 1}";
+                builder.AppendLine($"Alt {received.Altitude:F2} | Prec {received.HorizontalAccuracy:F1}m");
+                builder.AppendLine($"Timestamp {received.DeviceTimestamp:F0} | Hace {Math.Max(0d, Time.realtimeSinceStartupAsDouble - gpsStateSync.LastReceiveRealtime):F1}s");
             }
         }
-
-        return $"Cliente {clientId}";
+        else
+        {
+            builder.AppendLine("Sin recepciones remotas todavia");
+        }
     }
 
     private void ResolveReferences()
@@ -266,7 +229,7 @@ private void RefreshUi(bool forceConsoleLog)
         }
     }
 
-    private void AppendMarkerStatus(StringBuilder builder)
+    private void AppendProjectionSection(StringBuilder builder, bool includeDetails)
     {
         if (gpsMarkerController == null)
         {
@@ -274,14 +237,58 @@ private void RefreshUi(bool forceConsoleLog)
             return;
         }
 
-        if (gpsMarkerController.TryGetLocalMarkerWorldPosition(out var markerPosition))
+        if (!gpsMarkerController.TryGetLocalMarkerDiagnostics(out var diagnostics))
         {
-            builder.AppendLine($"Marcador local visible: si");
-            builder.AppendLine($"Pos Unity: {markerPosition.x:F1}, {markerPosition.y:F1}, {markerPosition.z:F1}");
+            builder.AppendLine("Sin diagnostico local de proyeccion");
             return;
         }
 
-        builder.AppendLine("Marcador local visible: no");
+        builder.AppendLine($"Lat {diagnostics.Latitude:F6} | Lon {diagnostics.Longitude:F6}");
+        builder.AppendLine($"Placement {diagnostics.SurfacePlacementMode} | Offset {diagnostics.SurfacePlacementOffset:F2}");
+
+        if (includeDetails)
+        {
+            builder.AppendLine($"Parent {diagnostics.ParentName} | ArcGIS init {diagnostics.IsArcGisInitialized}");
+        }
+    }
+
+    private void AppendMarkerWorldSection(StringBuilder builder, bool includeDetails)
+    {
+        if (gpsMarkerController == null)
+        {
+            builder.AppendLine("Sin controlador de marcadores");
+            return;
+        }
+
+        if (!gpsMarkerController.TryGetLocalMarkerDiagnostics(out var diagnostics))
+        {
+            builder.AppendLine("Sin diagnostico local de marcador");
+            return;
+        }
+
+        builder.AppendLine($"Activo {diagnostics.IsActive} | Fix {diagnostics.HasFix}");
+        builder.AppendLine($"World {diagnostics.WorldPosition.x:F1}, {diagnostics.WorldPosition.y:F1}, {diagnostics.WorldPosition.z:F1}");
+
+        if (includeDetails)
+        {
+            builder.AppendLine($"Transform {diagnostics.TransformPosition.x:F1}, {diagnostics.TransformPosition.y:F1}, {diagnostics.TransformPosition.z:F1}");
+            builder.AppendLine($"HP {diagnostics.HasHpTransform} | Universe {diagnostics.HpUniversePosition.x:F1}, {diagnostics.HpUniversePosition.y:F1}, {diagnostics.HpUniversePosition.z:F1}");
+        }
+    }
+
+    private string BuildPlayerLabel(ulong clientId)
+    {
+        if (coopSessionCoordinator != null)
+        {
+            var slot = coopSessionCoordinator.GetPlayerSlot(clientId);
+            if (slot >= 0)
+            {
+                var isLocal = NetworkManager.Singleton != null && NetworkManager.Singleton.LocalClientId == clientId;
+                return isLocal ? $"Disp {slot + 1} (yo)" : $"Disp {slot + 1}";
+            }
+        }
+
+        return $"Cliente {clientId}";
     }
 
     private TMP_Text FindOrCreateTextByName(

@@ -7,8 +7,20 @@ using UnityEngine;
 public sealed class CoopGpsStateSync : NetworkBehaviour
 {
     private readonly NetworkList<CoopPlayerGpsState> playerStates = new();
+    private CoopPlayerGpsState lastSubmittedLocalState;
+    private CoopPlayerGpsState lastReceivedState;
+    private bool hasSubmittedLocalState;
+    private bool hasReceivedState;
+    private double lastSubmissionRealtime;
+    private double lastReceiveRealtime;
 
     public NetworkList<CoopPlayerGpsState> PlayerStates => playerStates;
+    public bool HasSubmittedLocalState => hasSubmittedLocalState;
+    public CoopPlayerGpsState LastSubmittedLocalState => lastSubmittedLocalState;
+    public double LastSubmissionRealtime => lastSubmissionRealtime;
+    public bool HasReceivedState => hasReceivedState;
+    public CoopPlayerGpsState LastReceivedState => lastReceivedState;
+    public double LastReceiveRealtime => lastReceiveRealtime;
 
     public event Action StatesChanged;
 
@@ -40,6 +52,18 @@ public sealed class CoopGpsStateSync : NetworkBehaviour
         {
             return;
         }
+
+        lastSubmittedLocalState = new CoopPlayerGpsState(
+            NetworkManager.LocalClientId,
+            reading.Latitude,
+            reading.Longitude,
+            reading.Altitude,
+            reading.HorizontalAccuracy,
+            reading.DeviceTimestamp,
+            (int)reading.Status,
+            reading.HasFix ? (byte)1 : (byte)0);
+        hasSubmittedLocalState = true;
+        lastSubmissionRealtime = Time.realtimeSinceStartupAsDouble;
 
         SubmitGpsStateServerRpc(
             reading.Latitude,
@@ -115,6 +139,20 @@ public sealed class CoopGpsStateSync : NetworkBehaviour
 
     private void HandlePlayerStatesChanged(NetworkListEvent<CoopPlayerGpsState> _)
     {
+        if (NetworkManager != null)
+        {
+            for (var index = 0; index < playerStates.Count; index++)
+            {
+                if (playerStates[index].ClientId != NetworkManager.LocalClientId)
+                {
+                    lastReceivedState = playerStates[index];
+                    hasReceivedState = true;
+                    lastReceiveRealtime = Time.realtimeSinceStartupAsDouble;
+                    break;
+                }
+            }
+        }
+
         StatesChanged?.Invoke();
     }
 }

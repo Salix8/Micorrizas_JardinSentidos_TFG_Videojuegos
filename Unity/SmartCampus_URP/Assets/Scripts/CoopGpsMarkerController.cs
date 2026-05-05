@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using Esri.ArcGISMapsSDK.Components;
+using Esri.ArcGISMapsSDK.Utils.GeoCoord;
+using Esri.HPFramework;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -23,17 +25,26 @@ public sealed class CoopGpsMarkerController : MonoBehaviour
     [SerializeField] private Color localPlayerColor = new(0.12f, 0.52f, 0.95f, 1f);
     [SerializeField] private Color remotePlayerColor = new(1f, 0.52f, 0.08f, 1f);
     [SerializeField] [Min(0.1f)] private float markerScale = 10f;
-    [SerializeField] [Min(0f)] private float markerVisualHeightOffset = 20f;
-    [SerializeField] private double markerAltitudeOffsetMeters = 1.5d;
+    [SerializeField] [Min(0f)] private float markerVisualHeightOffset = 12f;
+    [SerializeField] [Min(0f)] private double markerSurfaceOffsetMeters = 3d;
     [SerializeField] private bool allowOfflineLocalMarker = true;
-    [SerializeField] private bool overrideMarkerAltitude = true;
-    [SerializeField] private double markerAbsoluteAltitudeMeters = 860d;
-    [SerializeField] private bool lockMarkerHeightToRoot = true;
+
+    [Header("Investigation Modes")]
+    [SerializeField] private bool showLocalMarkerWithoutSync;
+    [SerializeField] private bool showMarkerWithManualLatLon;
+    [SerializeField] private bool showMarkerWithSyncedState = true;
+    [SerializeField] private double manualLatitude = 39.9936d;
+    [SerializeField] private double manualLongitude = -0.0665d;
+    [SerializeField] private double manualAltitudeMeters = 0d;
+    [SerializeField] private bool forceMarkersUnderArcGISMap = true;
+    [SerializeField] private ArcGISSurfacePlacementMode investigationSurfacePlacementMode = ArcGISSurfacePlacementMode.RelativeToGround;
 
     private readonly Dictionary<ulong, PlayerMarkerView> markerViews = new();
+    private readonly Dictionary<ulong, MarkerDiagnostics> markerDiagnostics = new();
     private DeviceGpsReading latestLocalReading;
     private bool hasLocalReading;
     private float nextPublishTime;
+    private ArcGISMapComponent arcGISMap;
 
     private void Awake()
     {
@@ -79,6 +90,11 @@ public sealed class CoopGpsMarkerController : MonoBehaviour
             return;
         }
 
+        if (showLocalMarkerWithoutSync || !showMarkerWithSyncedState)
+        {
+            return;
+        }
+
         if (gpsStateSync != null && Time.unscaledTime >= nextPublishTime)
         {
             nextPublishTime = Time.unscaledTime + publishIntervalSeconds;
@@ -107,7 +123,7 @@ public sealed class CoopGpsMarkerController : MonoBehaviour
         var activeClientIds = new HashSet<ulong>();
         var hasLocalClientId = TryGetResolvedLocalMarkerClientId(out var localClientId);
 
-        if (gpsStateSync != null && NetworkManager.Singleton != null)
+        if (showMarkerWithSyncedState && gpsStateSync != null && NetworkManager.Singleton != null)
         {
             foreach (var state in gpsStateSync.PlayerStates)
             {
@@ -117,16 +133,25 @@ public sealed class CoopGpsMarkerController : MonoBehaviour
             }
         }
 
-        if (hasLocalReading && hasLocalClientId)
+        if (hasLocalClientId && showMarkerWithManualLatLon)
         {
             activeClientIds.Add(localClientId);
-            UpdateMarker(localClientId, latestLocalReading.Latitude, latestLocalReading.Longitude, latestLocalReading.Altitude, latestLocalReading.HasFix, true);
+            UpdateMarker(localClientId, manualLatitude, manualLongitude, manualAltitudeMeters, true, true);
+        }
+        else if (hasLocalReading && hasLocalClientId)
+        {
+            activeClientIds.Add(localClientId);
+
+            if (showLocalMarkerWithoutSync || !showMarkerWithSyncedState || latestLocalReading.HasFix)
+            {
+                UpdateMarker(localClientId, latestLocalReading.Latitude, latestLocalReading.Longitude, latestLocalReading.Altitude, latestLocalReading.HasFix, true);
+            }
         }
 
         RemoveInactiveMarkers(activeClientIds);
     }
 
-private void UpdateMarker(ulong clientId, double latitude, double longitude, double altitude, bool hasFix, bool isLocal)
+    private void UpdateMarker(ulong clientId, double latitude, double longitude, double altitude, bool hasFix, bool isLocal)
     {
         if (!markerViews.TryGetValue(clientId, out var markerView))
         {
@@ -142,6 +167,7 @@ private void UpdateMarker(ulong clientId, double latitude, double longitude, dou
         markerView.Root.SetActive(hasFix);
         if (!hasFix)
         {
+            CacheMarkerDiagnostics(clientId, markerView, latitude, longitude, altitude, false, isLocal);
             return;
         }
 
@@ -149,15 +175,17 @@ private void UpdateMarker(ulong clientId, double latitude, double longitude, dou
             markerView.LocationComponent,
             latitude,
             longitude,
-            ResolveMarkerAltitude(altitude));
+            altitude);
 
-        ApplyRootHeight(markerView);
+        ApplySurfacePlacement(markerView);
         ApplyVisualSettings(markerView);
 
         if (markerView.Renderer != null && markerView.Renderer.material != null)
         {
             markerView.Renderer.material.color = isLocal ? localPlayerColor : remotePlayerColor;
         }
+
+        CacheMarkerDiagnostics(clientId, markerView, latitude, longitude, altitude, hasFix, isLocal);
     }
 
     public bool TryGetMarkerWorldPosition(ulong clientId, out Vector3 worldPosition)
@@ -166,8 +194,10 @@ private void UpdateMarker(ulong clientId, double latitude, double longitude, dou
             markerView.Root != null &&
             markerView.Root.activeInHierarchy)
         {
-            worldPosition = markerView.Root.transform.position;
-            return true;
+            if (TryResolveMarkerWorldPosition(markerView, out worldPosition))
+            {
+                return true;
+            }
         }
 
         worldPosition = default;
@@ -182,6 +212,18 @@ private void UpdateMarker(ulong clientId, double latitude, double longitude, dou
         }
 
         worldPosition = default;
+        return false;
+    }
+
+    public bool TryGetLocalMarkerDiagnostics(out MarkerDiagnostics diagnostics)
+    {
+        if (TryGetResolvedLocalMarkerClientId(out var localClientId) &&
+            markerDiagnostics.TryGetValue(localClientId, out diagnostics))
+        {
+            return true;
+        }
+
+        diagnostics = default;
         return false;
     }
 
@@ -203,6 +245,7 @@ private void UpdateMarker(ulong clientId, double latitude, double longitude, dou
             {
                 Destroy(markerView.Root);
                 markerViews.Remove(clientId);
+                markerDiagnostics.Remove(clientId);
             }
         }
 
@@ -218,7 +261,7 @@ private void UpdateMarker(ulong clientId, double latitude, double longitude, dou
         }
 
         var markerName = isLocal ? "LocalGpsMarker" : $"RemoteGpsMarker_{clientId}";
-        var root = Instantiate(markerTemplate, markerRoot);
+        var root = Instantiate(markerTemplate, GetMarkerParent());
         root.name = markerName;
         root.SetActive(true);
 
@@ -236,7 +279,10 @@ private void UpdateMarker(ulong clientId, double latitude, double longitude, dou
             visualTransform.localScale = Vector3.one * markerScale;
         }
 
-        return new PlayerMarkerView(root, locationComponent, renderer, visualTransform);
+        var hpTransform = root.GetComponent<HPTransform>();
+        var hpRoot = root.GetComponentInParent<HPRoot>();
+
+        return new PlayerMarkerView(root, locationComponent, renderer, visualTransform, hpTransform, hpRoot);
     }
 
     private bool TryGetResolvedLocalMarkerClientId(out ulong clientId)
@@ -257,16 +303,6 @@ private void UpdateMarker(ulong clientId, double latitude, double longitude, dou
         return false;
     }
 
-    private double ResolveMarkerAltitude(double deviceAltitudeMeters)
-    {
-        if (overrideMarkerAltitude)
-        {
-            return markerAbsoluteAltitudeMeters;
-        }
-
-        return deviceAltitudeMeters + markerAltitudeOffsetMeters;
-    }
-
     private void ApplyVisualSettings(PlayerMarkerView markerView)
     {
         if (markerView.VisualTransform == null)
@@ -278,22 +314,34 @@ private void UpdateMarker(ulong clientId, double latitude, double longitude, dou
         markerView.VisualTransform.localScale = Vector3.one * markerScale;
     }
 
-    private void ApplyRootHeight(PlayerMarkerView markerView)
+    private void ApplySurfacePlacement(PlayerMarkerView markerView)
     {
-        if (!lockMarkerHeightToRoot || markerRoot == null || markerView.Root == null)
+        if (markerView.LocationComponent == null)
         {
             return;
         }
 
-        var worldPosition = markerView.Root.transform.position;
-        worldPosition.y = markerRoot.position.y;
-        markerView.Root.transform.position = worldPosition;
+        markerView.LocationComponent.SurfacePlacementMode = investigationSurfacePlacementMode;
+        markerView.LocationComponent.SurfacePlacementOffset = markerSurfaceOffsetMeters;
+    }
+
+    private bool TryResolveMarkerWorldPosition(PlayerMarkerView markerView, out Vector3 worldPosition)
+    {
+        if (markerView.HpTransform != null && markerView.HpRoot != null)
+        {
+            worldPosition = markerView.HpRoot.TransformPoint(markerView.HpTransform.UniversePosition).ToVector3();
+            return true;
+        }
+
+        worldPosition = markerView.Root.transform.position;
+        return markerView.Root != null;
     }
 
     private void ResolveReferences()
     {
         deviceGpsService ??= GetComponent<DeviceGpsService>();
         mapCoordinateProjector ??= GetComponent<ArcGISMapCoordinateProjector>();
+        arcGISMap ??= FindFirstObjectByType<ArcGISMapComponent>(FindObjectsInactive.Include);
 
         if (markerRoot == null)
         {
@@ -315,6 +363,74 @@ private void UpdateMarker(ulong clientId, double latitude, double longitude, dou
         }
     }
 
+    private Transform GetMarkerParent()
+    {
+        if (!forceMarkersUnderArcGISMap || arcGISMap == null)
+        {
+            return markerRoot != null ? markerRoot : transform;
+        }
+
+        if (markerRoot != null && markerRoot.IsChildOf(arcGISMap.transform))
+        {
+            return markerRoot;
+        }
+
+        return arcGISMap.transform;
+    }
+
+    private void CacheMarkerDiagnostics(
+        ulong clientId,
+        PlayerMarkerView markerView,
+        double latitude,
+        double longitude,
+        double altitude,
+        bool hasFix,
+        bool isLocal)
+    {
+        var hasWorldPosition = TryResolveMarkerWorldPosition(markerView, out var worldPosition);
+        var universePosition = markerView.HpTransform != null ? markerView.HpTransform.UniversePosition.ToVector3() : Vector3.zero;
+        markerDiagnostics[clientId] = new MarkerDiagnostics(
+            clientId,
+            isLocal,
+            latitude,
+            longitude,
+            altitude,
+            markerView.LocationComponent != null ? markerView.LocationComponent.SurfacePlacementMode : investigationSurfacePlacementMode,
+            markerView.LocationComponent != null ? markerView.LocationComponent.SurfacePlacementOffset : markerSurfaceOffsetMeters,
+            markerView.Root != null && markerView.Root.activeSelf,
+            hasFix,
+            hasWorldPosition,
+            worldPosition,
+            markerView.Root != null ? markerView.Root.transform.position : Vector3.zero,
+            markerView.HpTransform != null,
+            universePosition,
+            markerView.Root != null && markerView.Root.transform.parent != null ? markerView.Root.transform.parent.name : string.Empty,
+            TryReadArcGisInitializedFlag(markerView.LocationComponent));
+    }
+
+    private static bool TryReadArcGisInitializedFlag(ArcGISLocationComponent locationComponent)
+    {
+        if (locationComponent == null)
+        {
+            return false;
+        }
+
+        var type = locationComponent.GetType();
+        var property = type.GetProperty("IsInitialized");
+        if (property != null && property.PropertyType == typeof(bool))
+        {
+            return (bool)property.GetValue(locationComponent);
+        }
+
+        var field = type.GetField("isInitialized", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
+        if (field != null && field.FieldType == typeof(bool))
+        {
+            return (bool)field.GetValue(locationComponent);
+        }
+
+        return false;
+    }
+
     private void SubscribeToGpsSync()
     {
         var resolvedSync = gpsStateSync;
@@ -323,12 +439,12 @@ private void UpdateMarker(ulong clientId, double latitude, double longitude, dou
             resolvedSync = FindFirstObjectByType<CoopGpsStateSync>(FindObjectsInactive.Include);
         }
 
-        if (resolvedSync == gpsStateSync || resolvedSync == null)
+        if (resolvedSync == null)
         {
             return;
         }
 
-        if (gpsStateSync != null)
+        if (gpsStateSync != null && gpsStateSync != resolvedSync)
         {
             gpsStateSync.StatesChanged -= HandleStatesChanged;
         }
@@ -341,18 +457,28 @@ private void UpdateMarker(ulong clientId, double latitude, double longitude, dou
 
     private readonly struct PlayerMarkerView
     {
-        public PlayerMarkerView(GameObject root, ArcGISLocationComponent locationComponent, MeshRenderer renderer, Transform visualTransform)
+        public PlayerMarkerView(
+            GameObject root,
+            ArcGISLocationComponent locationComponent,
+            MeshRenderer renderer,
+            Transform visualTransform,
+            HPTransform hpTransform,
+            HPRoot hpRoot)
         {
             Root = root;
             LocationComponent = locationComponent;
             Renderer = renderer;
             VisualTransform = visualTransform;
+            HpTransform = hpTransform;
+            HpRoot = hpRoot;
         }
 
         public GameObject Root { get; }
         public ArcGISLocationComponent LocationComponent { get; }
         public MeshRenderer Renderer { get; }
         public Transform VisualTransform { get; }
+        public HPTransform HpTransform { get; }
+        public HPRoot HpRoot { get; }
     }
 
     private static class ListPool<T>
@@ -370,4 +496,60 @@ private void UpdateMarker(ulong clientId, double latitude, double longitude, dou
             Pool.Push(list);
         }
     }
+}
+
+public readonly struct MarkerDiagnostics
+{
+    public MarkerDiagnostics(
+        ulong clientId,
+        bool isLocal,
+        double latitude,
+        double longitude,
+        double altitude,
+        ArcGISSurfacePlacementMode surfacePlacementMode,
+        double surfacePlacementOffset,
+        bool isActive,
+        bool hasFix,
+        bool hasWorldPosition,
+        Vector3 worldPosition,
+        Vector3 transformPosition,
+        bool hasHpTransform,
+        Vector3 hpUniversePosition,
+        string parentName,
+        bool isArcGisInitialized)
+    {
+        ClientId = clientId;
+        IsLocal = isLocal;
+        Latitude = latitude;
+        Longitude = longitude;
+        Altitude = altitude;
+        SurfacePlacementMode = surfacePlacementMode;
+        SurfacePlacementOffset = surfacePlacementOffset;
+        IsActive = isActive;
+        HasFix = hasFix;
+        HasWorldPosition = hasWorldPosition;
+        WorldPosition = worldPosition;
+        TransformPosition = transformPosition;
+        HasHpTransform = hasHpTransform;
+        HpUniversePosition = hpUniversePosition;
+        ParentName = parentName;
+        IsArcGisInitialized = isArcGisInitialized;
+    }
+
+    public ulong ClientId { get; }
+    public bool IsLocal { get; }
+    public double Latitude { get; }
+    public double Longitude { get; }
+    public double Altitude { get; }
+    public ArcGISSurfacePlacementMode SurfacePlacementMode { get; }
+    public double SurfacePlacementOffset { get; }
+    public bool IsActive { get; }
+    public bool HasFix { get; }
+    public bool HasWorldPosition { get; }
+    public Vector3 WorldPosition { get; }
+    public Vector3 TransformPosition { get; }
+    public bool HasHpTransform { get; }
+    public Vector3 HpUniversePosition { get; }
+    public string ParentName { get; }
+    public bool IsArcGisInitialized { get; }
 }

@@ -343,15 +343,15 @@ public sealed class ArcGISTopDownCameraController : MonoBehaviour
         return false;
     }
 
-    private static PointerSamplePhase ToPointerPhase(TouchPhase phase)
+    private static PointerSamplePhase ToPointerPhase(UnityEngine.TouchPhase phase)
     {
         return phase switch
         {
-            TouchPhase.Began => PointerSamplePhase.Began,
-            TouchPhase.Moved => PointerSamplePhase.Moved,
-            TouchPhase.Stationary => PointerSamplePhase.Moved,
-            TouchPhase.Ended => PointerSamplePhase.Ended,
-            TouchPhase.Canceled => PointerSamplePhase.Ended,
+            UnityEngine.TouchPhase.Began => PointerSamplePhase.Began,
+            UnityEngine.TouchPhase.Moved => PointerSamplePhase.Moved,
+            UnityEngine.TouchPhase.Stationary => PointerSamplePhase.Moved,
+            UnityEngine.TouchPhase.Ended => PointerSamplePhase.Ended,
+            UnityEngine.TouchPhase.Canceled => PointerSamplePhase.Ended,
             _ => PointerSamplePhase.None
         };
     }
