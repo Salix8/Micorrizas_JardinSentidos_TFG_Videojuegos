@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.EnhancedTouch;
 #endif
 
 [DisallowMultipleComponent]
@@ -56,9 +57,19 @@ public sealed class ArcGISTopDownCameraController : MonoBehaviour
     private void OnEnable()
     {
 #if ENABLE_INPUT_SYSTEM
-        UnityEngine.InputSystem.EnhancedTouch.EnhancedTouchSupport.Enable();
+        EnhancedTouchSupport.Enable();
 #endif
         ResolveReferences();
+    }
+
+    private void OnDisable()
+    {
+#if ENABLE_INPUT_SYSTEM
+        if (EnhancedTouchSupport.enabled)
+        {
+            EnhancedTouchSupport.Disable();
+        }
+#endif
     }
 
     private void Update()
@@ -250,12 +261,6 @@ public sealed class ArcGISTopDownCameraController : MonoBehaviour
             return true;
         }
 #endif
-#if ENABLE_LEGACY_INPUT_MANAGER
-        if (TryGetLegacyPointerSample(out sample))
-        {
-            return true;
-        }
-#endif
         sample = default;
         return false;
     }
@@ -306,52 +311,6 @@ public sealed class ArcGISTopDownCameraController : MonoBehaviour
             UnityEngine.InputSystem.TouchPhase.Stationary => PointerSamplePhase.Moved,
             UnityEngine.InputSystem.TouchPhase.Ended => PointerSamplePhase.Ended,
             UnityEngine.InputSystem.TouchPhase.Canceled => PointerSamplePhase.Ended,
-            _ => PointerSamplePhase.None
-        };
-    }
-#endif
-
-#if ENABLE_LEGACY_INPUT_MANAGER
-    private static bool TryGetLegacyPointerSample(out PointerSample sample)
-    {
-        if (Input.touchCount == 1)
-        {
-            var touch = Input.GetTouch(0);
-            sample = new PointerSample(touch.fingerId, touch.position, ToPointerPhase(touch.phase));
-            return sample.Phase != PointerSamplePhase.None;
-        }
-
-        if (Input.GetMouseButtonDown(0))
-        {
-            sample = new PointerSample(-1, Input.mousePosition, PointerSamplePhase.Began);
-            return true;
-        }
-
-        if (Input.GetMouseButtonUp(0))
-        {
-            sample = new PointerSample(-1, Input.mousePosition, PointerSamplePhase.Ended);
-            return true;
-        }
-
-        if (Input.GetMouseButton(0))
-        {
-            sample = new PointerSample(-1, Input.mousePosition, PointerSamplePhase.Moved);
-            return true;
-        }
-
-        sample = default;
-        return false;
-    }
-
-    private static PointerSamplePhase ToPointerPhase(UnityEngine.TouchPhase phase)
-    {
-        return phase switch
-        {
-            UnityEngine.TouchPhase.Began => PointerSamplePhase.Began,
-            UnityEngine.TouchPhase.Moved => PointerSamplePhase.Moved,
-            UnityEngine.TouchPhase.Stationary => PointerSamplePhase.Moved,
-            UnityEngine.TouchPhase.Ended => PointerSamplePhase.Ended,
-            UnityEngine.TouchPhase.Canceled => PointerSamplePhase.Ended,
             _ => PointerSamplePhase.None
         };
     }

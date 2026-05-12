@@ -8,6 +8,8 @@ using UnityEngine.Android;
 [DisallowMultipleComponent]
 public sealed class DeviceGpsService : MonoBehaviour
 {
+    // Unity still exposes device geolocation through Input.location, so this service is the
+    // isolated legacy-input dependency while the rest of the project migrates to Input System UI.
     private const float DefaultStartTimeoutSeconds = 20f;
     private const float PermissionWaitTimeoutSeconds = 15f;
     private const double CoordinateEpsilon = 0.0000001d;
