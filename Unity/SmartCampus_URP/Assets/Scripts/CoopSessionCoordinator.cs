@@ -42,6 +42,8 @@ public sealed class CoopSessionCoordinator : NetworkBehaviour
         {
             DontDestroyOnLoad(gameObject);
         }
+
+        ValidateMiniGameConfiguration(logWarnings: true);
     }
 
     public override void OnNetworkSpawn()
@@ -127,6 +129,7 @@ public sealed class CoopSessionCoordinator : NetworkBehaviour
             return;
         }
 
+        Debug.Log($"Starting mini-game index {miniGameIndex} -> scene '{sceneName}'.", this);
         activeMiniGameIndex.Value = miniGameIndex;
         currentPhase.Value = CoopGamePhase.MiniGame;
         LoadScene(sceneName);
@@ -152,6 +155,22 @@ public sealed class CoopSessionCoordinator : NetworkBehaviour
 
         sceneName = miniGameSceneNames[miniGameIndex];
         return !string.IsNullOrWhiteSpace(sceneName);
+    }
+
+    public void ValidateMiniGameConfiguration(bool logWarnings)
+    {
+        if (!logWarnings || miniGameSceneNames == null)
+        {
+            return;
+        }
+
+        for (var index = 0; index < miniGameSceneNames.Length; index++)
+        {
+            if (string.IsNullOrWhiteSpace(miniGameSceneNames[index]))
+            {
+                Debug.LogWarning($"Mini-game scene slot {index} is empty in CoopSessionCoordinator.", this);
+            }
+        }
     }
 
     public void ReturnToMainMap()

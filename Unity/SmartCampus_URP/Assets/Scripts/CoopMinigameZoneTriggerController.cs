@@ -92,7 +92,18 @@ public sealed class CoopMinigameZoneTriggerController : MonoBehaviour
 
         if (coopSessionCoordinator != null && coopSessionCoordinator.IsServer)
         {
-            Debug.Log($"Launching minigame {candidateZone.MiniGameNumber} from cooperative zone {candidateZone.DisplayName}.", this);
+            if (!coopSessionCoordinator.IsMiniGameConfigured(candidateZone.MiniGameIndex))
+            {
+                Debug.LogWarning(
+                    $"Zone '{candidateZone.DisplayName}' cannot launch minigame. MiniGameNumber={candidateZone.MiniGameNumber} MiniGameIndex={candidateZone.MiniGameIndex} is not configured in CoopSessionCoordinator.",
+                    this);
+                return;
+            }
+
+            coopSessionCoordinator.TryGetMiniGameSceneName(candidateZone.MiniGameIndex, out var sceneName);
+            Debug.Log(
+                $"Launching zone minigame '{candidateZone.DisplayName}'. MiniGameNumber={candidateZone.MiniGameNumber} MiniGameIndex={candidateZone.MiniGameIndex} Scene='{sceneName}'.",
+                this);
             coopSessionCoordinator.StartMiniGame(candidateZone.MiniGameIndex);
         }
     }

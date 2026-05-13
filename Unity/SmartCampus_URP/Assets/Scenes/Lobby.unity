@@ -1509,7 +1509,6 @@ MonoBehaviour:
   lobbySceneName: Lobby
   mainMapSceneName: UJI
   miniGameSceneNames:
-  - 
   - GardenImageVotingMinigame
   - AudioWordConsensusMinigame
   - CollaborativePlantGuessMinigame

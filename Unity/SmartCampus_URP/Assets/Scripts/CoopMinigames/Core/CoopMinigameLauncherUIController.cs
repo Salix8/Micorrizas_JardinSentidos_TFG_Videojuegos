@@ -17,6 +17,7 @@ namespace SmartCampus.Coop.Minigames
         [SerializeField] private TMP_Text helperLabel;
 
         private readonly List<CoopMinigameLauncherEntryView> instantiatedEntries = new();
+        private bool hasLoggedCatalogValidation;
 
         private void Awake()
         {
@@ -27,6 +28,7 @@ namespace SmartCampus.Coop.Minigames
         {
             ResolveReferences();
             BuildEntries();
+            ValidateCatalogMappings();
 
             if (coopSessionCoordinator != null)
             {
@@ -145,6 +147,13 @@ namespace SmartCampus.Coop.Minigames
                 var view = instantiatedEntries[index];
                 var minigameIndex = entry.MinigameIndex;
 
+                if (IsCatalogIndexInvalid(entry))
+                {
+                    Debug.LogWarning(
+                        $"Launcher entry '{entry.DisplayName}' uses invalid MinigameIndex={minigameIndex}. Expected runtime indices in range 0..{Mathf.Max(0, minigameCatalogConfig.Entries.Count - 1)}.",
+                        this);
+                }
+
                 var canLaunch = canLaunchFromCurrentContext &&
                                 (isLocalDebugLauncher || (coopSessionCoordinator != null && coopSessionCoordinator.IsMiniGameConfigured(minigameIndex)));
                 view.Bind(
@@ -161,13 +170,20 @@ namespace SmartCampus.Coop.Minigames
 
             if (coopSessionCoordinator != null && coopSessionCoordinator.IsSpawned && coopSessionCoordinator.IsServer)
             {
+                coopSessionCoordinator.TryGetMiniGameSceneName(entry.MinigameIndex, out var sceneName);
+                Debug.Log(
+                    $"Launcher requested minigame '{entry.DisplayName}'. MinigameIndex={entry.MinigameIndex} Scene='{sceneName}'.",
+                    this);
                 coopSessionCoordinator.StartMiniGame(entry.MinigameIndex);
                 return;
             }
 
-            if (!HasActiveNetworkSession() && TryResolveLocalSceneName(entry, out var sceneName))
+            if (!HasActiveNetworkSession() && TryResolveLocalSceneName(entry, out var localSceneName))
             {
-                SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
+                Debug.Log(
+                    $"Launcher requested local minigame '{entry.DisplayName}'. MinigameIndex={entry.MinigameIndex} Scene='{localSceneName}'.",
+                    this);
+                SceneManager.LoadScene(localSceneName, LoadSceneMode.Single);
             }
         }
 
@@ -198,6 +214,60 @@ namespace SmartCampus.Coop.Minigames
         private static bool HasActiveNetworkSession()
         {
             return NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening;
+        }
+
+        private void ValidateCatalogMappings()
+        {
+            if (hasLoggedCatalogValidation || minigameCatalogConfig == null)
+            {
+                return;
+            }
+
+            hasLoggedCatalogValidation = true;
+            var usedIndices = new HashSet<int>();
+            var maxExpectedIndex = Mathf.Max(0, minigameCatalogConfig.Entries.Count - 1);
+
+            for (var index = 0; index < minigameCatalogConfig.Entries.Count; index++)
+            {
+                var entry = minigameCatalogConfig.Entries[index];
+                if (entry == null)
+                {
+                    continue;
+                }
+
+                if (IsCatalogIndexInvalid(entry))
+                {
+                    Debug.LogWarning(
+                        $"Launcher catalog entry '{entry.DisplayName}' is misconfigured. MinigameIndex={entry.MinigameIndex}, expected range 0..{maxExpectedIndex}.",
+                        this);
+                    continue;
+                }
+
+                if (!usedIndices.Add(entry.MinigameIndex))
+                {
+                    Debug.LogWarning(
+                        $"Launcher catalog contains duplicated MinigameIndex={entry.MinigameIndex} for entry '{entry.DisplayName}'.",
+                        this);
+                }
+
+                if (coopSessionCoordinator != null &&
+                    coopSessionCoordinator.TryGetMiniGameSceneName(entry.MinigameIndex, out var coordinatorSceneName) &&
+                    !string.IsNullOrWhiteSpace(entry.SceneName) &&
+                    !string.Equals(entry.SceneName, coordinatorSceneName, System.StringComparison.Ordinal))
+                {
+                    Debug.LogWarning(
+                        $"Launcher catalog scene mismatch for '{entry.DisplayName}'. Catalog='{entry.SceneName}' Coordinator='{coordinatorSceneName}' Index={entry.MinigameIndex}.",
+                        this);
+                }
+            }
+        }
+
+        private bool IsCatalogIndexInvalid(CoopMinigameCatalogEntry entry)
+        {
+            return entry == null ||
+                   minigameCatalogConfig == null ||
+                   entry.MinigameIndex < 0 ||
+                   entry.MinigameIndex >= minigameCatalogConfig.Entries.Count;
         }
     }
 }
