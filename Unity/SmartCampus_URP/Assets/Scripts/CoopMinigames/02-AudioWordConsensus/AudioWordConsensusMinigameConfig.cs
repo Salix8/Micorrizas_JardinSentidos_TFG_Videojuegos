@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 using SmartCampus.Coop.Minigames;
 
@@ -28,6 +29,7 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
         public string TimeoutMessage => timeoutMessage;
         public string MissingAudioClipLabel => missingAudioClipLabel;
         public int ActiveRoundCount => roundDefinitions.Count;
+        public IReadOnlyList<AudioWordConsensusRoundDefinition> RoundDefinitions => roundDefinitions;
         public AudioWordConsensusScoreSettings ScoreSettings => scoreSettings;
         public AudioWordConsensusVisualSettings VisualSettings => visualSettings;
 
@@ -38,9 +40,71 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
 
         public bool SupportsParticipantCount(int participantCount)
         {
-            return participantCount >= 2 &&
-                   participantCount <= maxSupportedDevices &&
-                   roundDefinitions.Count > 0;
+            return TryValidateForParticipantCount(participantCount, out _);
+        }
+
+        public int CountUsableRoundDefinitions(int participantCount)
+        {
+            if (participantCount < 2)
+            {
+                return 0;
+            }
+
+            var receiverCount = participantCount - 1;
+            var usableRoundCount = 0;
+            for (var index = 0; index < roundDefinitions.Count; index++)
+            {
+                if (AudioWordConsensusRoundDefinitionValidator.IsUsable(roundDefinitions[index], receiverCount))
+                {
+                    usableRoundCount++;
+                }
+            }
+
+            return usableRoundCount;
+        }
+
+        public bool TryValidateForParticipantCount(int participantCount, out string errorMessage)
+        {
+            if (participantCount < 2)
+            {
+                errorMessage = "Se necesitan al menos dos participantes.";
+                return false;
+            }
+
+            if (participantCount > maxSupportedDevices)
+            {
+                errorMessage = $"La configuracion solo admite hasta {maxSupportedDevices} dispositivos.";
+                return false;
+            }
+
+            if (roundDefinitions == null || roundDefinitions.Count == 0)
+            {
+                errorMessage = "No hay rondas de audio configuradas.";
+                return false;
+            }
+
+            var usableRoundCount = CountUsableRoundDefinitions(participantCount);
+            if (usableRoundCount > 0)
+            {
+                errorMessage = string.Empty;
+                return true;
+            }
+
+            var receiverCount = participantCount - 1;
+            var builder = new StringBuilder("No hay rondas utilizables.");
+            for (var index = 0; index < roundDefinitions.Count; index++)
+            {
+                if (AudioWordConsensusRoundDefinitionValidator.TryValidate(roundDefinitions[index], receiverCount, out var roundError))
+                {
+                    continue;
+                }
+
+                builder.Append(' ');
+                builder.Append($"R{index + 1}: {roundError}");
+            }
+
+            errorMessage = builder.ToString();
+            return false;
         }
 
         private void OnValidate()
@@ -65,6 +129,74 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
         public AudioClip SoundClip => soundClip;
         public string CorrectWord => correctWord;
         public IReadOnlyList<string> DistractorWords => distractorWords;
+
+        public bool IsUsableForReceiverCount(int receiverCount)
+        {
+            return AudioWordConsensusRoundDefinitionValidator.IsUsable(this, receiverCount);
+        }
+    }
+
+    internal static class AudioWordConsensusRoundDefinitionValidator
+    {
+        public static bool IsUsable(AudioWordConsensusRoundDefinition roundDefinition, int receiverCount)
+        {
+            return TryValidate(roundDefinition, receiverCount, out _);
+        }
+
+        public static bool TryValidate(AudioWordConsensusRoundDefinition roundDefinition, int receiverCount, out string errorMessage)
+        {
+            if (roundDefinition == null ||
+                string.IsNullOrWhiteSpace(roundDefinition.CorrectWord))
+            {
+                errorMessage = "Falta la palabra correcta.";
+                return false;
+            }
+
+            if (roundDefinition.SoundClip == null)
+            {
+                errorMessage = "Falta asignar el AudioClip.";
+                return false;
+            }
+
+            if (receiverCount < 2)
+            {
+                errorMessage = string.Empty;
+                return true;
+            }
+
+            var sanitizedDistractorCount = 0;
+            var seenWords = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                roundDefinition.CorrectWord.Trim()
+            };
+
+            var distractorWords = roundDefinition.DistractorWords;
+            if (distractorWords == null)
+            {
+                errorMessage = "Faltan distractores.";
+                return false;
+            }
+
+            for (var index = 0; index < distractorWords.Count; index++)
+            {
+                var candidate = distractorWords[index]?.Trim();
+                if (string.IsNullOrWhiteSpace(candidate) || !seenWords.Add(candidate))
+                {
+                    continue;
+                }
+
+                sanitizedDistractorCount++;
+            }
+
+            if (sanitizedDistractorCount <= 0)
+            {
+                errorMessage = "No hay distractores validos distintos de la palabra correcta.";
+                return false;
+            }
+
+            errorMessage = string.Empty;
+            return true;
+        }
     }
 
     [Serializable]

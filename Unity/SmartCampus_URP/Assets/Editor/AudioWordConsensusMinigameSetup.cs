@@ -6,6 +6,8 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
 using TMPro;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using SmartCampus.Coop.Minigames;
@@ -14,6 +16,7 @@ using SmartCampus.Coop.Minigames.AudioWordConsensus;
 public static class AudioWordConsensusMinigameSetup
 {
     private const string RootFolder = "Assets/CoopMinigames";
+    private const string AudioFolder = RootFolder + "/02-AudioWordConsensus";
     private const string ConfigFolder = RootFolder + "/Configs";
     private const string SceneFolder = "Assets/Scenes";
     private const string TutorialConfigPath = ConfigFolder + "/AudioWordConsensusTutorialContent.asset";
@@ -41,6 +44,37 @@ public static class AudioWordConsensusMinigameSetup
 
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
+    }
+
+    [MenuItem("Tools/Coop/Populate Audio Word Consensus Config From Clips")]
+    public static void PopulateAudioWordConsensusConfigFromClips()
+    {
+        EnsureFolders();
+
+        var tutorialContent = CreateOrUpdateTutorialContent();
+        var minigameConfig = CreateOrUpdateMinigameConfig(tutorialContent);
+        EditorUtility.SetDirty(minigameConfig);
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+    }
+
+    [MenuItem("Tools/Coop/Validate Audio Word Consensus Config")]
+    public static void ValidateAudioWordConsensusConfig()
+    {
+        var minigameConfig = AssetDatabase.LoadAssetAtPath<AudioWordConsensusMinigameConfig>(MinigameConfigPath);
+        if (minigameConfig == null)
+        {
+            Debug.LogError($"No se ha encontrado el config en {MinigameConfigPath}.");
+            return;
+        }
+
+        if (minigameConfig.TryValidateForParticipantCount(3, out var validationError))
+        {
+            Debug.Log("AudioWordConsensus config valido para una partida de 3 participantes.");
+            return;
+        }
+
+        Debug.LogError($"AudioWordConsensus config invalido: {validationError}", minigameConfig);
     }
 
     private static void EnsureFolders()
@@ -73,8 +107,8 @@ public static class AudioWordConsensusMinigameSetup
         serializedObject.FindProperty("subtitle").stringValue = "Una persona escucha, el resto compara palabras";
         serializedObject.FindProperty("bodyText").stringValue =
             "En cada ronda un dispositivo solo puede reproducir un sonido. Ese jugador no recibe ninguna palabra.\n\n" +
-            "El resto de dispositivos recibe varias opciones repartidas entre el grupo. Solo una coincide con el sonido reproducido.\n\n" +
-            "Debatid rapidamente y decidid en que dispositivo y sobre que palabra debe pulsarse. El minijuego termina cuando todos han sido emisor una vez o cuando se agota el tiempo.";
+            "El resto de dispositivos recibe varias opciones en sus botones. Solo una coincide con el sonido reproducido.\n\n" +
+            "Debatid rapidamente y decidid en que dispositivo y sobre que palabra debe pulsarse. El minijuego termina al agotarse los sonidos disponibles o cuando se acaba el tiempo.";
         serializedObject.ApplyModifiedPropertiesWithoutUndo();
         EditorUtility.SetDirty(asset);
         return asset;
@@ -98,27 +132,104 @@ public static class AudioWordConsensusMinigameSetup
         serializedObject.FindProperty("timeLimitSeconds").floatValue = 120f;
         serializedObject.FindProperty("feedbackDurationSeconds").floatValue = 1.2f;
         serializedObject.FindProperty("timeoutMessage").stringValue = "Tiempo agotado";
-        serializedObject.FindProperty("missingAudioClipLabel").stringValue = "Asigna un AudioClip en el asset";
+        serializedObject.FindProperty("missingAudioClipLabel").stringValue = "Sonido pendiente de asignar";
 
         var roundDefinitions = serializedObject.FindProperty("roundDefinitions");
+        PopulateRoundDefinitionsFromAudioClips(roundDefinitions);
+
+        serializedObject.ApplyModifiedPropertiesWithoutUndo();
+        EditorUtility.SetDirty(asset);
+        return asset;
+    }
+
+    private static void PopulateRoundDefinitionsFromAudioClips(SerializedProperty roundDefinitions)
+    {
+        var clips = LoadConfiguredAudioClips();
+        if (clips.Count == 0)
+        {
+            PreserveExistingRoundDefinitions(roundDefinitions);
+            return;
+        }
+
+        roundDefinitions.arraySize = clips.Count;
+
+        var correctWords = clips.Select(clip => ExtractPrimaryWord(clip.name)).ToList();
+        for (var index = 0; index < clips.Count; index++)
+        {
+            var round = roundDefinitions.GetArrayElementAtIndex(index);
+            round.FindPropertyRelative("promptLabel").stringValue = clips[index].name;
+            round.FindPropertyRelative("soundClip").objectReferenceValue = clips[index];
+            round.FindPropertyRelative("correctWord").stringValue = correctWords[index];
+
+            var distractorWords = round.FindPropertyRelative("distractorWords");
+            var distractors = BuildDistractorWords(correctWords, index);
+            distractorWords.arraySize = distractors.Count;
+            for (var distractorIndex = 0; distractorIndex < distractors.Count; distractorIndex++)
+            {
+                distractorWords.GetArrayElementAtIndex(distractorIndex).stringValue = distractors[distractorIndex];
+            }
+        }
+    }
+
+    private static void PreserveExistingRoundDefinitions(SerializedProperty roundDefinitions)
+    {
+        if (roundDefinitions.arraySize > 0)
+        {
+            return;
+        }
+
         roundDefinitions.arraySize = 6;
         for (var index = 0; index < roundDefinitions.arraySize; index++)
         {
             var round = roundDefinitions.GetArrayElementAtIndex(index);
             round.FindPropertyRelative("promptLabel").stringValue = $"Sonido {index + 1}";
             round.FindPropertyRelative("correctWord").stringValue = $"Palabra correcta {index + 1}";
+        }
+    }
 
-            var distractorWords = round.FindPropertyRelative("distractorWords");
-            distractorWords.arraySize = 5;
-            for (var distractorIndex = 0; distractorIndex < distractorWords.arraySize; distractorIndex++)
+    private static List<AudioClip> LoadConfiguredAudioClips()
+    {
+        var clipGuids = AssetDatabase.FindAssets("t:AudioClip", new[] { AudioFolder });
+        var clips = new List<AudioClip>(clipGuids.Length);
+        for (var index = 0; index < clipGuids.Length; index++)
+        {
+            var assetPath = AssetDatabase.GUIDToAssetPath(clipGuids[index]);
+            var clip = AssetDatabase.LoadAssetAtPath<AudioClip>(assetPath);
+            if (clip != null)
             {
-                distractorWords.GetArrayElementAtIndex(distractorIndex).stringValue = $"Distractor {index + 1}-{distractorIndex + 1}";
+                clips.Add(clip);
             }
         }
 
-        serializedObject.ApplyModifiedPropertiesWithoutUndo();
-        EditorUtility.SetDirty(asset);
-        return asset;
+        clips.Sort((left, right) => string.Compare(left.name, right.name, StringComparison.OrdinalIgnoreCase));
+        return clips;
+    }
+
+    private static string ExtractPrimaryWord(string clipName)
+    {
+        if (string.IsNullOrWhiteSpace(clipName))
+        {
+            return "Sonido";
+        }
+
+        var separatorIndex = clipName.IndexOf(" - ", StringComparison.Ordinal);
+        return separatorIndex > 0 ? clipName.Substring(0, separatorIndex).Trim() : clipName.Trim();
+    }
+
+    private static List<string> BuildDistractorWords(IReadOnlyList<string> correctWords, int correctWordIndex)
+    {
+        var distractors = new List<string>(Math.Max(0, correctWords.Count - 1));
+        for (var index = 0; index < correctWords.Count; index++)
+        {
+            if (index == correctWordIndex)
+            {
+                continue;
+            }
+
+            distractors.Add(correctWords[index]);
+        }
+
+        return distractors;
     }
 
     private static CoopMinigameCatalogConfig CreateOrUpdateCatalogConfig()

@@ -21,7 +21,11 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
 
             var trimmedCorrectWord = correctWord.Trim();
             var sanitizedDistractors = SanitizeDistinctWords(distractorWords, trimmedCorrectWord);
-            var shuffledReceivers = new List<ulong>(receiverClientIds);
+            if (receiverClientIds.Count >= 2 && sanitizedDistractors.Count == 0)
+            {
+                return false;
+            }
+
             var optionWords = new List<string>(sanitizedDistractors.Count + 1)
             {
                 trimmedCorrectWord
@@ -30,23 +34,11 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
             optionWords.AddRange(sanitizedDistractors);
 
             var random = new Random(randomSeed);
-            ShuffleInPlace(shuffledReceivers, random);
             ShuffleInPlace(optionWords, random);
 
-            for (var receiverIndex = 0; receiverIndex < shuffledReceivers.Count; receiverIndex++)
+            for (var receiverIndex = 0; receiverIndex < receiverClientIds.Count; receiverIndex++)
             {
-                assignments[shuffledReceivers[receiverIndex]] = new List<string>();
-            }
-
-            for (var optionIndex = 0; optionIndex < optionWords.Count; optionIndex++)
-            {
-                var receiverId = shuffledReceivers[optionIndex % shuffledReceivers.Count];
-                assignments[receiverId].Add(optionWords[optionIndex]);
-            }
-
-            for (var receiverIndex = 0; receiverIndex < shuffledReceivers.Count; receiverIndex++)
-            {
-                ShuffleInPlace(assignments[shuffledReceivers[receiverIndex]], random);
+                assignments[receiverClientIds[receiverIndex]] = new List<string>(optionWords);
             }
 
             return true;

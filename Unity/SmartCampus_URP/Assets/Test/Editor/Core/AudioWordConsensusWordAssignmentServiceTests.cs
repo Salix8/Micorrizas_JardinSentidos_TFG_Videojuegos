@@ -8,7 +8,7 @@ namespace SmartCampus.Testing.Editor.Core
     public sealed class AudioWordConsensusWordAssignmentServiceTests
     {
         [Test]
-        public void TryBuildAssignments_AssignsCorrectWordExactlyOnceAcrossAllReceivers()
+        public void TryBuildAssignments_AssignsSameFullOptionSetToAllReceivers()
         {
             var receivers = new ulong[] { 1UL, 2UL, 3UL, 4UL };
 
@@ -19,32 +19,17 @@ namespace SmartCampus.Testing.Editor.Core
                 randomSeed: 25,
                 out var assignments);
 
-            var assignedWords = assignments.Values.SelectMany(words => words).ToList();
-
             Assert.That(success, Is.True);
             Assert.That(assignments.Keys, Is.EquivalentTo(receivers));
-            Assert.That(assignedWords.Count(word => word == "Campana"), Is.EqualTo(1));
-            Assert.That(assignedWords.Distinct(System.StringComparer.OrdinalIgnoreCase).Count(), Is.EqualTo(assignedWords.Count));
-        }
 
-        [Test]
-        public void TryBuildAssignments_UsesAllConfiguredDistractorsAcrossReceiverDevices()
-        {
-            var success = AudioWordConsensusWordAssignmentService.TryBuildAssignments(
-                new ulong[] { 10UL, 20UL },
-                "Arroyo",
-                new[] { "Hoja", "Piedra", "Agua", "Musgo" },
-                randomSeed: 4,
-                out var assignments);
+            var firstAssignment = assignments[receivers[0]];
+            Assert.That(firstAssignment, Has.Count.EqualTo(4));
+            Assert.That(firstAssignment, Does.Contain("Campana"));
 
-            var assignedWords = assignments.Values.SelectMany(words => words).ToList();
-
-            Assert.That(success, Is.True);
-            Assert.That(assignedWords, Does.Contain("Arroyo"));
-            Assert.That(assignedWords, Does.Contain("Hoja"));
-            Assert.That(assignedWords, Does.Contain("Piedra"));
-            Assert.That(assignedWords, Does.Contain("Agua"));
-            Assert.That(assignedWords, Does.Contain("Musgo"));
+            foreach (var receiver in receivers)
+            {
+                Assert.That(assignments[receiver], Is.EqualTo(firstAssignment));
+            }
         }
 
         [Test]
@@ -72,13 +57,24 @@ namespace SmartCampus.Testing.Editor.Core
                 randomSeed: 3,
                 out var assignments);
 
-            var assignedWords = assignments.Values.SelectMany(words => words).ToList();
-
             Assert.That(success, Is.True);
-            Assert.That(assignedWords.Count(word => word == "Campana"), Is.EqualTo(1));
-            Assert.That(assignedWords, Does.Contain("hoja"));
-            Assert.That(assignedWords, Does.Contain("piedra"));
-            Assert.That(assignedWords.Distinct(System.StringComparer.OrdinalIgnoreCase).Count(), Is.EqualTo(assignedWords.Count));
+            Assert.That(assignments[1UL], Does.Contain("Campana"));
+            Assert.That(assignments[1UL], Does.Contain("hoja"));
+            Assert.That(assignments[1UL], Does.Contain("piedra"));
+            Assert.That(assignments[1UL].Distinct(System.StringComparer.OrdinalIgnoreCase).Count(), Is.EqualTo(assignments[1UL].Count));
+        }
+
+        [Test]
+        public void TryBuildAssignments_ReturnsFalse_WhenSeveralReceiversHaveNoDistractors()
+        {
+            var success = AudioWordConsensusWordAssignmentService.TryBuildAssignments(
+                new ulong[] { 1UL, 2UL },
+                "Micorriza",
+                new string[0],
+                randomSeed: 9,
+                out _);
+
+            Assert.That(success, Is.False);
         }
 
         [Test]

@@ -130,7 +130,7 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
             {
                 localWordLabel.text = isEmitter
                     ? "En este turno no recibes palabra. Tu tarea es reproducir el sonido cuando el grupo lo necesite."
-                    : (hasAssignedWords ? "Opciones disponibles en tu dispositivo:" : "Esperando a que el host prepare tus opciones.");
+                    : (hasAssignedWords ? "Opciones disponibles en tu dispositivo:" : "No hay opciones disponibles para esta ronda.");
             }
 
             if (playSoundButton != null)
@@ -172,6 +172,7 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
             {
                 ClearGeneratedWordOptionButtons();
                 templateButton.gameObject.SetActive(false);
+                RebuildWordOptionsLayout();
                 return;
             }
 
@@ -191,13 +192,15 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
                 var label = GetButtonLabel(button);
                 if (label != null)
                 {
-                    label.text = $"Pulsar \"{assignedWord}\"";
+                    label.text = assignedWord;
                 }
 
                 button.interactable = TypedSession.CanLocalSubmitAssignedWord();
                 button.onClick.RemoveAllListeners();
                 button.onClick.AddListener(() => HandleSubmitWordPressed(assignedWord));
             }
+
+            RebuildWordOptionsLayout();
         }
 
         private void EnsureWordOptionButtonPool(int requiredButtonCount)
@@ -258,6 +261,7 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
                 if (templateButton != null)
                 {
                     templateButton.onClick.RemoveAllListeners();
+                    templateButton.gameObject.SetActive(false);
                 }
 
                 activeWordOptionButtons.Clear();
@@ -285,6 +289,14 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
         private void HandleStateChanged()
         {
             RefreshGameplay();
+        }
+
+        private void RebuildWordOptionsLayout()
+        {
+            if (wordOptionsContainer is RectTransform containerRectTransform)
+            {
+                LayoutRebuilder.ForceRebuildLayoutImmediate(containerRectTransform);
+            }
         }
     }
 }

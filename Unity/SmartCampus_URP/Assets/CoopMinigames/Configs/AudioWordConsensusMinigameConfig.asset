@@ -20,62 +20,62 @@ MonoBehaviour:
   timeLimitSeconds: 120
   feedbackDurationSeconds: 1.2
   timeoutMessage: Tiempo agotado
-  missingAudioClipLabel: Asigna un AudioClip en el asset
+  missingAudioClipLabel: Sonido pendiente de asignar
   roundDefinitions:
-  - promptLabel: Sonido 1
-    soundClip: {fileID: 0}
-    correctWord: Palabra correcta 1
+  - promptLabel: Garza - Eurasian Magpie - Pica pica
+    soundClip: {fileID: 8300000, guid: 61f25c7b530ab184595a7e4e9b701e6a, type: 3}
+    correctWord: Garza
     distractorWords:
-    - Distractor 1-1
-    - Distractor 1-2
-    - Distractor 1-3
-    - Distractor 1-4
-    - Distractor 1-5
-  - promptLabel: Sonido 2
-    soundClip: {fileID: 0}
-    correctWord: Palabra correcta 2
+    - Gorrion
+    - Mirlo
+    - Piti rojo
+    - "Rana com\xFAn"
+    - "Verder\xF3n com\xFAn"
+  - promptLabel: Gorrion - House Sparrow - Passer domesticus
+    soundClip: {fileID: 8300000, guid: dec2f9dfda6f15049882f715fd22f948, type: 3}
+    correctWord: Gorrion
     distractorWords:
-    - Distractor 2-1
-    - Distractor 2-2
-    - Distractor 2-3
-    - Distractor 2-4
-    - Distractor 2-5
-  - promptLabel: Sonido 3
-    soundClip: {fileID: 0}
-    correctWord: Palabra correcta 3
+    - Garza
+    - Mirlo
+    - Piti rojo
+    - "Rana com\xFAn"
+    - "Verder\xF3n com\xFAn"
+  - promptLabel: Mirlo - Common Blackbird - Turdus merula
+    soundClip: {fileID: 8300000, guid: 9b19dbf7c26d28b418278e1ad7cb6f8c, type: 3}
+    correctWord: Mirlo
     distractorWords:
-    - Distractor 3-1
-    - Distractor 3-2
-    - Distractor 3-3
-    - Distractor 3-4
-    - Distractor 3-5
-  - promptLabel: Sonido 4
-    soundClip: {fileID: 0}
-    correctWord: Palabra correcta 4
+    - Garza
+    - Gorrion
+    - Piti rojo
+    - "Rana com\xFAn"
+    - "Verder\xF3n com\xFAn"
+  - promptLabel: Piti rojo - European Robin - Erithacus rubecula
+    soundClip: {fileID: 8300000, guid: 7609f8f889c98dc43b4184db0688ed2d, type: 3}
+    correctWord: Piti rojo
     distractorWords:
-    - Distractor 4-1
-    - Distractor 4-2
-    - Distractor 4-3
-    - Distractor 4-4
-    - Distractor 4-5
-  - promptLabel: Sonido 5
-    soundClip: {fileID: 0}
-    correctWord: Palabra correcta 5
+    - Garza
+    - Gorrion
+    - Mirlo
+    - "Rana com\xFAn"
+    - "Verder\xF3n com\xFAn"
+  - promptLabel: "Rana com\xFAn - Iberian Green Frog - Pelophylax perezi"
+    soundClip: {fileID: 8300000, guid: abed4ac60bceffd478d1f49aafb6a23f, type: 3}
+    correctWord: "Rana com\xFAn"
     distractorWords:
-    - Distractor 5-1
-    - Distractor 5-2
-    - Distractor 5-3
-    - Distractor 5-4
-    - Distractor 5-5
-  - promptLabel: Sonido 6
-    soundClip: {fileID: 0}
-    correctWord: Palabra correcta 6
+    - Garza
+    - Gorrion
+    - Mirlo
+    - Piti rojo
+    - "Verder\xF3n com\xFAn"
+  - promptLabel: "Verder\xF3n com\xFAn - European Greenfinch - Chloris chloris"
+    soundClip: {fileID: 8300000, guid: 71fde34d17d68954ebe9d5f85bee2a07, type: 3}
+    correctWord: "Verder\xF3n com\xFAn"
     distractorWords:
-    - Distractor 6-1
-    - Distractor 6-2
-    - Distractor 6-3
-    - Distractor 6-4
-    - Distractor 6-5
+    - Garza
+    - Gorrion
+    - Mirlo
+    - Piti rojo
+    - "Rana com\xFAn"
   scoreSettings:
     maxScore: 10
     minimumScore: 0

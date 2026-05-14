@@ -72,7 +72,7 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
         public static IReadOnlyList<DistributedPairsHandSlotModel> BuildSlots(IReadOnlyList<DistributedPairsCardNetworkState> handStates, int slotCount)
         {
             var orderedSlots = new DistributedPairsHandSlotModel[slotCount];
-            var nextFallbackSlot = 0;
+            var fallbackStates = new List<DistributedPairsCardNetworkState>();
 
             for (var index = 0; index < handStates.Count; index++)
             {
@@ -80,20 +80,27 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
                 var targetSlot = state.HandOrder;
                 if (targetSlot < 0 || targetSlot >= slotCount || orderedSlots[targetSlot].HasCard)
                 {
-                    while (nextFallbackSlot < slotCount && orderedSlots[nextFallbackSlot].HasCard)
-                    {
-                        nextFallbackSlot++;
-                    }
-
-                    targetSlot = nextFallbackSlot;
-                }
-
-                if (targetSlot < 0 || targetSlot >= slotCount)
-                {
+                    fallbackStates.Add(state);
                     continue;
                 }
 
                 orderedSlots[targetSlot] = new DistributedPairsHandSlotModel(targetSlot, hasCard: true, state);
+            }
+
+            var nextFallbackSlot = 0;
+            for (var index = 0; index < fallbackStates.Count; index++)
+            {
+                while (nextFallbackSlot < slotCount && orderedSlots[nextFallbackSlot].HasCard)
+                {
+                    nextFallbackSlot++;
+                }
+
+                if (nextFallbackSlot >= slotCount)
+                {
+                    break;
+                }
+
+                orderedSlots[nextFallbackSlot] = new DistributedPairsHandSlotModel(nextFallbackSlot, hasCard: true, fallbackStates[index]);
             }
 
             for (var slotIndex = 0; slotIndex < slotCount; slotIndex++)
