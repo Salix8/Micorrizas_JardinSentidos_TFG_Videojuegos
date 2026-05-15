@@ -65,9 +65,21 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
                 return false;
             }
 
+            var shuffledReceiverIds = new List<ulong>(receiverClientIds);
+            var random = new Random(unchecked(randomSeed ^ 0x5F3759DF));
+            ShuffleInPlace(shuffledReceiverIds, random);
+
             for (var receiverIndex = 0; receiverIndex < receiverClientIds.Count; receiverIndex++)
             {
-                assignments[receiverClientIds[receiverIndex]] = new List<string>(optionWords);
+                assignments[receiverClientIds[receiverIndex]] = new List<string>();
+            }
+
+            var distributedAssignmentCount = Math.Max(optionWords.Count, shuffledReceiverIds.Count);
+            for (var assignmentIndex = 0; assignmentIndex < distributedAssignmentCount; assignmentIndex++)
+            {
+                var receiverClientId = shuffledReceiverIds[assignmentIndex % shuffledReceiverIds.Count];
+                var assignedWord = optionWords[assignmentIndex % optionWords.Count];
+                assignments[receiverClientId].Add(assignedWord);
             }
 
             return true;

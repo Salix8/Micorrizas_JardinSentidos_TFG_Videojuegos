@@ -134,17 +134,14 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
                 return false;
             }
 
-            var roundDefinition = GetCurrentRoundDefinition();
-            if (roundDefinition == null)
+            if (!TryBuildCurrentRoundAssignments(out var assignments) ||
+                !assignments.TryGetValue(GetLocalClientId(), out var optionWords) ||
+                optionWords == null)
             {
                 assignedWords = Array.Empty<string>();
                 return false;
             }
 
-            var optionWords = AudioWordConsensusWordAssignmentService.BuildShuffledOptionWords(
-                roundDefinition.CorrectWord,
-                roundDefinition.DistractorWords,
-                activeRoundOptionSeed.Value);
             assignedWords = optionWords;
             return optionWords.Count > 0;
         }
@@ -177,6 +174,37 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
             }
 
             SubmitAssignedWordServerRpc(selectedWord);
+        }
+
+        private bool TryBuildCurrentRoundAssignments(out Dictionary<ulong, List<string>> assignments)
+        {
+            assignments = null;
+
+            var roundDefinition = GetCurrentRoundDefinition();
+            if (roundDefinition == null)
+            {
+                return false;
+            }
+
+            var receiverClientIds = new List<ulong>();
+            var participantIds = GetParticipantIds();
+            for (var index = 0; index < participantIds.Count; index++)
+            {
+                var participantId = participantIds[index];
+                if (participantId == activeEmitterClientId.Value)
+                {
+                    continue;
+                }
+
+                receiverClientIds.Add(participantId);
+            }
+
+            return AudioWordConsensusWordAssignmentService.TryBuildAssignments(
+                receiverClientIds,
+                roundDefinition.CorrectWord,
+                roundDefinition.DistractorWords,
+                activeRoundOptionSeed.Value,
+                out assignments);
         }
 
         protected override void InitializeMinigameServer()
@@ -254,10 +282,14 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
                 return;
             }
 
-            var validOptions = AudioWordConsensusWordAssignmentService.BuildShuffledOptionWords(
-                roundDefinition.CorrectWord,
-                roundDefinition.DistractorWords,
-                activeRoundOptionSeed.Value);
+            if (!TryBuildCurrentRoundAssignments(out var assignments) ||
+                !assignments.TryGetValue(senderClientId, out var validOptions) ||
+                validOptions == null ||
+                validOptions.Count == 0)
+            {
+                return;
+            }
+
             var isValidOption = false;
             for (var index = 0; index < validOptions.Count; index++)
             {

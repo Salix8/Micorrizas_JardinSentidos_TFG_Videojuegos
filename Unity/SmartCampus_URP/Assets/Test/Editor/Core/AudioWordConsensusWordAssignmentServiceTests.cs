@@ -8,7 +8,7 @@ namespace SmartCampus.Testing.Editor.Core
     public sealed class AudioWordConsensusWordAssignmentServiceTests
     {
         [Test]
-        public void TryBuildAssignments_AssignsSameFullOptionSetToAllReceivers()
+        public void TryBuildAssignments_DistributesOptionsAcrossReceiversInsteadOfDuplicatingFullSet()
         {
             var receivers = new ulong[] { 1UL, 2UL, 3UL, 4UL };
 
@@ -21,15 +21,11 @@ namespace SmartCampus.Testing.Editor.Core
 
             Assert.That(success, Is.True);
             Assert.That(assignments.Keys, Is.EquivalentTo(receivers));
+            Assert.That(assignments.Values.All(words => words.Count >= 1), Is.True);
+            Assert.That(assignments.Values.All(words => words.Count == 1), Is.True);
 
-            var firstAssignment = assignments[receivers[0]];
-            Assert.That(firstAssignment, Has.Count.EqualTo(4));
-            Assert.That(firstAssignment, Does.Contain("Campana"));
-
-            foreach (var receiver in receivers)
-            {
-                Assert.That(assignments[receiver], Is.EqualTo(firstAssignment));
-            }
+            var allAssignedWords = assignments.Values.SelectMany(words => words).ToList();
+            Assert.That(allAssignedWords, Is.EquivalentTo(new[] { "Campana", "Hoja", "Piedra", "Agua" }));
         }
 
         [Test]
@@ -58,10 +54,30 @@ namespace SmartCampus.Testing.Editor.Core
                 out var assignments);
 
             Assert.That(success, Is.True);
-            Assert.That(assignments[1UL], Does.Contain("Campana"));
-            Assert.That(assignments[1UL], Does.Contain("hoja"));
-            Assert.That(assignments[1UL], Does.Contain("piedra"));
-            Assert.That(assignments[1UL].Distinct(System.StringComparer.OrdinalIgnoreCase).Count(), Is.EqualTo(assignments[1UL].Count));
+            var allAssignedWords = assignments.Values.SelectMany(words => words).ToList();
+            Assert.That(allAssignedWords, Does.Contain("Campana"));
+            Assert.That(allAssignedWords, Does.Contain("hoja"));
+            Assert.That(allAssignedWords, Does.Contain("piedra"));
+            Assert.That(allAssignedWords.Distinct(System.StringComparer.OrdinalIgnoreCase).Count(), Is.EqualTo(allAssignedWords.Count));
+        }
+
+        [Test]
+        public void TryBuildAssignments_WhenThereAreMoreReceiversThanWords_ReusesWordsButKeepsAtLeastOnePerDevice()
+        {
+            var receivers = new ulong[] { 1UL, 2UL, 3UL };
+
+            var success = AudioWordConsensusWordAssignmentService.TryBuildAssignments(
+                receivers,
+                "Campana",
+                new[] { "Hoja" },
+                randomSeed: 7,
+                out var assignments);
+
+            Assert.That(success, Is.True);
+            Assert.That(assignments.Keys, Is.EquivalentTo(receivers));
+            Assert.That(assignments.Values.All(words => words.Count >= 1), Is.True);
+            Assert.That(assignments.Values.SelectMany(words => words), Does.Contain("Campana"));
+            Assert.That(assignments.Values.SelectMany(words => words), Does.Contain("Hoja"));
         }
 
         [Test]

@@ -30,10 +30,17 @@ namespace SmartCampus.Testing.Editor.Core
             var session = sessionRoot.AddComponent<AudioWordConsensusMinigameSession>();
             localAudioSource = sessionRoot.AddComponent<AudioSource>();
 
-            wordOptionsContainer = new GameObject("WordOptionsContainer", typeof(RectTransform)).GetComponent<RectTransform>();
+            wordOptionsContainer = new GameObject(
+                "WordOptionsContainer",
+                typeof(RectTransform),
+                typeof(LayoutElement),
+                typeof(VerticalLayoutGroup),
+                typeof(ContentSizeFitter)).GetComponent<RectTransform>();
             wordOptionsContainer.SetParent(uiRoot.transform, false);
+            ConfigureContainerHierarchyContract(wordOptionsContainer.gameObject);
 
             var templateButton = CreateButton("TemplateButton", wordOptionsContainer);
+            ConfigureTemplateHierarchyContract(templateButton);
             playSoundButton = CreateButton("PlaySoundButton", uiRoot.transform);
             playSoundButtonLabel = GetButtonLabel(playSoundButton);
 
@@ -93,36 +100,45 @@ namespace SmartCampus.Testing.Editor.Core
         }
 
         [Test]
-        public void RefreshWordOptionButtons_AppliesVisibleLayoutContractToButtonsAndLabels()
+        public void RefreshWordOptionButtons_PreservesTemplateVisualConfiguration()
         {
             InvokeRefreshWordOptionButtons(isEmitter: false, new List<string> { "Mirlo" });
 
+            var templateButton = GetPrivateField<Button>(controller, "wordOptionButtonTemplate");
+            var templateLayoutElement = templateButton.GetComponent<LayoutElement>();
+            var templateRectTransform = templateButton.GetComponent<RectTransform>();
+            var templateLabelRectTransform = GetButtonLabel(templateButton).rectTransform;
             var activeButton = GetActiveButtons().Single();
             var layoutElement = activeButton.GetComponent<LayoutElement>();
+            var rectTransform = activeButton.GetComponent<RectTransform>();
             var label = GetButtonLabel(activeButton);
             var labelRectTransform = label.rectTransform;
 
             Assert.That(layoutElement, Is.Not.Null);
-            Assert.That(layoutElement.preferredHeight, Is.EqualTo(76f));
-            Assert.That(layoutElement.minHeight, Is.EqualTo(76f));
-            Assert.That(labelRectTransform.offsetMin, Is.EqualTo(new Vector2(18f, 10f)));
-            Assert.That(labelRectTransform.offsetMax, Is.EqualTo(new Vector2(-18f, -10f)));
+            Assert.That(layoutElement.preferredHeight, Is.EqualTo(templateLayoutElement.preferredHeight));
+            Assert.That(layoutElement.minHeight, Is.EqualTo(templateLayoutElement.minHeight));
+            Assert.That(rectTransform.anchorMin, Is.EqualTo(templateRectTransform.anchorMin));
+            Assert.That(rectTransform.anchorMax, Is.EqualTo(templateRectTransform.anchorMax));
+            Assert.That(rectTransform.pivot, Is.EqualTo(templateRectTransform.pivot));
+            Assert.That(rectTransform.sizeDelta, Is.EqualTo(templateRectTransform.sizeDelta));
+            Assert.That(labelRectTransform.offsetMin, Is.EqualTo(templateLabelRectTransform.offsetMin));
+            Assert.That(labelRectTransform.offsetMax, Is.EqualTo(templateLabelRectTransform.offsetMax));
         }
 
         [Test]
-        public void RefreshWordOptionButtons_EnsuresListContainerContract_WhenSceneContainerIsBare()
+        public void RefreshWordOptionButtons_DoesNotOverrideContainerHierarchyConfiguration()
         {
-            InvokeRefreshWordOptionButtons(isEmitter: false, new List<string> { "Mirlo", "Garza" });
-
-            var layoutElement = wordOptionsContainer.GetComponent<LayoutElement>();
-            var layoutGroup = wordOptionsContainer.GetComponent<VerticalLayoutGroup>();
+            var containerLayoutElement = wordOptionsContainer.GetComponent<LayoutElement>();
+            var containerLayoutGroup = wordOptionsContainer.GetComponent<VerticalLayoutGroup>();
             var fitter = wordOptionsContainer.GetComponent<ContentSizeFitter>();
 
-            Assert.That(layoutElement, Is.Not.Null);
-            Assert.That(layoutElement.preferredHeight, Is.EqualTo(200f));
-            Assert.That(layoutGroup, Is.Not.Null);
-            Assert.That(layoutGroup.spacing, Is.EqualTo(12f));
-            Assert.That(fitter, Is.Not.Null);
+            InvokeRefreshWordOptionButtons(isEmitter: false, new List<string> { "Mirlo", "Garza" });
+
+            Assert.That(containerLayoutElement.preferredHeight, Is.EqualTo(260f));
+            Assert.That(containerLayoutElement.minHeight, Is.EqualTo(160f));
+            Assert.That(containerLayoutGroup.spacing, Is.EqualTo(24f));
+            Assert.That(containerLayoutGroup.padding.left, Is.EqualTo(30));
+            Assert.That(containerLayoutGroup.childForceExpandWidth, Is.False);
             Assert.That(fitter.verticalFit, Is.EqualTo(ContentSizeFitter.FitMode.PreferredSize));
         }
 
@@ -202,6 +218,46 @@ namespace SmartCampus.Testing.Editor.Core
             labelObject.transform.SetParent(buttonObject.transform, false);
 
             return button;
+        }
+
+        private static void ConfigureContainerHierarchyContract(GameObject containerObject)
+        {
+            var layoutElement = containerObject.GetComponent<LayoutElement>();
+            layoutElement.minHeight = 160f;
+            layoutElement.preferredHeight = 260f;
+            layoutElement.flexibleHeight = 0f;
+            layoutElement.flexibleWidth = 1f;
+
+            var layoutGroup = containerObject.GetComponent<VerticalLayoutGroup>();
+            layoutGroup.padding = new RectOffset(30, 30, 30, 30);
+            layoutGroup.spacing = 24f;
+            layoutGroup.childControlWidth = true;
+            layoutGroup.childControlHeight = true;
+            layoutGroup.childForceExpandWidth = false;
+            layoutGroup.childForceExpandHeight = false;
+
+            var fitter = containerObject.GetComponent<ContentSizeFitter>();
+            fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+        }
+
+        private static void ConfigureTemplateHierarchyContract(Button button)
+        {
+            var rectTransform = button.GetComponent<RectTransform>();
+            rectTransform.anchorMin = new Vector2(0f, 1f);
+            rectTransform.anchorMax = new Vector2(1f, 1f);
+            rectTransform.pivot = new Vector2(0.5f, 1f);
+            rectTransform.sizeDelta = new Vector2(0f, 88f);
+
+            var layoutElement = button.GetComponent<LayoutElement>();
+            layoutElement.minHeight = 88f;
+            layoutElement.preferredHeight = 88f;
+
+            var labelRectTransform = GetButtonLabel(button).rectTransform;
+            labelRectTransform.anchorMin = Vector2.zero;
+            labelRectTransform.anchorMax = Vector2.one;
+            labelRectTransform.offsetMin = new Vector2(40f, 14f);
+            labelRectTransform.offsetMax = new Vector2(-26f, -8f);
         }
 
         private static TMP_Text GetButtonLabel(Button button)

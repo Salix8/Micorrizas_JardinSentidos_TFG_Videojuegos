@@ -59,13 +59,6 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
             public int SortingOrder => sortingOrder;
         }
 
-        private const float WordOptionButtonPreferredHeight = 76f;
-        private const float WordOptionContainerPadding = 12f;
-        private const float WordOptionContainerSpacing = 12f;
-        private const float WordOptionContainerMinimumHeight = 200f;
-        private static readonly Vector2 WordOptionLabelOffsetMin = new(18f, 10f);
-        private static readonly Vector2 WordOptionLabelOffsetMax = new(-18f, -10f);
-
         [SerializeField] private AudioWordConsensusMinigameSession audioWordConsensusMinigameSession;
         [SerializeField] private AudioSource localAudioSource;
         [SerializeField] private TMP_Text titleLabel;
@@ -323,8 +316,8 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
             {
                 var instance = Instantiate(templateButton, templateButton.transform.parent);
                 instance.name = $"{templateButton.name}_{activeWordOptionButtons.Count + 1}";
-                instance.gameObject.SetActive(false);
                 EnsureWordOptionVisualContract(instance);
+                instance.gameObject.SetActive(false);
                 activeWordOptionButtons.Add(instance);
             }
         }
@@ -473,6 +466,9 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
                 {
                     LayoutRebuilder.ForceRebuildLayoutImmediate(parentRectTransform);
                 }
+
+                NormalizeRuntimeWordOptionWidths(containerRectTransform);
+                LayoutRebuilder.ForceRebuildLayoutImmediate(containerRectTransform);
             }
 
             Canvas.ForceUpdateCanvases();
@@ -775,7 +771,6 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
                 }
             }
 
-            ApplyManualWordOptionLayout(optionWords.Count);
         }
 
         private void EnsureTemplateIsPrepared(Button templateButton)
@@ -785,138 +780,129 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
                 return;
             }
 
-            EnsureWordOptionsContainerContract();
-            EnsureWordOptionVisualContract(templateButton);
             templateButton.onClick.RemoveAllListeners();
             templateButton.gameObject.SetActive(false);
         }
 
         private void EnsureWordOptionsContainerContract()
         {
-            if (wordOptionsContainer == null)
-            {
-                return;
-            }
-
-            if (wordOptionsContainer.TryGetComponent<LayoutElement>(out var layoutElement) == false)
-            {
-                layoutElement = wordOptionsContainer.gameObject.AddComponent<LayoutElement>();
-            }
-
-            layoutElement.minHeight = 200f;
-            layoutElement.preferredHeight = 200f;
-            layoutElement.flexibleHeight = 0f;
-            layoutElement.flexibleWidth = 1f;
-            layoutElement.minWidth = 0f;
-            layoutElement.preferredWidth = 0f;
-
-            if (wordOptionsContainer.TryGetComponent<VerticalLayoutGroup>(out var layoutGroup) == false)
-            {
-                layoutGroup = wordOptionsContainer.gameObject.AddComponent<VerticalLayoutGroup>();
-            }
-
-            layoutGroup.padding = new RectOffset(12, 12, 12, 12);
-            layoutGroup.spacing = 12f;
-            layoutGroup.childControlWidth = true;
-            layoutGroup.childControlHeight = true;
-            layoutGroup.childForceExpandWidth = true;
-            layoutGroup.childForceExpandHeight = false;
-            layoutGroup.childAlignment = TextAnchor.UpperLeft;
-            layoutGroup.enabled = false;
-
-            if (wordOptionsContainer.TryGetComponent<ContentSizeFitter>(out var fitter) == false)
-            {
-                fitter = wordOptionsContainer.gameObject.AddComponent<ContentSizeFitter>();
-            }
-
-            fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
-            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-            fitter.enabled = false;
+            // The hierarchy owns layout configuration for WordOptionsContainer.
         }
 
         private void EnsureWordOptionVisualContract(Button button)
         {
-            if (button == null)
+            if (button == null || button == wordOptionButtonTemplate)
             {
                 return;
             }
 
-            if (button.TryGetComponent<LayoutElement>(out var layoutElement) == false)
-            {
-                layoutElement = button.gameObject.AddComponent<LayoutElement>();
-            }
-
-            layoutElement.minHeight = WordOptionButtonPreferredHeight;
-            layoutElement.preferredHeight = WordOptionButtonPreferredHeight;
-            layoutElement.flexibleHeight = 0f;
-            layoutElement.minWidth = 0f;
-            layoutElement.preferredWidth = 0f;
-            layoutElement.flexibleWidth = 1f;
-            layoutElement.ignoreLayout = true;
-
-            if (button.transform is RectTransform buttonRectTransform)
-            {
-                buttonRectTransform.anchorMin = new Vector2(0f, 1f);
-                buttonRectTransform.anchorMax = new Vector2(1f, 1f);
-                buttonRectTransform.pivot = new Vector2(0.5f, 1f);
-                buttonRectTransform.sizeDelta = new Vector2(0f, WordOptionButtonPreferredHeight);
-            }
-
-            var label = GetButtonLabel(button);
-            if (label == null)
+            var templateButton = wordOptionButtonTemplate != null ? wordOptionButtonTemplate : submitWordButton;
+            if (templateButton == null)
             {
                 return;
             }
 
-            if (label.transform is RectTransform labelRectTransform)
+            CopyRectTransform(templateButton.transform as RectTransform, button.transform as RectTransform);
+            CopyLayoutElement(
+                templateButton.GetComponent<LayoutElement>(),
+                button.GetComponent<LayoutElement>());
+
+            if (templateButton.transform is RectTransform templateRectTransform &&
+                button.GetComponent<LayoutElement>() is { } buttonLayoutElement &&
+                buttonLayoutElement.preferredWidth < 0f)
             {
-                labelRectTransform.anchorMin = Vector2.zero;
-                labelRectTransform.anchorMax = Vector2.one;
-                labelRectTransform.pivot = new Vector2(0.5f, 0.5f);
-                labelRectTransform.offsetMin = WordOptionLabelOffsetMin;
-                labelRectTransform.offsetMax = WordOptionLabelOffsetMax;
+                var runtimePreferredWidth = templateRectTransform.rect.width;
+                if (button.transform.parent is RectTransform parentRectTransform)
+                {
+                    runtimePreferredWidth = Mathf.Max(runtimePreferredWidth, parentRectTransform.rect.width);
+
+                    if (button.transform.parent.TryGetComponent<VerticalLayoutGroup>(out var layoutGroup))
+                    {
+                        runtimePreferredWidth = Mathf.Max(
+                            runtimePreferredWidth,
+                            parentRectTransform.rect.width - layoutGroup.padding.horizontal);
+                    }
+                }
+
+                buttonLayoutElement.preferredWidth = Mathf.Max(0f, runtimePreferredWidth);
             }
 
-            label.textWrappingMode = TextWrappingModes.Normal;
-            label.overflowMode = TextOverflowModes.Ellipsis;
+            var templateLabel = GetButtonLabel(templateButton);
+            var buttonLabel = GetButtonLabel(button);
+            if (templateLabel != null && buttonLabel != null)
+            {
+                CopyRectTransform(templateLabel.rectTransform, buttonLabel.rectTransform);
+            }
         }
 
-        private void ApplyManualWordOptionLayout(int visibleButtonCount)
+        private void NormalizeRuntimeWordOptionWidths(RectTransform containerRectTransform)
         {
-            if (wordOptionsContainer is not RectTransform containerRectTransform)
+            if (containerRectTransform == null)
             {
                 return;
             }
 
-            var totalHeight = visibleButtonCount <= 0
-                ? WordOptionContainerMinimumHeight
-                : Mathf.Max(
-                    WordOptionContainerMinimumHeight,
-                    (WordOptionContainerPadding * 2f) +
-                    (visibleButtonCount * WordOptionButtonPreferredHeight) +
-                    ((visibleButtonCount - 1) * WordOptionContainerSpacing));
-
-            if (wordOptionsContainer.TryGetComponent<LayoutElement>(out var containerLayoutElement))
+            var availableWidth = containerRectTransform.rect.width;
+            if (wordOptionsContainer != null && wordOptionsContainer.TryGetComponent<VerticalLayoutGroup>(out var layoutGroup))
             {
-                containerLayoutElement.minHeight = totalHeight;
-                containerLayoutElement.preferredHeight = totalHeight;
+                availableWidth -= layoutGroup.padding.horizontal;
+            }
+
+            if (availableWidth <= 0f)
+            {
+                return;
             }
 
             for (var index = 0; index < activeWordOptionButtons.Count; index++)
             {
                 var button = activeWordOptionButtons[index];
-                if (button == null || !button.gameObject.activeSelf || button.transform is not RectTransform buttonRectTransform)
+                if (button == null || !button.gameObject.activeSelf)
                 {
                     continue;
                 }
 
-                var topOffset = WordOptionContainerPadding + index * (WordOptionButtonPreferredHeight + WordOptionContainerSpacing);
-                buttonRectTransform.anchorMin = new Vector2(0f, 1f);
-                buttonRectTransform.anchorMax = new Vector2(1f, 1f);
-                buttonRectTransform.pivot = new Vector2(0.5f, 1f);
-                buttonRectTransform.offsetMin = new Vector2(WordOptionContainerPadding, -(topOffset + WordOptionButtonPreferredHeight));
-                buttonRectTransform.offsetMax = new Vector2(-WordOptionContainerPadding, -topOffset);
+                if (button.GetComponent<LayoutElement>() is not { } layoutElement)
+                {
+                    continue;
+                }
+
+                layoutElement.preferredWidth = availableWidth;
             }
+        }
+
+        private static void CopyRectTransform(RectTransform source, RectTransform target)
+        {
+            if (source == null || target == null)
+            {
+                return;
+            }
+
+            target.anchorMin = source.anchorMin;
+            target.anchorMax = source.anchorMax;
+            target.pivot = source.pivot;
+            target.anchoredPosition = source.anchoredPosition;
+            target.sizeDelta = source.sizeDelta;
+            target.localScale = source.localScale;
+            target.localRotation = source.localRotation;
+            target.offsetMin = source.offsetMin;
+            target.offsetMax = source.offsetMax;
+        }
+
+        private static void CopyLayoutElement(LayoutElement source, LayoutElement target)
+        {
+            if (source == null || target == null)
+            {
+                return;
+            }
+
+            target.ignoreLayout = source.ignoreLayout;
+            target.minWidth = source.minWidth;
+            target.minHeight = source.minHeight;
+            target.preferredWidth = source.preferredWidth;
+            target.preferredHeight = source.preferredHeight;
+            target.flexibleWidth = source.flexibleWidth;
+            target.flexibleHeight = source.flexibleHeight;
+            target.layoutPriority = source.layoutPriority;
         }
     }
 }
