@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using SmartCampus.Coop.Minigames;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace SmartCampus.Coop.Minigames.DistributedPairs
 {
@@ -36,7 +39,45 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
             pairsToUse = Mathf.Max(1, pairsToUse);
             scoreSettings.Clamp();
             cardVisualSettings.Clamp();
+#if UNITY_EDITOR
+            ValidateIllustrationSourcesInEditor();
+#endif
         }
+
+#if UNITY_EDITOR
+        private void ValidateIllustrationSourcesInEditor()
+        {
+            if (pairDefinitions == null)
+            {
+                return;
+            }
+
+            for (var index = 0; index < pairDefinitions.Count; index++)
+            {
+                var pairDefinition = pairDefinitions[index];
+                if (pairDefinition?.Illustration == null)
+                {
+                    continue;
+                }
+
+                var illustrationPath = AssetDatabase.GetAssetPath(pairDefinition.Illustration);
+                if (string.IsNullOrWhiteSpace(illustrationPath) ||
+                    !illustrationPath.Replace('\\', '/').Contains("/StreamingAssets/", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                var pairLabel = string.IsNullOrWhiteSpace(pairDefinition.Title)
+                    ? $"Pareja {index + 1}"
+                    : pairDefinition.Title.Trim();
+
+                Debug.LogWarning(
+                    $"{nameof(DistributedPairsMinigameConfig)} pair '{pairLabel}' references '{illustrationPath}' from StreamingAssets. " +
+                    "DistributedPairs only consumes Sprite assets imported under Assets and does not load card illustrations from StreamingAssets at runtime.",
+                    this);
+            }
+        }
+#endif
     }
 
     [Serializable]
@@ -44,7 +85,8 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
     {
         [SerializeField] private string title = "Carta";
         [SerializeField] [TextArea(2, 4)] private string description = string.Empty;
-        [SerializeField] private Sprite illustration;
+        [SerializeField] [Tooltip("DistributedPairs consume Sprite assets imported under Assets/. This minigame does not load card illustrations from StreamingAssets at runtime.")]
+        private Sprite illustration;
         [SerializeField] private Color faceColor = new(0.83f, 0.89f, 0.68f, 1f);
 
         public string Title => title;

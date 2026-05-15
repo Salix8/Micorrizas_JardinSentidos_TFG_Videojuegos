@@ -19,44 +19,44 @@ MonoBehaviour:
   cardsPerDevice: 4
   pairsToUse: 10
   pairDefinitions:
-  - title: Pareja 1
-    description: Placeholder editable desde el asset del minijuego.
+  - title: Jinjolero
+    description: Ziziphus jujuba
     illustration: {fileID: -484932828, guid: fa814ec1efa0a3d49a13b56a527d0b72, type: 3}
     faceColor: {r: 0.92, g: 0.598, b: 0.598, a: 1}
-  - title: Pareja 2
-    description: Placeholder editable desde el asset del minijuego.
+  - title: Vid
+    description: Vitis vinifera
     illustration: {fileID: 1263514170, guid: fa814ec1efa0a3d49a13b56a527d0b72, type: 3}
     faceColor: {r: 0.92, g: 0.79120004, b: 0.598, a: 1}
-  - title: Pareja 3
-    description: Placeholder editable desde el asset del minijuego.
+  - title: Morera blanca
+    description: Morus alba
     illustration: {fileID: 1559184815, guid: fa814ec1efa0a3d49a13b56a527d0b72, type: 3}
     faceColor: {r: 0.8556, g: 0.92, b: 0.598, a: 1}
-  - title: Pareja 4
-    description: Placeholder editable desde el asset del minijuego.
+  - title: Cerezo
+    description: Prunus avium
     illustration: {fileID: -2119495254, guid: fa814ec1efa0a3d49a13b56a527d0b72, type: 3}
     faceColor: {r: 0.6624, g: 0.92, b: 0.598, a: 1}
-  - title: Pareja 5
-    description: Placeholder editable desde el asset del minijuego.
+  - title: Membrillo
+    description: Cydonia oblonga
     illustration: {fileID: 1320482387, guid: d532f8d4278a95f4e92ed683e8f2688c, type: 3}
     faceColor: {r: 0.598, g: 0.92, b: 0.7268, a: 1}
-  - title: Pareja 6
-    description: Placeholder editable desde el asset del minijuego.
+  - title: Almendro
+    description: Prunus dulcis
     illustration: {fileID: -819823926, guid: 5a44e729ac374b641889e50d30869a9a, type: 3}
     faceColor: {r: 0.598, g: 0.92, b: 0.92, a: 1}
-  - title: Pareja 7
-    description: Placeholder editable desde el asset del minijuego.
+  - title: Limonero
+    description: Citrus limon
     illustration: {fileID: -1138599245, guid: d532f8d4278a95f4e92ed683e8f2688c, type: 3}
     faceColor: {r: 0.598, g: 0.72679996, b: 0.92, a: 1}
-  - title: Pareja 8
-    description: Placeholder editable desde el asset del minijuego.
+  - title: Granado
+    description: Punica granatum
     illustration: {fileID: 1504186947, guid: d532f8d4278a95f4e92ed683e8f2688c, type: 3}
     faceColor: {r: 0.66239995, g: 0.598, b: 0.92, a: 1}
-  - title: Pareja 9
-    description: Placeholder editable desde el asset del minijuego.
+  - title: Olivera
+    description: Olea europaea
     illustration: {fileID: 1821559536, guid: 5a44e729ac374b641889e50d30869a9a, type: 3}
     faceColor: {r: 0.85560006, g: 0.598, b: 0.92, a: 1}
-  - title: Pareja 10
-    description: Placeholder editable desde el asset del minijuego.
+  - title: Palmera datilera
+    description: Phoenix dactylifera
     illustration: {fileID: -1826667125, guid: 5a44e729ac374b641889e50d30869a9a, type: 3}
     faceColor: {r: 0.92, g: 0.598, b: 0.79120016, a: 1}
   scoreSettings:

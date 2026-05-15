@@ -60,6 +60,9 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
                 illustrationImage.gameObject.SetActive(hasIllustration);
                 illustrationImage.sprite = hasIllustration ? pairDefinition.Illustration : null;
                 illustrationImage.preserveAspect = true;
+                var illustrationColor = illustrationImage.color;
+                illustrationColor.a = hasIllustration ? 1f : 0f;
+                illustrationImage.color = illustrationColor;
             }
 
             if (titleLabel != null)
