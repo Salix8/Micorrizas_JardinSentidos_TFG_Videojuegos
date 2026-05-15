@@ -10,7 +10,7 @@ namespace SmartCampus.Testing.Editor.Core
     public sealed class AudioWordConsensusRoundPlanServiceTests
     {
         [Test]
-        public void TryBuildRoundPlan_ThreePlayersWithSixSounds_PlansThreeUniqueRoundsAndRotatingEmitters()
+        public void TryBuildRoundPlan_ThreePlayersWithSixSounds_PlansSixUniqueRounds()
         {
             var participants = new ulong[] { 11UL, 22UL, 33UL };
             var roundDefinitions = BuildRoundDefinitions(6);
@@ -24,9 +24,12 @@ namespace SmartCampus.Testing.Editor.Core
                 out var errorMessage);
 
             Assert.That(success, Is.True, errorMessage);
-            Assert.That(plannedRounds.Count, Is.EqualTo(3));
-            Assert.That(plannedRounds.Select(round => round.RoundDefinitionIndex).Distinct().Count(), Is.EqualTo(3));
-            Assert.That(plannedRounds.Select(round => round.EmitterClientId), Is.EqualTo(participants));
+            Assert.That(plannedRounds.Count, Is.EqualTo(6));
+            Assert.That(plannedRounds.Select(round => round.RoundDefinitionIndex).Distinct().Count(), Is.EqualTo(6));
+            for (var index = 1; index < plannedRounds.Count; index++)
+            {
+                Assert.That(plannedRounds[index].EmitterClientId, Is.Not.EqualTo(plannedRounds[index - 1].EmitterClientId));
+            }
         }
 
         [Test]
@@ -46,7 +49,32 @@ namespace SmartCampus.Testing.Editor.Core
             Assert.That(success, Is.True, errorMessage);
             Assert.That(plannedRounds.Count, Is.EqualTo(6));
             Assert.That(plannedRounds.Select(round => round.RoundDefinitionIndex).Distinct().Count(), Is.EqualTo(6));
-            Assert.That(plannedRounds.Select(round => round.EmitterClientId).Distinct().Count(), Is.EqualTo(6));
+            for (var index = 1; index < plannedRounds.Count; index++)
+            {
+                Assert.That(plannedRounds[index].EmitterClientId, Is.Not.EqualTo(plannedRounds[index - 1].EmitterClientId));
+            }
+        }
+
+        [Test]
+        public void TryBuildRoundPlan_TwoPlayers_AlternatesEmitter()
+        {
+            var participants = new ulong[] { 10UL, 20UL };
+            var roundDefinitions = BuildRoundDefinitions(4);
+
+            var success = AudioWordConsensusRoundPlanService.TryBuildRoundPlan(
+                participants,
+                roundDefinitions,
+                maxRoundCount: 6,
+                randomSeed: 17,
+                out var plannedRounds,
+                out var errorMessage);
+
+            Assert.That(success, Is.True, errorMessage);
+            Assert.That(plannedRounds.Count, Is.EqualTo(4));
+            for (var index = 1; index < plannedRounds.Count; index++)
+            {
+                Assert.That(plannedRounds[index].EmitterClientId, Is.Not.EqualTo(plannedRounds[index - 1].EmitterClientId));
+            }
         }
 
         [Test]

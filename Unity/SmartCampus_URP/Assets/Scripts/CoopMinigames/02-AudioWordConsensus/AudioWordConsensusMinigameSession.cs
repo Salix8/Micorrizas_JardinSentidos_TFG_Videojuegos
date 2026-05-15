@@ -12,12 +12,13 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
     public sealed class AudioWordConsensusMinigameSession : CooperativeMinigameBase
     {
         [SerializeField] private AudioWordConsensusMinigameConfig audioWordConsensusMinigameConfig;
+
         private const int MaximumScheduledRoundCount = 6;
 
-        private readonly NetworkList<AudioWordConsensusPlayerWordAssignmentNetworkState> wordAssignments = new();
         private readonly NetworkVariable<int> activeRoundIndex = new(-1);
         private readonly NetworkVariable<int> activeRoundDefinitionIndex = new(-1);
         private readonly NetworkVariable<ulong> activeEmitterClientId = new(ulong.MaxValue);
+        private readonly NetworkVariable<int> activeRoundOptionSeed = new();
         private readonly NetworkVariable<int> correctRoundCount = new();
         private readonly NetworkVariable<int> incorrectRoundCount = new();
         private readonly NetworkVariable<int> totalScheduledRounds = new();
@@ -25,12 +26,12 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
         private readonly NetworkVariable<bool> isRoundLocked = new();
         private readonly NetworkVariable<FixedString128Bytes> sharedStatusMessage = new();
 
+        private readonly List<AudioWordConsensusPlannedRound> plannedRounds = new();
         private Coroutine pendingRoundTransitionCoroutine;
         private bool serverGameplayActive;
         private double gameplayEndServerTime;
-        private int assignmentSeed;
+        private int randomSeed;
         private int lastPublishedWholeSecond = -1;
-        private readonly List<AudioWordConsensusPlannedRound> plannedRounds = new();
 
         public int ActiveRoundIndex => activeRoundIndex.Value;
         public int CorrectRoundCount => correctRoundCount.Value;
@@ -50,10 +51,10 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
 
         public override void OnNetworkSpawn()
         {
-            wordAssignments.OnListChanged += HandleWordAssignmentsChanged;
             activeRoundIndex.OnValueChanged += HandleIntChanged;
             activeRoundDefinitionIndex.OnValueChanged += HandleIntChanged;
             activeEmitterClientId.OnValueChanged += HandleEmitterChanged;
+            activeRoundOptionSeed.OnValueChanged += HandleIntChanged;
             correctRoundCount.OnValueChanged += HandleIntChanged;
             incorrectRoundCount.OnValueChanged += HandleIntChanged;
             totalScheduledRounds.OnValueChanged += HandleIntChanged;
@@ -67,10 +68,10 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
 
         public override void OnNetworkDespawn()
         {
-            wordAssignments.OnListChanged -= HandleWordAssignmentsChanged;
             activeRoundIndex.OnValueChanged -= HandleIntChanged;
             activeRoundDefinitionIndex.OnValueChanged -= HandleIntChanged;
             activeEmitterClientId.OnValueChanged -= HandleEmitterChanged;
+            activeRoundOptionSeed.OnValueChanged -= HandleIntChanged;
             correctRoundCount.OnValueChanged -= HandleIntChanged;
             incorrectRoundCount.OnValueChanged -= HandleIntChanged;
             totalScheduledRounds.OnValueChanged -= HandleIntChanged;
@@ -127,7 +128,25 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
 
         public bool TryGetAssignedWordsForLocalPlayer(out IReadOnlyList<string> assignedWords)
         {
-            return TryGetAssignedWords(GetLocalClientId(), out assignedWords);
+            if (Stage != CooperativeMinigameStage.Playing || IsLocalEmitter)
+            {
+                assignedWords = Array.Empty<string>();
+                return false;
+            }
+
+            var roundDefinition = GetCurrentRoundDefinition();
+            if (roundDefinition == null)
+            {
+                assignedWords = Array.Empty<string>();
+                return false;
+            }
+
+            var optionWords = AudioWordConsensusWordAssignmentService.BuildShuffledOptionWords(
+                roundDefinition.CorrectWord,
+                roundDefinition.DistractorWords,
+                activeRoundOptionSeed.Value);
+            assignedWords = optionWords;
+            return optionWords.Count > 0;
         }
 
         public bool CanLocalSubmitAssignedWord()
@@ -137,6 +156,11 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
                    !IsLocalEmitter &&
                    TryGetAssignedWordsForLocalPlayer(out var assignedWords) &&
                    assignedWords.Count > 0;
+        }
+
+        public bool IsAwaitingLocalAssignedWords()
+        {
+            return false;
         }
 
         public void SubmitLocalAssignedWord(string selectedWord)
@@ -157,18 +181,18 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
 
         protected override void InitializeMinigameServer()
         {
-            assignmentSeed = Environment.TickCount;
+            randomSeed = Environment.TickCount;
             serverGameplayActive = false;
             correctRoundCount.Value = 0;
             incorrectRoundCount.Value = 0;
             activeRoundIndex.Value = -1;
             activeRoundDefinitionIndex.Value = -1;
             activeEmitterClientId.Value = ulong.MaxValue;
+            activeRoundOptionSeed.Value = 0;
             totalScheduledRounds.Value = 0;
             remainingTimeSeconds.Value = audioWordConsensusMinigameConfig == null ? 0f : audioWordConsensusMinigameConfig.TimeLimitSeconds;
             isRoundLocked.Value = false;
             sharedStatusMessage.Value = new FixedString128Bytes("Preparando la secuencia cooperativa de sonidos.");
-            wordAssignments.Clear();
             plannedRounds.Clear();
 
             var participantIds = GetParticipantIds();
@@ -181,9 +205,7 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
             if (!audioWordConsensusMinigameConfig.TryValidateForParticipantCount(participantIds.Count, out var validationError))
             {
                 PublishResultServer(new MinigameResultData(validationError, 0f, 0, 0));
-                return;
             }
-
         }
 
         protected override void OnGameplayStartedServer()
@@ -197,9 +219,10 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
             gameplayEndServerTime = NetworkManager.ServerTime.Time + audioWordConsensusMinigameConfig.TimeLimitSeconds;
             remainingTimeSeconds.Value = audioWordConsensusMinigameConfig.TimeLimitSeconds;
             lastPublishedWholeSecond = Mathf.CeilToInt(audioWordConsensusMinigameConfig.TimeLimitSeconds);
+
             if (!TryBuildRoundPlanServer(out var errorMessage))
             {
-                PublishResultServer(new MinigameResultData(errorMessage, 0f, correctRoundCount.Value, incorrectRoundCount.Value));
+                PublishResultServer(new MinigameResultData(errorMessage, 0f, 0, 0));
                 return;
             }
 
@@ -224,31 +247,30 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
                 return;
             }
 
-            if (!TryGetAssignedWords(senderClientId, out var assignedWords))
-            {
-                return;
-            }
-
-            var isAssignedWord = false;
-            for (var index = 0; index < assignedWords.Count; index++)
-            {
-                if (string.Equals(assignedWords[index], selectedWord, StringComparison.OrdinalIgnoreCase))
-                {
-                    isAssignedWord = true;
-                    selectedWord = assignedWords[index];
-                    break;
-                }
-            }
-
-            if (!isAssignedWord)
-            {
-                return;
-            }
-
             var roundDefinition = GetCurrentRoundDefinition();
             if (roundDefinition == null)
             {
                 PublishResultServer(new MinigameResultData("Ronda invalida", 0f, correctRoundCount.Value, incorrectRoundCount.Value));
+                return;
+            }
+
+            var validOptions = AudioWordConsensusWordAssignmentService.BuildShuffledOptionWords(
+                roundDefinition.CorrectWord,
+                roundDefinition.DistractorWords,
+                activeRoundOptionSeed.Value);
+            var isValidOption = false;
+            for (var index = 0; index < validOptions.Count; index++)
+            {
+                if (string.Equals(validOptions[index], selectedWord, StringComparison.OrdinalIgnoreCase))
+                {
+                    selectedWord = validOptions[index];
+                    isValidOption = true;
+                    break;
+                }
+            }
+
+            if (!isValidOption)
+            {
                 return;
             }
 
@@ -264,8 +286,8 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
 
             isRoundLocked.Value = true;
             sharedStatusMessage.Value = wasCorrect
-                ? new FixedString128Bytes($"Decision correcta. La respuesta era {roundDefinition.CorrectWord}.")
-                : new FixedString128Bytes($"Decision incorrecta. La respuesta correcta era {roundDefinition.CorrectWord}.");
+                ? new FixedString128Bytes($"Correcto. La respuesta era {roundDefinition.CorrectWord}.")
+                : new FixedString128Bytes($"Incorrecto. La respuesta correcta era {roundDefinition.CorrectWord}.");
 
             var nextRoundIndex = activeRoundIndex.Value + 1;
             var completedAllRounds = nextRoundIndex >= totalScheduledRounds.Value;
@@ -322,58 +344,19 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
 
             var plannedRound = plannedRounds[roundIndex];
             var roundDefinition = audioWordConsensusMinigameConfig.GetRoundDefinition(plannedRound.RoundDefinitionIndex);
-            if (roundDefinition == null || !roundDefinition.IsUsableForReceiverCount(Mathf.Max(1, GetParticipantIds().Count - 1)))
+            if (roundDefinition == null || !AudioWordConsensusRoundDefinitionValidator.IsUsable(roundDefinition))
             {
-                AudioWordConsensusRoundDefinitionValidator.TryValidate(
-                    roundDefinition,
-                    Mathf.Max(1, GetParticipantIds().Count - 1),
-                    out var roundError);
-                PublishResultServer(new MinigameResultData($"Ronda no configurada. {roundError}", 0f, correctRoundCount.Value, incorrectRoundCount.Value));
+                PublishResultServer(new MinigameResultData("Ronda no configurada correctamente", 0f, correctRoundCount.Value, incorrectRoundCount.Value));
                 return;
-            }
-
-            var participantIds = GetParticipantIds();
-            var emitterClientId = plannedRound.EmitterClientId;
-            var receiverClientIds = new List<ulong>();
-            for (var index = 0; index < participantIds.Count; index++)
-            {
-                if (participantIds[index] != emitterClientId)
-                {
-                    receiverClientIds.Add(participantIds[index]);
-                }
-            }
-
-            if (!AudioWordConsensusWordAssignmentService.TryBuildAssignments(
-                    receiverClientIds,
-                    roundDefinition.CorrectWord,
-                    roundDefinition.DistractorWords,
-                    assignmentSeed++,
-                    out var assignments))
-            {
-                PublishResultServer(new MinigameResultData("Palabras insuficientes para la ronda", 0f, correctRoundCount.Value, incorrectRoundCount.Value));
-                return;
-            }
-
-            wordAssignments.Clear();
-            foreach (var assignment in assignments)
-            {
-                for (var optionIndex = 0; optionIndex < assignment.Value.Count; optionIndex++)
-                {
-                    wordAssignments.Add(new AudioWordConsensusPlayerWordAssignmentNetworkState
-                    {
-                        ClientId = assignment.Key,
-                        DisplayOrder = optionIndex,
-                        AssignedWord = new FixedString128Bytes(assignment.Value[optionIndex])
-                    });
-                }
             }
 
             activeRoundIndex.Value = roundIndex;
             activeRoundDefinitionIndex.Value = plannedRound.RoundDefinitionIndex;
-            activeEmitterClientId.Value = emitterClientId;
+            activeEmitterClientId.Value = plannedRound.EmitterClientId;
+            activeRoundOptionSeed.Value = randomSeed++;
             isRoundLocked.Value = false;
             sharedStatusMessage.Value = new FixedString128Bytes(
-                $"Turno del dispositivo {GetDisplaySlotForClient(emitterClientId)}. Escuchad el sonido y tomad una decision conjunta.");
+                $"Turno del dispositivo {GetDisplaySlotForClient(plannedRound.EmitterClientId)}. Escuchad el sonido y elegid una respuesta.");
         }
 
         private void CompleteMinigameServer(bool completedAllRounds)
@@ -392,34 +375,6 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
                 incorrectRoundCount.Value,
                 totalScheduledRounds.Value,
                 completedAllRounds));
-        }
-
-        private bool TryGetAssignedWords(ulong clientId, out IReadOnlyList<string> assignedWords)
-        {
-            var clientAssignments = new List<AudioWordConsensusPlayerWordAssignmentNetworkState>();
-            for (var index = 0; index < wordAssignments.Count; index++)
-            {
-                if (wordAssignments[index].ClientId == clientId)
-                {
-                    clientAssignments.Add(wordAssignments[index]);
-                }
-            }
-
-            if (clientAssignments.Count == 0)
-            {
-                assignedWords = Array.Empty<string>();
-                return false;
-            }
-
-            clientAssignments.Sort((left, right) => left.DisplayOrder.CompareTo(right.DisplayOrder));
-            var results = new List<string>(clientAssignments.Count);
-            for (var index = 0; index < clientAssignments.Count; index++)
-            {
-                results.Add(clientAssignments[index].AssignedWord.ToString());
-            }
-
-            assignedWords = results;
-            return true;
         }
 
         private int GetDisplaySlotForClient(ulong clientId)
@@ -456,12 +411,11 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
                 return false;
             }
 
-            var participantIds = GetParticipantIds();
             if (!AudioWordConsensusRoundPlanService.TryBuildRoundPlan(
-                    participantIds,
+                    GetParticipantIds(),
                     audioWordConsensusMinigameConfig.RoundDefinitions,
                     MaximumScheduledRoundCount,
-                    assignmentSeed++,
+                    randomSeed++,
                     out var newPlannedRounds,
                     out errorMessage))
             {
@@ -471,11 +425,6 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
             plannedRounds.AddRange(newPlannedRounds);
             totalScheduledRounds.Value = plannedRounds.Count;
             return plannedRounds.Count > 0;
-        }
-
-        private void HandleWordAssignmentsChanged(NetworkListEvent<AudioWordConsensusPlayerWordAssignmentNetworkState> _)
-        {
-            StateChanged?.Invoke();
         }
 
         private void HandleIntChanged(int _, int __)

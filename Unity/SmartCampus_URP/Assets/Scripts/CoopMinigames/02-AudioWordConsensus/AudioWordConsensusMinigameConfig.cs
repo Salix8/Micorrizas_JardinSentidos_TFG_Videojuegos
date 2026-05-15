@@ -10,7 +10,7 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
     public sealed class AudioWordConsensusMinigameConfig : CooperativeMinigameConfigBase
     {
         [Header("Gameplay")]
-        [SerializeField] [Min(3)] private int maxSupportedDevices = 6;
+        [SerializeField] [Min(2)] private int maxSupportedDevices = 6;
         [SerializeField] [Min(10f)] private float timeLimitSeconds = 120f;
         [SerializeField] [Min(0f)] private float feedbackDurationSeconds = 1.25f;
         [SerializeField] private string timeoutMessage = "Tiempo agotado";
@@ -50,11 +50,10 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
                 return 0;
             }
 
-            var receiverCount = participantCount - 1;
             var usableRoundCount = 0;
             for (var index = 0; index < roundDefinitions.Count; index++)
             {
-                if (AudioWordConsensusRoundDefinitionValidator.IsUsable(roundDefinitions[index], receiverCount))
+                if (AudioWordConsensusRoundDefinitionValidator.IsUsable(roundDefinitions[index]))
                 {
                     usableRoundCount++;
                 }
@@ -90,11 +89,10 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
                 return true;
             }
 
-            var receiverCount = participantCount - 1;
             var builder = new StringBuilder("No hay rondas utilizables.");
             for (var index = 0; index < roundDefinitions.Count; index++)
             {
-                if (AudioWordConsensusRoundDefinitionValidator.TryValidate(roundDefinitions[index], receiverCount, out var roundError))
+                if (AudioWordConsensusRoundDefinitionValidator.TryValidate(roundDefinitions[index], out var roundError))
                 {
                     continue;
                 }
@@ -109,7 +107,7 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
 
         private void OnValidate()
         {
-            maxSupportedDevices = Mathf.Max(3, maxSupportedDevices);
+            maxSupportedDevices = Mathf.Max(2, maxSupportedDevices);
             timeLimitSeconds = Mathf.Max(10f, timeLimitSeconds);
             feedbackDurationSeconds = Mathf.Max(0f, feedbackDurationSeconds);
             scoreSettings.Clamp();
@@ -132,18 +130,18 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
 
         public bool IsUsableForReceiverCount(int receiverCount)
         {
-            return AudioWordConsensusRoundDefinitionValidator.IsUsable(this, receiverCount);
+            return AudioWordConsensusRoundDefinitionValidator.IsUsable(this);
         }
     }
 
     internal static class AudioWordConsensusRoundDefinitionValidator
     {
-        public static bool IsUsable(AudioWordConsensusRoundDefinition roundDefinition, int receiverCount)
+        public static bool IsUsable(AudioWordConsensusRoundDefinition roundDefinition)
         {
-            return TryValidate(roundDefinition, receiverCount, out _);
+            return TryValidate(roundDefinition, out _);
         }
 
-        public static bool TryValidate(AudioWordConsensusRoundDefinition roundDefinition, int receiverCount, out string errorMessage)
+        public static bool TryValidate(AudioWordConsensusRoundDefinition roundDefinition, out string errorMessage)
         {
             if (roundDefinition == null ||
                 string.IsNullOrWhiteSpace(roundDefinition.CorrectWord))
@@ -158,39 +156,12 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
                 return false;
             }
 
-            if (receiverCount < 2)
+            var optionWords = AudioWordConsensusWordAssignmentService.BuildDistinctOptionWords(
+                roundDefinition.CorrectWord,
+                roundDefinition.DistractorWords);
+            if (optionWords.Count <= 1)
             {
-                errorMessage = string.Empty;
-                return true;
-            }
-
-            var sanitizedDistractorCount = 0;
-            var seenWords = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-            {
-                roundDefinition.CorrectWord.Trim()
-            };
-
-            var distractorWords = roundDefinition.DistractorWords;
-            if (distractorWords == null)
-            {
-                errorMessage = "Faltan distractores.";
-                return false;
-            }
-
-            for (var index = 0; index < distractorWords.Count; index++)
-            {
-                var candidate = distractorWords[index]?.Trim();
-                if (string.IsNullOrWhiteSpace(candidate) || !seenWords.Add(candidate))
-                {
-                    continue;
-                }
-
-                sanitizedDistractorCount++;
-            }
-
-            if (sanitizedDistractorCount <= 0)
-            {
-                errorMessage = "No hay distractores validos distintos de la palabra correcta.";
+                errorMessage = "Cada sonido necesita al menos una respuesta incorrecta distinta de la correcta.";
                 return false;
             }
 

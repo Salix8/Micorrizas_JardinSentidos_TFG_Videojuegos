@@ -44,6 +44,22 @@ namespace SmartCampus.Testing.Editor.Core
             Assert.That(config.CountUsableRoundDefinitions(4), Is.EqualTo(1));
         }
 
+        [Test]
+        public void TryValidateForParticipantCount_ReturnsFalse_WhenRoundHasNoIncorrectOption()
+        {
+            var config = ScriptableObject.CreateInstance<AudioWordConsensusMinigameConfig>();
+            SetPrivateField(config, "maxSupportedDevices", 6);
+            SetPrivateField(config, "roundDefinitions", new List<AudioWordConsensusRoundDefinition>
+            {
+                CreateRoundDefinition(hasClip: true, correctWord: "Mirlo", distractorWords: new[] { "Mirlo", " mirlo " })
+            });
+
+            var success = config.TryValidateForParticipantCount(2, out var errorMessage);
+
+            Assert.That(success, Is.False);
+            Assert.That(errorMessage, Does.Contain("Cada sonido necesita al menos una respuesta incorrecta"));
+        }
+
         private static AudioWordConsensusRoundDefinition CreateRoundDefinition(bool hasClip, string correctWord, string[] distractorWords)
         {
             var definition = (AudioWordConsensusRoundDefinition)System.Activator.CreateInstance(typeof(AudioWordConsensusRoundDefinition), true);

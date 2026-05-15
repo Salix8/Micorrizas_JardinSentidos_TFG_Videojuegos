@@ -89,5 +89,32 @@ namespace SmartCampus.Testing.Editor.Core
 
             Assert.That(success, Is.False);
         }
+
+        [Test]
+        public void CountDistinctOptionWords_TrimsAndDeduplicatesWords()
+        {
+            var count = AudioWordConsensusWordAssignmentService.CountDistinctOptionWords(
+                " Campana ",
+                new[] { " hoja ", "Hoja", "campana", " piedra " });
+
+            Assert.That(count, Is.EqualTo(3));
+        }
+
+        [Test]
+        public void BuildShuffledOptionWords_UsesStableSeededOrder()
+        {
+            var first = AudioWordConsensusWordAssignmentService.BuildShuffledOptionWords(
+                "Campana",
+                new[] { "Hoja", "Piedra", "Agua" },
+                randomSeed: 42);
+            var second = AudioWordConsensusWordAssignmentService.BuildShuffledOptionWords(
+                "Campana",
+                new[] { "Hoja", "Piedra", "Agua" },
+                randomSeed: 42);
+
+            Assert.That(first, Is.EqualTo(second));
+            Assert.That(first, Does.Contain("Campana"));
+            Assert.That(first.Count, Is.EqualTo(4));
+        }
     }
 }

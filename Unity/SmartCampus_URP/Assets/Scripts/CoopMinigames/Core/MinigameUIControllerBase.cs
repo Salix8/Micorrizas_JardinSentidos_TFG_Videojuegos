@@ -6,6 +6,24 @@ namespace SmartCampus.Coop.Minigames
 {
     public abstract class MinigameUIControllerBase : MonoBehaviour
     {
+        protected readonly struct MinigameUIViewState
+        {
+            public MinigameUIViewState(bool showTutorialPopup, bool showWaiting, bool showGameplay, bool showResults, string waitingMessage = null)
+            {
+                ShowTutorialPopup = showTutorialPopup;
+                ShowWaiting = showWaiting;
+                ShowGameplay = showGameplay;
+                ShowResults = showResults;
+                WaitingMessage = waitingMessage;
+            }
+
+            public bool ShowTutorialPopup { get; }
+            public bool ShowWaiting { get; }
+            public bool ShowGameplay { get; }
+            public bool ShowResults { get; }
+            public string WaitingMessage { get; }
+        }
+
         [Header("References")]
         [SerializeField] private CooperativeMinigameBase minigameSession;
         [SerializeField] private TutorialPopupController tutorialPopupController;
@@ -75,6 +93,12 @@ namespace SmartCampus.Coop.Minigames
         {
         }
 
+        protected virtual bool TryResolveViewStateOverride(CooperativeMinigameConfigBase config, out MinigameUIViewState viewState)
+        {
+            viewState = default;
+            return false;
+        }
+
         private void ResolveReferences()
         {
             minigameSession ??= FindFirstObjectByType<CooperativeMinigameBase>(FindObjectsInactive.Include);
@@ -112,6 +136,23 @@ namespace SmartCampus.Coop.Minigames
 
             var config = Session.MinigameConfig;
             var showTutorialPopup = !Session.HasLocalTutorialBeenDismissed && config != null && config.TutorialContent != null;
+            var showGameplay = Session.Stage == CooperativeMinigameStage.Playing;
+            var showResults = Session.Stage == CooperativeMinigameStage.Results;
+            var showWaiting = !showTutorialPopup && !showGameplay && !showResults;
+            var waitingMessage = BuildWaitingMessage();
+
+            if (TryResolveViewStateOverride(config, out var overriddenViewState))
+            {
+                showTutorialPopup = overriddenViewState.ShowTutorialPopup;
+                showWaiting = overriddenViewState.ShowWaiting;
+                showGameplay = overriddenViewState.ShowGameplay;
+                showResults = overriddenViewState.ShowResults;
+                if (!string.IsNullOrWhiteSpace(overriddenViewState.WaitingMessage))
+                {
+                    waitingMessage = overriddenViewState.WaitingMessage;
+                }
+            }
+
             if (tutorialPopupController != null)
             {
                 tutorialPopupController.gameObject.SetActive(showTutorialPopup);
@@ -121,10 +162,6 @@ namespace SmartCampus.Coop.Minigames
                     tutorialPopupController.SetDismissButtonsInteractable(!Session.IsLocalTutorialDismissalPending);
                 }
             }
-
-            var showGameplay = Session.Stage == CooperativeMinigameStage.Playing;
-            var showResults = Session.Stage == CooperativeMinigameStage.Results;
-            var showWaiting = !showTutorialPopup && !showGameplay && !showResults;
 
             if (waitingPanel != null)
             {
@@ -138,7 +175,7 @@ namespace SmartCampus.Coop.Minigames
 
             if (waitingStatusLabel != null)
             {
-                waitingStatusLabel.text = BuildWaitingMessage();
+                waitingStatusLabel.text = waitingMessage;
             }
 
             if (minigameResultView != null)

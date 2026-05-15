@@ -317,13 +317,14 @@ public static class AudioWordConsensusMinigameSetup
         var localWordLabel = CreateText("LocalWordLabel", interactionPanel.transform, font, "Palabra local", 30, TextAnchor.MiddleCenter);
         localWordLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 84f;
 
-        var wordOptionsScrollView = CreateScrollView("WordOptionsScrollView", interactionPanel.transform);
-        var wordOptionsScrollLayout = wordOptionsScrollView.Root.AddComponent<LayoutElement>();
-        wordOptionsScrollLayout.flexibleHeight = 1f;
-        wordOptionsScrollLayout.minHeight = 200f;
+        var wordOptionsContainer = CreateWordOptionsContainer("WordOptionsContainer", interactionPanel.transform);
 
-        var submitWordButton = CreateButton("SubmitWordButton", wordOptionsScrollView.ContentRoot.transform, font, "Pulsar palabra", 24, config.VisualSettings.ReceiverButtonColor);
-        submitWordButton.gameObject.AddComponent<LayoutElement>().preferredHeight = 76f;
+        var submitWordButton = CreateButton("SubmitWordButton", wordOptionsContainer.transform, font, "Pulsar palabra", 24, config.VisualSettings.ReceiverButtonColor);
+        var submitWordButtonLayout = submitWordButton.gameObject.AddComponent<LayoutElement>();
+        submitWordButtonLayout.minHeight = 76f;
+        submitWordButtonLayout.preferredHeight = 76f;
+        submitWordButtonLayout.flexibleHeight = 0f;
+        submitWordButton.gameObject.SetActive(false);
 
         var playSoundButton = CreateButton("PlaySoundButton", interactionPanel.transform, font, "Reproducir sonido", 24, config.VisualSettings.PrimaryButtonColor);
         playSoundButton.gameObject.AddComponent<LayoutElement>().preferredHeight = 76f;
@@ -351,7 +352,7 @@ public static class AudioWordConsensusMinigameSetup
         serializedUiController.FindProperty("localWordLabel").objectReferenceValue = localWordLabel;
         serializedUiController.FindProperty("playSoundButton").objectReferenceValue = playSoundButton.GetComponent<Button>();
         serializedUiController.FindProperty("playSoundButtonLabel").objectReferenceValue = playSoundButton.GetComponentInChildren<TMP_Text>();
-        serializedUiController.FindProperty("wordOptionsContainer").objectReferenceValue = wordOptionsScrollView.ContentRoot.transform;
+        serializedUiController.FindProperty("wordOptionsContainer").objectReferenceValue = wordOptionsContainer.transform;
         serializedUiController.FindProperty("wordOptionButtonTemplate").objectReferenceValue = submitWordButton.GetComponent<Button>();
         serializedUiController.FindProperty("submitWordButton").objectReferenceValue = submitWordButton.GetComponent<Button>();
         serializedUiController.FindProperty("submitWordButtonLabel").objectReferenceValue = submitWordButton.GetComponentInChildren<TMP_Text>();
@@ -483,39 +484,38 @@ public static class AudioWordConsensusMinigameSetup
         }
     }
 
-    private static ScrollViewReferences CreateScrollView(string name, Transform parent)
+    private static GameObject CreateWordOptionsContainer(string name, Transform parent)
     {
-        var root = CreateUiObject(name, parent, typeof(Image), typeof(ScrollRect));
-        root.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.02f);
+        var container = CreateUiObject(name, parent, typeof(Image), typeof(LayoutElement), typeof(VerticalLayoutGroup), typeof(ContentSizeFitter));
+        container.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.04f);
 
-        var viewport = CreateUiObject("Viewport", root.transform, typeof(Image), typeof(Mask));
-        Stretch(viewport.GetComponent<RectTransform>(), Vector2.zero, Vector2.zero);
-        viewport.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.01f);
-        viewport.GetComponent<Mask>().showMaskGraphic = false;
+        var containerRect = container.GetComponent<RectTransform>();
+        containerRect.anchorMin = new Vector2(0f, 1f);
+        containerRect.anchorMax = new Vector2(1f, 1f);
+        containerRect.pivot = new Vector2(0.5f, 1f);
+        containerRect.offsetMin = Vector2.zero;
+        containerRect.offsetMax = Vector2.zero;
 
-        var contentRoot = CreateUiObject("Content", viewport.transform, typeof(VerticalLayoutGroup), typeof(ContentSizeFitter));
-        var contentRect = contentRoot.GetComponent<RectTransform>();
-        contentRect.anchorMin = new Vector2(0f, 1f);
-        contentRect.anchorMax = new Vector2(1f, 1f);
-        contentRect.pivot = new Vector2(0.5f, 1f);
-        contentRect.offsetMin = Vector2.zero;
-        contentRect.offsetMax = Vector2.zero;
+        var layoutElement = container.GetComponent<LayoutElement>();
+        layoutElement.minHeight = 200f;
+        layoutElement.preferredHeight = 200f;
+        layoutElement.flexibleHeight = 1f;
+        layoutElement.flexibleWidth = 1f;
 
-        var contentLayout = contentRoot.GetComponent<VerticalLayoutGroup>();
-        contentLayout.spacing = 16f;
-        contentLayout.childControlWidth = true;
-        contentLayout.childControlHeight = true;
-        contentLayout.childForceExpandHeight = false;
-        contentRoot.GetComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+        var layoutGroup = container.GetComponent<VerticalLayoutGroup>();
+        layoutGroup.padding = new RectOffset(12, 12, 12, 12);
+        layoutGroup.spacing = 12f;
+        layoutGroup.childControlWidth = true;
+        layoutGroup.childControlHeight = true;
+        layoutGroup.childForceExpandWidth = false;
+        layoutGroup.childForceExpandHeight = false;
+        layoutGroup.childAlignment = TextAnchor.UpperLeft;
 
-        var scrollRect = root.GetComponent<ScrollRect>();
-        scrollRect.viewport = viewport.GetComponent<RectTransform>();
-        scrollRect.content = contentRect;
-        scrollRect.horizontal = false;
-        scrollRect.vertical = true;
-        scrollRect.movementType = ScrollRect.MovementType.Clamped;
+        var fitter = container.GetComponent<ContentSizeFitter>();
+        fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+        fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
-        return new ScrollViewReferences(root, contentRoot);
+        return container;
     }
 
     private static GameObject CreatePanel(string name, Transform parent, Color color)
@@ -603,15 +603,4 @@ public static class AudioWordConsensusMinigameSetup
         rectTransform.offsetMax = offsetMax;
     }
 
-    private readonly struct ScrollViewReferences
-    {
-        public ScrollViewReferences(GameObject root, GameObject contentRoot)
-        {
-            Root = root;
-            ContentRoot = contentRoot;
-        }
-
-        public GameObject Root { get; }
-        public GameObject ContentRoot { get; }
-    }
 }

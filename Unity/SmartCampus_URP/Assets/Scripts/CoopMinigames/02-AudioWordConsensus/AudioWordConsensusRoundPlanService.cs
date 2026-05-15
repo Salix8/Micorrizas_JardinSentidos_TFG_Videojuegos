@@ -40,11 +40,10 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
                 return false;
             }
 
-            var receiverCount = participantIds.Count - 1;
             var usableRoundDefinitionIndices = new List<int>();
             for (var index = 0; index < roundDefinitions.Count; index++)
             {
-                if (AudioWordConsensusRoundDefinitionValidator.IsUsable(roundDefinitions[index], receiverCount))
+                if (AudioWordConsensusRoundDefinitionValidator.IsUsable(roundDefinitions[index]))
                 {
                     usableRoundDefinitionIndices.Add(index);
                 }
@@ -57,7 +56,7 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
             }
 
             var effectiveMaxRoundCount = Math.Max(1, maxRoundCount);
-            var plannedRoundCount = Math.Min(usableRoundDefinitionIndices.Count, Math.Min(participantIds.Count, effectiveMaxRoundCount));
+            var plannedRoundCount = Math.Min(usableRoundDefinitionIndices.Count, effectiveMaxRoundCount);
             if (plannedRoundCount <= 0)
             {
                 errorMessage = "No se ha podido planificar ninguna ronda.";
@@ -66,15 +65,38 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
 
             var random = new Random(randomSeed);
             ShuffleInPlace(usableRoundDefinitionIndices, random);
+            var lastEmitterClientId = ulong.MaxValue;
 
             for (var roundIndex = 0; roundIndex < plannedRoundCount; roundIndex++)
             {
+                var emitterClientId = SelectEmitterClientId(participantIds, lastEmitterClientId, random);
                 plannedRounds.Add(new AudioWordConsensusPlannedRound(
                     usableRoundDefinitionIndices[roundIndex],
-                    participantIds[roundIndex % participantIds.Count]));
+                    emitterClientId));
+                lastEmitterClientId = emitterClientId;
             }
 
             return true;
+        }
+
+        private static ulong SelectEmitterClientId(IReadOnlyList<ulong> participantIds, ulong previousEmitterClientId, Random random)
+        {
+            if (participantIds.Count == 1)
+            {
+                return participantIds[0];
+            }
+
+            var candidateIndices = new List<int>(participantIds.Count);
+            for (var index = 0; index < participantIds.Count; index++)
+            {
+                if (participantIds[index] != previousEmitterClientId)
+                {
+                    candidateIndices.Add(index);
+                }
+            }
+
+            var selectedIndex = candidateIndices[random.Next(candidateIndices.Count)];
+            return participantIds[selectedIndex];
         }
 
         private static void ShuffleInPlace<T>(IList<T> values, Random random)

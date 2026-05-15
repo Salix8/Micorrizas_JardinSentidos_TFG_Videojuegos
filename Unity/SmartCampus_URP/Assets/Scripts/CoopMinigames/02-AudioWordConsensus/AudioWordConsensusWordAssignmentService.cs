@@ -5,6 +5,41 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
 {
     public static class AudioWordConsensusWordAssignmentService
     {
+        public static List<string> BuildDistinctOptionWords(string correctWord, IReadOnlyList<string> distractorWords)
+        {
+            if (string.IsNullOrWhiteSpace(correctWord))
+            {
+                return new List<string>();
+            }
+
+            var trimmedCorrectWord = correctWord.Trim();
+            var optionWords = new List<string>
+            {
+                trimmedCorrectWord
+            };
+
+            optionWords.AddRange(SanitizeDistinctWords(distractorWords, trimmedCorrectWord));
+            return optionWords;
+        }
+
+        public static List<string> BuildShuffledOptionWords(string correctWord, IReadOnlyList<string> distractorWords, int randomSeed)
+        {
+            var optionWords = BuildDistinctOptionWords(correctWord, distractorWords);
+            if (optionWords.Count <= 1)
+            {
+                return optionWords;
+            }
+
+            var random = new Random(randomSeed);
+            ShuffleInPlace(optionWords, random);
+            return optionWords;
+        }
+
+        public static int CountDistinctOptionWords(string correctWord, IReadOnlyList<string> distractorWords)
+        {
+            return BuildDistinctOptionWords(correctWord, distractorWords).Count;
+        }
+
         public static bool TryBuildAssignments(
             IReadOnlyList<ulong> receiverClientIds,
             string correctWord,
@@ -19,22 +54,16 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
                 return false;
             }
 
-            var trimmedCorrectWord = correctWord.Trim();
-            var sanitizedDistractors = SanitizeDistinctWords(distractorWords, trimmedCorrectWord);
-            if (receiverClientIds.Count >= 2 && sanitizedDistractors.Count == 0)
+            var optionWords = BuildShuffledOptionWords(correctWord, distractorWords, randomSeed);
+            if (optionWords.Count == 0)
             {
                 return false;
             }
 
-            var optionWords = new List<string>(sanitizedDistractors.Count + 1)
+            if (receiverClientIds.Count >= 2 && optionWords.Count <= 1)
             {
-                trimmedCorrectWord
-            };
-
-            optionWords.AddRange(sanitizedDistractors);
-
-            var random = new Random(randomSeed);
-            ShuffleInPlace(optionWords, random);
+                return false;
+            }
 
             for (var receiverIndex = 0; receiverIndex < receiverClientIds.Count; receiverIndex++)
             {
