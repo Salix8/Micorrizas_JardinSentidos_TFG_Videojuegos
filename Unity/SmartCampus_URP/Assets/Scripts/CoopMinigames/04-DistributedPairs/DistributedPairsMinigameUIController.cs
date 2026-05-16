@@ -14,6 +14,7 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
         [SerializeField] private TMP_Text progressLabel;
         [SerializeField] private TMP_Text sharedStatusLabel;
         [SerializeField] private TMP_Text localSelectionLabel;
+        [SerializeField] private bool showRuntimePileHud;
         [SerializeField] private RectTransform drawPileAnchor;
         [SerializeField] private TMP_Text drawPileCountLabel;
         [SerializeField] private TMP_Text discardPileCountLabel;
@@ -124,12 +125,12 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
 
             if (drawPileCountLabel != null)
             {
-                drawPileCountLabel.text = $"Mazo\n{TypedSession.GetDrawPileCount()}";
+                drawPileCountLabel.text = TypedSession.GetDrawPileCount().ToString();
             }
 
             if (discardPileCountLabel != null)
             {
-                discardPileCountLabel.text = $"Descartes\n{TypedSession.GetDiscardPileCount()}";
+                discardPileCountLabel.text = TypedSession.GetDiscardPileCount().ToString();
             }
 
             if (mismatchResetButton != null)
@@ -159,7 +160,8 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
 
         private void EnsureRuntimeHud()
         {
-            if (drawPileCountLabel != null && discardPileCountLabel != null && mismatchResetButton != null && drawPileAnchor != null)
+            var hasPileHudReferences = drawPileCountLabel != null && discardPileCountLabel != null && drawPileAnchor != null;
+            if ((!showRuntimePileHud || hasPileHudReferences) && mismatchResetButton != null)
             {
                 return;
             }
@@ -170,7 +172,13 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
                 return;
             }
 
-            if (drawPileCountLabel == null || discardPileCountLabel == null || drawPileAnchor == null)
+            if (!showRuntimePileHud)
+            {
+                drawPileAnchor = null;
+                drawPileCountLabel = null;
+                discardPileCountLabel = null;
+            }
+            else if (drawPileCountLabel == null || discardPileCountLabel == null || drawPileAnchor == null)
             {
                 var pileHudRoot = CreateUiObject("RuntimePileHud", rootRect, typeof(Image));
                 var pileHudRect = pileHudRoot.GetComponent<RectTransform>();
@@ -255,7 +263,7 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
             titleRect.anchoredPosition = new Vector2(0f, -126f);
             titleRect.sizeDelta = new Vector2(110f, 24f);
 
-            var countLabel = CreateText("CountLabel", panel.transform, $"{title}\n0", 22, TextAnchor.UpperCenter);
+            var countLabel = CreateText("CountLabel", panel.transform, "0", 22, TextAnchor.UpperCenter);
             var countRect = countLabel.rectTransform;
             countRect.anchorMin = new Vector2(0.5f, 0f);
             countRect.anchorMax = new Vector2(0.5f, 0f);
