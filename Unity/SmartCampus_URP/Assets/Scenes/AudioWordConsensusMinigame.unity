@@ -173,10 +173,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.VerticalLayoutGroup
   m_Padding:
-    m_Left: 28
-    m_Right: 28
-    m_Top: 125
-    m_Bottom: 28
+    m_Left: 50
+    m_Right: 50
+    m_Top: 60
+    m_Bottom: 50
   m_ChildAlignment: 0
   m_Spacing: 16
   m_ChildForceExpandWidth: 1
@@ -848,7 +848,7 @@ MonoBehaviour:
     m_Left: 55
     m_Right: 55
     m_Top: 125
-    m_Bottom: 50
+    m_Bottom: 80
   m_ChildAlignment: 1
   m_Spacing: 16
   m_ChildForceExpandWidth: 0
@@ -2070,8 +2070,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 489.7096, y: -225}
-  m_SizeDelta: {x: 869.4192, y: 0}
+  m_AnchoredPosition: {x: 467.7096, y: -225}
+  m_SizeDelta: {x: 825.4192, y: 0}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &983384632
 MonoBehaviour:

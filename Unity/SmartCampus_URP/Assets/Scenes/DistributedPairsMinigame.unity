@@ -5258,8 +5258,8 @@ MonoBehaviour:
   m_Padding:
     m_Left: 50
     m_Right: 50
-    m_Top: 125
-    m_Bottom: 50
+    m_Top: 60
+    m_Bottom: 60
   m_ChildAlignment: 0
   m_Spacing: 16
   m_ChildForceExpandWidth: 1
@@ -6557,6 +6557,7 @@ MonoBehaviour:
   progressLabel: {fileID: 1470139919}
   sharedStatusLabel: {fileID: 426095319}
   localSelectionLabel: {fileID: 68601740}
+  showRuntimePileHud: 0
   drawPileAnchor: {fileID: 0}
   drawPileCountLabel: {fileID: 1247507997}
   discardPileCountLabel: {fileID: 1108392926}
