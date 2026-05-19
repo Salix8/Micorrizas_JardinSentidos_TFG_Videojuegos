@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 58b746d5aece745468881e9ca1160980, type: 3}
+  m_Name: CharacterPortraitDatabase
+  m_EditorClassIdentifier: Assembly-CSharp::SmartCampus.Dialogue.CharacterPortraitDatabase
+  fallbackPortrait: {fileID: 0}
+  entries:
+  - characterId: Deeproot
+    displayName: Deeproot
+    portrait: {fileID: 0}
+    portraitVisualPrefab: {fileID: 2557274202514184621, guid: 21556a805058b934a9f261a05054d8e7, type: 3}
