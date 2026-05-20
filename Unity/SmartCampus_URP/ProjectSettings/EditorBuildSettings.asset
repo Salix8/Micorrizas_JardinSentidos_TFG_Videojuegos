@@ -12,6 +12,9 @@ EditorBuildSettings:
     path: Assets/Scenes/UJI.unity
     guid: c3641f88727e65641a9a1d5a51726b9c
   - enabled: 1
+    path: Assets/Scenes/Dialogue.unity
+    guid: 0bc69c4346e2ece4bbedd0a9ad313a36
+  - enabled: 1
     path: Assets/Scenes/DistributedPairsMinigame.unity
     guid: a17f2e25539056d418f3fc6c1696d1a8
   - enabled: 1

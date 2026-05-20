@@ -4030,6 +4030,10 @@ PrefabInstance:
       value: DialoguePanel
       objectReference: {fileID: 0}
     - target: {fileID: 4145548790813033930, guid: 5cbb889dd8caebb48b29b92383fdb85f, type: 3}
+      propertyPath: beardRotationDegrees
+      value: -1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4145548790813033930, guid: 5cbb889dd8caebb48b29b92383fdb85f, type: 3}
       propertyPath: speechCyclesPerSecond
       value: 2
       objectReference: {fileID: 0}
