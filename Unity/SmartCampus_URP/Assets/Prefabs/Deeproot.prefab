@@ -204,23 +204,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b58a10eaa94484458f53ab36bf60185, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SmartCampus.Dialogue.DeeprootPortraitSpeechAnimator
-  bodyTransform: {fileID: 2593209625218643418}
   headTransform: {fileID: 7895810971188100429}
   leftArmTransform: {fileID: 7504641344416657293}
   rightArmTransform: {fileID: 6007037239066500168}
   beardTransform: {fileID: 5584051725341134554}
   mouthTransform: {fileID: 8564106258582136987}
   idleCyclesPerSecond: 0.24
-  bodySwayDegrees: 0.75
-  bodyBobPixels: 3
   headSwayDegrees: 1.35
   headBobPixels: 5
   armSwayDegrees: 2.2
   armBobPixels: 4
   beardTravel: 7
-  beardRotationDegrees: 1.5
+  beardRotationDegrees: -1.5
+  beardHeadFollowPosition: 0.65
+  beardHeadFollowRotation: 0.5
   mouthScaleMultiplier: 1.08
   speechCyclesPerSecond: 4.2
+  transitionSpeed: 5
 --- !u!1 &4116452324041939116
 GameObject:
   m_ObjectHideFlags: 0

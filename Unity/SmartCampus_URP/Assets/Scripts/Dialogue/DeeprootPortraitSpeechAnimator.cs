@@ -21,9 +21,12 @@ namespace SmartCampus.Dialogue
 
         [Header("Speech")]
         [SerializeField] [Min(0f)] private float beardTravel = 12f;
-        [SerializeField] [Min(0f)] private float beardRotationDegrees = 2.4f;
+        [SerializeField] private float beardRotationDegrees = 2.4f;
+        [SerializeField] [Min(0f)] private float beardHeadFollowPosition = 0.65f;
+        [SerializeField] [Min(0f)] private float beardHeadFollowRotation = 0.5f;
         [SerializeField] [Min(0f)] private float mouthScaleMultiplier = 1.16f;
         [SerializeField] [Min(0f)] private float speechCyclesPerSecond = 8f;
+        [SerializeField] [Min(0f)] private float transitionSpeed = 5f;
 
         private Vector2 headBasePosition;
         private Quaternion headBaseRotation;
@@ -40,6 +43,9 @@ namespace SmartCampus.Dialogue
         private bool hasBeardBasePose;
         private bool hasMouthBasePose;
         private bool isSpeaking;
+        private float speakingBlend;
+        private Vector2 currentHeadOffset;
+        private float currentHeadRotationDegrees;
 
         public bool IsSpeaking => isSpeaking;
 
@@ -57,14 +63,26 @@ namespace SmartCampus.Dialogue
 
         private void Update()
         {
-            if (isSpeaking)
+            if (transitionSpeed <= 0f)
+            {
+                speakingBlend = isSpeaking ? 1f : 0f;
+            }
+            else
+            {
+                speakingBlend = Mathf.MoveTowards(
+                    speakingBlend,
+                    isSpeaking ? 1f : 0f,
+                    transitionSpeed * Time.unscaledDeltaTime);
+            }
+
+            if (speakingBlend > 0.0001f)
             {
                 var idlePhase = Time.unscaledTime * idleCyclesPerSecond * Mathf.PI * 2f;
-                ApplyIdlePose(idlePhase);
+                ApplyIdlePose(idlePhase, speakingBlend);
 
                 var speechPhase = Mathf.Sin(Time.unscaledTime * speechCyclesPerSecond * Mathf.PI * 2f);
                 var normalized = (speechPhase + 1f) * 0.5f;
-                ApplySpeakingPose(normalized);
+                ApplySpeakingPose(normalized, speakingBlend);
             }
             else
             {
@@ -77,10 +95,6 @@ namespace SmartCampus.Dialogue
         {
             CacheBasePose();
             isSpeaking = speaking;
-            if (!isSpeaking)
-            {
-                ApplyRestPose();
-            }
         }
 
         private void CacheBasePose()
@@ -120,41 +134,49 @@ namespace SmartCampus.Dialogue
             }
         }
 
-        private void ApplyIdlePose(float idlePhase)
+        private void ApplyIdlePose(float idlePhase, float blend)
         {
             var sway = Mathf.Sin(idlePhase);
             var counterSway = Mathf.Sin(idlePhase + 1.1f);
 
+            currentHeadOffset = Vector2.zero;
+            currentHeadRotationDegrees = 0f;
+
             if (headTransform != null && hasHeadBasePose)
             {
-                headTransform.anchoredPosition = headBasePosition + Vector2.up * (headBobPixels * sway);
-                headTransform.localRotation = headBaseRotation * Quaternion.Euler(0f, 0f, headSwayDegrees * sway);
+                currentHeadOffset = Vector2.up * (headBobPixels * sway * blend);
+                currentHeadRotationDegrees = headSwayDegrees * sway * blend;
+                headTransform.anchoredPosition = headBasePosition + currentHeadOffset;
+                headTransform.localRotation = headBaseRotation * Quaternion.Euler(0f, 0f, currentHeadRotationDegrees);
             }
 
             if (leftArmTransform != null && hasLeftArmBasePose)
             {
-                leftArmTransform.anchoredPosition = leftArmBasePosition + Vector2.up * (armBobPixels * counterSway);
-                leftArmTransform.localRotation = leftArmBaseRotation * Quaternion.Euler(0f, 0f, armSwayDegrees * counterSway);
+                leftArmTransform.anchoredPosition = leftArmBasePosition + Vector2.up * (armBobPixels * counterSway * blend);
+                leftArmTransform.localRotation = leftArmBaseRotation * Quaternion.Euler(0f, 0f, armSwayDegrees * counterSway * blend);
             }
 
             if (rightArmTransform != null && hasRightArmBasePose)
             {
-                rightArmTransform.anchoredPosition = rightArmBasePosition + Vector2.up * (armBobPixels * -counterSway);
-                rightArmTransform.localRotation = rightArmBaseRotation * Quaternion.Euler(0f, 0f, armSwayDegrees * -counterSway);
+                rightArmTransform.anchoredPosition = rightArmBasePosition + Vector2.up * (armBobPixels * -counterSway * blend);
+                rightArmTransform.localRotation = rightArmBaseRotation * Quaternion.Euler(0f, 0f, armSwayDegrees * -counterSway * blend);
             }
         }
 
-        private void ApplySpeakingPose(float normalized)
+        private void ApplySpeakingPose(float normalized, float blend)
         {
             if (beardTransform != null)
             {
-                beardTransform.anchoredPosition = beardBasePosition + Vector2.down * (beardTravel * normalized);
-                beardTransform.localRotation = beardBaseRotation * Quaternion.Euler(0f, 0f, Mathf.Lerp(-beardRotationDegrees, beardRotationDegrees, normalized));
+                var beardFollowOffset = currentHeadOffset * beardHeadFollowPosition;
+                var beardTalkRotation = Mathf.Lerp(-beardRotationDegrees, beardRotationDegrees, normalized) * blend;
+                var beardFollowRotation = currentHeadRotationDegrees * beardHeadFollowRotation;
+                beardTransform.anchoredPosition = beardBasePosition + beardFollowOffset + Vector2.down * (beardTravel * normalized * blend);
+                beardTransform.localRotation = beardBaseRotation * Quaternion.Euler(0f, 0f, beardFollowRotation + beardTalkRotation);
             }
 
             if (mouthTransform != null)
             {
-                var verticalScale = Mathf.Lerp(1f, mouthScaleMultiplier, normalized);
+                var verticalScale = Mathf.Lerp(1f, mouthScaleMultiplier, normalized * blend);
                 mouthTransform.localScale = new Vector3(mouthBaseScale.x, mouthBaseScale.y * verticalScale, mouthBaseScale.z);
             }
         }

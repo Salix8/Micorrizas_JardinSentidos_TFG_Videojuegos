@@ -3897,6 +3897,34 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1447792283}
     m_Modifications:
+    - target: {fileID: 823720162751647313, guid: 5cbb889dd8caebb48b29b92383fdb85f, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.99986255
+      objectReference: {fileID: 0}
+    - target: {fileID: 823720162751647313, guid: 5cbb889dd8caebb48b29b92383fdb85f, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 823720162751647313, guid: 5cbb889dd8caebb48b29b92383fdb85f, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 823720162751647313, guid: 5cbb889dd8caebb48b29b92383fdb85f, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0.016579883
+      objectReference: {fileID: 0}
+    - target: {fileID: 823720162751647313, guid: 5cbb889dd8caebb48b29b92383fdb85f, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 85.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 823720162751647313, guid: 5cbb889dd8caebb48b29b92383fdb85f, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 226.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 823720162751647313, guid: 5cbb889dd8caebb48b29b92383fdb85f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 1.9
+      objectReference: {fileID: 0}
     - target: {fileID: 1012666950315950970, guid: 5cbb889dd8caebb48b29b92383fdb85f, type: 3}
       propertyPath: m_Sprite
       value: 
@@ -3981,6 +4009,14 @@ PrefabInstance:
       propertyPath: m_TextStyleHashCode
       value: -1183493901
       objectReference: {fileID: 0}
+    - target: {fileID: 2627844551738467779, guid: 5cbb889dd8caebb48b29b92383fdb85f, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 53
+      objectReference: {fileID: 0}
+    - target: {fileID: 2627844551738467779, guid: 5cbb889dd8caebb48b29b92383fdb85f, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 256
+      objectReference: {fileID: 0}
     - target: {fileID: 3329620140170161926, guid: 5cbb889dd8caebb48b29b92383fdb85f, type: 3}
       propertyPath: m_AnchoredPosition.x
       value: -62
@@ -4003,7 +4039,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4420386436010343409, guid: 5cbb889dd8caebb48b29b92383fdb85f, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 600
+      value: 650
       objectReference: {fileID: 0}
     - target: {fileID: 4420386436010343409, guid: 5cbb889dd8caebb48b29b92383fdb85f, type: 3}
       propertyPath: m_AnchoredPosition.x
@@ -4031,11 +4067,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6562944699154251111, guid: 5cbb889dd8caebb48b29b92383fdb85f, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 122
+      value: 124
       objectReference: {fileID: 0}
     - target: {fileID: 6562944699154251111, guid: 5cbb889dd8caebb48b29b92383fdb85f, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 468
+      value: 504
       objectReference: {fileID: 0}
     - target: {fileID: 6727077348568034585, guid: 5cbb889dd8caebb48b29b92383fdb85f, type: 3}
       propertyPath: m_SizeDelta.x
@@ -4043,15 +4079,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6727077348568034585, guid: 5cbb889dd8caebb48b29b92383fdb85f, type: 3}
       propertyPath: m_SizeDelta.y
-      value: -269.914
+      value: -312.888
       objectReference: {fileID: 0}
     - target: {fileID: 6727077348568034585, guid: 5cbb889dd8caebb48b29b92383fdb85f, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -37.369
+      value: -37.36902
       objectReference: {fileID: 0}
     - target: {fileID: 6727077348568034585, guid: 5cbb889dd8caebb48b29b92383fdb85f, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -77.151
+      value: -67.831
       objectReference: {fileID: 0}
     - target: {fileID: 7158670168527522206, guid: 5cbb889dd8caebb48b29b92383fdb85f, type: 3}
       propertyPath: m_Color.a

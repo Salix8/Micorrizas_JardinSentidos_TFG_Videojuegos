@@ -1919,7 +1919,7 @@ MonoBehaviour:
   m_AudioPlay: 0
   m_DebugDrawModesUseInteractiveLightBakingData: 0
   m_Position:
-    m_Target: {x: 232.24095, y: 307.33957, z: -21.815638}
+    m_Target: {x: 108.47808, y: 288.38953, z: -20.398031}
     speed: 2
     m_Value: {x: 232.24095, y: 307.33957, z: -21.815638}
   m_RenderMode: 0
@@ -1967,15 +1967,15 @@ MonoBehaviour:
     m_GridAxis: 1
     m_gridOpacity: 0.5
   m_Rotation:
-    m_Target: {x: 0.07022978, y: 0.055833466, z: -0.003938547, w: 0.99597573}
+    m_Target: {x: 0, y: 0, z: 0, w: 1}
     speed: 2
     m_Value: {x: -0.07022978, y: -0.055833466, z: 0.003938547, w: -0.9959758}
   m_Size:
-    m_Target: 198.8505
+    m_Target: 126.40602
     speed: 2
     m_Value: 198.8505
   m_Ortho:
-    m_Target: 0
+    m_Target: 1
     speed: 2
     m_Value: 0
   m_CameraSettings:
@@ -2118,10 +2118,10 @@ MonoBehaviour:
       m_Data: 78596
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 68128
-    - m_Data: 68130
-    - m_Data: 68132
-    - m_Data: 68134
+    - m_Data: 67938
+    - m_Data: 67940
+    - m_Data: 67942
+    - m_Data: 67944
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -2154,10 +2154,10 @@ MonoBehaviour:
       m_Data: 0
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 68128
-    - m_Data: 68130
-    - m_Data: 68132
-    - m_Data: 68134
+    - m_Data: 67938
+    - m_Data: 67940
+    - m_Data: 67942
+    - m_Data: 67944
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -2302,10 +2302,10 @@ MonoBehaviour:
       m_Data: 78586
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 68128
-    - m_Data: 68130
-    - m_Data: 68132
-    - m_Data: 68134
+    - m_Data: 67938
+    - m_Data: 67940
+    - m_Data: 67942
+    - m_Data: 67944
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -2338,10 +2338,10 @@ MonoBehaviour:
       m_Data: 0
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 68128
-    - m_Data: 68130
-    - m_Data: 68132
-    - m_Data: 68134
+    - m_Data: 67938
+    - m_Data: 67940
+    - m_Data: 67942
+    - m_Data: 67944
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -2488,10 +2488,10 @@ MonoBehaviour:
       m_Data: 91686
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 68128
-    - m_Data: 68130
-    - m_Data: 68132
-    - m_Data: 68134
+    - m_Data: 67938
+    - m_Data: 67940
+    - m_Data: 67942
+    - m_Data: 67944
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -2524,10 +2524,10 @@ MonoBehaviour:
       m_Data: 0
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 68128
-    - m_Data: 68130
-    - m_Data: 68132
-    - m_Data: 68134
+    - m_Data: 67938
+    - m_Data: 67940
+    - m_Data: 67942
+    - m_Data: 67944
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -2673,10 +2673,10 @@ MonoBehaviour:
       m_Data: 78618
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 68128
-    - m_Data: 68130
-    - m_Data: 68132
-    - m_Data: 68134
+    - m_Data: 67938
+    - m_Data: 67940
+    - m_Data: 67942
+    - m_Data: 67944
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -2709,10 +2709,10 @@ MonoBehaviour:
       m_Data: 0
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 68128
-    - m_Data: 68130
-    - m_Data: 68132
-    - m_Data: 68134
+    - m_Data: 67938
+    - m_Data: 67940
+    - m_Data: 67942
+    - m_Data: 67944
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -2916,10 +2916,10 @@ MonoBehaviour:
       m_Data: 60536
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 68128
-    - m_Data: 68130
-    - m_Data: 68132
-    - m_Data: 68134
+    - m_Data: 67938
+    - m_Data: 67940
+    - m_Data: 67942
+    - m_Data: 67944
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -2952,10 +2952,10 @@ MonoBehaviour:
       m_Data: 0
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 68128
-    - m_Data: 68130
-    - m_Data: 68132
-    - m_Data: 68134
+    - m_Data: 67938
+    - m_Data: 67940
+    - m_Data: 67942
+    - m_Data: 67944
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
