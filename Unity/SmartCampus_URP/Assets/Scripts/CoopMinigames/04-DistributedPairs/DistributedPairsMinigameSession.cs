@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Collections;
 using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
@@ -17,18 +18,21 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
 
         private readonly NetworkList<DistributedPairsCardNetworkState> cardStates = new();
         private readonly NetworkList<int> pendingMismatchCardInstanceIds = new();
+        private readonly NetworkList<int> pendingMatchedCardInstanceIds = new();
         private readonly NetworkVariable<int> matchedPairCount = new();
         private readonly NetworkVariable<int> failedAttemptCount = new();
         private readonly NetworkVariable<int> totalPairCount = new();
         private readonly NetworkVariable<FixedString128Bytes> sharedStatusMessage = new();
 
         private int assignmentSeed;
+        private Coroutine pendingMatchedPairCoroutine;
 
         public int MatchedPairCount => matchedPairCount.Value;
         public int FailedAttemptCount => failedAttemptCount.Value;
         public int TotalPairCount => totalPairCount.Value;
         public string SharedStatusMessage => sharedStatusMessage.Value.ToString();
         public bool HasPendingMismatch => pendingMismatchCardInstanceIds.Count > 0;
+        public bool HasPendingMatchedPair => pendingMatchedCardInstanceIds.Count > 0;
 
         public event Action StateChanged;
 
@@ -41,6 +45,7 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
         {
             cardStates.OnListChanged += HandleCardStatesChanged;
             pendingMismatchCardInstanceIds.OnListChanged += HandlePendingMismatchChanged;
+            pendingMatchedCardInstanceIds.OnListChanged += HandlePendingMatchedChanged;
             matchedPairCount.OnValueChanged += HandleSimpleStateChanged;
             failedAttemptCount.OnValueChanged += HandleSimpleStateChanged;
             totalPairCount.OnValueChanged += HandleSimpleStateChanged;
@@ -54,12 +59,14 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
         {
             cardStates.OnListChanged -= HandleCardStatesChanged;
             pendingMismatchCardInstanceIds.OnListChanged -= HandlePendingMismatchChanged;
+            pendingMatchedCardInstanceIds.OnListChanged -= HandlePendingMatchedChanged;
             matchedPairCount.OnValueChanged -= HandleSimpleStateChanged;
             failedAttemptCount.OnValueChanged -= HandleSimpleStateChanged;
             totalPairCount.OnValueChanged -= HandleSimpleStateChanged;
             sharedStatusMessage.OnValueChanged -= HandleStatusMessageChanged;
 
             base.OnNetworkDespawn();
+            StopPendingMatchedPairCoroutine();
         }
 
         public IReadOnlyList<DistributedPairsCardNetworkState> GetLocalHandStates()
@@ -131,6 +138,11 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
                 return;
             }
 
+            if (HasPendingMatchedPair)
+            {
+                return;
+            }
+
             if (IsServer)
             {
                 HandleToggleSelectionServer(cardInstanceId, GetLocalClientId());
@@ -160,6 +172,8 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
         {
             assignmentSeed = Environment.TickCount;
             pendingMismatchCardInstanceIds.Clear();
+            pendingMatchedCardInstanceIds.Clear();
+            StopPendingMatchedPairCoroutine();
             matchedPairCount.Value = 0;
             failedAttemptCount.Value = 0;
             totalPairCount.Value = distributedPairsMinigameConfig == null ? 0 : distributedPairsMinigameConfig.ActivePairCount;
@@ -235,6 +249,11 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
                 return;
             }
 
+            if (HasPendingMatchedPair)
+            {
+                return;
+            }
+
             var requestedCardIndex = FindCardStateIndex(cardInstanceId);
             if (requestedCardIndex < 0)
             {
@@ -294,19 +313,12 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
             if (firstCard.PairId == secondCard.PairId)
             {
                 pendingMismatchCardInstanceIds.Clear();
-                MoveCardToDiscard(firstIndex);
-                MoveCardToDiscard(secondIndex);
+                pendingMatchedCardInstanceIds.Clear();
+                pendingMatchedCardInstanceIds.Add(firstCard.CardInstanceId);
+                pendingMatchedCardInstanceIds.Add(secondCard.CardInstanceId);
                 matchedPairCount.Value += 1;
-                sharedStatusMessage.Value = new FixedString128Bytes("Pareja encontrada. Se reponen las manos cuando el mazo lo permite.");
-                TryTopUpHandsToTarget();
-
-                if (matchedPairCount.Value >= totalPairCount.Value)
-                {
-                    PublishResultServer(DistributedPairsScoreService.CreateResult(
-                        distributedPairsMinigameConfig,
-                        matchedPairCount.Value,
-                        failedAttemptCount.Value));
-                }
+                sharedStatusMessage.Value = new FixedString128Bytes("Pareja encontrada. Las cartas permanecen boca arriba un momento.");
+                StartPendingMatchedPairResolutionServer();
 
                 return;
             }
@@ -316,6 +328,66 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
             pendingMismatchCardInstanceIds.Add(secondCard.CardInstanceId);
             failedAttemptCount.Value += 1;
             sharedStatusMessage.Value = new FixedString128Bytes("Las cartas no coinciden. Toca la pantalla para girarlas de nuevo.");
+        }
+
+        private void StartPendingMatchedPairResolutionServer()
+        {
+            if (!IsServer)
+            {
+                return;
+            }
+
+            StopPendingMatchedPairCoroutine();
+            pendingMatchedPairCoroutine = StartCoroutine(ResolvePendingMatchedPairAfterDelayServer());
+        }
+
+        private IEnumerator ResolvePendingMatchedPairAfterDelayServer()
+        {
+            var revealDuration = distributedPairsMinigameConfig == null
+                ? 0f
+                : distributedPairsMinigameConfig.MatchFeedbackSettings.MatchedRevealDuration;
+
+            if (revealDuration > 0f)
+            {
+                yield return new WaitForSecondsRealtime(revealDuration);
+            }
+
+            ResolvePendingMatchedPairNowServer();
+            pendingMatchedPairCoroutine = null;
+        }
+
+        private void ResolvePendingMatchedPairNowServer()
+        {
+            if (!IsServer || pendingMatchedCardInstanceIds.Count < 2)
+            {
+                pendingMatchedCardInstanceIds.Clear();
+                return;
+            }
+
+            for (var pendingIndex = 0; pendingIndex < pendingMatchedCardInstanceIds.Count; pendingIndex++)
+            {
+                var cardIndex = FindCardStateIndex(pendingMatchedCardInstanceIds[pendingIndex]);
+                if (cardIndex < 0)
+                {
+                    continue;
+                }
+
+                MoveCardToDiscard(cardIndex);
+            }
+
+            pendingMatchedCardInstanceIds.Clear();
+            TryTopUpHandsToTarget();
+
+            if (matchedPairCount.Value >= totalPairCount.Value)
+            {
+                PublishResultServer(DistributedPairsScoreService.CreateResult(
+                    distributedPairsMinigameConfig,
+                    matchedPairCount.Value,
+                    failedAttemptCount.Value));
+                return;
+            }
+
+            UpdateSharedStatusForSelectionCount();
         }
 
         private void MoveCardToDiscard(int cardIndex)
@@ -573,6 +645,12 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
                 return;
             }
 
+            if (HasPendingMatchedPair)
+            {
+                sharedStatusMessage.Value = new FixedString128Bytes("Pareja encontrada. Las cartas permanecen boca arriba un momento.");
+                return;
+            }
+
             var selectionCount = 0;
             for (var index = 0; index < cardStates.Count; index++)
             {
@@ -619,6 +697,17 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
             UpdateSharedStatusForSelectionCount();
         }
 
+        private void StopPendingMatchedPairCoroutine()
+        {
+            if (pendingMatchedPairCoroutine == null)
+            {
+                return;
+            }
+
+            StopCoroutine(pendingMatchedPairCoroutine);
+            pendingMatchedPairCoroutine = null;
+        }
+
         private int CountCardsInZone(DistributedPairsCardZone zone)
         {
             var count = 0;
@@ -639,6 +728,11 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
         }
 
         private void HandlePendingMismatchChanged(NetworkListEvent<int> _)
+        {
+            StateChanged?.Invoke();
+        }
+
+        private void HandlePendingMatchedChanged(NetworkListEvent<int> _)
         {
             StateChanged?.Invoke();
         }

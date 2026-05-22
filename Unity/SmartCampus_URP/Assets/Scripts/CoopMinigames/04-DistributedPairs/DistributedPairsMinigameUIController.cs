@@ -101,7 +101,11 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
             if (localSelectionLabel != null)
             {
                 var localSelectedCard = TypedSession.GetLocalSelectedCard();
-                if (TypedSession.HasPendingMismatch)
+                if (TypedSession.HasPendingMatchedPair)
+                {
+                    localSelectionLabel.text = "Pareja encontrada. Las cartas se muestran un momento antes de descartarse.";
+                }
+                else if (TypedSession.HasPendingMismatch)
                 {
                     localSelectionLabel.text = "El intento no coincide. Toca la pantalla para girar ambas cartas y seguir jugando.";
                 }
@@ -119,8 +123,9 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
                 localHandView.Render(
                     TypedSession.GetLocalHandStates(),
                     config,
-                    TypedSession.Stage == CooperativeMinigameStage.Playing && !TypedSession.HasPendingMismatch,
+                    TypedSession.Stage == CooperativeMinigameStage.Playing && !TypedSession.HasPendingMismatch && !TypedSession.HasPendingMatchedPair,
                     TypedSession.Stage == CooperativeMinigameStage.Playing && TypedSession.HasPendingMismatch,
+                    TypedSession.Stage == CooperativeMinigameStage.Playing && TypedSession.HasPendingMatchedPair,
                     TypedSession.TryToggleLocalCardSelection);
             }
 
@@ -224,7 +229,7 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
                 overlayRect.offsetMax = Vector2.zero;
 
                 var overlayImage = overlay.GetComponent<Image>();
-                overlayImage.color = new Color(0.09f, 0.11f, 0.14f, 0.08f);
+                overlayImage.color = new Color(0.09f, 0.11f, 0.14f, 0.18f);
 
                 mismatchResetButton = overlay.GetComponent<Button>();
                 mismatchResetButton.targetGraphic = overlayImage;
@@ -254,7 +259,7 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
             var overlayImage = mismatchResetButton.targetGraphic as Image;
             if (overlayImage != null)
             {
-                overlayImage.color = new Color(0.09f, 0.11f, 0.14f, 0.08f);
+                overlayImage.color = new Color(0.09f, 0.11f, 0.14f, 0.18f);
                 overlayImage.raycastTarget = true;
             }
 

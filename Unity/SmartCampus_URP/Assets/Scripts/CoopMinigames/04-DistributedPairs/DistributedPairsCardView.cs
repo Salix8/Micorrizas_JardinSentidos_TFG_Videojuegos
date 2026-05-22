@@ -21,6 +21,11 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
         [SerializeField] private TMP_Text backFaceLabel;
 
         private RectTransform cachedRectTransform;
+        private Vector3 restingScale = Vector3.one;
+        private bool matchedFeedbackActive;
+        private float matchedFeedbackStartedAt;
+        private float matchedPulseScale = 1f;
+        private float matchedPulseDuration = 0.2f;
 
         public RectTransform RectTransform => cachedRectTransform != null
             ? cachedRectTransform
@@ -30,15 +35,21 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
             DistributedPairsCardNetworkState state,
             DistributedPairDefinition pairDefinition,
             DistributedPairsCardVisualSettings visualSettings,
+            DistributedPairsMatchFeedbackSettings matchFeedbackSettings,
             bool isInteractable,
             bool showMismatchMemoryOverlay,
+            bool showMatchedFeedback,
             Action<int> onSelected)
         {
             var isSelected = state.IsSelected;
 
             if (frameImage != null)
             {
-                frameImage.color = isSelected ? visualSettings.SelectedFrameColor : visualSettings.FrameColor;
+                frameImage.color = showMatchedFeedback && isSelected
+                    ? matchFeedbackSettings.MatchedFrameColor
+                    : isSelected
+                        ? visualSettings.SelectedFrameColor
+                        : visualSettings.FrameColor;
             }
 
             if (frontFaceRoot != null)
@@ -105,10 +116,14 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
                     selectionButton.onClick.AddListener(() => onSelected(state.CardInstanceId));
                 }
             }
+
+            UpdateMatchedFeedback(showMatchedFeedback && isSelected, matchFeedbackSettings);
         }
 
         public void BindEmptySlot(DistributedPairsCardVisualSettings visualSettings, int slotIndex)
         {
+            StopMatchedFeedback();
+
             if (frameImage != null)
             {
                 var emptyFrameColor = visualSettings.FrameColor;
@@ -167,6 +182,61 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
             {
                 illustrationImage.sprite = null;
                 illustrationImage.gameObject.SetActive(false);
+            }
+        }
+
+        private void Awake()
+        {
+            if (RectTransform != null)
+            {
+                restingScale = RectTransform.localScale;
+            }
+        }
+
+        private void LateUpdate()
+        {
+            if (!matchedFeedbackActive || RectTransform == null)
+            {
+                return;
+            }
+
+            var duration = Mathf.Max(0.05f, matchedPulseDuration);
+            var cycle = (Time.unscaledTime - matchedFeedbackStartedAt) / duration;
+            var pulse = 0.5f - (0.5f * Mathf.Cos(cycle * Mathf.PI * 2f));
+            var scale = Mathf.LerpUnclamped(1f, matchedPulseScale, pulse);
+            RectTransform.localScale = restingScale * scale;
+        }
+
+        private void UpdateMatchedFeedback(bool shouldShowMatchedFeedback, DistributedPairsMatchFeedbackSettings matchFeedbackSettings)
+        {
+            matchedPulseScale = Mathf.Max(1f, matchFeedbackSettings.MatchedPulseScale);
+            matchedPulseDuration = Mathf.Max(0.05f, matchFeedbackSettings.MatchedPulseDuration);
+
+            if (RectTransform != null && !matchedFeedbackActive)
+            {
+                restingScale = RectTransform.localScale;
+            }
+
+            if (!shouldShowMatchedFeedback)
+            {
+                StopMatchedFeedback();
+                return;
+            }
+
+            if (!matchedFeedbackActive)
+            {
+                matchedFeedbackStartedAt = Time.unscaledTime;
+            }
+
+            matchedFeedbackActive = true;
+        }
+
+        private void StopMatchedFeedback()
+        {
+            matchedFeedbackActive = false;
+            if (RectTransform != null)
+            {
+                RectTransform.localScale = restingScale;
             }
         }
 

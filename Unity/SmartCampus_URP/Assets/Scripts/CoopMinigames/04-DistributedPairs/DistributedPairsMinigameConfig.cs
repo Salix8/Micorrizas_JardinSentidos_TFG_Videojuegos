@@ -23,12 +23,16 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
         [Header("Cards")]
         [SerializeField] private DistributedPairsCardVisualSettings cardVisualSettings = DistributedPairsCardVisualSettings.CreateDefault();
 
+        [Header("Feedback")]
+        [SerializeField] private DistributedPairsMatchFeedbackSettings matchFeedbackSettings = DistributedPairsMatchFeedbackSettings.CreateDefault();
+
         public int CardsPerDevice => cardsPerDevice;
         public int GuaranteedVisiblePairsOffset => guaranteedVisiblePairsOffset;
         public int ActivePairCount => Mathf.Min(pairsToUse, pairDefinitions.Count);
         public int DeckCardCount => ActivePairCount * 2;
         public DistributedPairsScoreSettings ScoreSettings => scoreSettings;
         public DistributedPairsCardVisualSettings CardVisualSettings => cardVisualSettings;
+        public DistributedPairsMatchFeedbackSettings MatchFeedbackSettings => matchFeedbackSettings;
 
         public DistributedPairDefinition GetPairDefinition(int pairId)
         {
@@ -42,6 +46,7 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
             guaranteedVisiblePairsOffset = Mathf.Max(1, guaranteedVisiblePairsOffset);
             scoreSettings.Clamp();
             cardVisualSettings.Clamp();
+            matchFeedbackSettings.Clamp();
 #if UNITY_EDITOR
             ValidateIllustrationSourcesInEditor();
 #endif
@@ -132,6 +137,38 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
             completionWeight = Mathf.Max(0f, completionWeight);
             efficiencyWeight = Mathf.Max(0f, efficiencyWeight);
             decimalPlaces = Mathf.Clamp(decimalPlaces, 0, 2);
+        }
+    }
+
+    [Serializable]
+    public struct DistributedPairsMatchFeedbackSettings
+    {
+        [SerializeField] [Min(0f)] private float matchedRevealDuration;
+        [SerializeField] [Min(1f)] private float matchedPulseScale;
+        [SerializeField] [Min(0.05f)] private float matchedPulseDuration;
+        [SerializeField] private Color matchedFrameColor;
+
+        public float MatchedRevealDuration => matchedRevealDuration;
+        public float MatchedPulseScale => matchedPulseScale;
+        public float MatchedPulseDuration => matchedPulseDuration;
+        public Color MatchedFrameColor => matchedFrameColor;
+
+        public static DistributedPairsMatchFeedbackSettings CreateDefault()
+        {
+            return new DistributedPairsMatchFeedbackSettings
+            {
+                matchedRevealDuration = 0.9f,
+                matchedPulseScale = 1.06f,
+                matchedPulseDuration = 0.32f,
+                matchedFrameColor = new Color(0.42f, 0.76f, 0.31f, 1f)
+            };
+        }
+
+        public void Clamp()
+        {
+            matchedRevealDuration = Mathf.Max(0f, matchedRevealDuration);
+            matchedPulseScale = Mathf.Max(1f, matchedPulseScale);
+            matchedPulseDuration = Mathf.Max(0.05f, matchedPulseDuration);
         }
     }
 

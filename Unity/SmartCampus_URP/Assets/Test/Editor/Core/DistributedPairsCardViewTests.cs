@@ -101,8 +101,10 @@ namespace SmartCampus.Testing.Editor.Core
                 state,
                 pairDefinition,
                 DistributedPairsCardVisualSettings.CreateDefault(),
+                DistributedPairsMatchFeedbackSettings.CreateDefault(),
                 isInteractable: true,
                 showMismatchMemoryOverlay: false,
+                showMatchedFeedback: false,
                 onSelected: null);
 
             Assert.That(frontFaceRoot.activeSelf, Is.True);
@@ -126,8 +128,10 @@ namespace SmartCampus.Testing.Editor.Core
                 state,
                 pairDefinition,
                 DistributedPairsCardVisualSettings.CreateDefault(),
+                DistributedPairsMatchFeedbackSettings.CreateDefault(),
                 isInteractable: true,
                 showMismatchMemoryOverlay: false,
+                showMatchedFeedback: false,
                 onSelected: null);
 
             Assert.That(illustrationImage.gameObject.activeSelf, Is.False);
@@ -145,8 +149,10 @@ namespace SmartCampus.Testing.Editor.Core
                 state,
                 pairDefinition,
                 DistributedPairsCardVisualSettings.CreateDefault(),
+                DistributedPairsMatchFeedbackSettings.CreateDefault(),
                 isInteractable: false,
                 showMismatchMemoryOverlay: true,
+                showMatchedFeedback: false,
                 onSelected: null);
 
             var overlay = frontFaceRoot.transform.Find("MismatchMemoryOverlay");
@@ -157,6 +163,27 @@ namespace SmartCampus.Testing.Editor.Core
             Assert.That(overlayImage, Is.Not.Null);
             Assert.That(overlayImage.raycastTarget, Is.False);
             Assert.That(overlayImage.color.a, Is.GreaterThan(0f));
+        }
+
+        [Test]
+        public void Bind_WhenMatchedFeedbackIsRequested_UsesMatchedFrameColor()
+        {
+            var pairDefinition = CreatePairDefinition("Pareja", illustrationSprite);
+            var state = CreateState(isSelected: true);
+            var visualSettings = DistributedPairsCardVisualSettings.CreateDefault();
+            var feedbackSettings = DistributedPairsMatchFeedbackSettings.CreateDefault();
+
+            cardView.Bind(
+                state,
+                pairDefinition,
+                visualSettings,
+                feedbackSettings,
+                isInteractable: false,
+                showMismatchMemoryOverlay: false,
+                showMatchedFeedback: true,
+                onSelected: null);
+
+            Assert.That(root.GetComponent<Image>().color, Is.EqualTo(feedbackSettings.MatchedFrameColor));
         }
 
         private DistributedPairsCardNetworkState CreateState(bool isSelected)
