@@ -99,6 +99,7 @@ public static class DistributedPairsMinigameSetup
         serializedObject.FindProperty("returnToMapButtonLabel").stringValue = "Volver al mapa";
         serializedObject.FindProperty("cardsPerDevice").intValue = 4;
         serializedObject.FindProperty("pairsToUse").intValue = 10;
+        serializedObject.FindProperty("guaranteedVisiblePairsOffset").intValue = 1;
         serializedObject.FindProperty("cardVisualSettings").FindPropertyRelative("maxColumns").intValue = 2;
 
         var pairDefinitions = serializedObject.FindProperty("pairDefinitions");
@@ -303,13 +304,19 @@ public static class DistributedPairsMinigameSetup
 
         var mismatchOverlay = CreateUiObject("MismatchResetOverlay", uiRoot.transform, typeof(Image), typeof(Button));
         Stretch(mismatchOverlay.GetComponent<RectTransform>(), Vector2.zero, Vector2.zero);
-        mismatchOverlay.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.22f);
+        mismatchOverlay.GetComponent<Image>().color = new Color(0.09f, 0.11f, 0.14f, 0.08f);
         var mismatchResetButton = mismatchOverlay.GetComponent<Button>();
         mismatchResetButton.targetGraphic = mismatchOverlay.GetComponent<Image>();
+        mismatchResetButton.transition = Selectable.Transition.None;
         mismatchOverlay.SetActive(false);
-        var mismatchResetLabel = CreateText("Label", mismatchOverlay.transform, font, "No coinciden. Toca para girarlas de nuevo.", 26, TextAnchor.MiddleCenter);
+        var mismatchResetLabel = CreateText("Label", mismatchOverlay.transform, font, "No coinciden. Toca cualquier parte para girarlas.", 22, TextAnchor.MiddleCenter);
         mismatchResetLabel.color = Color.white;
-        Stretch(mismatchResetLabel.GetComponent<RectTransform>(), new Vector2(32f, 48f), new Vector2(-32f, -48f));
+        var mismatchLabelRect = mismatchResetLabel.GetComponent<RectTransform>();
+        mismatchLabelRect.anchorMin = new Vector2(0.5f, 0f);
+        mismatchLabelRect.anchorMax = new Vector2(0.5f, 0f);
+        mismatchLabelRect.pivot = new Vector2(0.5f, 0.5f);
+        mismatchLabelRect.anchoredPosition = new Vector2(0f, 92f);
+        mismatchLabelRect.sizeDelta = new Vector2(760f, 72f);
 
         var tutorialPopup = CreateTutorialPopup(uiRoot.transform, font);
         tutorialPopup.gameObject.SetActive(false);

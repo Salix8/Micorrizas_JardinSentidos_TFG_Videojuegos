@@ -102,6 +102,7 @@ namespace SmartCampus.Testing.Editor.Core
                 pairDefinition,
                 DistributedPairsCardVisualSettings.CreateDefault(),
                 isInteractable: true,
+                showMismatchMemoryOverlay: false,
                 onSelected: null);
 
             Assert.That(frontFaceRoot.activeSelf, Is.True);
@@ -126,11 +127,36 @@ namespace SmartCampus.Testing.Editor.Core
                 pairDefinition,
                 DistributedPairsCardVisualSettings.CreateDefault(),
                 isInteractable: true,
+                showMismatchMemoryOverlay: false,
                 onSelected: null);
 
             Assert.That(illustrationImage.gameObject.activeSelf, Is.False);
             Assert.That(illustrationImage.sprite, Is.Null);
             Assert.That(illustrationImage.color.a, Is.EqualTo(0f));
+        }
+
+        [Test]
+        public void Bind_WhenMismatchMemoryIsRequested_CreatesAndShowsOverlayOnFrontFace()
+        {
+            var pairDefinition = CreatePairDefinition("Pareja ilustrada", illustrationSprite);
+            var state = CreateState(isSelected: true);
+
+            cardView.Bind(
+                state,
+                pairDefinition,
+                DistributedPairsCardVisualSettings.CreateDefault(),
+                isInteractable: false,
+                showMismatchMemoryOverlay: true,
+                onSelected: null);
+
+            var overlay = frontFaceRoot.transform.Find("MismatchMemoryOverlay");
+            Assert.That(overlay, Is.Not.Null);
+            Assert.That(overlay.gameObject.activeSelf, Is.True);
+
+            var overlayImage = overlay.GetComponent<Image>();
+            Assert.That(overlayImage, Is.Not.Null);
+            Assert.That(overlayImage.raycastTarget, Is.False);
+            Assert.That(overlayImage.color.a, Is.GreaterThan(0f));
         }
 
         private DistributedPairsCardNetworkState CreateState(bool isSelected)

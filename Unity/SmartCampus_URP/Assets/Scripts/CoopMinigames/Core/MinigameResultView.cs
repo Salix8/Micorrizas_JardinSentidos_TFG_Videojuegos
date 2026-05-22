@@ -59,7 +59,7 @@ namespace SmartCampus.Coop.Minigames
             if (waitingHostLabel != null)
             {
                 waitingHostLabel.gameObject.SetActive(!canReturnToMap);
-                waitingHostLabel.text = "Esperando a que el host vuelva al mapa.";
+                waitingHostLabel.text = "Esperando a que el host continue.";
             }
         }
     }

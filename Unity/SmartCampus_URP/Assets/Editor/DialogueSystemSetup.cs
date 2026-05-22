@@ -757,6 +757,10 @@ public static class DialogueSystemSetup
 
     private static TMP_Dropdown CreateDropdown(string name, Transform parent, TMP_DefaultControls.Resources resources)
     {
+        var dropdownBackgroundColor = new Color32(110, 91, 68, 255);
+        var dropdownHighlightColor = new Color32(205, 170, 126, 255);
+        var dropdownTextColor = new Color32(69, 33, 8, 255);
+
         var gameObject = TMP_DefaultControls.CreateDropdown(resources);
         gameObject.name = name;
         gameObject.transform.SetParent(parent, false);
@@ -765,23 +769,29 @@ public static class DialogueSystemSetup
         var image = gameObject.GetComponent<Image>();
         if (image != null)
         {
-            image.color = new Color32(70, 49, 35, 220);
+            image.color = dropdownBackgroundColor;
         }
 
         var dropdown = gameObject.GetComponent<TMP_Dropdown>();
+        var dropdownColors = dropdown.colors;
+        dropdownColors.normalColor = dropdownBackgroundColor;
+        dropdownColors.highlightedColor = dropdownHighlightColor;
+        dropdownColors.selectedColor = dropdownHighlightColor;
+        dropdownColors.pressedColor = dropdownHighlightColor;
+        dropdown.colors = dropdownColors;
         dropdown.options.Clear();
         if (dropdown.captionText != null)
         {
             dropdown.captionText.font = TMP_Settings.defaultFontAsset;
             dropdown.captionText.fontSize = 28f;
-            dropdown.captionText.color = new Color32(250, 244, 232, 255);
+            dropdown.captionText.color = dropdownTextColor;
         }
 
         if (dropdown.itemText != null)
         {
             dropdown.itemText.font = TMP_Settings.defaultFontAsset;
             dropdown.itemText.fontSize = 26f;
-            dropdown.itemText.color = new Color32(245, 236, 222, 255);
+            dropdown.itemText.color = dropdownTextColor;
         }
 
         var template = gameObject.transform.Find("Template");
@@ -789,13 +799,13 @@ public static class DialogueSystemSetup
         {
             if (template.GetComponent<Image>() is Image templateImage)
             {
-                templateImage.color = new Color32(54, 38, 28, 242);
+                templateImage.color = dropdownBackgroundColor;
             }
 
             var viewport = template.Find("Viewport");
             if (viewport != null && viewport.GetComponent<Image>() is Image viewportImage)
             {
-                viewportImage.color = new Color32(54, 38, 28, 242);
+                viewportImage.color = dropdownBackgroundColor;
             }
 
             var item = template.Find("Viewport/Content/Item");
@@ -804,17 +814,19 @@ public static class DialogueSystemSetup
                 if (item.GetComponent<Toggle>() is Toggle itemToggle)
                 {
                     var colors = itemToggle.colors;
-                    colors.normalColor = new Color32(66, 46, 34, 255);
-                    colors.highlightedColor = new Color32(108, 78, 56, 255);
-                    colors.selectedColor = new Color32(108, 78, 56, 255);
-                    colors.pressedColor = new Color32(140, 101, 70, 255);
+                    colors.normalColor = dropdownBackgroundColor;
+                    colors.highlightedColor = dropdownHighlightColor;
+                    colors.selectedColor = dropdownHighlightColor;
+                    colors.pressedColor = dropdownHighlightColor;
                     itemToggle.colors = colors;
                 }
 
                 var itemBackground = item.Find("Item Background");
                 if (itemBackground != null && itemBackground.GetComponent<Image>() is Image itemBackgroundImage)
                 {
-                    itemBackgroundImage.color = new Color32(66, 46, 34, 255);
+                    // Keep the base graphic neutral so the Toggle ColorBlock is the only source
+                    // of item background tint across normal/highlight/pressed/selected states.
+                    itemBackgroundImage.color = Color.white;
                 }
 
                 var itemCheckmark = item.Find("Item Checkmark");
@@ -826,7 +838,7 @@ public static class DialogueSystemSetup
                 var itemLabel = item.Find("Item Label");
                 if (itemLabel != null && itemLabel.GetComponent<TextMeshProUGUI>() is TextMeshProUGUI itemLabelText)
                 {
-                    itemLabelText.color = new Color32(245, 236, 222, 255);
+                    itemLabelText.color = dropdownTextColor;
                 }
             }
         }

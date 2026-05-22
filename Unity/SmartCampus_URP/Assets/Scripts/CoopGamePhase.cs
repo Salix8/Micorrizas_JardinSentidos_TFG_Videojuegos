@@ -2,5 +2,6 @@ public enum CoopGamePhase
 {
     Lobby,
     WorldMap,
-    MiniGame
+    MiniGame,
+    SessionSummary
 }

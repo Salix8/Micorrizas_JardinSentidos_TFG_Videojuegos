@@ -24,7 +24,8 @@ namespace SmartCampus.Coop.Minigames
         public int ParticipantCount => GetParticipantIds().Count;
         public bool HasPublishedResult => resultState.Value.HasValue;
         public MinigameResultData CurrentResult => resultState.Value.ToData();
-        public bool CanLocalPlayerReturnToMainMap => NetworkManager != null && NetworkManager.IsHost;
+        public bool CanLocalPlayerAdvanceAfterResults => NetworkManager != null && NetworkManager.IsHost;
+        public bool CanLocalPlayerReturnToMainMap => CanLocalPlayerAdvanceAfterResults;
         public CooperativeMinigameConfigBase MinigameConfig => GetMinigameConfig();
 
         public event Action<CooperativeMinigameStage> StageChanged;
@@ -92,15 +93,37 @@ namespace SmartCampus.Coop.Minigames
             SubmitTutorialDismissalServerRpc();
         }
 
-        public void RequestReturnToMainMap()
+        public string GetContinueAfterResultsButtonLabel()
         {
-            if (CanLocalPlayerReturnToMainMap)
+            ResolveCoordinator();
+            return SessionCoordinator == null ? "Continuar" : SessionCoordinator.GetResultsContinueButtonLabel();
+        }
+
+        public void RequestAdvanceAfterResults()
+        {
+            if (CanLocalPlayerAdvanceAfterResults)
             {
-                ReturnToMainMapServer();
+                AdvanceAfterResultsServer();
                 return;
             }
 
-            RequestReturnToMainMapServerRpc();
+            RequestAdvanceAfterResultsServerRpc();
+        }
+
+        public void RequestReturnToMainMap()
+        {
+            RequestAdvanceAfterResults();
+        }
+
+        public bool TryForceCompleteForTesting(MinigameResultData forcedResult)
+        {
+            if (!IsServer || HasPublishedResult)
+            {
+                return false;
+            }
+
+            PublishResultServer(forcedResult);
+            return true;
         }
 
         protected virtual void OnGameplayStartedServer()
@@ -114,6 +137,8 @@ namespace SmartCampus.Coop.Minigames
                 return;
             }
 
+            ResolveCoordinator();
+            SessionCoordinator?.TryRegisterMiniGameResult(result);
             resultState.Value = MinigameResultNetworkState.FromData(result);
             stage.Value = CooperativeMinigameStage.Results;
         }
@@ -153,14 +178,14 @@ namespace SmartCampus.Coop.Minigames
         }
 
         [Rpc(SendTo.Server)]
-        private void RequestReturnToMainMapServerRpc(RpcParams rpcParams = default)
+        private void RequestAdvanceAfterResultsServerRpc(RpcParams rpcParams = default)
         {
             if (NetworkManager == null || !NetworkManager.IsHost || rpcParams.Receive.SenderClientId != NetworkManager.LocalClientId)
             {
                 return;
             }
 
-            ReturnToMainMapServer();
+            AdvanceAfterResultsServer();
         }
 
         private void RegisterTutorialDismissal(ulong clientId)
@@ -183,12 +208,12 @@ namespace SmartCampus.Coop.Minigames
             }
         }
 
-        private void ReturnToMainMapServer()
+        private void AdvanceAfterResultsServer()
         {
             ResolveCoordinator();
             if (SessionCoordinator != null && SessionCoordinator.IsServer)
             {
-                SessionCoordinator.ReturnToMainMap();
+                SessionCoordinator.ContinueAfterMinigameResults();
             }
         }
 

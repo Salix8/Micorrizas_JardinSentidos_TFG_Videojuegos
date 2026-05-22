@@ -1,5 +1,6 @@
 using System;
 using SmartCampus.Coop;
+using SmartCampus.Coop.Minigames;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -9,6 +10,7 @@ public sealed class CoopSessionCoordinator : NetworkBehaviour
 {
     [Header("References")]
     [SerializeField] private RelayConnectionService relayConnectionService;
+    [SerializeField] private CoopSessionProgressSync sessionProgressSync;
     [SerializeField] private bool persistAcrossScenes = true;
 
     [Header("Co-op Rules")]
@@ -18,6 +20,7 @@ public sealed class CoopSessionCoordinator : NetworkBehaviour
     [Header("Scene Flow")]
     [SerializeField] private string lobbySceneName = "Lobby";
     [SerializeField] private string mainMapSceneName = "UJI";
+    [SerializeField] private string sessionSummarySceneName = "CoopFinalResults";
     [SerializeField] private string[] miniGameSceneNames = new string[5];
 
     private readonly NetworkVariable<CoopGamePhase> currentPhase = new(CoopGamePhase.Lobby);
@@ -29,8 +32,10 @@ public sealed class CoopSessionCoordinator : NetworkBehaviour
     public int MinimumPlayersToStart => minPlayersToStart;
     public int MaximumPlayers => maxPlayers;
     public CoopSessionRules SessionRules => new(minPlayersToStart, maxPlayers);
+    public CoopSessionProgressSync SessionProgressSync => sessionProgressSync;
     public int ConnectedPlayerCount => NetworkManager == null ? 0 : NetworkManager.ConnectedClientsIds.Count;
     public int RegisteredPlayerCount => playerSlots.Count;
+    public int ConfiguredMinigameCount => miniGameSceneNames == null ? 0 : miniGameSceneNames.Length;
     public bool CanStartMainMap => IsServer && SessionRules.CanStart(ConnectedPlayerCount);
 
     public event Action<CoopGamePhase> PhaseChanged;
@@ -38,6 +43,8 @@ public sealed class CoopSessionCoordinator : NetworkBehaviour
 
     private void Awake()
     {
+        ResolveReferences();
+
         if (persistAcrossScenes)
         {
             DontDestroyOnLoad(gameObject);
@@ -48,6 +55,7 @@ public sealed class CoopSessionCoordinator : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
+        ResolveReferences();
         relayConnectionService ??= FindFirstObjectByType<RelayConnectionService>(FindObjectsInactive.Include);
 
         if (relayConnectionService != null)
@@ -67,6 +75,7 @@ public sealed class CoopSessionCoordinator : NetworkBehaviour
 
         currentPhase.OnValueChanged += HandlePhaseChanged;
         playerSlots.OnListChanged += HandlePlayerSlotsChanged;
+        sessionProgressSync?.SynchronizeConfigurationServer(resetProgress: sessionProgressSync.ConfiguredMinigameCount == 0);
 
         if (IsServer && NetworkManager != null)
         {
@@ -93,6 +102,8 @@ public sealed class CoopSessionCoordinator : NetworkBehaviour
 
     public void StartMainMap()
     {
+        ResolveReferences();
+
         if (!IsServer)
         {
             return;
@@ -104,6 +115,7 @@ public sealed class CoopSessionCoordinator : NetworkBehaviour
             return;
         }
 
+        sessionProgressSync?.ResetProgressServer();
         activeMiniGameIndex.Value = -1;
         currentPhase.Value = CoopGamePhase.WorldMap;
         LoadScene(mainMapSceneName);
@@ -111,6 +123,8 @@ public sealed class CoopSessionCoordinator : NetworkBehaviour
 
     public void StartMiniGame(int miniGameIndex)
     {
+        ResolveReferences();
+
         if (!IsServer)
         {
             return;
@@ -119,6 +133,12 @@ public sealed class CoopSessionCoordinator : NetworkBehaviour
         if (miniGameIndex < 0 || miniGameIndex >= miniGameSceneNames.Length)
         {
             Debug.LogWarning($"Mini-game index {miniGameIndex} is out of range.", this);
+            return;
+        }
+
+        if (!CanLaunchMiniGame(miniGameIndex))
+        {
+            Debug.LogWarning($"Mini-game index {miniGameIndex} has already been completed in this cooperative session.", this);
             return;
         }
 
@@ -143,6 +163,14 @@ public sealed class CoopSessionCoordinator : NetworkBehaviour
         }
 
         return !string.IsNullOrWhiteSpace(miniGameSceneNames[miniGameIndex]);
+    }
+
+    public bool CanLaunchMiniGame(int miniGameIndex)
+    {
+        ResolveReferences();
+        var isConfigured = IsMiniGameConfigured(miniGameIndex);
+        var isAlreadyCompleted = sessionProgressSync != null && sessionProgressSync.IsMinigameCompleted(miniGameIndex);
+        return CoopSessionFlowService.CanLaunchConfiguredMinigame(isConfigured, isAlreadyCompleted);
     }
 
     public bool TryGetMiniGameSceneName(int miniGameIndex, out string sceneName)
@@ -185,16 +213,88 @@ public sealed class CoopSessionCoordinator : NetworkBehaviour
         LoadScene(mainMapSceneName);
     }
 
-    public void ReturnToLobby()
+    public void ContinueAfterMinigameResults()
     {
+        ResolveReferences();
+
         if (!IsServer)
         {
             return;
         }
 
         activeMiniGameIndex.Value = -1;
+        var nextPhase = CoopSessionFlowService.ResolvePostMinigamePhase(
+            sessionProgressSync != null && sessionProgressSync.AreAllMinigamesCompleted);
+        currentPhase.Value = nextPhase;
+
+        if (nextPhase == CoopGamePhase.SessionSummary)
+        {
+            if (string.IsNullOrWhiteSpace(sessionSummarySceneName))
+            {
+                Debug.LogWarning("Session summary scene is not configured. Falling back to the main map.", this);
+                currentPhase.Value = CoopGamePhase.WorldMap;
+                LoadScene(mainMapSceneName);
+                return;
+            }
+
+            LoadScene(sessionSummarySceneName);
+            return;
+        }
+
+        LoadScene(mainMapSceneName);
+    }
+
+    public void RestartSessionToMainMap()
+    {
+        ResolveReferences();
+
+        if (!IsServer)
+        {
+            return;
+        }
+
+        sessionProgressSync?.ResetProgressServer();
+        activeMiniGameIndex.Value = -1;
+        currentPhase.Value = CoopGamePhase.WorldMap;
+        LoadScene(mainMapSceneName);
+    }
+
+    public void ReturnToLobby()
+    {
+        ResolveReferences();
+
+        if (!IsServer)
+        {
+            return;
+        }
+
+        sessionProgressSync?.ResetProgressServer();
+        activeMiniGameIndex.Value = -1;
         currentPhase.Value = CoopGamePhase.Lobby;
         LoadScene(lobbySceneName);
+    }
+
+    public bool AreAllConfiguredMinigamesCompleted()
+    {
+        ResolveReferences();
+        return sessionProgressSync != null && sessionProgressSync.AreAllMinigamesCompleted;
+    }
+
+    public string GetResultsContinueButtonLabel()
+    {
+        return AreAllConfiguredMinigamesCompleted() ? "Ver puntuacion final" : "Continuar";
+    }
+
+    public bool TryRegisterMiniGameResult(MinigameResultData result)
+    {
+        ResolveReferences();
+
+        if (!IsServer || sessionProgressSync == null || activeMiniGameIndex.Value < 0)
+        {
+            return false;
+        }
+
+        return sessionProgressSync.TryRegisterResultServer(activeMiniGameIndex.Value, result);
     }
 
     public int GetLocalPlayerSlot()
@@ -276,6 +376,12 @@ public sealed class CoopSessionCoordinator : NetworkBehaviour
 
             playerSlots.Add(clientId);
         }
+    }
+
+    private void ResolveReferences()
+    {
+        relayConnectionService ??= FindFirstObjectByType<RelayConnectionService>(FindObjectsInactive.Include);
+        sessionProgressSync ??= FindFirstObjectByType<CoopSessionProgressSync>(FindObjectsInactive.Include);
     }
 
     private void LoadScene(string sceneName)

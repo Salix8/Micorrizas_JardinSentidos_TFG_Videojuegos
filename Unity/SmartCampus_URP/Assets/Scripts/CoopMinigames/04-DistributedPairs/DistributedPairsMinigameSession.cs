@@ -175,17 +175,9 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
             }
 
             var participantIds = GetParticipantIds();
-            var deckCards = BuildDeck(distributedPairsMinigameConfig.ActivePairCount);
-
-            var emptyPairIds = participantIds.ToDictionary(playerId => playerId, _ => (IReadOnlyList<int>)Array.Empty<int>());
-            var emptyCounts = participantIds.ToDictionary(playerId => playerId, _ => 0);
-            var initialAssignments = DistributedPairsDistributionService.PlanAssignments(
-                participantIds,
-                emptyPairIds,
-                emptyCounts,
-                deckCards,
-                distributedPairsMinigameConfig.CardsPerDevice,
-                assignmentSeed++);
+            var initialDealPlan = CreateInitialDealPlan(participantIds, distributedPairsMinigameConfig, assignmentSeed++);
+            var deckCards = initialDealPlan.DeckCards;
+            var initialAssignments = initialDealPlan.Assignments;
 
             foreach (var card in deckCards)
             {
@@ -388,7 +380,8 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
                 currentHandCounts,
                 drawPileCards,
                 distributedPairsMinigameConfig.CardsPerDevice,
-                assignmentSeed++);
+                assignmentSeed++,
+                distributedPairsMinigameConfig.GuaranteedVisiblePairsOffset);
 
             foreach (var assignment in assignments)
             {
@@ -483,7 +476,27 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
             return slotCount <= 0 ? 0 : slotCount - 1;
         }
 
-        private List<DistributedPairsCardModel> BuildDeck(int pairCount)
+        private static DistributedPairsInitialDealPlan CreateInitialDealPlan(
+            IReadOnlyList<ulong> participantIds,
+            DistributedPairsMinigameConfig config,
+            int randomSeed)
+        {
+            var deckCards = BuildDeck(config.ActivePairCount);
+            var emptyPairIds = participantIds.ToDictionary(playerId => playerId, _ => (IReadOnlyList<int>)Array.Empty<int>());
+            var emptyCounts = participantIds.ToDictionary(playerId => playerId, _ => 0);
+            var assignments = DistributedPairsDistributionService.PlanAssignments(
+                participantIds,
+                emptyPairIds,
+                emptyCounts,
+                deckCards,
+                config.CardsPerDevice,
+                randomSeed,
+                config.GuaranteedVisiblePairsOffset);
+
+            return new DistributedPairsInitialDealPlan(deckCards, assignments);
+        }
+
+        private static List<DistributedPairsCardModel> BuildDeck(int pairCount)
         {
             var deckCards = new List<DistributedPairsCardModel>(pairCount * 2);
             var cardInstanceId = 0;
@@ -494,6 +507,20 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
             }
 
             return deckCards;
+        }
+
+        private readonly struct DistributedPairsInitialDealPlan
+        {
+            public DistributedPairsInitialDealPlan(
+                IReadOnlyList<DistributedPairsCardModel> deckCards,
+                IReadOnlyDictionary<int, ulong> assignments)
+            {
+                DeckCards = deckCards;
+                Assignments = assignments;
+            }
+
+            public IReadOnlyList<DistributedPairsCardModel> DeckCards { get; }
+            public IReadOnlyDictionary<int, ulong> Assignments { get; }
         }
 
         private int FindCardStateIndex(int cardInstanceId)

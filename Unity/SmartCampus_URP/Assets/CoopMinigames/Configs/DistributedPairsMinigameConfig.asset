@@ -18,6 +18,7 @@ MonoBehaviour:
   returnToMapButtonLabel: Volver al mapa
   cardsPerDevice: 4
   pairsToUse: 10
+  guaranteedVisiblePairsOffset: 1
   pairDefinitions:
   - title: Jinjolero
     description: Ziziphus jujuba

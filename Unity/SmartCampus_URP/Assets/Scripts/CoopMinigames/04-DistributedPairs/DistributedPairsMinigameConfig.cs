@@ -14,6 +14,7 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
         [Header("Gameplay")]
         [SerializeField] [Min(1)] private int cardsPerDevice = 4;
         [SerializeField] [Min(1)] private int pairsToUse = 10;
+        [SerializeField] [Min(1)] private int guaranteedVisiblePairsOffset = 1;
         [SerializeField] private List<DistributedPairDefinition> pairDefinitions = new();
 
         [Header("Scoring")]
@@ -23,6 +24,7 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
         [SerializeField] private DistributedPairsCardVisualSettings cardVisualSettings = DistributedPairsCardVisualSettings.CreateDefault();
 
         public int CardsPerDevice => cardsPerDevice;
+        public int GuaranteedVisiblePairsOffset => guaranteedVisiblePairsOffset;
         public int ActivePairCount => Mathf.Min(pairsToUse, pairDefinitions.Count);
         public int DeckCardCount => ActivePairCount * 2;
         public DistributedPairsScoreSettings ScoreSettings => scoreSettings;
@@ -37,6 +39,7 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
         {
             cardsPerDevice = Mathf.Max(1, cardsPerDevice);
             pairsToUse = Mathf.Max(1, pairsToUse);
+            guaranteedVisiblePairsOffset = Mathf.Max(1, guaranteedVisiblePairsOffset);
             scoreSettings.Clamp();
             cardVisualSettings.Clamp();
 #if UNITY_EDITOR

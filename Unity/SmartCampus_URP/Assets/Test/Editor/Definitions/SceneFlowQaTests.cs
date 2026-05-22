@@ -69,12 +69,41 @@ namespace SmartCampus.Testing.Editor.Definitions
         }
     }
 
+    public sealed class SessionSummarySceneIncludedInBuildSettingsQaTest : SceneFlowQaTestCase
+    {
+        public override string Id => "scene.session_summary_in_build_settings";
+        public override string DisplayName => "Final summary scene is enabled in Build Settings";
+        public override string Description => "Required for the host to transition the group into the final cooperative score summary.";
+        public override int Order => 2;
+
+        public override Task<ProjectQaOutcome> ExecuteAsync(ProjectQaExecutionContext context)
+        {
+            if (!SmartCampusProjectQaUtility.SceneExists(SmartCampusProjectQaUtility.SessionSummaryScenePath))
+            {
+                return Task.FromResult(ProjectQaOutcome.Fail(
+                    "The final cooperative summary scene asset does not exist.",
+                    SmartCampusProjectQaUtility.SessionSummaryScenePath));
+            }
+
+            if (!SmartCampusProjectQaUtility.IsSceneEnabled(SmartCampusProjectQaUtility.SessionSummaryScenePath))
+            {
+                return Task.FromResult(ProjectQaOutcome.Fail(
+                    "The final cooperative summary scene is not enabled in Build Settings.",
+                    $"Enable {SmartCampusProjectQaUtility.SessionSummaryScenePath} so the session can load the final score screen in builds."));
+            }
+
+            return Task.FromResult(ProjectQaOutcome.Pass(
+                "The final cooperative summary scene is enabled in Build Settings.",
+                SmartCampusProjectQaUtility.SessionSummaryScenePath));
+        }
+    }
+
     public sealed class LobbySceneContainsBootstrapQaTest : SceneFlowQaTestCase
     {
         public override string Id => "scene.lobby_contains_bootstrap";
         public override string DisplayName => "Lobby scene contains the multiplayer bootstrap";
         public override string Description => "Checks that the lobby scene has one NetworkManager, one RelayConnectionService, one coordinator and one menu controller.";
-        public override int Order => 2;
+        public override int Order => 3;
 
         public override Task<ProjectQaOutcome> ExecuteAsync(ProjectQaExecutionContext context)
         {
@@ -112,7 +141,7 @@ namespace SmartCampus.Testing.Editor.Definitions
         public override string Id => "scene.main_map_has_no_duplicate_bootstrap";
         public override string DisplayName => "Main map scene does not duplicate persistent managers";
         public override string Description => "Prevents duplicate network/bootstrap objects once the persistent lobby services move into the main map.";
-        public override int Order => 3;
+        public override int Order => 4;
 
         public override Task<ProjectQaOutcome> ExecuteAsync(ProjectQaExecutionContext context)
         {
@@ -150,7 +179,7 @@ namespace SmartCampus.Testing.Editor.Definitions
         public override string Id => "scene.cooperative_scene_names_resolve";
         public override string DisplayName => "Configured cooperative scene names resolve";
         public override string Description => "Confirms the scene names configured in the lobby flow match real assets.";
-        public override int Order => 4;
+        public override int Order => 5;
 
         public override Task<ProjectQaOutcome> ExecuteAsync(ProjectQaExecutionContext context)
         {
@@ -182,6 +211,44 @@ namespace SmartCampus.Testing.Editor.Definitions
 
             return Task.FromResult(ProjectQaOutcome.Pass(
                 "The cooperative scene names resolve to the expected assets.",
+                details));
+        }
+    }
+
+    public sealed class SessionSummarySceneDoesNotDuplicateBootstrapQaTest : SceneFlowQaTestCase
+    {
+        public override string Id => "scene.session_summary_has_no_duplicate_bootstrap";
+        public override string DisplayName => "Final summary scene does not duplicate persistent managers";
+        public override string Description => "Prevents duplicate network/bootstrap objects once the persistent lobby services move into the final score summary.";
+        public override int Order => 6;
+
+        public override Task<ProjectQaOutcome> ExecuteAsync(ProjectQaExecutionContext context)
+        {
+            var report = SmartCampusProjectQaUtility.InspectScene(
+                SmartCampusProjectQaUtility.SessionSummaryScenePath,
+                scene => new
+                {
+                    NetworkManagers = SmartCampusProjectQaUtility.FindComponents<NetworkManager>(scene).Count,
+                    RelayServices = SmartCampusProjectQaUtility.FindComponents<RelayConnectionService>(scene).Count,
+                    Coordinators = SmartCampusProjectQaUtility.FindComponents<CoopSessionCoordinator>(scene).Count,
+                    MenuControllers = SmartCampusProjectQaUtility.FindComponents<MultiplayerMenuController>(scene).Count
+                });
+
+            var isValid = report.NetworkManagers == 0 &&
+                          report.RelayServices == 0 &&
+                          report.Coordinators == 0 &&
+                          report.MenuControllers == 0;
+            var details = $"NetworkManager: {report.NetworkManagers}, RelayConnectionService: {report.RelayServices}, CoopSessionCoordinator: {report.Coordinators}, MultiplayerMenuController: {report.MenuControllers}";
+
+            if (!isValid)
+            {
+                return Task.FromResult(ProjectQaOutcome.Fail(
+                    "The final summary scene duplicates managers that should arrive from the lobby bootstrap.",
+                    details));
+            }
+
+            return Task.FromResult(ProjectQaOutcome.Pass(
+                "The final summary scene leaves the persistent multiplayer bootstrap to the lobby scene.",
                 details));
         }
     }

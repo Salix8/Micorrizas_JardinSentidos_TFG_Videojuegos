@@ -15,7 +15,12 @@ namespace SmartCampus.Coop.Minigames
         [SerializeField] private bool preserveSceneDescriptionText;
         [SerializeField] private bool preserveSceneButtonText;
 
-        public void Bind(string displayName, string description, bool isInteractable, UnityEngine.Events.UnityAction onClick)
+        public void Bind(
+            string displayName,
+            string description,
+            bool isInteractable,
+            UnityEngine.Events.UnityAction onClick,
+            string buttonText = "Abrir")
         {
             ResolveReferences();
 
@@ -42,7 +47,7 @@ namespace SmartCampus.Coop.Minigames
                 buttonLabel ??= launchButton.GetComponentInChildren<TMP_Text>(true);
                 if (buttonLabel != null && (!preserveSceneButtonText || string.IsNullOrWhiteSpace(buttonLabel.text)))
                 {
-                    buttonLabel.text = "Abrir";
+                    buttonLabel.text = string.IsNullOrWhiteSpace(buttonText) ? "Abrir" : buttonText;
                 }
 
                 launchButton.onClick.RemoveAllListeners();

@@ -11,10 +11,12 @@ namespace SmartCampus.Testing.Editor
     public static class SmartCampusProjectQaUtility
     {
         public const string ToolName = "Smart Campus QA Panel";
-        public const string LobbyScenePath = "Assets/Lobby.unity";
+        public const string LobbyScenePath = "Assets/Scenes/Lobby.unity";
         public const string LobbySceneName = "Lobby";
-        public const string MainMapScenePath = "Assets/UJI.unity";
+        public const string MainMapScenePath = "Assets/Scenes/UJI.unity";
         public const string MainMapSceneName = "UJI";
+        public const string SessionSummaryScenePath = "Assets/Scenes/CoopFinalResults.unity";
+        public const string SessionSummarySceneName = "CoopFinalResults";
 
         public static bool SceneExists(string scenePath)
         {

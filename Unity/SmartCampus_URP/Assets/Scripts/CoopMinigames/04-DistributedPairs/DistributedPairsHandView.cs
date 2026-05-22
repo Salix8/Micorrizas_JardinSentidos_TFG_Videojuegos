@@ -38,6 +38,7 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
             IReadOnlyList<DistributedPairsCardNetworkState> handStates,
             DistributedPairsMinigameConfig config,
             bool isInteractable,
+            bool showMismatchMemoryState,
             Action<int> onCardSelected)
         {
             if (cardRoot == null || config == null)
@@ -76,6 +77,7 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
                         config.GetPairDefinition(state.PairId),
                         config.CardVisualSettings,
                         isInteractable,
+                        showMismatchMemoryState,
                         onCardSelected);
 
                     var shouldAnimateDraw = slotView.LastCardInstanceId != state.CardInstanceId;

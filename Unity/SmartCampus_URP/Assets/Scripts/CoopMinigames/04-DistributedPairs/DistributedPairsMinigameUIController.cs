@@ -120,6 +120,7 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
                     TypedSession.GetLocalHandStates(),
                     config,
                     TypedSession.Stage == CooperativeMinigameStage.Playing && !TypedSession.HasPendingMismatch,
+                    TypedSession.Stage == CooperativeMinigameStage.Playing && TypedSession.HasPendingMismatch,
                     TypedSession.TryToggleLocalCardSelection);
             }
 
@@ -151,6 +152,8 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
 
         private void BindRuntimeHud()
         {
+            ApplyMismatchOverlayPresentation();
+
             if (mismatchResetButton != null)
             {
                 mismatchResetButton.onClick.RemoveListener(HandleMismatchResetRequested);
@@ -221,20 +224,56 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
                 overlayRect.offsetMax = Vector2.zero;
 
                 var overlayImage = overlay.GetComponent<Image>();
-                overlayImage.color = new Color(0f, 0f, 0f, 0.22f);
+                overlayImage.color = new Color(0.09f, 0.11f, 0.14f, 0.08f);
 
                 mismatchResetButton = overlay.GetComponent<Button>();
                 mismatchResetButton.targetGraphic = overlayImage;
+                mismatchResetButton.transition = Selectable.Transition.None;
 
                 mismatchResetLabel = CreateText("Label", overlay.transform, "No coinciden. Toca para girarlas de nuevo.", 26, TextAnchor.MiddleCenter);
                 var labelRect = mismatchResetLabel.rectTransform;
-                labelRect.anchorMin = new Vector2(0.5f, 0.5f);
-                labelRect.anchorMax = new Vector2(0.5f, 0.5f);
+                labelRect.anchorMin = new Vector2(0.5f, 0f);
+                labelRect.anchorMax = new Vector2(0.5f, 0f);
                 labelRect.pivot = new Vector2(0.5f, 0.5f);
-                labelRect.sizeDelta = new Vector2(760f, 180f);
+                labelRect.anchoredPosition = new Vector2(0f, 92f);
+                labelRect.sizeDelta = new Vector2(760f, 72f);
                 mismatchResetLabel.color = Color.white;
                 mismatchResetButton.gameObject.SetActive(false);
             }
+        }
+
+        private void ApplyMismatchOverlayPresentation()
+        {
+            if (mismatchResetButton == null)
+            {
+                return;
+            }
+
+            mismatchResetButton.transition = Selectable.Transition.None;
+
+            var overlayImage = mismatchResetButton.targetGraphic as Image;
+            if (overlayImage != null)
+            {
+                overlayImage.color = new Color(0.09f, 0.11f, 0.14f, 0.08f);
+                overlayImage.raycastTarget = true;
+            }
+
+            if (mismatchResetLabel == null)
+            {
+                return;
+            }
+
+            mismatchResetLabel.alignment = TextAlignmentOptions.Center;
+            mismatchResetLabel.color = new Color(1f, 1f, 1f, 0.94f);
+            mismatchResetLabel.fontSize = 22f;
+            mismatchResetLabel.text = "No coinciden. Toca cualquier parte para girarlas.";
+
+            var labelRect = mismatchResetLabel.rectTransform;
+            labelRect.anchorMin = new Vector2(0.5f, 0f);
+            labelRect.anchorMax = new Vector2(0.5f, 0f);
+            labelRect.pivot = new Vector2(0.5f, 0.5f);
+            labelRect.anchoredPosition = new Vector2(0f, 92f);
+            labelRect.sizeDelta = new Vector2(760f, 72f);
         }
 
         private static GameObject CreatePilePanel(string name, Transform parent, string title)

@@ -11,6 +11,7 @@ namespace SmartCampus.Coop.Minigames
     public sealed class CoopMinigameLauncherUIController : MonoBehaviour
     {
         [SerializeField] private CoopSessionCoordinator coopSessionCoordinator;
+        [SerializeField] private CoopSessionProgressSync coopSessionProgressSync;
         [SerializeField] private CoopMinigameCatalogConfig minigameCatalogConfig;
         [SerializeField] private Transform entryRoot;
         [SerializeField] private CoopMinigameLauncherEntryView entryTemplate;
@@ -36,6 +37,11 @@ namespace SmartCampus.Coop.Minigames
                 coopSessionCoordinator.SlotsChanged += HandleSlotsChanged;
             }
 
+            if (coopSessionProgressSync != null)
+            {
+                coopSessionProgressSync.ProgressChanged += HandleProgressChanged;
+            }
+
             RefreshEntries();
         }
 
@@ -45,6 +51,11 @@ namespace SmartCampus.Coop.Minigames
             {
                 coopSessionCoordinator.PhaseChanged -= HandleCoordinatorPhaseChanged;
                 coopSessionCoordinator.SlotsChanged -= HandleSlotsChanged;
+            }
+
+            if (coopSessionProgressSync != null)
+            {
+                coopSessionProgressSync.ProgressChanged -= HandleProgressChanged;
             }
         }
 
@@ -60,9 +71,18 @@ namespace SmartCampus.Coop.Minigames
             RefreshEntries();
         }
 
+        private void HandleProgressChanged()
+        {
+            ResolveReferences();
+            RefreshEntries();
+        }
+
         private void ResolveReferences()
         {
             coopSessionCoordinator ??= FindFirstObjectByType<CoopSessionCoordinator>(FindObjectsInactive.Include);
+            coopSessionProgressSync ??= coopSessionCoordinator != null
+                ? coopSessionCoordinator.SessionProgressSync
+                : FindFirstObjectByType<CoopSessionProgressSync>(FindObjectsInactive.Include);
             helperLabel ??= transform.Find("HelperLabel")?.GetComponent<TMP_Text>();
 
             if (entryRoot == null)
@@ -154,19 +174,36 @@ namespace SmartCampus.Coop.Minigames
                         this);
                 }
 
+                var isCompleted = coopSessionProgressSync != null && coopSessionProgressSync.IsMinigameCompleted(minigameIndex);
                 var canLaunch = canLaunchFromCurrentContext &&
-                                (isLocalDebugLauncher || (coopSessionCoordinator != null && coopSessionCoordinator.IsMiniGameConfigured(minigameIndex)));
+                                (isLocalDebugLauncher || (coopSessionCoordinator != null && coopSessionCoordinator.CanLaunchMiniGame(minigameIndex)));
+                var buttonText = "Abrir";
+                if (isCompleted && coopSessionProgressSync.TryGetResult(minigameIndex, out var completedResult))
+                {
+                    buttonText = $"Completado {completedResult.ScoreOutOfTen:0.0}/10";
+                }
+                else if (!canLaunch)
+                {
+                    buttonText = "Bloqueado";
+                }
+
                 view.Bind(
                     entry.DisplayName,
                     entry.Description,
-                    canLaunch,
-                    () => LaunchMinigame(entry));
+                    canLaunch && !isCompleted,
+                    () => LaunchMinigame(entry),
+                    buttonText);
             }
         }
 
         private void LaunchMinigame(CoopMinigameCatalogEntry entry)
         {
             ResolveReferences();
+
+            if (coopSessionCoordinator != null && !coopSessionCoordinator.CanLaunchMiniGame(entry.MinigameIndex))
+            {
+                return;
+            }
 
             if (coopSessionCoordinator != null && coopSessionCoordinator.IsSpawned && coopSessionCoordinator.IsServer)
             {

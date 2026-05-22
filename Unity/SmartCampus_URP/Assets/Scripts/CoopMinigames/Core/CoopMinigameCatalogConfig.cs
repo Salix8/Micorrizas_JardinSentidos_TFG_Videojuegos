@@ -10,6 +10,22 @@ namespace SmartCampus.Coop.Minigames
         [SerializeField] private List<CoopMinigameCatalogEntry> entries = new();
 
         public IReadOnlyList<CoopMinigameCatalogEntry> Entries => entries;
+        public int Count => entries.Count;
+
+        public bool TryGetEntryForMinigameIndex(int minigameIndex, out CoopMinigameCatalogEntry entry)
+        {
+            for (var index = 0; index < entries.Count; index++)
+            {
+                if (entries[index] != null && entries[index].MinigameIndex == minigameIndex)
+                {
+                    entry = entries[index];
+                    return true;
+                }
+            }
+
+            entry = null;
+            return false;
+        }
     }
 
     [Serializable]

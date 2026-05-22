@@ -15,6 +15,7 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
         [SerializeField] private Image illustrationImage;
         [SerializeField] private TMP_Text titleLabel;
         [SerializeField] private TMP_Text descriptionLabel;
+        [SerializeField] private Image mismatchMemoryOverlay;
         [SerializeField] private GameObject backFaceRoot;
         [SerializeField] private Image backFaceBackground;
         [SerializeField] private TMP_Text backFaceLabel;
@@ -30,6 +31,7 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
             DistributedPairDefinition pairDefinition,
             DistributedPairsCardVisualSettings visualSettings,
             bool isInteractable,
+            bool showMismatchMemoryOverlay,
             Action<int> onSelected)
         {
             var isSelected = state.IsSelected;
@@ -75,6 +77,12 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
             {
                 descriptionLabel.text = pairDefinition == null ? string.Empty : pairDefinition.Description;
                 descriptionLabel.color = visualSettings.FrontTextColor;
+            }
+
+            EnsureMismatchMemoryOverlay();
+            if (mismatchMemoryOverlay != null)
+            {
+                mismatchMemoryOverlay.gameObject.SetActive(isSelected && showMismatchMemoryOverlay);
             }
 
             if (backFaceBackground != null)
@@ -125,6 +133,12 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
                 backFaceBackground.color = emptyBackColor;
             }
 
+            EnsureMismatchMemoryOverlay();
+            if (mismatchMemoryOverlay != null)
+            {
+                mismatchMemoryOverlay.gameObject.SetActive(false);
+            }
+
             if (backFaceLabel != null)
             {
                 backFaceLabel.text = string.Empty;
@@ -154,6 +168,30 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
                 illustrationImage.sprite = null;
                 illustrationImage.gameObject.SetActive(false);
             }
+        }
+
+        private void EnsureMismatchMemoryOverlay()
+        {
+            if (mismatchMemoryOverlay != null || frontFaceRoot == null)
+            {
+                return;
+            }
+
+            var overlayObject = new GameObject("MismatchMemoryOverlay", typeof(RectTransform), typeof(Image));
+            overlayObject.layer = frontFaceRoot.layer;
+            overlayObject.transform.SetParent(frontFaceRoot.transform, false);
+            overlayObject.transform.SetAsLastSibling();
+
+            var overlayRect = overlayObject.GetComponent<RectTransform>();
+            overlayRect.anchorMin = Vector2.zero;
+            overlayRect.anchorMax = Vector2.one;
+            overlayRect.offsetMin = Vector2.zero;
+            overlayRect.offsetMax = Vector2.zero;
+
+            mismatchMemoryOverlay = overlayObject.GetComponent<Image>();
+            mismatchMemoryOverlay.raycastTarget = false;
+            mismatchMemoryOverlay.color = new Color(0.96f, 0.98f, 1f, 0.24f);
+            mismatchMemoryOverlay.gameObject.SetActive(false);
         }
     }
 }

@@ -185,9 +185,9 @@ namespace SmartCampus.Coop.Minigames
                 {
                     minigameResultView.Bind(
                         Session.CurrentResult,
-                        config == null ? "Volver al mapa" : config.ReturnToMapButtonLabel,
-                        Session.CanLocalPlayerReturnToMainMap,
-                        Session.RequestReturnToMainMap);
+                        Session.GetContinueAfterResultsButtonLabel(),
+                        Session.CanLocalPlayerAdvanceAfterResults,
+                        Session.RequestAdvanceAfterResults);
                 }
             }
 
