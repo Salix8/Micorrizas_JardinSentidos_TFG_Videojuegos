@@ -180,6 +180,7 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
         [SerializeField] private Color frameColor;
         [SerializeField] private Color selectedFrameColor;
         [SerializeField] private Color frontTextColor;
+        [SerializeField] [Min(1)] private int minColumns;
         [SerializeField] [Min(1)] private int maxColumns;
         [SerializeField] private Vector2 minCardSize;
         [SerializeField] private Vector2 maxCardSize;
@@ -190,6 +191,7 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
         public Color FrameColor => frameColor;
         public Color SelectedFrameColor => selectedFrameColor;
         public Color FrontTextColor => frontTextColor;
+        public int MinColumns => minColumns;
         public int MaxColumns => maxColumns;
         public Vector2 MinCardSize => minCardSize;
         public Vector2 MaxCardSize => maxCardSize;
@@ -204,6 +206,7 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
                 frameColor = new Color(0.77f, 0.87f, 0.88f, 1f),
                 selectedFrameColor = new Color(0.95f, 0.69f, 0.22f, 1f),
                 frontTextColor = new Color(0.12f, 0.15f, 0.17f, 1f),
+                minColumns = 2,
                 maxColumns = 2,
                 minCardSize = new Vector2(120f, 170f),
                 maxCardSize = new Vector2(240f, 330f),
@@ -213,7 +216,8 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
 
         public void Clamp()
         {
-            maxColumns = Mathf.Max(1, maxColumns);
+            minColumns = Mathf.Max(1, minColumns);
+            maxColumns = Mathf.Max(minColumns, maxColumns);
             minCardSize.x = Mathf.Max(80f, minCardSize.x);
             minCardSize.y = Mathf.Max(120f, minCardSize.y);
             maxCardSize.x = Mathf.Max(minCardSize.x, maxCardSize.x);

@@ -57,6 +57,7 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
             {
                 var visuals = config.CardVisualSettings;
                 responsiveGridLayoutController.Configure(
+                    visuals.MinColumns,
                     visuals.MaxColumns,
                     visuals.MinCardSize,
                     visuals.MaxCardSize,

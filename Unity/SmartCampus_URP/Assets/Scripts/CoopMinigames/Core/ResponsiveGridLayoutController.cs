@@ -8,6 +8,7 @@ namespace SmartCampus.Coop.Minigames
     [RequireComponent(typeof(GridLayoutGroup))]
     public sealed class ResponsiveGridLayoutController : MonoBehaviour
     {
+        [SerializeField] private int minColumns = 1;
         [SerializeField] private int maxColumns = 4;
         [SerializeField] private Vector2 minCellSize = new(120f, 160f);
         [SerializeField] private Vector2 maxCellSize = new(260f, 340f);
@@ -39,8 +40,14 @@ namespace SmartCampus.Coop.Minigames
             }
         }
 
-        public void Configure(int configuredMaxColumns, Vector2 configuredMinCellSize, Vector2 configuredMaxCellSize, float configuredCardAspectRatio)
+        public void Configure(
+            int configuredMinColumns,
+            int configuredMaxColumns,
+            Vector2 configuredMinCellSize,
+            Vector2 configuredMaxCellSize,
+            float configuredCardAspectRatio)
         {
+            minColumns = Mathf.Max(1, configuredMinColumns);
             maxColumns = Mathf.Max(1, configuredMaxColumns);
             minCellSize = configuredMinCellSize;
             maxCellSize = configuredMaxCellSize;
@@ -69,9 +76,10 @@ namespace SmartCampus.Coop.Minigames
             var bestColumns = 1;
             var bestCellSize = minCellSize;
             var bestArea = 0f;
-            var maxColumnCount = Mathf.Clamp(maxColumns, 1, lastChildCount);
+            var clampedMinColumns = Mathf.Clamp(minColumns, 1, lastChildCount);
+            var maxColumnCount = Mathf.Clamp(maxColumns, clampedMinColumns, lastChildCount);
 
-            for (var columns = 1; columns <= maxColumnCount; columns++)
+            for (var columns = clampedMinColumns; columns <= maxColumnCount; columns++)
             {
                 var rows = Mathf.CeilToInt(lastChildCount / (float)columns);
                 var widthPerCell = (availableWidth - (columns - 1) * gridLayoutGroup.spacing.x) / columns;
@@ -122,6 +130,8 @@ namespace SmartCampus.Coop.Minigames
         {
             gridLayoutGroup ??= GetComponent<GridLayoutGroup>();
             rectTransform ??= GetComponent<RectTransform>();
+            minColumns = Mathf.Max(1, minColumns);
+            maxColumns = Mathf.Max(minColumns, maxColumns);
         }
     }
 }
