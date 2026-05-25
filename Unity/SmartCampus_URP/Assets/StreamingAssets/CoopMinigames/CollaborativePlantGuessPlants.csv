@@ -1,12 +1,17 @@
 plantId,commonName,scientificName,synonyms,imagePath,surfaceRoughness,leafType,fruitCategory,fruitType,leafPersistence,plantType
-adelfa_baladre,Adelfa / baladre,Nerium oleander,Adelfa|Baladre|Nerium oleander,,Media,Lanceolada,Seco,Foliculo,Perenne,Arbusto
-acebo,Acebo,Ilex aquifolium,Acebo|Ilex aquifolium,,Rugosa,Coriacea,Carnoso,Baya,Perenne,Arbusto
-palmito_margallo,Palmito / margallo,Chamaerops humilis,Palmito|Margallo|Chamaerops humilis,,Aspera,Palmada,Carnoso,Drupa,Perenne,Palmera
-olivo,Olivo,Olea europaea,Olivo|Olea europaea,,Media,Lanceolada,Carnoso,Drupa,Perenne,Arbol
-encina,Encina,Quercus ilex,Encina|Carrasca|Quercus ilex,,Rugosa,Coriacea,Seco,Bellota,Perenne,Arbol
-hiedra_enredadera,Hiedra / enredadera,Hedera helix,Hiedra|Enredadera|Enredaderas|Hedera helix,,Media,Lobulada,Carnoso,Baya,Perenne,Trepadora
-garrofera_algarrobo,Garrofera / algarrobo,Ceratonia siliqua,Garrofera|Algarrobo|Ceratonia siliqua,,Media,Compuesta,Seco,Legumbre,Perenne,Arbol
-madrono,Madroño,Arbutus unedo,Madroño|Arbutus unedo,,Media,Aserrada,Carnoso,Baya,Perenne,Arbusto
-alcornoque_surera,Alcornoque / surera,Quercus suber,Alcornoque|Surera|Quercus suber,,Muy rugosa,Coriacea,Seco,Bellota,Perenne,Arbol
-pino_carrasco,Pino carrasco,Pinus halepensis,Pino carrasco|Pinus halepensis,,Rugosa,Acicular,Seco,Pina,Perenne,Arbol
-chumbera_figa_palera,Chumbera / figa palera,Opuntia ficus-indica,Chumbera|Figa palera|Nopal|Opuntia ficus-indica,,Media,Carnosa,Carnoso,Baya,Perenne,Suculenta
+alcornoque_surera,Alcornoque,Quercus suber,Alzina Surera|Chaparro|Roble sobrero,,Muy rugosa,Coriacea,Seco,Bellota,Perenne,Árbol
+espino_negro,Espino negro,Rhamnus lycioides,Arçot|Cambrón|Escambrón,,Media,Lanceolada,Carnoso,Drupa,Perenne,Arbusto
+lodon,Almez,Celtis australis,Lledoner|Lodón|Litonero|Aligonero,,Lisa,Aserrada,Carnoso,Drupa,Caduca,Árbol
+adelfa_baladre,Adelfa,Nerium oleander,Baladre|Laurel romano,,Media,Lanceolada,Seco,Foliculo,Perenne,Arbusto
+algarrobo,Algarrobo ,Ceratonia siliqua,Garrofera,,Media,Compuesta,Seco,Legumbre,Perenne,Árbol
+encina,Encina,Quercus ilex,Carrasca|Chaparra|Alzina,,Rugosa,Coriacea,Seco,Bellota,Perenne,Árbol
+aladierna,Aladierno,Rhamnus alaternus,Aladern|Aladierna|Carrasquilla,,Media,Coriácea,Carnoso,Drupa,Perenne,Arbusto
+pino_pinonero,Pino piñonero,Pinus pinea,Pi pinyoner|Pino manso|Pino doncel|Pino albar,,Rugosa,Acicular,No,Piña,Perenne,Árbol
+pino_carrasco,Pino carrasco,Pinus halepensis,Pi blanc,,Rugosa,Acicular,No,Piña,Perenne,Árbol
+pino_silvestre,Pino silvestre,Pinus sylvestris,Pi roig|Pino serrano|Pino bermejo|Pino rojo,,Rugosa,Acicular,No,Piña,Perenne,Árbol
+acebo,Acebo,Ilex aquifolium,Grèvol,,Rugosa,Coriacea,Carnoso,Drupa,Perenne,Arbusto
+palmito_margallo,Palmito,Chamaerops humilis,Margalló|Palmera enana,,Aspera,Palmada,Carnoso,Drupa,Perenne,Palmera
+madrono,Madroño,Arbutus unedo,Arboç,,Media,Aserrada,Carnoso,Baya,Perenne,Arbusto
+olivo,Olivo,Olea europaea,Olivera|Aceituno,,Media,Lanceolada,Carnoso,Drupa,Perenne,Árbol
+hiedra_enredadera,Hiedra común,Hedera helix,Heura|Yedra,,Media,Lobulada,Carnoso,Drupa,Perenne,Trepadora
+chumbera_figa,Chumbera,Opuntia ficus-indica,Figuera de moro|Nopal|Tuna,,Media,Carnosa,Carnoso,Baya,Perenne,Suculenta
