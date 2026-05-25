@@ -313,6 +313,7 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             dataLoadError = string.Empty;
             hasLoadedPlantDefinitions = true;
             loadedPlantDefinitions.AddRange(plantDefinitions);
+            collaborativePlantGuessMinigameConfig.ApplyInspectorImages(loadedPlantDefinitions);
 
             if (IsServer)
             {

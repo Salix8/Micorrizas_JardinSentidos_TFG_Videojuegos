@@ -546,7 +546,23 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
                 plantImagePlaceholder.SetActive(true);
             }
 
-            if (plantDefinition == null || string.IsNullOrWhiteSpace(plantDefinition.ImagePath))
+            if (plantDefinition == null)
+            {
+                return;
+            }
+
+            if (plantDefinition.InspectorSprite != null)
+            {
+                plantImage.sprite = plantDefinition.InspectorSprite;
+                plantImage.gameObject.SetActive(true);
+                if (plantImagePlaceholder != null)
+                {
+                    plantImagePlaceholder.SetActive(false);
+                }
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(plantDefinition.ImagePath))
             {
                 return;
             }

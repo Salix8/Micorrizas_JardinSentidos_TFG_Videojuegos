@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
 {
@@ -43,12 +44,18 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
         public string LeafType { get; }
         public string FruitCategory { get; }
         public string FruitType { get; }
+        public Sprite InspectorSprite { get; private set; }
 
         public string DisplayName => CommonName;
 
         public string FullDisplayName => string.IsNullOrWhiteSpace(ScientificName)
             ? CommonName
             : $"{CommonName} ({ScientificName})";
+
+        public void SetInspectorSprite(Sprite sprite)
+        {
+            InspectorSprite = sprite;
+        }
     }
 
     public static class CollaborativePlantGuessCsvService

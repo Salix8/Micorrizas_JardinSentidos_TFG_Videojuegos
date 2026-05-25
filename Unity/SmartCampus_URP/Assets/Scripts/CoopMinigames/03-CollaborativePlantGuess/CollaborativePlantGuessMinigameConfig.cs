@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
 using SmartCampus.Coop.Minigames;
@@ -10,6 +11,7 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
     {
         [Header("Dataset")]
         [SerializeField] private string csvRelativePath = "CoopMinigames/CollaborativePlantGuessPlants.csv";
+        [SerializeField] private List<CollaborativePlantGuessImageEntry> plantImages = new();
         [SerializeField] [Min(2)] private int minimumSupportedPlayers = 2;
         [SerializeField] [Min(2)] private int maxSupportedDevices = 6;
 
@@ -33,6 +35,7 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
         [SerializeField] private CollaborativePlantGuessVisualSettings visualSettings = CollaborativePlantGuessVisualSettings.CreateDefault();
 
         public string CsvRelativePath => csvRelativePath;
+        public IReadOnlyList<CollaborativePlantGuessImageEntry> PlantImages => plantImages;
         public int MinimumSupportedPlayers => minimumSupportedPlayers;
         public int MaxSupportedDevices => maxSupportedDevices;
         public float TimeLimitSeconds => timeLimitSeconds;
@@ -49,6 +52,38 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
         public CollaborativePlantGuessScoreSettings ScoreSettings => scoreSettings;
         public CollaborativePlantGuessVisualSettings VisualSettings => visualSettings;
 
+        public void ApplyInspectorImages(IReadOnlyList<CollaborativePlantGuessPlantDefinition> plantDefinitions)
+        {
+            if (plantDefinitions == null || plantDefinitions.Count == 0)
+            {
+                return;
+            }
+
+            var imageLookup = new Dictionary<string, Sprite>(StringComparer.OrdinalIgnoreCase);
+            for (var index = 0; index < plantImages.Count; index++)
+            {
+                var entry = plantImages[index];
+                if (entry == null || string.IsNullOrWhiteSpace(entry.PlantId))
+                {
+                    continue;
+                }
+
+                imageLookup[entry.PlantId.Trim()] = entry.Image;
+            }
+
+            for (var index = 0; index < plantDefinitions.Count; index++)
+            {
+                var plantDefinition = plantDefinitions[index];
+                if (plantDefinition == null)
+                {
+                    continue;
+                }
+
+                imageLookup.TryGetValue(plantDefinition.PlantId, out var sprite);
+                plantDefinition.SetInspectorSprite(sprite);
+            }
+        }
+
         private void OnValidate()
         {
             minimumSupportedPlayers = Mathf.Max(2, minimumSupportedPlayers);
@@ -63,7 +98,18 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             autocompleteSuggestionCount = Mathf.Max(1, autocompleteSuggestionCount);
             scoreSettings.Clamp();
             visualSettings.Clamp();
+            plantImages ??= new List<CollaborativePlantGuessImageEntry>();
         }
+    }
+
+    [Serializable]
+    public sealed class CollaborativePlantGuessImageEntry
+    {
+        [SerializeField] private string plantId = string.Empty;
+        [SerializeField] private Sprite image;
+
+        public string PlantId => plantId;
+        public Sprite Image => image;
     }
 
     [Serializable]
