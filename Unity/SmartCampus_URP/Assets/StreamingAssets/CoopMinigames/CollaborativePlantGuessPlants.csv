@@ -1,8 +1,8 @@
 plantId,commonName,scientificName,synonyms,imagePath,surfaceRoughness,leafType,fruitCategory,fruitType,leafPersistence,plantType
-alcornoque_surera,Alcornoque,Quercus suber,Alzina Surera|Chaparro|Roble sobrero,,Muy rugosa,Coriacea,Seco,Bellota,Perenne,Árbol
+alcornoque,Alcornoque,Quercus suber,Alzina Surera|Chaparro|Roble sobrero,,Muy rugosa,Coriacea,Seco,Bellota,Perenne,Árbol
 espino_negro,Espino negro,Rhamnus lycioides,Arçot|Cambrón|Escambrón,,Media,Lanceolada,Carnoso,Drupa,Perenne,Arbusto
-lodon,Almez,Celtis australis,Lledoner|Lodón|Litonero|Aligonero,,Lisa,Aserrada,Carnoso,Drupa,Caduca,Árbol
-adelfa_baladre,Adelfa,Nerium oleander,Baladre|Laurel romano,,Media,Lanceolada,Seco,Foliculo,Perenne,Arbusto
+almez,Almez,Celtis australis,Lledoner|Lodón|Litonero|Aligonero,,Lisa,Aserrada,Carnoso,Drupa,Caduca,Árbol
+adelfa,Adelfa,Nerium oleander,Baladre|Laurel romano,,Media,Lanceolada,Seco,Foliculo,Perenne,Arbusto
 algarrobo,Algarrobo ,Ceratonia siliqua,Garrofera,,Media,Compuesta,Seco,Legumbre,Perenne,Árbol
 encina,Encina,Quercus ilex,Carrasca|Chaparra|Alzina,,Rugosa,Coriacea,Seco,Bellota,Perenne,Árbol
 aladierna,Aladierno,Rhamnus alaternus,Aladern|Aladierna|Carrasquilla,,Media,Coriácea,Carnoso,Drupa,Perenne,Arbusto
@@ -10,8 +10,8 @@ pino_pinonero,Pino piñonero,Pinus pinea,Pi pinyoner|Pino manso|Pino doncel|Pino
 pino_carrasco,Pino carrasco,Pinus halepensis,Pi blanc,,Rugosa,Acicular,No,Piña,Perenne,Árbol
 pino_silvestre,Pino silvestre,Pinus sylvestris,Pi roig|Pino serrano|Pino bermejo|Pino rojo,,Rugosa,Acicular,No,Piña,Perenne,Árbol
 acebo,Acebo,Ilex aquifolium,Grèvol,,Rugosa,Coriacea,Carnoso,Drupa,Perenne,Arbusto
-palmito_margallo,Palmito,Chamaerops humilis,Margalló|Palmera enana,,Aspera,Palmada,Carnoso,Drupa,Perenne,Palmera
+palmito,Palmito,Chamaerops humilis,Margalló|Palmera enana,,Aspera,Palmada,Carnoso,Drupa,Perenne,Palmera
 madrono,Madroño,Arbutus unedo,Arboç,,Media,Aserrada,Carnoso,Baya,Perenne,Arbusto
 olivo,Olivo,Olea europaea,Olivera|Aceituno,,Media,Lanceolada,Carnoso,Drupa,Perenne,Árbol
-hiedra_enredadera,Hiedra común,Hedera helix,Heura|Yedra,,Media,Lobulada,Carnoso,Drupa,Perenne,Trepadora
-chumbera_figa,Chumbera,Opuntia ficus-indica,Figuera de moro|Nopal|Tuna,,Media,Carnosa,Carnoso,Baya,Perenne,Suculenta
+hiedra,Hiedra común,Hedera helix,Heura|Yedra,,Media,Lobulada,Carnoso,Drupa,Perenne,Trepadora
+chumbera,Chumbera,Opuntia ficus-indica,Figuera de moro|Nopal|Tuna,,Media,Carnosa,Carnoso,Baya,Perenne,Suculenta
