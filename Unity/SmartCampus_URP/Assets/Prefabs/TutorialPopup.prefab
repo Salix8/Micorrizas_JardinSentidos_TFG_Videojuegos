@@ -88,8 +88,8 @@ MonoBehaviour:
   m_IgnoreLayout: 0
   m_MinWidth: -1
   m_MinHeight: -1
-  m_PreferredWidth: 220
-  m_PreferredHeight: 220
+  m_PreferredWidth: 237.6
+  m_PreferredHeight: 237.6
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
@@ -189,6 +189,7 @@ MonoBehaviour:
   heightRatio: 0.86
   minSize: {x: 320, y: 460}
   maxSize: {x: 840, y: 1160}
+  clampToMaxSize: 1
   outerMargin: {x: 32, y: 32}
 --- !u!114 &7234888979696641500
 MonoBehaviour:
@@ -203,12 +204,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.VerticalLayoutGroup
   m_Padding:
-    m_Left: 80
-    m_Right: 80
-    m_Top: 80
-    m_Bottom: 80
+    m_Left: 86
+    m_Right: 86
+    m_Top: 86
+    m_Bottom: 86
   m_ChildAlignment: 1
-  m_Spacing: 16
+  m_Spacing: 17.28
   m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 1
@@ -352,8 +353,8 @@ MonoBehaviour:
   m_IgnoreLayout: 1
   m_MinWidth: -1
   m_MinHeight: -1
-  m_PreferredWidth: 52
-  m_PreferredHeight: 52
+  m_PreferredWidth: 56.160004
+  m_PreferredHeight: 56.160004
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
@@ -447,9 +448,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
   m_IgnoreLayout: 0
-  m_MinWidth: 240
+  m_MinWidth: 259.2
   m_MinHeight: -1
-  m_PreferredWidth: 400
+  m_PreferredWidth: 432.00003
   m_PreferredHeight: -1
   m_FlexibleWidth: 0
   m_FlexibleHeight: -1
@@ -619,8 +620,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
   m_IgnoreLayout: 0
-  m_MinWidth: 750
-  m_MinHeight: 220
+  m_MinWidth: 810.00006
+  m_MinHeight: 237.6
   m_PreferredWidth: -1
   m_PreferredHeight: -1
   m_FlexibleWidth: -1
@@ -778,8 +779,8 @@ MonoBehaviour:
   m_IgnoreLayout: 0
   m_MinWidth: -1
   m_MinHeight: -1
-  m_PreferredWidth: 1000
-  m_PreferredHeight: 220
+  m_PreferredWidth: 1080
+  m_PreferredHeight: 237.6
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
@@ -845,7 +846,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4282654750
-  m_fontSize: 24
+  m_fontSize: 36.88
   m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 0
@@ -1048,8 +1049,8 @@ MonoBehaviour:
   m_IgnoreLayout: 0
   m_MinWidth: -1
   m_MinHeight: -1
-  m_PreferredWidth: 1000
-  m_PreferredHeight: 78
+  m_PreferredWidth: 1080
+  m_PreferredHeight: 84.240005
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
@@ -1115,7 +1116,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4282122253
-  m_fontSize: 45
+  m_fontSize: 60.4
   m_fontSizeBase: 45
   m_fontWeight: 700
   m_enableAutoSizing: 0
@@ -1218,12 +1219,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.VerticalLayoutGroup
   m_Padding:
-    m_Left: 30
-    m_Right: 30
-    m_Top: 30
-    m_Bottom: 30
+    m_Left: 32
+    m_Right: 32
+    m_Top: 32
+    m_Bottom: 32
   m_ChildAlignment: 1
-  m_Spacing: 25
+  m_Spacing: 27.000002
   m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 1
@@ -1260,8 +1261,8 @@ MonoBehaviour:
   m_IgnoreLayout: 0
   m_MinWidth: -1
   m_MinHeight: -1
-  m_PreferredWidth: 500
-  m_PreferredHeight: 1000
+  m_PreferredWidth: 540
+  m_PreferredHeight: 1080
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
@@ -1327,8 +1328,8 @@ MonoBehaviour:
   m_IgnoreLayout: 0
   m_MinWidth: -1
   m_MinHeight: -1
-  m_PreferredWidth: 1000
-  m_PreferredHeight: 56
+  m_PreferredWidth: 1080
+  m_PreferredHeight: 60.480003
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
@@ -1394,7 +1395,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4282785829
-  m_fontSize: 30
+  m_fontSize: 43.6
   m_fontSizeBase: 30
   m_fontWeight: 500
   m_enableAutoSizing: 0
@@ -1530,8 +1531,8 @@ MonoBehaviour:
   m_IgnoreLayout: 0
   m_MinWidth: -1
   m_MinHeight: -1
-  m_PreferredWidth: 220
-  m_PreferredHeight: 220
+  m_PreferredWidth: 237.6
+  m_PreferredHeight: 237.6
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
