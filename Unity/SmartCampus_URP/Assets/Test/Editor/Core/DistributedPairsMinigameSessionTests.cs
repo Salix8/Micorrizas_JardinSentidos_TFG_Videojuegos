@@ -13,7 +13,7 @@ namespace SmartCampus.Testing.Editor.Core
         [Test]
         public void CreateInitialDealPlan_WithTwoDevices_LeavesResolvableVisiblePair()
         {
-            var config = CreateConfig(cardsPerDevice: 4, pairsToUse: 10, guaranteedVisiblePairsOffset: 1);
+            var config = CreateConfig(cardsPerDevice: 6, pairsToUse: 12, guaranteedVisiblePairsOffset: 1);
             var participantIds = new ulong[] { 1UL, 2UL };
 
             var method = typeof(DistributedPairsMinigameSession).GetMethod(
@@ -26,7 +26,7 @@ namespace SmartCampus.Testing.Editor.Core
             var deckCards = ReadProperty<IReadOnlyList<DistributedPairsCardModel>>(plan, "DeckCards");
             var assignments = ReadProperty<IReadOnlyDictionary<int, ulong>>(plan, "Assignments");
 
-            Assert.That(assignments.Count, Is.EqualTo(8));
+            Assert.That(assignments.Count, Is.EqualTo(12));
             Assert.That(CountVisiblePairs(assignments, deckCards), Is.GreaterThanOrEqualTo(1));
 
             UnityEngine.Object.DestroyImmediate(config);

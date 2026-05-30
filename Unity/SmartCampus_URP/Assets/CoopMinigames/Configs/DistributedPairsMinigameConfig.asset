@@ -16,50 +16,72 @@ MonoBehaviour:
   tutorialContent: {fileID: 11400000, guid: 7673dedfbbe043442a9ab6923dbb5db9, type: 2}
   successMessage: Lo habeis conseguido
   returnToMapButtonLabel: Volver al mapa
-  cardsPerDevice: 4
-  pairsToUse: 10
+  cardsPerDevice: 6
+  pairsToUse: 12
   guaranteedVisiblePairsOffset: 1
+  timeLimitSeconds: 180
+  timeoutMessage: Tiempo agotado
   pairDefinitions:
-  - title: Jinjolero
+  - title: Azufaifo
+    flavorHint: Dulce
     description: Ziziphus jujuba
     illustration: {fileID: -484932828, guid: fa814ec1efa0a3d49a13b56a527d0b72, type: 3}
     faceColor: {r: 0.92, g: 0.598, b: 0.598, a: 1}
-  - title: Vid
+  - title: Uvas
+    flavorHint: Dulce
     description: Vitis vinifera
     illustration: {fileID: 1263514170, guid: fa814ec1efa0a3d49a13b56a527d0b72, type: 3}
     faceColor: {r: 0.92, g: 0.79120004, b: 0.598, a: 1}
-  - title: Morera blanca
+  - title: Mora blanca
+    flavorHint: Dulce
     description: Morus alba
     illustration: {fileID: 1559184815, guid: fa814ec1efa0a3d49a13b56a527d0b72, type: 3}
     faceColor: {r: 0.8556, g: 0.92, b: 0.598, a: 1}
-  - title: Cerezo
+  - title: Cereza
+    flavorHint: Dulce
     description: Prunus avium
     illustration: {fileID: -2119495254, guid: fa814ec1efa0a3d49a13b56a527d0b72, type: 3}
     faceColor: {r: 0.6624, g: 0.92, b: 0.598, a: 1}
   - title: Membrillo
+    flavorHint: Dulce
     description: Cydonia oblonga
     illustration: {fileID: 1320482387, guid: d532f8d4278a95f4e92ed683e8f2688c, type: 3}
     faceColor: {r: 0.598, g: 0.92, b: 0.7268, a: 1}
-  - title: Almendro
+  - title: Almendra
+    flavorHint: Umami
     description: Prunus dulcis
     illustration: {fileID: -819823926, guid: 5a44e729ac374b641889e50d30869a9a, type: 3}
     faceColor: {r: 0.598, g: 0.92, b: 0.92, a: 1}
-  - title: Limonero
+  - title: "Lim\xF3n"
+    flavorHint: Acido
     description: Citrus limon
     illustration: {fileID: -1138599245, guid: d532f8d4278a95f4e92ed683e8f2688c, type: 3}
     faceColor: {r: 0.598, g: 0.72679996, b: 0.92, a: 1}
-  - title: Granado
+  - title: Granada
+    flavorHint: Acido
     description: Punica granatum
     illustration: {fileID: 1504186947, guid: d532f8d4278a95f4e92ed683e8f2688c, type: 3}
     faceColor: {r: 0.66239995, g: 0.598, b: 0.92, a: 1}
-  - title: Olivera
+  - title: Olivas
+    flavorHint: Amargo
     description: Olea europaea
     illustration: {fileID: 1821559536, guid: 5a44e729ac374b641889e50d30869a9a, type: 3}
     faceColor: {r: 0.85560006, g: 0.598, b: 0.92, a: 1}
-  - title: Palmera datilera
+  - title: Datiles
+    flavorHint: Dulce
     description: Phoenix dactylifera
     illustration: {fileID: -1826667125, guid: 5a44e729ac374b641889e50d30869a9a, type: 3}
     faceColor: {r: 0.92, g: 0.598, b: 0.79120016, a: 1}
+  - title: Caqui
+    flavorHint: Dulce
+    description: Diospyros kaki
+    illustration: {fileID: 26041034, guid: be898fb718093b34086c71f3c20f7215, type: 3}
+    faceColor: {r: 0.92, g: 0.6946, b: 0.598, a: 1}
+  - title: "Melocot\xF3n"
+    flavorHint: Dulce
+    description: Prunus persica
+    illustration: {fileID: 772582622, guid: be898fb718093b34086c71f3c20f7215, type: 3}
+    faceColor: {r: 0.92, g: 0.8878, b: 0.598, a: 1}
   scoreSettings:
     maxScore: 10
     minimumScore: 0
@@ -72,7 +94,13 @@ MonoBehaviour:
     frameColor: {r: 0.77, g: 0.87, b: 0.88, a: 1}
     selectedFrameColor: {r: 0.95, g: 0.69, b: 0.22, a: 1}
     frontTextColor: {r: 0.12, g: 0.15, b: 0.17, a: 1}
+    minColumns: 2
     maxColumns: 2
-    minCardSize: {x: 120, y: 170}
-    maxCardSize: {x: 240, y: 330}
-    cardAspectRatio: 0.72
+    minCardSize: {x: 140, y: 180}
+    maxCardSize: {x: 280, y: 340}
+    cardAspectRatio: 0.82
+  matchFeedbackSettings:
+    matchedRevealDuration: 0.9
+    matchedPulseScale: 1.06
+    matchedPulseDuration: 0.32
+    matchedFrameColor: {r: 0.42, g: 0.76, b: 0.31, a: 1}

@@ -157,6 +157,26 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             RefreshHistoryList(config);
         }
 
+        protected override int? GetFailureFeedbackCount()
+        {
+            if (TypedSession == null)
+            {
+                return null;
+            }
+
+            var historyEntries = TypedSession.GetGuessHistory();
+            var incorrectGuessCount = 0;
+            for (var index = 0; index < historyEntries.Count; index++)
+            {
+                if (!historyEntries[index].IsExactPlantMatch)
+                {
+                    incorrectGuessCount++;
+                }
+            }
+
+            return incorrectGuessCount;
+        }
+
         private string BuildHelperMessage(CollaborativePlantGuessMinigameConfig config)
         {
             if (!TypedSession.HasLoadedPlantDefinitions)
@@ -316,7 +336,7 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
 
         private void HandleStateChanged()
         {
-            RefreshGameplay();
+            RefreshUi();
         }
     }
 }

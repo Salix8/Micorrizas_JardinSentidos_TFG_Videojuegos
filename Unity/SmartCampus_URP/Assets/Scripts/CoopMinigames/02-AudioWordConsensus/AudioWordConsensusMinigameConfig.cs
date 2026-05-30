@@ -9,6 +9,9 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
     [CreateAssetMenu(menuName = "SmartCampus/Coop/Minigames/Audio Word Consensus Config", fileName = "AudioWordConsensusMinigameConfig")]
     public sealed class AudioWordConsensusMinigameConfig : CooperativeMinigameConfigBase
     {
+        public const int DefaultRevealStageCount = 4;
+        public const int DefaultMaxMistakesPerRound = 3;
+
         [Header("Gameplay")]
         [SerializeField] [Min(2)] private int maxSupportedDevices = 6;
         [SerializeField] [Min(10f)] private float timeLimitSeconds = 120f;
@@ -30,6 +33,8 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
         public string MissingAudioClipLabel => missingAudioClipLabel;
         public int ActiveRoundCount => roundDefinitions.Count;
         public IReadOnlyList<AudioWordConsensusRoundDefinition> RoundDefinitions => roundDefinitions;
+        public int MaxMistakesPerRound => DefaultMaxMistakesPerRound;
+        public int RevealStageCount => DefaultRevealStageCount;
         public AudioWordConsensusScoreSettings ScoreSettings => scoreSettings;
         public AudioWordConsensusVisualSettings VisualSettings => visualSettings;
 
@@ -110,6 +115,14 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
             maxSupportedDevices = Mathf.Max(2, maxSupportedDevices);
             timeLimitSeconds = Mathf.Max(10f, timeLimitSeconds);
             feedbackDurationSeconds = Mathf.Max(0f, feedbackDurationSeconds);
+            if (roundDefinitions != null)
+            {
+                for (var index = 0; index < roundDefinitions.Count; index++)
+                {
+                    roundDefinitions[index]?.EnsureRevealStageSlots(RevealStageCount);
+                }
+            }
+
             scoreSettings.Clamp();
             visualSettings.Clamp();
         }
@@ -121,16 +134,60 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
         [SerializeField] private string promptLabel = "Sonido";
         [SerializeField] private AudioClip soundClip;
         [SerializeField] private string correctWord = "Palabra correcta";
+        [SerializeField] private List<Sprite> revealStageImages = new();
         [SerializeField] private List<string> distractorWords = new();
 
         public string PromptLabel => promptLabel;
         public AudioClip SoundClip => soundClip;
         public string CorrectWord => correctWord;
+        public IReadOnlyList<Sprite> RevealStageImages => revealStageImages;
         public IReadOnlyList<string> DistractorWords => distractorWords;
 
         public bool IsUsableForReceiverCount(int receiverCount)
         {
             return AudioWordConsensusRoundDefinitionValidator.IsUsable(this);
+        }
+
+        public Sprite GetRevealStageImage(int stageIndex)
+        {
+            if (revealStageImages == null || revealStageImages.Count == 0)
+            {
+                return null;
+            }
+
+            var clampedStageIndex = Mathf.Clamp(stageIndex, 0, revealStageImages.Count - 1);
+            for (var index = clampedStageIndex; index >= 0; index--)
+            {
+                if (revealStageImages[index] != null)
+                {
+                    return revealStageImages[index];
+                }
+            }
+
+            for (var index = clampedStageIndex + 1; index < revealStageImages.Count; index++)
+            {
+                if (revealStageImages[index] != null)
+                {
+                    return revealStageImages[index];
+                }
+            }
+
+            return null;
+        }
+
+        internal void EnsureRevealStageSlots(int requiredSlotCount)
+        {
+            revealStageImages ??= new List<Sprite>();
+            requiredSlotCount = Mathf.Max(0, requiredSlotCount);
+            while (revealStageImages.Count < requiredSlotCount)
+            {
+                revealStageImages.Add(null);
+            }
+
+            if (revealStageImages.Count > requiredSlotCount)
+            {
+                revealStageImages.RemoveRange(requiredSlotCount, revealStageImages.Count - requiredSlotCount);
+            }
         }
     }
 

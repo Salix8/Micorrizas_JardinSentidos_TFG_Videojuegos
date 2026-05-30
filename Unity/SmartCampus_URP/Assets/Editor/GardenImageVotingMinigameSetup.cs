@@ -25,7 +25,7 @@ public static class GardenImageVotingMinigameSetup
     private const string LobbyScenePath = SceneFolder + "/Lobby.unity";
     private const string MainMapScenePath = SceneFolder + "/UJI.unity";
     private const string MinigameSceneName = "GardenImageVotingMinigame";
-    private const string DistributedPairsSceneName = "DistributedPairsMinigame";
+    private const int MinigameIndex = 0;
 
     [MenuItem("Tools/Coop/Setup Garden Image Voting Minigame")]
     public static void SetupGardenImageVotingMinigame()
@@ -117,7 +117,7 @@ public static class GardenImageVotingMinigameSetup
     {
         return CoopMinigameSetupEditorUtility.UpsertCatalogEntry(
             CatalogConfigPath,
-            1,
+            MinigameIndex,
             "Minijuego 1 - Imagenes del jardin",
             "Cada dispositivo decide con un gesto si una imagen pertenece o no al jardin. La puntuacion se comparte entre todo el grupo.",
             MinigameSceneName);
@@ -270,6 +270,7 @@ public static class GardenImageVotingMinigameSetup
 
         var resultPopup = CreateResultPopup(uiRoot.transform, font);
         resultPopup.gameObject.SetActive(false);
+        var failureFeedback = MinigameFailureFeedbackSetupUtility.CreateOrUpdateFailureFeedback(uiRoot, gameplayPanel);
 
         var cardView = cardRoot.GetComponent<GardenImageVotingCardView>();
         var serializedCardView = new SerializedObject(cardView);
@@ -288,6 +289,7 @@ public static class GardenImageVotingMinigameSetup
         serializedUiController.FindProperty("minigameSession").objectReferenceValue = session;
         serializedUiController.FindProperty("tutorialPopupController").objectReferenceValue = tutorialPopup;
         serializedUiController.FindProperty("minigameResultView").objectReferenceValue = resultPopup;
+        MinigameFailureFeedbackSetupUtility.AssignToUiController(serializedUiController, failureFeedback);
         serializedUiController.FindProperty("waitingPanel").objectReferenceValue = waitingPanel;
         serializedUiController.FindProperty("gameplayPanel").objectReferenceValue = gameplayPanel;
         serializedUiController.FindProperty("waitingStatusLabel").objectReferenceValue = waitingStatus;
@@ -317,8 +319,7 @@ public static class GardenImageVotingMinigameSetup
         var serializedCoordinator = new SerializedObject(coordinator);
         var miniGameSceneNames = serializedCoordinator.FindProperty("miniGameSceneNames");
         miniGameSceneNames.arraySize = Math.Max(5, miniGameSceneNames.arraySize);
-        miniGameSceneNames.GetArrayElementAtIndex(1).stringValue = MinigameSceneName;
-        miniGameSceneNames.GetArrayElementAtIndex(4).stringValue = DistributedPairsSceneName;
+        miniGameSceneNames.GetArrayElementAtIndex(MinigameIndex).stringValue = MinigameSceneName;
         serializedCoordinator.ApplyModifiedPropertiesWithoutUndo();
 
         EditorUtility.SetDirty(coordinator);
@@ -337,8 +338,7 @@ public static class GardenImageVotingMinigameSetup
         {
             MainMapScenePath,
             LobbyScenePath,
-            MinigameScenePath,
-            SceneFolder + "/" + DistributedPairsSceneName + ".unity"
+            MinigameScenePath
         };
 
         var scenes = EditorBuildSettings.scenes;

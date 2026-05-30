@@ -23,10 +23,11 @@ namespace SmartCampus.Coop.Minigames
             string buttonText = "Abrir")
         {
             ResolveReferences();
+            var shouldForceRuntimeBinding = Application.isPlaying;
 
             if (titleLabel != null)
             {
-                if (!preserveSceneTitleText || string.IsNullOrWhiteSpace(titleLabel.text))
+                if (shouldForceRuntimeBinding || !preserveSceneTitleText || string.IsNullOrWhiteSpace(titleLabel.text))
                 {
                     titleLabel.text = displayName;
                 }
@@ -34,7 +35,7 @@ namespace SmartCampus.Coop.Minigames
 
             if (descriptionLabel != null)
             {
-                if (!preserveSceneDescriptionText || string.IsNullOrWhiteSpace(descriptionLabel.text))
+                if (shouldForceRuntimeBinding || !preserveSceneDescriptionText || string.IsNullOrWhiteSpace(descriptionLabel.text))
                 {
                     descriptionLabel.text = TruncateDescription(description);
                 }
@@ -45,7 +46,7 @@ namespace SmartCampus.Coop.Minigames
             if (launchButton != null)
             {
                 buttonLabel ??= launchButton.GetComponentInChildren<TMP_Text>(true);
-                if (buttonLabel != null && (!preserveSceneButtonText || string.IsNullOrWhiteSpace(buttonLabel.text)))
+                if (buttonLabel != null && (shouldForceRuntimeBinding || !preserveSceneButtonText || string.IsNullOrWhiteSpace(buttonLabel.text)))
                 {
                     buttonLabel.text = string.IsNullOrWhiteSpace(buttonText) ? "Abrir" : buttonText;
                 }
@@ -73,9 +74,9 @@ namespace SmartCampus.Coop.Minigames
         {
             ResolveReferences();
             buttonLabel ??= launchButton != null ? launchButton.GetComponentInChildren<TMP_Text>(true) : null;
-            preserveSceneTitleText = true;
-            preserveSceneDescriptionText = true;
-            preserveSceneButtonText = true;
+            preserveSceneTitleText = false;
+            preserveSceneDescriptionText = false;
+            preserveSceneButtonText = false;
 
             if (titleLabel != null)
             {

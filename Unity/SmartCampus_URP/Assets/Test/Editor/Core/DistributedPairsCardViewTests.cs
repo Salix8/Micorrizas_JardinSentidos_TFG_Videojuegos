@@ -140,6 +140,25 @@ namespace SmartCampus.Testing.Editor.Core
         }
 
         [Test]
+        public void Bind_WhenPairHasFlavorHint_UsesItOnBackFaceLabel()
+        {
+            var pairDefinition = CreatePairDefinition("Limon", illustrationSprite, "Acido");
+            var state = CreateState(isSelected: false);
+
+            cardView.Bind(
+                state,
+                pairDefinition,
+                DistributedPairsCardVisualSettings.CreateDefault(),
+                DistributedPairsMatchFeedbackSettings.CreateDefault(),
+                isInteractable: true,
+                showMismatchMemoryOverlay: false,
+                showMatchedFeedback: false,
+                onSelected: null);
+
+            Assert.That(backFaceLabel.text, Is.EqualTo("Acido"));
+        }
+
+        [Test]
         public void Bind_WhenMismatchMemoryIsRequested_CreatesAndShowsOverlayOnFrontFace()
         {
             var pairDefinition = CreatePairDefinition("Pareja ilustrada", illustrationSprite);
@@ -206,10 +225,11 @@ namespace SmartCampus.Testing.Editor.Core
             return textObject.GetComponent<TextMeshProUGUI>();
         }
 
-        private static DistributedPairDefinition CreatePairDefinition(string title, Sprite illustration)
+        private static DistributedPairDefinition CreatePairDefinition(string title, Sprite illustration, string flavorHint = "Sabor")
         {
             var pairDefinition = new DistributedPairDefinition();
             SetPairField(pairDefinition, "title", title);
+            SetPairField(pairDefinition, "flavorHint", flavorHint);
             SetPairField(pairDefinition, "description", "Descripcion");
             SetPairField(pairDefinition, "illustration", illustration);
             SetPairField(pairDefinition, "faceColor", Color.white);

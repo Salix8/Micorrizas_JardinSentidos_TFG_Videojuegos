@@ -11,9 +11,25 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
         [SerializeField] private DistributedPairsMinigameSession distributedPairsMinigameSession;
         [SerializeField] private DistributedPairsHandView localHandView;
         [SerializeField] private TMP_Text titleLabel;
+        [SerializeField] private TMP_Text timerLabel;
         [SerializeField] private TMP_Text progressLabel;
         [SerializeField] private TMP_Text sharedStatusLabel;
         [SerializeField] private TMP_Text localSelectionLabel;
+        [Header("Status Copy")]
+        [SerializeField] private string defaultStatusMessage = "Seleccionad 2 cartas entre todos";
+        [SerializeField] private string selectedCardPrefix = "Sabor a ";
+        [SerializeField] private string[] successStatusMessages =
+        {
+            "Sabor correcto",
+            "Eso es",
+            "Si esas dos van juntas"
+        };
+        [SerializeField] private string[] failureStatusMessages =
+        {
+            "No, esas no son iguales",
+            "Buen intento pero diferentes",
+            "Casi, pero no"
+        };
         [SerializeField] private bool showRuntimePileHud;
         [SerializeField] private RectTransform drawPileAnchor;
         [SerializeField] private TMP_Text drawPileCountLabel;
@@ -93,27 +109,22 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
                 progressLabel.text = $"Parejas: {TypedSession.MatchedPairCount}/{TypedSession.TotalPairCount}   Errores: {TypedSession.FailedAttemptCount}";
             }
 
+            if (timerLabel != null)
+            {
+                timerLabel.text = $"Tiempo {FormatTime(TypedSession.RemainingTimeSeconds)}";
+            }
+
             if (sharedStatusLabel != null)
             {
-                sharedStatusLabel.text = TypedSession.SharedStatusMessage;
+                sharedStatusLabel.text = BuildPrimaryStatusMessage(config);
             }
 
             if (localSelectionLabel != null)
             {
-                var localSelectedCard = TypedSession.GetLocalSelectedCard();
-                if (TypedSession.HasPendingMatchedPair)
+                localSelectionLabel.text = string.Empty;
+                if (localSelectionLabel.gameObject.activeSelf)
                 {
-                    localSelectionLabel.text = "Pareja encontrada. Las cartas se muestran un momento antes de descartarse.";
-                }
-                else if (TypedSession.HasPendingMismatch)
-                {
-                    localSelectionLabel.text = "El intento no coincide. Toca la pantalla para girar ambas cartas y seguir jugando.";
-                }
-                else
-                {
-                    localSelectionLabel.text = localSelectedCard.HasValue
-                        ? $"Carta activa: {config.GetPairDefinition(localSelectedCard.Value.PairId)?.Title}"
-                        : "Solo puedes tener una carta activa. Espera a que otro dispositivo revele la segunda carta.";
+                    localSelectionLabel.gameObject.SetActive(false);
                 }
             }
 
@@ -145,9 +156,14 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
             }
         }
 
+        protected override int? GetFailureFeedbackCount()
+        {
+            return TypedSession?.FailedAttemptCount;
+        }
+
         private void HandleStateChanged()
         {
-            RefreshGameplay();
+            RefreshUi();
         }
 
         private void HandleMismatchResetRequested()
@@ -279,6 +295,83 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
             labelRect.pivot = new Vector2(0.5f, 0.5f);
             labelRect.anchoredPosition = new Vector2(0f, 92f);
             labelRect.sizeDelta = new Vector2(760f, 72f);
+        }
+
+        private static string FormatTime(float remainingSeconds)
+        {
+            var clampedSeconds = Mathf.Max(0, Mathf.CeilToInt(remainingSeconds));
+            return $"{clampedSeconds / 60:00}:{clampedSeconds % 60:00}";
+        }
+
+        private string BuildPrimaryStatusMessage(DistributedPairsMinigameConfig config)
+        {
+            if (TypedSession == null)
+            {
+                return defaultStatusMessage;
+            }
+
+            if (TypedSession.HasPendingMatchedPair)
+            {
+                return ResolveFeedbackMessage(successStatusMessages, TypedSession.MatchedPairCount - 1, "Sabor correcto");
+            }
+
+            if (TypedSession.HasPendingMismatch)
+            {
+                return ResolveFeedbackMessage(failureStatusMessages, TypedSession.FailedAttemptCount - 1, "No, esas no son iguales");
+            }
+
+            var localSelectedCard = TypedSession.GetLocalSelectedCard();
+            if (localSelectedCard.HasValue)
+            {
+                var cardName = config.GetPairDefinition(localSelectedCard.Value.PairId)?.Title;
+                if (!string.IsNullOrWhiteSpace(cardName))
+                {
+                    return $"{selectedCardPrefix}{cardName.Trim()}";
+                }
+            }
+
+            return defaultStatusMessage;
+        }
+
+        private static string ResolveFeedbackMessage(string[] pool, int seed, string fallback)
+        {
+            if (pool == null || pool.Length == 0)
+            {
+                return fallback;
+            }
+
+            var validCount = 0;
+            for (var index = 0; index < pool.Length; index++)
+            {
+                if (!string.IsNullOrWhiteSpace(pool[index]))
+                {
+                    validCount++;
+                }
+            }
+
+            if (validCount == 0)
+            {
+                return fallback;
+            }
+
+            var targetIndex = Mathf.Abs(seed) % validCount;
+            var currentValidIndex = 0;
+            for (var index = 0; index < pool.Length; index++)
+            {
+                if (string.IsNullOrWhiteSpace(pool[index]))
+                {
+                    continue;
+                }
+
+                if (currentValidIndex == targetIndex)
+                {
+                    return pool[index].Trim();
+                }
+
+                currentValidIndex++;
+            }
+
+            return fallback;
         }
 
         private static GameObject CreatePilePanel(string name, Transform parent, string title)

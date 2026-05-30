@@ -22,6 +22,8 @@ public sealed class CoopGpsMarkerController : MonoBehaviour
 
     [Header("Marker Visuals")]
     [SerializeField] private GameObject markerTemplate;
+    [SerializeField] private LocalPlayerMarkerProfileService localPlayerMarkerProfileService;
+    [SerializeField] private PlayerMarkerAppearanceCatalogConfig localPlayerAppearanceCatalog;
     [SerializeField] private Color localPlayerColor = new(0.12f, 0.52f, 0.95f, 1f);
     [SerializeField] private Color remotePlayerColor = new(1f, 0.52f, 0.08f, 1f);
     [SerializeField] [Min(0.1f)] private float markerScale = 10f;
@@ -64,6 +66,7 @@ public sealed class CoopGpsMarkerController : MonoBehaviour
         }
 
         SubscribeToGpsSync();
+        SubscribeToLocalProfile();
         RefreshAllMarkers();
     }
 
@@ -78,12 +81,18 @@ public sealed class CoopGpsMarkerController : MonoBehaviour
         {
             gpsStateSync.StatesChanged -= HandleStatesChanged;
         }
+
+        if (localPlayerMarkerProfileService != null)
+        {
+            localPlayerMarkerProfileService.ProfileChanged -= HandleLocalProfileChanged;
+        }
     }
 
     private void Update()
     {
         ResolveReferences();
         SubscribeToGpsSync();
+        SubscribeToLocalProfile();
 
         if (!hasLocalReading)
         {
@@ -164,6 +173,12 @@ public sealed class CoopGpsMarkerController : MonoBehaviour
             markerViews.Add(clientId, markerView);
         }
 
+        if (isLocal)
+        {
+            markerView = EnsureLocalMarkerAppearance(markerView);
+            markerViews[clientId] = markerView;
+        }
+
         markerView.Root.SetActive(hasFix);
         if (!hasFix)
         {
@@ -182,7 +197,7 @@ public sealed class CoopGpsMarkerController : MonoBehaviour
 
         if (markerView.Renderer != null && markerView.Renderer.material != null)
         {
-            markerView.Renderer.material.color = isLocal ? localPlayerColor : remotePlayerColor;
+            markerView.Renderer.material.color = ResolveMarkerColor(isLocal);
         }
 
         CacheMarkerDiagnostics(clientId, markerView, latitude, longitude, altitude, hasFix, isLocal);
@@ -266,23 +281,13 @@ public sealed class CoopGpsMarkerController : MonoBehaviour
         root.SetActive(true);
 
         var locationComponent = root.GetComponent<ArcGISLocationComponent>();
-        var renderer = root.GetComponentInChildren<MeshRenderer>(true);
-        if (renderer != null && renderer.sharedMaterial != null)
-        {
-            renderer.material = new Material(renderer.sharedMaterial);
-        }
-
-        var visualTransform = renderer != null ? renderer.transform : null;
-        if (visualTransform != null)
-        {
-            visualTransform.localPosition = Vector3.up * markerVisualHeightOffset;
-            visualTransform.localScale = Vector3.one * markerScale;
-        }
+        var markerView = BuildMarkerView(root, isLocal ? ResolveDesiredLocalShapeId() : string.Empty);
+        ApplyVisualSettings(markerView);
 
         var hpTransform = root.GetComponent<HPTransform>();
         var hpRoot = root.GetComponentInParent<HPRoot>();
 
-        return new PlayerMarkerView(root, locationComponent, renderer, visualTransform, hpTransform, hpRoot);
+        return new PlayerMarkerView(root, locationComponent, markerView.Renderer, markerView.VisualTransform, hpTransform, hpRoot, markerView.ShapeId);
     }
 
     private bool TryGetResolvedLocalMarkerClientId(out ulong clientId)
@@ -311,7 +316,7 @@ public sealed class CoopGpsMarkerController : MonoBehaviour
         }
 
         markerView.VisualTransform.localPosition = Vector3.up * markerVisualHeightOffset;
-        markerView.VisualTransform.localScale = Vector3.one * markerScale;
+        markerView.VisualTransform.localScale = markerView.MarkerScale * markerScale;
     }
 
     private void ApplySurfacePlacement(PlayerMarkerView markerView)
@@ -360,6 +365,16 @@ public sealed class CoopGpsMarkerController : MonoBehaviour
         if (coopSessionCoordinator == null)
         {
             coopSessionCoordinator = FindFirstObjectByType<CoopSessionCoordinator>(FindObjectsInactive.Include);
+        }
+
+        if (localPlayerMarkerProfileService == null)
+        {
+            localPlayerMarkerProfileService = FindFirstObjectByType<LocalPlayerMarkerProfileService>(FindObjectsInactive.Include);
+        }
+
+        if (localPlayerAppearanceCatalog == null && localPlayerMarkerProfileService != null)
+        {
+            localPlayerAppearanceCatalog = localPlayerMarkerProfileService.AppearanceCatalog;
         }
     }
 
@@ -455,7 +470,112 @@ public sealed class CoopGpsMarkerController : MonoBehaviour
         RefreshAllMarkers();
     }
 
-    private readonly struct PlayerMarkerView
+    private void SubscribeToLocalProfile()
+    {
+        if (localPlayerMarkerProfileService == null)
+        {
+            return;
+        }
+
+        localPlayerMarkerProfileService.ProfileChanged -= HandleLocalProfileChanged;
+        localPlayerMarkerProfileService.ProfileChanged += HandleLocalProfileChanged;
+    }
+
+    private void HandleLocalProfileChanged()
+    {
+        RefreshAllMarkers();
+    }
+
+    private PlayerMarkerView EnsureLocalMarkerAppearance(PlayerMarkerView markerView)
+    {
+        var desiredShapeId = ResolveDesiredLocalShapeId();
+        if (string.Equals(markerView.ShapeId, desiredShapeId, System.StringComparison.OrdinalIgnoreCase))
+        {
+            return markerView;
+        }
+
+        return BuildMarkerView(markerView.Root, desiredShapeId, markerView.LocationComponent, markerView.HpTransform, markerView.HpRoot);
+    }
+
+    private string ResolveDesiredLocalShapeId()
+    {
+        if (localPlayerMarkerProfileService == null)
+        {
+            return string.Empty;
+        }
+
+        return localPlayerMarkerProfileService.CurrentShapeId;
+    }
+
+    private Color ResolveMarkerColor(bool isLocal)
+    {
+        if (!isLocal || localPlayerMarkerProfileService == null)
+        {
+            return isLocal ? localPlayerColor : remotePlayerColor;
+        }
+
+        if (localPlayerMarkerProfileService.TryGetSelectedColor(out var colorDefinition) && colorDefinition != null)
+        {
+            return colorDefinition.Color;
+        }
+
+        return localPlayerColor;
+    }
+
+    private PlayerMarkerView BuildMarkerView(
+        GameObject root,
+        string desiredShapeId,
+        ArcGISLocationComponent locationComponent = null,
+        HPTransform hpTransform = null,
+        HPRoot hpRoot = null)
+    {
+        var shapeScale = Vector3.one;
+        if (!string.IsNullOrWhiteSpace(desiredShapeId) &&
+            TryReplaceMarkerVisual(root.transform, desiredShapeId, out var resolvedShapeScale))
+        {
+            shapeScale = resolvedShapeScale;
+        }
+
+        var renderer = root.GetComponentInChildren<MeshRenderer>(true);
+        if (renderer != null && renderer.sharedMaterial != null)
+        {
+            renderer.material = new Material(renderer.sharedMaterial);
+        }
+
+        locationComponent ??= root.GetComponent<ArcGISLocationComponent>();
+        hpTransform ??= root.GetComponent<HPTransform>();
+        hpRoot ??= root.GetComponentInParent<HPRoot>();
+        var visualTransform = renderer != null ? renderer.transform : null;
+        return new PlayerMarkerView(root, locationComponent, renderer, visualTransform, hpTransform, hpRoot, desiredShapeId, shapeScale);
+    }
+
+    private bool TryReplaceMarkerVisual(Transform markerRootTransform, string desiredShapeId, out Vector3 markerShapeScale)
+    {
+        markerShapeScale = Vector3.one;
+        if (localPlayerAppearanceCatalog == null ||
+            !localPlayerAppearanceCatalog.TryGetShape(desiredShapeId, out var shapeDefinition) ||
+            shapeDefinition == null ||
+            shapeDefinition.VisualPrefab == null)
+        {
+            return false;
+        }
+
+        var existingVisual = markerRootTransform.Find("Visual");
+        if (existingVisual != null)
+        {
+            Destroy(existingVisual.gameObject);
+        }
+
+        var visualInstance = Instantiate(shapeDefinition.VisualPrefab, markerRootTransform);
+        visualInstance.name = "Visual";
+        visualInstance.transform.localPosition = Vector3.zero;
+        visualInstance.transform.localRotation = Quaternion.identity;
+        visualInstance.transform.localScale = Vector3.one;
+        markerShapeScale = shapeDefinition.MarkerScale;
+        return true;
+    }
+
+    private sealed class PlayerMarkerView
     {
         public PlayerMarkerView(
             GameObject root,
@@ -463,7 +583,9 @@ public sealed class CoopGpsMarkerController : MonoBehaviour
             MeshRenderer renderer,
             Transform visualTransform,
             HPTransform hpTransform,
-            HPRoot hpRoot)
+            HPRoot hpRoot,
+            string shapeId,
+            Vector3 markerScale = default)
         {
             Root = root;
             LocationComponent = locationComponent;
@@ -471,6 +593,8 @@ public sealed class CoopGpsMarkerController : MonoBehaviour
             VisualTransform = visualTransform;
             HpTransform = hpTransform;
             HpRoot = hpRoot;
+            ShapeId = shapeId;
+            MarkerScale = markerScale == default ? Vector3.one : markerScale;
         }
 
         public GameObject Root { get; }
@@ -479,6 +603,8 @@ public sealed class CoopGpsMarkerController : MonoBehaviour
         public Transform VisualTransform { get; }
         public HPTransform HpTransform { get; }
         public HPRoot HpRoot { get; }
+        public string ShapeId { get; }
+        public Vector3 MarkerScale { get; }
     }
 
     private static class ListPool<T>

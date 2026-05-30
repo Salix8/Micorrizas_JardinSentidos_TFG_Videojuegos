@@ -28,6 +28,7 @@ namespace SmartCampus.Coop.Minigames
         [SerializeField] private CooperativeMinigameBase minigameSession;
         [SerializeField] private TutorialPopupController tutorialPopupController;
         [SerializeField] private MinigameResultView minigameResultView;
+        [SerializeField] private MinigameFailureFeedbackController failureFeedbackController;
 
         [Header("Panels")]
         [SerializeField] private GameObject waitingPanel;
@@ -35,6 +36,9 @@ namespace SmartCampus.Coop.Minigames
 
         [Header("Labels")]
         [SerializeField] private TMP_Text waitingStatusLabel;
+
+        private bool hasFailureFeedbackBaseline;
+        private int lastFailureFeedbackCount;
 
         protected CooperativeMinigameBase Session => minigameSession;
 
@@ -93,10 +97,20 @@ namespace SmartCampus.Coop.Minigames
         {
         }
 
+        protected virtual int? GetFailureFeedbackCount()
+        {
+            return null;
+        }
+
         protected virtual bool TryResolveViewStateOverride(CooperativeMinigameConfigBase config, out MinigameUIViewState viewState)
         {
             viewState = default;
             return false;
+        }
+
+        protected void RefreshUi()
+        {
+            RefreshView();
         }
 
         private void ResolveReferences()
@@ -104,6 +118,7 @@ namespace SmartCampus.Coop.Minigames
             minigameSession ??= FindFirstObjectByType<CooperativeMinigameBase>(FindObjectsInactive.Include);
             tutorialPopupController ??= FindFirstObjectByType<TutorialPopupController>(FindObjectsInactive.Include);
             minigameResultView ??= FindFirstObjectByType<MinigameResultView>(FindObjectsInactive.Include);
+            failureFeedbackController ??= GetComponentInChildren<MinigameFailureFeedbackController>(true);
         }
 
         private void HandleTutorialClosed()
@@ -193,6 +208,32 @@ namespace SmartCampus.Coop.Minigames
 
             RefreshGameplay();
             RefreshResults();
+            RefreshFailureFeedback(showGameplay);
+        }
+
+        private void RefreshFailureFeedback(bool showGameplay)
+        {
+            var currentFailureCount = GetFailureFeedbackCount();
+            if (!showGameplay || !currentFailureCount.HasValue)
+            {
+                hasFailureFeedbackBaseline = false;
+                return;
+            }
+
+            var normalizedFailureCount = Mathf.Max(0, currentFailureCount.Value);
+            if (!hasFailureFeedbackBaseline)
+            {
+                lastFailureFeedbackCount = normalizedFailureCount;
+                hasFailureFeedbackBaseline = true;
+                return;
+            }
+
+            if (normalizedFailureCount > lastFailureFeedbackCount)
+            {
+                failureFeedbackController?.PlayFeedback();
+            }
+
+            lastFailureFeedbackCount = normalizedFailureCount;
         }
     }
 }

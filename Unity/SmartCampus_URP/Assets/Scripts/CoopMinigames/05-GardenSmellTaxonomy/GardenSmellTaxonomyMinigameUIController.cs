@@ -152,10 +152,15 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
                 HandleClassificationSubmitted);
         }
 
+        protected override int? GetFailureFeedbackCount()
+        {
+            return TypedSession?.IncorrectAnswerCount;
+        }
+
         private void HandleStateChanged()
         {
             hoveredCategory = null;
-            RefreshGameplay();
+            RefreshUi();
         }
 
         private void HandleHoveredCategoryChanged(GardenSmellTaxonomyCategory? category)

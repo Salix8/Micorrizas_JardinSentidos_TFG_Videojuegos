@@ -22,9 +22,14 @@ MonoBehaviour:
     en sus botones. Solo una coincide con el sonido reproducido.
 
 
-    Debatid rapidamente
-    y decidid en que dispositivo y sobre que palabra debe pulsarse. El minijuego
-    termina al agotarse los sonidos disponibles o cuando se acaba el tiempo.'
+    Si fallais,
+    se desactiva la opcion pulsada y la imagen se revela un poco mas. Teneis hasta
+    tres fallos por ronda antes de mostrar la solucion final.
+
+
+    Cuando acertais
+    o agotais los intentos, el dispositivo que reproducia el audio decide cuando
+    pasar a la siguiente ronda.'
   illustration: {fileID: 0}
   videoClip: {fileID: 0}
   customContentPrefab: {fileID: 0}

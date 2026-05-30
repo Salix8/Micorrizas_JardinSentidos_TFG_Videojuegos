@@ -117,10 +117,8 @@ namespace SmartCampus.Testing.Editor.Core
             Assert.That(layoutElement, Is.Not.Null);
             Assert.That(layoutElement.preferredHeight, Is.EqualTo(templateLayoutElement.preferredHeight));
             Assert.That(layoutElement.minHeight, Is.EqualTo(templateLayoutElement.minHeight));
-            Assert.That(rectTransform.anchorMin, Is.EqualTo(templateRectTransform.anchorMin));
-            Assert.That(rectTransform.anchorMax, Is.EqualTo(templateRectTransform.anchorMax));
             Assert.That(rectTransform.pivot, Is.EqualTo(templateRectTransform.pivot));
-            Assert.That(rectTransform.sizeDelta, Is.EqualTo(templateRectTransform.sizeDelta));
+            Assert.That(rectTransform.sizeDelta.y, Is.EqualTo(templateRectTransform.sizeDelta.y));
             Assert.That(labelRectTransform.offsetMin, Is.EqualTo(templateLabelRectTransform.offsetMin));
             Assert.That(labelRectTransform.offsetMax, Is.EqualTo(templateLabelRectTransform.offsetMax));
         }

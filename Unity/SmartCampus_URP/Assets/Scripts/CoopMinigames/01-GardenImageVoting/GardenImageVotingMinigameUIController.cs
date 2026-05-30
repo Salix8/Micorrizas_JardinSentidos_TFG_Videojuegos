@@ -147,9 +147,14 @@ namespace SmartCampus.Coop.Minigames.GardenImageVoting
                 TypedSession.SubmitLocalDecision);
         }
 
+        protected override int? GetFailureFeedbackCount()
+        {
+            return TypedSession?.SharedIncorrectAnswers;
+        }
+
         private void HandleStateChanged()
         {
-            RefreshGameplay();
+            RefreshUi();
         }
 
         private static string FormatTime(float remainingSeconds)

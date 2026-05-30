@@ -5,6 +5,17 @@ using UnityEngine.UI;
 [DisallowMultipleComponent]
 public sealed class MultiplayerMenuController : MonoBehaviour
 {
+    private static readonly string[] RequiredLobbyButtonPaths =
+    {
+        "SafeAreaRoot/SurfacePanel/ScrollFrame/PanelScrollView/Viewport/Content/HomePanel/CreateSessionButton",
+        "SafeAreaRoot/SurfacePanel/ScrollFrame/PanelScrollView/Viewport/Content/HomePanel/OpenJoinPanelButton",
+        "SafeAreaRoot/SurfacePanel/ScrollFrame/PanelScrollView/Viewport/Content/JoinPanel/JoinSessionButton",
+        "SafeAreaRoot/SurfacePanel/ScrollFrame/PanelScrollView/Viewport/Content/JoinPanel/BackButton",
+        "SafeAreaRoot/SurfacePanel/ScrollFrame/PanelScrollView/Viewport/Content/SessionPanel/ActionsRoot/CopyJoinCodeButton",
+        "SafeAreaRoot/SurfacePanel/ScrollFrame/PanelScrollView/Viewport/Content/SessionPanel/ActionsRoot/StartMatchButton",
+        "SafeAreaRoot/SurfacePanel/ScrollFrame/PanelScrollView/Viewport/Content/SessionPanel/ActionsRoot/LeaveSessionButton"
+    };
+
     [Header("References")]
     [SerializeField] private RelayConnectionService relayConnectionService;
     [SerializeField] private CoopSessionCoordinator coopSessionCoordinator;
@@ -40,6 +51,13 @@ public sealed class MultiplayerMenuController : MonoBehaviour
 
     private void OnEnable()
     {
+        ResolveReferences();
+
+        if (!ValidateButtonWiring())
+        {
+            Debug.LogError($"{nameof(MultiplayerMenuController)} detected invalid lobby button wiring. Open the Lobby scene setup utility and repair the scene listeners.", this);
+        }
+
         relayConnectionService.StatusChanged += HandleStatusChanged;
         relayConnectionService.JoinCodeChanged += HandleJoinCodeChanged;
         relayConnectionService.PlayerCountChanged += HandlePlayerCountChanged;
@@ -283,6 +301,80 @@ public sealed class MultiplayerMenuController : MonoBehaviour
     {
         relayConnectionService ??= FindFirstObjectByType<RelayConnectionService>();
         coopSessionCoordinator ??= FindFirstObjectByType<CoopSessionCoordinator>(FindObjectsInactive.Include);
+
+        var contentRoot = transform.Find("SafeAreaRoot/SurfacePanel/ScrollFrame/PanelScrollView/Viewport/Content");
+        if (contentRoot == null)
+        {
+            return;
+        }
+
+        homePanel ??= contentRoot.Find("HomePanel")?.gameObject;
+        hostPanel ??= contentRoot.Find("HostPanel")?.gameObject;
+        joinPanel ??= contentRoot.Find("JoinPanel")?.gameObject;
+        sessionPanel ??= contentRoot.Find("SessionPanel")?.gameObject;
+
+        joinCodeInput ??= contentRoot.Find("JoinPanel/JoinCodeInput")?.GetComponent<TMP_InputField>();
+        statusLabel ??= contentRoot.Find("SessionPanel/StatusLabel")?.GetComponent<TMP_Text>();
+        joinCodeLabel ??= contentRoot.Find("SessionPanel/JoinCodeLabel")?.GetComponent<TMP_Text>();
+        playerCountLabel ??= contentRoot.Find("SessionPanel/PlayerCountLabel")?.GetComponent<TMP_Text>();
+        sessionRequirementsLabel ??= contentRoot.Find("SessionPanel/SessionRequirementsLabel")?.GetComponent<TMP_Text>();
+
+        hostButton ??= contentRoot.Find("HomePanel/CreateSessionButton")?.GetComponent<Button>();
+        joinButton ??= contentRoot.Find("JoinPanel/JoinSessionButton")?.GetComponent<Button>();
+        startMatchButton ??= contentRoot.Find("SessionPanel/ActionsRoot/StartMatchButton")?.GetComponent<Button>();
+        leaveSessionButton ??= contentRoot.Find("SessionPanel/ActionsRoot/LeaveSessionButton")?.GetComponent<Button>();
+        copyJoinCodeButton ??= contentRoot.Find("SessionPanel/ActionsRoot/CopyJoinCodeButton")?.GetComponent<Button>();
+    }
+
+    private bool ValidateButtonWiring()
+    {
+        var isValid = true;
+        for (var index = 0; index < RequiredLobbyButtonPaths.Length; index++)
+        {
+            var buttonTransform = this.transform.Find(RequiredLobbyButtonPaths[index]);
+            if (buttonTransform == null)
+            {
+                Debug.LogError($"Missing required lobby button at path '{RequiredLobbyButtonPaths[index]}'.", this);
+                isValid = false;
+                continue;
+            }
+
+            var button = buttonTransform.GetComponent<Button>();
+            if (button == null)
+            {
+                Debug.LogError($"GameObject '{buttonTransform.name}' is missing a Button component.", buttonTransform);
+                isValid = false;
+                continue;
+            }
+
+            if (!HasValidPersistentListener(button))
+            {
+                Debug.LogError($"Lobby button '{buttonTransform.name}' does not have a valid persistent onClick target.", button);
+                isValid = false;
+            }
+        }
+
+        return isValid;
+    }
+
+    private static bool HasValidPersistentListener(Button button)
+    {
+        var persistentCallCount = button.onClick.GetPersistentEventCount();
+        if (persistentCallCount == 0)
+        {
+            return false;
+        }
+
+        for (var index = 0; index < persistentCallCount; index++)
+        {
+            if (button.onClick.GetPersistentTarget(index) != null &&
+                !string.IsNullOrWhiteSpace(button.onClick.GetPersistentMethodName(index)))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private void FocusJoinCodeInput()

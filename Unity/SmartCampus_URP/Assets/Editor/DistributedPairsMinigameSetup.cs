@@ -25,6 +25,7 @@ public static class DistributedPairsMinigameSetup
     private const string LobbyScenePath = "Assets/Scenes/Lobby.unity";
     private const string MainMapScenePath = "Assets/Scenes/UJI.unity";
     private const string MinigameSceneName = "DistributedPairsMinigame";
+    private const int MinigameIndex = 3;
 
     [MenuItem("Tools/Coop/Setup Distributed Pairs Minigame")]
     public static void SetupDistributedPairsMinigame()
@@ -97,17 +98,24 @@ public static class DistributedPairsMinigameSetup
         serializedObject.FindProperty("tutorialContent").objectReferenceValue = tutorialContent;
         serializedObject.FindProperty("successMessage").stringValue = "Lo habeis conseguido";
         serializedObject.FindProperty("returnToMapButtonLabel").stringValue = "Volver al mapa";
-        serializedObject.FindProperty("cardsPerDevice").intValue = 4;
-        serializedObject.FindProperty("pairsToUse").intValue = 10;
+        serializedObject.FindProperty("cardsPerDevice").intValue = 6;
+        serializedObject.FindProperty("pairsToUse").intValue = 12;
         serializedObject.FindProperty("guaranteedVisiblePairsOffset").intValue = 1;
+        serializedObject.FindProperty("timeLimitSeconds").floatValue = 180f;
+        serializedObject.FindProperty("timeoutMessage").stringValue = "Tiempo agotado";
+        serializedObject.FindProperty("cardVisualSettings").FindPropertyRelative("minColumns").intValue = 2;
         serializedObject.FindProperty("cardVisualSettings").FindPropertyRelative("maxColumns").intValue = 2;
+        serializedObject.FindProperty("cardVisualSettings").FindPropertyRelative("minCardSize").vector2Value = new Vector2(140f, 180f);
+        serializedObject.FindProperty("cardVisualSettings").FindPropertyRelative("maxCardSize").vector2Value = new Vector2(280f, 340f);
+        serializedObject.FindProperty("cardVisualSettings").FindPropertyRelative("cardAspectRatio").floatValue = 0.82f;
 
         var pairDefinitions = serializedObject.FindProperty("pairDefinitions");
-        pairDefinitions.arraySize = 10;
+        pairDefinitions.arraySize = 12;
         for (var index = 0; index < pairDefinitions.arraySize; index++)
         {
             var element = pairDefinitions.GetArrayElementAtIndex(index);
             element.FindPropertyRelative("title").stringValue = $"Pareja {index + 1}";
+            element.FindPropertyRelative("flavorHint").stringValue = $"Sabor {index + 1}";
             element.FindPropertyRelative("description").stringValue = "Placeholder editable desde el asset del minijuego.";
             element.FindPropertyRelative("faceColor").colorValue = Color.HSVToRGB(index / 10f, 0.35f, 0.92f);
         }
@@ -121,7 +129,7 @@ public static class DistributedPairsMinigameSetup
     {
         return CoopMinigameSetupEditorUtility.UpsertCatalogEntry(
             CatalogConfigPath,
-            4,
+            MinigameIndex,
             "Minijuego 4 - Parejas distribuidas",
             "Minijuego cooperativo con informacion parcial repartida entre dispositivos.",
             MinigameSceneName);
@@ -258,12 +266,30 @@ public static class DistributedPairsMinigameSetup
         statusLayout.childForceExpandHeight = false;
         statusPanel.AddComponent<LayoutElement>().preferredHeight = 320f;
 
-        var progressLabel = CreateText("ProgressLabel", statusPanel.transform, font, "Parejas: 0/0   Errores: 0", 24, TextAnchor.MiddleLeft);
-        progressLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 34f;
-        var sharedStatusLabel = CreateText("SharedStatusLabel", statusPanel.transform, font, "Selecciona una carta y comunicate con el resto del grupo.", 22, TextAnchor.UpperLeft);
+        var statusHeaderRow = CreateUiObject("StatusHeaderRow", statusPanel.transform, typeof(HorizontalLayoutGroup));
+        statusHeaderRow.AddComponent<LayoutElement>().preferredHeight = 40f;
+        var statusHeaderLayout = statusHeaderRow.GetComponent<HorizontalLayoutGroup>();
+        statusHeaderLayout.spacing = 16f;
+        statusHeaderLayout.childAlignment = TextAnchor.MiddleLeft;
+        statusHeaderLayout.childControlWidth = true;
+        statusHeaderLayout.childControlHeight = true;
+        statusHeaderLayout.childForceExpandWidth = false;
+        statusHeaderLayout.childForceExpandHeight = false;
+
+        var timerLabel = CreateText("TimerLabel", statusHeaderRow.transform, font, "Tiempo 03:00", 24, TextAnchor.MiddleLeft);
+        var timerLayout = timerLabel.gameObject.AddComponent<LayoutElement>();
+        timerLayout.preferredWidth = 180f;
+        timerLayout.preferredHeight = 34f;
+
+        var progressLabel = CreateText("ProgressLabel", statusHeaderRow.transform, font, "Parejas: 0/0   Errores: 0", 24, TextAnchor.MiddleLeft);
+        var progressLayout = progressLabel.gameObject.AddComponent<LayoutElement>();
+        progressLayout.flexibleWidth = 1f;
+        progressLayout.preferredHeight = 34f;
+        var sharedStatusLabel = CreateText("SharedStatusLabel", statusPanel.transform, font, "Seleccionad 2 cartas entre todos", 22, TextAnchor.UpperLeft);
         sharedStatusLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 72f;
-        var localSelectionLabel = CreateText("LocalSelectionLabel", statusPanel.transform, font, "Solo puedes tener una carta activa.", 20, TextAnchor.UpperLeft);
+        var localSelectionLabel = CreateText("LocalSelectionLabel", statusPanel.transform, font, string.Empty, 20, TextAnchor.UpperLeft);
         localSelectionLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 64f;
+        localSelectionLabel.gameObject.SetActive(false);
 
         var pileHudRow = CreateUiObject("PileHudRow", statusPanel.transform, typeof(HorizontalLayoutGroup));
         pileHudRow.AddComponent<LayoutElement>().preferredHeight = 116f;
@@ -292,6 +318,18 @@ public static class DistributedPairsMinigameSetup
         gridLayout.startAxis = GridLayoutGroup.Axis.Horizontal;
         gridLayout.startCorner = GridLayoutGroup.Corner.UpperLeft;
         gridLayout.childAlignment = TextAnchor.UpperCenter;
+        gridLayout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+        gridLayout.constraintCount = config.CardVisualSettings.MaxColumns;
+        gridLayout.cellSize = config.CardVisualSettings.MaxCardSize;
+
+        var responsiveGridLayoutController = handGrid.GetComponent<ResponsiveGridLayoutController>();
+        var serializedResponsiveLayout = new SerializedObject(responsiveGridLayoutController);
+        serializedResponsiveLayout.FindProperty("minColumns").intValue = config.CardVisualSettings.MinColumns;
+        serializedResponsiveLayout.FindProperty("maxColumns").intValue = config.CardVisualSettings.MaxColumns;
+        serializedResponsiveLayout.FindProperty("minCellSize").vector2Value = config.CardVisualSettings.MinCardSize;
+        serializedResponsiveLayout.FindProperty("maxCellSize").vector2Value = config.CardVisualSettings.MaxCardSize;
+        serializedResponsiveLayout.FindProperty("cardAspectRatio").floatValue = config.CardVisualSettings.CardAspectRatio;
+        serializedResponsiveLayout.ApplyModifiedPropertiesWithoutUndo();
 
         CreateSceneVisibleHandSlots(handGrid.transform, config.CardsPerDevice);
 
@@ -299,7 +337,7 @@ public static class DistributedPairsMinigameSetup
         var serializedHandView = new SerializedObject(handView);
         serializedHandView.FindProperty("cardRoot").objectReferenceValue = handGrid.transform;
         serializedHandView.FindProperty("cardPrefab").objectReferenceValue = cardPrefab;
-        serializedHandView.FindProperty("responsiveGridLayoutController").objectReferenceValue = handGrid.GetComponent<ResponsiveGridLayoutController>();
+        serializedHandView.FindProperty("responsiveGridLayoutController").objectReferenceValue = responsiveGridLayoutController;
         serializedHandView.ApplyModifiedPropertiesWithoutUndo();
 
         var mismatchOverlay = CreateUiObject("MismatchResetOverlay", uiRoot.transform, typeof(Image), typeof(Button));
@@ -323,20 +361,35 @@ public static class DistributedPairsMinigameSetup
 
         var resultPopup = CreateResultPopup(uiRoot.transform, font);
         resultPopup.gameObject.SetActive(false);
+        var failureFeedback = MinigameFailureFeedbackSetupUtility.CreateOrUpdateFailureFeedback(uiRoot, gameplayPanel);
 
         var serializedUiController = new SerializedObject(uiRoot.GetComponent<DistributedPairsMinigameUIController>());
         serializedUiController.FindProperty("minigameSession").objectReferenceValue = session;
         serializedUiController.FindProperty("tutorialPopupController").objectReferenceValue = tutorialPopup;
         serializedUiController.FindProperty("minigameResultView").objectReferenceValue = resultPopup;
+        MinigameFailureFeedbackSetupUtility.AssignToUiController(serializedUiController, failureFeedback);
         serializedUiController.FindProperty("waitingPanel").objectReferenceValue = waitingPanel;
         serializedUiController.FindProperty("gameplayPanel").objectReferenceValue = gameplayPanel;
         serializedUiController.FindProperty("waitingStatusLabel").objectReferenceValue = waitingStatus;
         serializedUiController.FindProperty("distributedPairsMinigameSession").objectReferenceValue = session;
         serializedUiController.FindProperty("localHandView").objectReferenceValue = handView;
         serializedUiController.FindProperty("titleLabel").objectReferenceValue = titleLabel;
+        serializedUiController.FindProperty("timerLabel").objectReferenceValue = timerLabel;
         serializedUiController.FindProperty("progressLabel").objectReferenceValue = progressLabel;
         serializedUiController.FindProperty("sharedStatusLabel").objectReferenceValue = sharedStatusLabel;
         serializedUiController.FindProperty("localSelectionLabel").objectReferenceValue = localSelectionLabel;
+        serializedUiController.FindProperty("defaultStatusMessage").stringValue = "Seleccionad 2 cartas entre todos";
+        serializedUiController.FindProperty("selectedCardPrefix").stringValue = "Sabor a ";
+        var successMessagesProperty = serializedUiController.FindProperty("successStatusMessages");
+        successMessagesProperty.arraySize = 3;
+        successMessagesProperty.GetArrayElementAtIndex(0).stringValue = "Sabor correcto";
+        successMessagesProperty.GetArrayElementAtIndex(1).stringValue = "Eso es";
+        successMessagesProperty.GetArrayElementAtIndex(2).stringValue = "Si esas dos van juntas";
+        var failureMessagesProperty = serializedUiController.FindProperty("failureStatusMessages");
+        failureMessagesProperty.arraySize = 3;
+        failureMessagesProperty.GetArrayElementAtIndex(0).stringValue = "No, esas no son iguales";
+        failureMessagesProperty.GetArrayElementAtIndex(1).stringValue = "Buen intento pero diferentes";
+        failureMessagesProperty.GetArrayElementAtIndex(2).stringValue = "Casi, pero no";
         serializedUiController.FindProperty("drawPileAnchor").objectReferenceValue = drawPileAnchor;
         serializedUiController.FindProperty("drawPileCountLabel").objectReferenceValue = drawPileCountLabel;
         serializedUiController.FindProperty("discardPileCountLabel").objectReferenceValue = discardPileCountLabel;
@@ -362,7 +415,7 @@ public static class DistributedPairsMinigameSetup
 
         var miniGameSceneNames = serializedCoordinator.FindProperty("miniGameSceneNames");
         miniGameSceneNames.arraySize = Math.Max(5, miniGameSceneNames.arraySize);
-        miniGameSceneNames.GetArrayElementAtIndex(4).stringValue = MinigameSceneName;
+        miniGameSceneNames.GetArrayElementAtIndex(MinigameIndex).stringValue = MinigameSceneName;
         serializedCoordinator.ApplyModifiedPropertiesWithoutUndo();
 
         EditorUtility.SetDirty(coordinator);

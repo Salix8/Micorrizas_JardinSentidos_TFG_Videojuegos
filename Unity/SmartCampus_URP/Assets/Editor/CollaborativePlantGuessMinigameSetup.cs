@@ -27,7 +27,7 @@ public static class CollaborativePlantGuessMinigameSetup
     private const string LobbyScenePath = SceneFolder + "/Lobby.unity";
     private const string MainMapScenePath = SceneFolder + "/UJI.unity";
     private const string MinigameSceneName = "CollaborativePlantGuessMinigame";
-    private const int MinigameIndex = 3;
+    private const int MinigameIndex = 2;
 
     [MenuItem("Tools/Coop/Setup Collaborative Plant Guess Minigame")]
     public static void SetupCollaborativePlantGuessMinigame()
@@ -271,11 +271,13 @@ public static class CollaborativePlantGuessMinigameSetup
         tutorialPopup.gameObject.SetActive(false);
         var resultPopup = CreateResultPopup(uiRoot.transform, font);
         resultPopup.gameObject.SetActive(false);
+        var failureFeedback = MinigameFailureFeedbackSetupUtility.CreateOrUpdateFailureFeedback(uiRoot, gameplayPanel);
 
         var serializedUiController = new SerializedObject(uiRoot.GetComponent<CollaborativePlantGuessMinigameUIController>());
         serializedUiController.FindProperty("minigameSession").objectReferenceValue = session;
         serializedUiController.FindProperty("tutorialPopupController").objectReferenceValue = tutorialPopup;
         serializedUiController.FindProperty("minigameResultView").objectReferenceValue = resultPopup;
+        MinigameFailureFeedbackSetupUtility.AssignToUiController(serializedUiController, failureFeedback);
         serializedUiController.FindProperty("waitingPanel").objectReferenceValue = waitingPanel;
         serializedUiController.FindProperty("gameplayPanel").objectReferenceValue = gameplayPanel;
         serializedUiController.FindProperty("waitingStatusLabel").objectReferenceValue = waitingStatus;

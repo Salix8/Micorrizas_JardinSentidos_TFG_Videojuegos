@@ -26,7 +26,7 @@ public static class GardenSmellTaxonomyMinigameSetup
     private const string LobbyScenePath = SceneFolder + "/Lobby.unity";
     private const string MainMapScenePath = SceneFolder + "/UJI.unity";
     private const string MinigameSceneName = "GardenSmellTaxonomyMinigame";
-    private const int MinigameIndex = 5;
+    private const int MinigameIndex = 4;
 
     [MenuItem("Tools/Coop/Setup Garden Smell Taxonomy Minigame")]
     public static void SetupGardenSmellTaxonomyMinigame()
@@ -289,11 +289,13 @@ public static class GardenSmellTaxonomyMinigameSetup
         serializedCardView.FindProperty("scientificNameLabel").objectReferenceValue = scientificNameLabel;
         serializedCardView.FindProperty("helperLabel").objectReferenceValue = helperLabel;
         serializedCardView.ApplyModifiedPropertiesWithoutUndo();
+        var failureFeedback = MinigameFailureFeedbackSetupUtility.CreateOrUpdateFailureFeedback(uiRoot, gameplayPanel);
 
         var serializedUiController = new SerializedObject(uiRoot.GetComponent<GardenSmellTaxonomyMinigameUIController>());
         serializedUiController.FindProperty("minigameSession").objectReferenceValue = session;
         serializedUiController.FindProperty("tutorialPopupController").objectReferenceValue = tutorialPopup;
         serializedUiController.FindProperty("minigameResultView").objectReferenceValue = resultPopup;
+        MinigameFailureFeedbackSetupUtility.AssignToUiController(serializedUiController, failureFeedback);
         serializedUiController.FindProperty("waitingPanel").objectReferenceValue = waitingPanel;
         serializedUiController.FindProperty("gameplayPanel").objectReferenceValue = gameplayPanel;
         serializedUiController.FindProperty("waitingStatusLabel").objectReferenceValue = waitingStatus;

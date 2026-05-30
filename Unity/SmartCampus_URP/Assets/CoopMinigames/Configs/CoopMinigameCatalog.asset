@@ -25,8 +25,8 @@ MonoBehaviour:
     sceneName: AudioWordConsensusMinigame
   - minigameIndex: 2
     displayName: Minijuego 3 - Adivina la planta
-    description: Adivina una planta entre todos con historial compartido, autocompletado
-      y pistas de atributos tipo Loldle.
+    description: Reune las pistas repartidas entre dispositivos y elegid en grupo
+      la planta correcta antes de que acabe el tiempo.
     sceneName: CollaborativePlantGuessMinigame
   - minigameIndex: 3
     displayName: Minijuego 4 - Parejas distribuidas

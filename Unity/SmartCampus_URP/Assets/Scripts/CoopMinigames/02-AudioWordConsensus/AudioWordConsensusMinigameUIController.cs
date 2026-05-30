@@ -26,6 +26,7 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
             [SerializeField] [Min(1)] private int previewTotalRounds = 3;
             [SerializeField] [Min(0)] private int previewCorrectRoundCount;
             [SerializeField] [Min(0)] private int previewIncorrectRoundCount;
+            [SerializeField] [Min(0)] private int previewMistakeCount;
             [SerializeField] [Min(0f)] private float previewRemainingTimeSeconds = 45f;
             [SerializeField] private string previewStatusMessage = "Vista previa local del flujo de juego.";
             [SerializeField] private int previewWordShuffleSeed = 1024;
@@ -37,6 +38,7 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
             public int PreviewTotalRounds => Mathf.Max(1, previewTotalRounds);
             public int PreviewCorrectRoundCount => Mathf.Max(0, previewCorrectRoundCount);
             public int PreviewIncorrectRoundCount => Mathf.Max(0, previewIncorrectRoundCount);
+            public int PreviewMistakeCount => Mathf.Max(0, previewMistakeCount);
             public float PreviewRemainingTimeSeconds => Mathf.Max(0f, previewRemainingTimeSeconds);
             public string PreviewStatusMessage => string.IsNullOrWhiteSpace(previewStatusMessage)
                 ? "Vista previa local del flujo de juego."
@@ -65,9 +67,11 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
         [SerializeField] private TMP_Text roundLabel;
         [SerializeField] private TMP_Text timerLabel;
         [SerializeField] private TMP_Text scoreLabel;
+        [SerializeField] private TMP_Text attemptsLabel;
         [SerializeField] private TMP_Text statusLabel;
-        [SerializeField] private TMP_Text roleLabel;
         [SerializeField] private TMP_Text localWordLabel;
+        [SerializeField] private Image emitterReferenceImage;
+        [SerializeField] private GameObject emitterPlaybackControlsContainer;
         [SerializeField] private Button playSoundButton;
         [SerializeField] private TMP_Text playSoundButtonLabel;
         [SerializeField] private Button restartSoundButton;
@@ -76,6 +80,13 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
         [SerializeField] private Button wordOptionButtonTemplate;
         [SerializeField] private Button submitWordButton;
         [SerializeField] private TMP_Text submitWordButtonLabel;
+        [SerializeField] private GameObject roundClosurePanel;
+        [SerializeField] private Image roundClosureImage;
+        [SerializeField] private TMP_Text roundClosureTitleLabel;
+        [SerializeField] private TMP_Text roundClosureStatusLabel;
+        [SerializeField] private TMP_Text roundClosureInstructionLabel;
+        [SerializeField] private Button roundClosureContinueButton;
+        [SerializeField] private TMP_Text roundClosureContinueButtonLabel;
         [SerializeField] private EditorPreviewSettings editorPreviewSettings = new();
         [SerializeField] private CanvasVisibilitySettings canvasVisibilitySettings = new();
 
@@ -128,6 +139,11 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
             if (restartSoundButton != null)
             {
                 restartSoundButton.onClick.RemoveListener(HandleRestartSoundPressed);
+            }
+
+            if (roundClosureContinueButton != null)
+            {
+                roundClosureContinueButton.onClick.RemoveListener(HandleRoundClosureContinuePressed);
             }
 
             StopAndResetLocalAudio(clearClip: false);
@@ -187,6 +203,15 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
                 return;
             }
 
+            var roundDefinition = TypedSession.GetCurrentRoundDefinition();
+            var isEmitter = TypedSession.IsLocalEmitter;
+            var hasAssignedWords = TypedSession.TryGetAssignedWordsForLocalPlayer(out var assignedWords);
+            var isAwaitingAssignedWords = TypedSession.IsAwaitingLocalAssignedWords();
+            var showRoundClosure = TypedSession.IsAwaitingEmitterContinue;
+
+            SyncLocalAudioState(isEmitter, roundDefinition);
+            EnsureRestartSoundButton();
+
             if (titleLabel != null)
             {
                 titleLabel.text = config.DisplayName;
@@ -206,7 +231,12 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
 
             if (scoreLabel != null)
             {
-                scoreLabel.text = $"Aciertos: {TypedSession.CorrectRoundCount}   Fallos: {TypedSession.IncorrectRoundCount}";
+                scoreLabel.text = $"Aciertos: {TypedSession.CorrectRoundCount}   Rondas falladas: {TypedSession.IncorrectRoundCount}";
+            }
+
+            if (attemptsLabel != null)
+            {
+                attemptsLabel.text = $"Intentos: {TypedSession.ActiveRoundMistakeCount}/{config.MaxMistakesPerRound}";
             }
 
             if (statusLabel != null)
@@ -214,35 +244,40 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
                 statusLabel.text = TypedSession.SharedStatusMessage;
             }
 
-            var isEmitter = TypedSession.IsLocalEmitter;
-            var hasAssignedWords = TypedSession.TryGetAssignedWordsForLocalPlayer(out var assignedWords);
-            var isAwaitingAssignedWords = TypedSession.IsAwaitingLocalAssignedWords();
-            var roundDefinition = TypedSession.GetCurrentRoundDefinition();
-            SyncLocalAudioState(isEmitter, roundDefinition);
-            EnsureRestartSoundButton();
-
-            if (roleLabel != null)
-            {
-                roleLabel.text = isEmitter
-                    ? "Tu rol en esta ronda: reproducir el sonido para el grupo."
-                    : "Tu rol en esta ronda: mostrar tu palabra y decidir en grupo quien debe pulsar.";
-            }
-
             if (localWordLabel != null)
             {
-                localWordLabel.text = isEmitter
-                    ? "En este turno no recibes palabra. Tu tarea es reproducir el sonido cuando el grupo lo necesite."
-                    : (hasAssignedWords
-                        ? "Opciones disponibles en tu dispositivo:"
-                        : (isAwaitingAssignedWords
-                            ? "Recibiendo opciones para esta ronda..."
-                            : "No hay opciones disponibles para esta ronda."));
+                if (showRoundClosure)
+                {
+                    localWordLabel.text = TypedSession.IsCurrentRoundSolved
+                        ? "La ronda se ha resuelto. Observad la imagen final antes de continuar."
+                        : "La ronda ha terminado sin acierto. Observad la imagen final antes de continuar.";
+                }
+                else
+                {
+                    localWordLabel.text = isEmitter
+                        ? "Tu mision es reproducir el sonido."
+                        : (hasAssignedWords
+                            ? "Opciones disponibles en tu dispositivo:"
+                            : (isAwaitingAssignedWords
+                                ? "Recibiendo opciones para esta ronda..."
+                                : "No hay opciones disponibles para esta ronda."));
+                }
+            }
+
+            RefreshEmitterReferenceImage(isEmitter, roundDefinition);
+            RefreshRoundClosurePanel(roundDefinition, isEmitter, config);
+
+            if (emitterPlaybackControlsContainer != null)
+            {
+                emitterPlaybackControlsContainer.SetActive(isEmitter && !showRoundClosure);
             }
 
             if (playSoundButton != null)
             {
-                playSoundButton.gameObject.SetActive(isEmitter);
-                playSoundButton.interactable = isEmitter && roundDefinition != null && roundDefinition.SoundClip != null;
+                playSoundButton.interactable = isEmitter &&
+                                              !showRoundClosure &&
+                                              roundDefinition != null &&
+                                              roundDefinition.SoundClip != null;
             }
 
             if (playSoundButtonLabel != null)
@@ -252,8 +287,10 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
 
             if (restartSoundButton != null)
             {
-                restartSoundButton.gameObject.SetActive(isEmitter);
-                restartSoundButton.interactable = isEmitter && roundDefinition != null && roundDefinition.SoundClip != null;
+                restartSoundButton.interactable = isEmitter &&
+                                                 !showRoundClosure &&
+                                                 roundDefinition != null &&
+                                                 roundDefinition.SoundClip != null;
             }
 
             if (restartSoundButtonLabel != null)
@@ -278,6 +315,17 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
                 restartSoundButton.onClick.RemoveListener(HandleRestartSoundPressed);
                 restartSoundButton.onClick.AddListener(HandleRestartSoundPressed);
             }
+
+            if (roundClosureContinueButton != null)
+            {
+                roundClosureContinueButton.onClick.RemoveListener(HandleRoundClosureContinuePressed);
+                roundClosureContinueButton.onClick.AddListener(HandleRoundClosureContinuePressed);
+            }
+        }
+
+        protected override int? GetFailureFeedbackCount()
+        {
+            return TypedSession?.TotalMistakeCount;
         }
 
         private void RefreshWordOptionButtons(bool isEmitter, IReadOnlyList<string> assignedWords)
@@ -290,7 +338,15 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
 
             EnsureWordOptionsContainerContract();
             var hasAssignedWords = assignedWords != null && assignedWords.Count > 0;
-            if (isEmitter || !hasAssignedWords)
+            var shouldShowWordOptionsContainer = !isEmitter &&
+                                                 hasAssignedWords &&
+                                                 (TypedSession == null || !TypedSession.IsAwaitingEmitterContinue);
+            if (wordOptionsContainer != null)
+            {
+                wordOptionsContainer.gameObject.SetActive(shouldShowWordOptionsContainer);
+            }
+
+            if (!shouldShowWordOptionsContainer)
             {
                 HideWordOptionButtons();
                 RebuildWordOptionsLayout();
@@ -299,9 +355,16 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
 
             ShowWordOptionButtons(
                 assignedWords,
-                TypedSession.CanLocalSubmitAssignedWord(),
+                ResolveWordButtonInteractable,
                 HandleSubmitWordPressed);
             RebuildWordOptionsLayout();
+        }
+
+        private bool ResolveWordButtonInteractable(string selectedWord)
+        {
+            return TypedSession != null
+                ? TypedSession.CanLocalSubmitAssignedWord(selectedWord)
+                : !string.IsNullOrWhiteSpace(selectedWord);
         }
 
         private void EnsureWordOptionButtonPool(int requiredButtonCount)
@@ -314,7 +377,7 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
 
             while (activeWordOptionButtons.Count < requiredButtonCount)
             {
-                var instance = Instantiate(templateButton, templateButton.transform.parent);
+                var instance = Instantiate(templateButton, templateButton.transform.parent, false);
                 instance.name = $"{templateButton.name}_{activeWordOptionButtons.Count + 1}";
                 EnsureWordOptionVisualContract(instance);
                 instance.gameObject.SetActive(false);
@@ -439,6 +502,11 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
             RefreshGameplay();
         }
 
+        private void HandleRoundClosureContinuePressed()
+        {
+            TypedSession?.RequestAdvanceClosedRound();
+        }
+
         private void HandleSubmitWordPressed(string selectedWord)
         {
             TypedSession?.SubmitLocalAssignedWord(selectedWord);
@@ -452,7 +520,7 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
 
         private void HandleStateChanged()
         {
-            RefreshGameplay();
+            RefreshUi();
         }
 
         private void RebuildWordOptionsLayout()
@@ -522,7 +590,8 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
                 return;
             }
 
-            var targetClip = isEmitter ? roundDefinition?.SoundClip : null;
+            var shouldAllowPlayback = isEmitter && !IsRoundClosureActive();
+            var targetClip = shouldAllowPlayback ? roundDefinition?.SoundClip : null;
             var activeRoundIndex = ResolveDisplayedRoundIndex();
             var hasRoundChanged = activeRoundIndex != lastPreparedRoundIndex;
             var hasClipChanged = localAudioSource.clip != targetClip;
@@ -589,7 +658,6 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
         private bool IsIsolatedEditorPreviewActive()
         {
 #if UNITY_EDITOR
-            // This preview is only meant for direct scene Play Mode without any active NGO session.
             return Application.isPlaying &&
                    PreviewSettings.EnableIsolatedScenePreview &&
                    TypedSession != null &&
@@ -627,7 +695,13 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
 
             if (scoreLabel != null)
             {
-                scoreLabel.text = $"Aciertos: {PreviewSettings.PreviewCorrectRoundCount}   Fallos: {PreviewSettings.PreviewIncorrectRoundCount}";
+                scoreLabel.text = $"Aciertos: {PreviewSettings.PreviewCorrectRoundCount}   Rondas falladas: {PreviewSettings.PreviewIncorrectRoundCount}";
+            }
+
+            if (attemptsLabel != null)
+            {
+                var maxMistakes = config == null ? AudioWordConsensusMinigameConfig.DefaultMaxMistakesPerRound : config.MaxMistakesPerRound;
+                attemptsLabel.text = $"Intentos: {PreviewSettings.PreviewMistakeCount}/{maxMistakes}";
             }
 
             if (statusLabel != null)
@@ -637,23 +711,23 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
                     : $"Vista previa: seleccionada '{lastPreviewSelection}'.";
             }
 
-            if (roleLabel != null)
-            {
-                roleLabel.text = isEmitter
-                    ? "Vista previa local: emisor del sonido."
-                    : "Vista previa local: receptor con opciones visibles.";
-            }
-
             if (localWordLabel != null)
             {
                 localWordLabel.text = isEmitter
-                    ? "En la vista previa del emisor se muestran los controles de audio y se ocultan las opciones de palabra."
+                    ? "En la vista previa del emisor se muestran los controles de audio y la progresion visual."
                     : "Opciones simuladas para depurar el layout del dispositivo receptor.";
+            }
+
+            RefreshEmitterReferenceImage(isEmitter, roundDefinition);
+            RefreshRoundClosurePanel(roundDefinition, isEmitter, config);
+
+            if (emitterPlaybackControlsContainer != null)
+            {
+                emitterPlaybackControlsContainer.SetActive(isEmitter);
             }
 
             if (playSoundButton != null)
             {
-                playSoundButton.gameObject.SetActive(isEmitter);
                 playSoundButton.interactable = isEmitter && roundDefinition != null && roundDefinition.SoundClip != null;
             }
 
@@ -664,13 +738,17 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
 
             if (restartSoundButton != null)
             {
-                restartSoundButton.gameObject.SetActive(isEmitter);
                 restartSoundButton.interactable = playSoundButton != null && playSoundButton.interactable;
             }
 
             if (restartSoundButtonLabel != null)
             {
                 restartSoundButtonLabel.text = "Reiniciar pista";
+            }
+
+            if (roundClosurePanel != null)
+            {
+                roundClosurePanel.SetActive(false);
             }
 
             if (isEmitter)
@@ -735,6 +813,11 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
 
         private void ShowWordOptionButtons(IReadOnlyList<string> optionWords, bool interactable, Action<string> onSelected)
         {
+            ShowWordOptionButtons(optionWords, _ => interactable, onSelected);
+        }
+
+        private void ShowWordOptionButtons(IReadOnlyList<string> optionWords, Func<string, bool> canInteract, Action<string> onSelected)
+        {
             var templateButton = ResolveWordOptionTemplate();
             if (templateButton == null || optionWords == null || optionWords.Count == 0)
             {
@@ -763,14 +846,99 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
                     label.text = optionWord;
                 }
 
-                button.interactable = interactable;
+                var isInteractable = canInteract != null && canInteract(optionWord);
+                button.interactable = isInteractable;
                 button.onClick.RemoveAllListeners();
-                if (interactable && onSelected != null)
+                if (isInteractable && onSelected != null)
                 {
                     button.onClick.AddListener(() => onSelected(optionWord));
                 }
             }
+        }
 
+        private void RefreshEmitterReferenceImage(bool isEmitter, AudioWordConsensusRoundDefinition roundDefinition)
+        {
+            if (emitterReferenceImage == null)
+            {
+                return;
+            }
+
+            var stageIndex = TypedSession == null ? 0 : TypedSession.ActiveRevealStageIndex;
+            if (IsIsolatedEditorPreviewActive())
+            {
+                stageIndex = PreviewSettings.PreviewMistakeCount;
+            }
+
+            var shouldShowReferenceImage = isEmitter &&
+                                           roundDefinition != null &&
+                                           !IsRoundClosureActive();
+            emitterReferenceImage.sprite = shouldShowReferenceImage ? roundDefinition.GetRevealStageImage(stageIndex) : null;
+            emitterReferenceImage.enabled = shouldShowReferenceImage && emitterReferenceImage.sprite != null;
+            emitterReferenceImage.gameObject.SetActive(shouldShowReferenceImage && emitterReferenceImage.sprite != null);
+            emitterReferenceImage.preserveAspect = true;
+        }
+
+        private void RefreshRoundClosurePanel(AudioWordConsensusRoundDefinition roundDefinition, bool isEmitter, AudioWordConsensusMinigameConfig config)
+        {
+            if (roundClosurePanel == null)
+            {
+                return;
+            }
+
+            var shouldShowPanel = !IsIsolatedEditorPreviewActive() &&
+                                  TypedSession != null &&
+                                  TypedSession.IsAwaitingEmitterContinue;
+            roundClosurePanel.SetActive(shouldShowPanel);
+            if (!shouldShowPanel)
+            {
+                return;
+            }
+
+            if (roundClosureTitleLabel != null)
+            {
+                roundClosureTitleLabel.text = TypedSession.IsCurrentRoundSolved
+                    ? "Ronda acertada"
+                    : "Ronda terminada";
+            }
+
+            if (roundClosureStatusLabel != null)
+            {
+                roundClosureStatusLabel.text = TypedSession.SharedStatusMessage;
+            }
+
+            if (roundClosureInstructionLabel != null)
+            {
+                roundClosureInstructionLabel.text = isEmitter
+                    ? "Pulsa continuar cuando el grupo haya visto la imagen final."
+                    : "Esperando a que el dispositivo que reprodujo el audio confirme la siguiente ronda.";
+            }
+
+            if (roundClosureImage != null)
+            {
+                var revealStageCount = config == null ? AudioWordConsensusMinigameConfig.DefaultRevealStageCount : config.RevealStageCount;
+                roundClosureImage.sprite = roundDefinition == null ? null : roundDefinition.GetRevealStageImage(revealStageCount - 1);
+                roundClosureImage.enabled = roundClosureImage.sprite != null;
+                roundClosureImage.preserveAspect = true;
+            }
+
+            if (roundClosureContinueButton != null)
+            {
+                var canContinue = TypedSession.CanLocalAdvanceClosedRound();
+                roundClosureContinueButton.gameObject.SetActive(canContinue);
+                roundClosureContinueButton.interactable = canContinue;
+            }
+
+            if (roundClosureContinueButtonLabel != null)
+            {
+                roundClosureContinueButtonLabel.text = "Continuar";
+            }
+        }
+
+        private bool IsRoundClosureActive()
+        {
+            return !IsIsolatedEditorPreviewActive() &&
+                   TypedSession != null &&
+                   TypedSession.IsAwaitingEmitterContinue;
         }
 
         private void EnsureTemplateIsPrepared(Button templateButton)
@@ -786,7 +954,6 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
 
         private void EnsureWordOptionsContainerContract()
         {
-            // The hierarchy owns layout configuration for WordOptionsContainer.
         }
 
         private void EnsureWordOptionVisualContract(Button button)
