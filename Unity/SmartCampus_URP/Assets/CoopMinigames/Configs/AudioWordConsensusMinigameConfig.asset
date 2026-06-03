@@ -17,7 +17,7 @@ MonoBehaviour:
   successMessage: Rondas completadas
   returnToMapButtonLabel: Volver al mapa
   maxSupportedDevices: 6
-  timeLimitSeconds: 180
+  timeLimitSeconds: 120
   feedbackDurationSeconds: 1.2
   timeoutMessage: Tiempo agotado
   missingAudioClipLabel: Sonido pendiente de asignar
@@ -32,7 +32,7 @@ MonoBehaviour:
     - {fileID: 21300000, guid: bbe8a41f16bf9c5498247bf3e7feeb1d, type: 3}
     distractorWords:
     - Mirlo
-    - Petirrojo
+    - Piti rojo
     - "Rana com\xFAn"
     - Urraca
     - "Verder\xF3n com\xFAn"
@@ -46,13 +46,13 @@ MonoBehaviour:
     - {fileID: 21300000, guid: a8a285208401d37428b24109b2764ba3, type: 3}
     distractorWords:
     - Gorrion
-    - Petirrojo
+    - Piti rojo
     - "Rana com\xFAn"
     - Urraca
     - "Verder\xF3n com\xFAn"
-  - promptLabel: Petirrojo - European Robin - Erithacus rubecula
+  - promptLabel: Piti rojo - European Robin - Erithacus rubecula
     soundClip: {fileID: 8300000, guid: 7609f8f889c98dc43b4184db0688ed2d, type: 3}
-    correctWord: Petirrojo
+    correctWord: Piti rojo
     revealStageImages:
     - {fileID: 21300000, guid: d9d08fad246bdaf46b306031fcfc641a, type: 3}
     - {fileID: 21300000, guid: 5131d019eb3a3a7428d1196c7ea37daa, type: 3}
@@ -75,7 +75,7 @@ MonoBehaviour:
     distractorWords:
     - Gorrion
     - Mirlo
-    - Petirrojo
+    - Piti rojo
     - Urraca
     - "Verder\xF3n com\xFAn"
   - promptLabel: Urraca - Eurasian Magpie - Pica pica
@@ -89,7 +89,7 @@ MonoBehaviour:
     distractorWords:
     - Gorrion
     - Mirlo
-    - Petirrojo
+    - Piti rojo
     - "Rana com\xFAn"
     - "Verder\xF3n com\xFAn"
   - promptLabel: "Verder\xF3n com\xFAn - European Greenfinch - Chloris chloris"
@@ -103,7 +103,7 @@ MonoBehaviour:
     distractorWords:
     - Gorrion
     - Mirlo
-    - Petirrojo
+    - Piti rojo
     - "Rana com\xFAn"
     - Urraca
   scoreSettings:

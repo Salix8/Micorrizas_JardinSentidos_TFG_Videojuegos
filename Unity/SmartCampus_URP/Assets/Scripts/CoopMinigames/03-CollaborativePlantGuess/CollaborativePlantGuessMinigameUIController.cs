@@ -10,6 +10,18 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
     public sealed class CollaborativePlantGuessMinigameUIController : MinigameUIControllerBase
     {
         [SerializeField] private CollaborativePlantGuessMinigameSession collaborativePlantGuessMinigameSession;
+        [SerializeField] private CoopSessionProgressSync sessionProgressSync;
+        [SerializeField] private CoopMinigameTopPanelView topPanelView;
+        [SerializeField] private CoopMinigameBottomPanelView bottomPanelView;
+
+        [Header("Shared Panel Copy")]
+        [SerializeField] private string bottomInstructionTitle = "ENCONTRAD EL ARBOL";
+        [SerializeField] private string bottomInstructionBody = "Uno escribe el nombre y el juego da pistas. Adivinad cual es.";
+        [SerializeField] private float displayedPenaltySeconds;
+        [SerializeField] private string teamName;
+        [SerializeField] private string roomCode;
+
+        [Header("Legacy Labels")]
         [SerializeField] private TMP_Text titleLabel;
         [SerializeField] private TMP_Text timerLabel;
         [SerializeField] private TMP_Text attemptsLabel;
@@ -35,15 +47,22 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
         protected override void Awake()
         {
             collaborativePlantGuessMinigameSession ??= FindFirstObjectByType<CollaborativePlantGuessMinigameSession>(FindObjectsInactive.Include);
+            sessionProgressSync ??= FindFirstObjectByType<CoopSessionProgressSync>(FindObjectsInactive.Include);
             base.Awake();
         }
 
         protected override void OnEnable()
         {
             collaborativePlantGuessMinigameSession ??= FindFirstObjectByType<CollaborativePlantGuessMinigameSession>(FindObjectsInactive.Include);
+            sessionProgressSync ??= FindFirstObjectByType<CoopSessionProgressSync>(FindObjectsInactive.Include);
             if (TypedSession != null)
             {
                 TypedSession.StateChanged += HandleStateChanged;
+            }
+
+            if (sessionProgressSync != null)
+            {
+                sessionProgressSync.ProgressChanged += HandleStateChanged;
             }
 
             if (guessInputField != null)
@@ -64,6 +83,11 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             if (TypedSession != null)
             {
                 TypedSession.StateChanged -= HandleStateChanged;
+            }
+
+            if (sessionProgressSync != null)
+            {
+                sessionProgressSync.ProgressChanged -= HandleStateChanged;
             }
 
             if (guessInputField != null)
@@ -107,10 +131,11 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
                 titleLabel.text = config.DisplayName;
             }
 
+            BindSharedPanels(config.DisplayName, TypedSession.RemainingTimeSeconds, config.TimeLimitSeconds);
+
             if (timerLabel != null)
             {
-                var remainingSeconds = Mathf.CeilToInt(TypedSession.RemainingTimeSeconds);
-                timerLabel.text = $"Tiempo restante: {remainingSeconds / 60:00}:{remainingSeconds % 60:00}";
+                timerLabel.text = $"Tiempo restante: {FormatTime(TypedSession.RemainingTimeSeconds)}";
             }
 
             if (attemptsLabel != null)
@@ -337,6 +362,42 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
         private void HandleStateChanged()
         {
             RefreshUi();
+        }
+
+        private void BindSharedPanels(string minigameTitle, float remainingSeconds, float totalSeconds)
+        {
+            if (topPanelView != null)
+            {
+                topPanelView.Bind(minigameTitle, CalculateGlobalProgress01(), teamName, roomCode);
+            }
+
+            if (bottomPanelView != null)
+            {
+                bottomPanelView.Bind(
+                    bottomInstructionTitle,
+                    bottomInstructionBody,
+                    remainingSeconds,
+                    totalSeconds,
+                    displayedPenaltySeconds);
+            }
+        }
+
+        private float CalculateGlobalProgress01()
+        {
+            if (sessionProgressSync == null || sessionProgressSync.ConfiguredMinigameCount <= 0)
+            {
+                return 0f;
+            }
+
+            return Mathf.Clamp01((float)sessionProgressSync.CompletedCount / sessionProgressSync.ConfiguredMinigameCount);
+        }
+
+        private static string FormatTime(float remainingSeconds)
+        {
+            var totalSeconds = Mathf.Max(0, Mathf.CeilToInt(remainingSeconds));
+            var minutes = totalSeconds / 60;
+            var seconds = totalSeconds % 60;
+            return $"{minutes:00}:{seconds:00}";
         }
     }
 }

@@ -530,3 +530,55 @@ public static class CoopMinigameSharedPanelPrefabUtility
         public TMP_Text TeamName { get; }
     }
 }
+
+internal static class CoopMinigameSharedPanelSetupUtility
+{
+    public static T InstantiateSharedPanel<T>(string prefabPath, Transform parent, float preferredHeight) where T : Component
+    {
+        var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
+        if (prefab == null)
+        {
+            throw new InvalidOperationException($"No se pudo cargar el prefab compartido requerido: {prefabPath}");
+        }
+
+        var instance = PrefabUtility.InstantiatePrefab(prefab) as GameObject;
+        if (instance == null)
+        {
+            throw new InvalidOperationException($"No se pudo instanciar el prefab compartido requerido: {prefabPath}");
+        }
+
+        instance.transform.SetParent(parent, false);
+        SetLayerRecursively(instance, 5);
+        ConfigureLayoutElement(instance, preferredHeight);
+
+        var view = instance.GetComponent<T>();
+        if (view == null)
+        {
+            throw new InvalidOperationException($"El prefab '{prefabPath}' no contiene el componente requerido {typeof(T).Name}.");
+        }
+
+        return view;
+    }
+
+    private static void ConfigureLayoutElement(GameObject instance, float preferredHeight)
+    {
+        var layoutElement = instance.GetComponent<LayoutElement>();
+        if (layoutElement == null)
+        {
+            layoutElement = instance.AddComponent<LayoutElement>();
+        }
+
+        layoutElement.preferredHeight = preferredHeight;
+        layoutElement.minHeight = Mathf.Min(preferredHeight, 120f);
+        layoutElement.flexibleHeight = 0f;
+    }
+
+    private static void SetLayerRecursively(GameObject root, int layer)
+    {
+        root.layer = layer;
+        foreach (Transform child in root.transform)
+        {
+            SetLayerRecursively(child.gameObject, layer);
+        }
+    }
+}

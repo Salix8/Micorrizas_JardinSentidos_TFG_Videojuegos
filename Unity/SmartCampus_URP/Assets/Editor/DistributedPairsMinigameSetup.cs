@@ -204,10 +204,13 @@ public static class DistributedPairsMinigameSetup
     private static void SetupDistributedPairsScene(DistributedPairsMinigameConfig config, DistributedPairsCardView cardPrefab)
     {
         var font = GetBuiltinFont();
+        var themeConfig = CoopMinigameThemeSetupUtility.GetOrCreateDefaultTheme();
+        CoopMinigameSharedPanelPrefabUtility.CreateOrUpdateSharedPanelPrefabs();
+
         var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
         CreateEventSystemIfMissing();
-        MinigameSceneCameraUtility.EnsureFixedCamera(scene, new Color(0.94f, 0.97f, 0.93f, 1f));
+        MinigameSceneCameraUtility.EnsureFixedCamera(scene, themeConfig.Palette.ScreenBackground);
 
         var sessionObject = new GameObject("DistributedPairsSession", typeof(NetworkObject), typeof(DistributedPairsMinigameSession));
         var session = sessionObject.GetComponent<DistributedPairsMinigameSession>();
@@ -221,7 +224,7 @@ public static class DistributedPairsMinigameSetup
 
         var background = CreateUiObject("Background", safeAreaRoot.transform, typeof(Image));
         Stretch(background.GetComponent<RectTransform>(), Vector2.zero, Vector2.zero);
-        background.GetComponent<Image>().color = new Color(0.94f, 0.97f, 0.93f, 1f);
+        background.GetComponent<Image>().color = themeConfig.Palette.ScreenBackground;
 
         var uiRoot = CreateUiObject("DistributedPairsUI", safeAreaRoot.transform, typeof(DistributedPairsMinigameUIController));
         Stretch(uiRoot.GetComponent<RectTransform>(), Vector2.zero, Vector2.zero);
@@ -242,22 +245,38 @@ public static class DistributedPairsMinigameSetup
         var waitingStatus = CreateText("WaitingStatus", waitingPanel.transform, font, "Esperando al resto del grupo.", 28, TextAnchor.MiddleCenter);
         Stretch(waitingStatus.GetComponent<RectTransform>(), new Vector2(28f, 28f), new Vector2(-28f, -28f));
 
-        var gameplayPanel = CreateUiObject("GameplayPanel", uiRoot.transform, typeof(Image), typeof(VerticalLayoutGroup), typeof(ContentSizeFitter));
-        Stretch(gameplayPanel.GetComponent<RectTransform>(), new Vector2(36f, 36f), new Vector2(-36f, -36f));
-        gameplayPanel.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.14f);
+        var gameplayPanel = CreateUiObject("GameplayPanel", uiRoot.transform, typeof(Image), typeof(VerticalLayoutGroup));
+        var screenMargin = themeConfig.ScreenLayout.ScreenMargin;
+        Stretch(gameplayPanel.GetComponent<RectTransform>(), screenMargin, -screenMargin);
+        gameplayPanel.GetComponent<Image>().color = Color.clear;
         var gameplayLayout = gameplayPanel.GetComponent<VerticalLayoutGroup>();
-        gameplayLayout.padding = new RectOffset(24, 24, 24, 24);
-        gameplayLayout.spacing = 16f;
+        gameplayLayout.padding = new RectOffset(0, 0, 0, 0);
+        gameplayLayout.spacing = themeConfig.ScreenLayout.VerticalSpacing;
         gameplayLayout.childControlHeight = true;
         gameplayLayout.childControlWidth = true;
         gameplayLayout.childForceExpandHeight = false;
         gameplayLayout.childForceExpandWidth = true;
-        gameplayPanel.GetComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.Unconstrained;
 
-        var titleLabel = CreateText("TitleLabel", gameplayPanel.transform, font, config.DisplayName, 42, TextAnchor.MiddleCenter);
-        titleLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 72f;
+        var topPanelView = CoopMinigameSharedPanelSetupUtility.InstantiateSharedPanel<CoopMinigameTopPanelView>(
+            CoopMinigameSharedPanelPrefabUtility.TopPanelPrefabPath,
+            gameplayPanel.transform,
+            themeConfig.ScreenLayout.TopPanelHeight);
+        topPanelView.SetTheme(themeConfig);
+        topPanelView.Bind(config.DisplayName, 0f, string.Empty, string.Empty);
 
-        var statusPanel = CreatePanel("StatusPanel", gameplayPanel.transform, new Color(1f, 1f, 1f, 0.72f));
+        TMP_Text titleLabel = null;
+
+        var interactivePanel = CreatePanel("InteractivePanel", gameplayPanel.transform, themeConfig.Palette.PanelBackground);
+        interactivePanel.AddComponent<LayoutElement>().flexibleHeight = 1f;
+        interactivePanel.GetComponent<LayoutElement>().minHeight = 360f;
+        var interactiveLayout = interactivePanel.AddComponent<VerticalLayoutGroup>();
+        interactiveLayout.padding = new RectOffset(24, 24, 24, 24);
+        interactiveLayout.spacing = 16f;
+        interactiveLayout.childControlWidth = true;
+        interactiveLayout.childControlHeight = true;
+        interactiveLayout.childForceExpandHeight = false;
+
+        var statusPanel = CreatePanel("StatusPanel", interactivePanel.transform, themeConfig.Palette.PanelBackground);
         var statusLayout = statusPanel.AddComponent<VerticalLayoutGroup>();
         statusLayout.padding = new RectOffset(24, 24, 20, 20);
         statusLayout.spacing = 10f;
@@ -305,7 +324,7 @@ public static class DistributedPairsMinigameSetup
         var drawPileCountLabel = deckPanel.transform.Find("CountLabel")?.GetComponent<TMP_Text>();
         var discardPileCountLabel = discardPanel.transform.Find("CountLabel")?.GetComponent<TMP_Text>();
 
-        var handPanel = CreatePanel("HandPanel", gameplayPanel.transform, new Color(1f, 1f, 1f, 0.72f));
+        var handPanel = CreatePanel("HandPanel", interactivePanel.transform, themeConfig.Palette.PanelBackground);
         var handLayoutElement = handPanel.AddComponent<LayoutElement>();
         handLayoutElement.flexibleHeight = 1f;
         handLayoutElement.minHeight = 360f;
@@ -340,6 +359,18 @@ public static class DistributedPairsMinigameSetup
         serializedHandView.FindProperty("responsiveGridLayoutController").objectReferenceValue = responsiveGridLayoutController;
         serializedHandView.ApplyModifiedPropertiesWithoutUndo();
 
+        var bottomPanelView = CoopMinigameSharedPanelSetupUtility.InstantiateSharedPanel<CoopMinigameBottomPanelView>(
+            CoopMinigameSharedPanelPrefabUtility.BottomPanelPrefabPath,
+            gameplayPanel.transform,
+            themeConfig.ScreenLayout.BottomPanelHeight);
+        bottomPanelView.SetTheme(themeConfig);
+        bottomPanelView.Bind(
+            "ENCONTRAD LOS PARES",
+            "En cada dispositivo hay varias cartas. Volved dos a la vez para encontrar los pares.",
+            config.TimeLimitSeconds,
+            config.TimeLimitSeconds,
+            0f);
+
         var mismatchOverlay = CreateUiObject("MismatchResetOverlay", uiRoot.transform, typeof(Image), typeof(Button));
         Stretch(mismatchOverlay.GetComponent<RectTransform>(), Vector2.zero, Vector2.zero);
         mismatchOverlay.GetComponent<Image>().color = new Color(0.09f, 0.11f, 0.14f, 0.08f);
@@ -372,6 +403,8 @@ public static class DistributedPairsMinigameSetup
         serializedUiController.FindProperty("gameplayPanel").objectReferenceValue = gameplayPanel;
         serializedUiController.FindProperty("waitingStatusLabel").objectReferenceValue = waitingStatus;
         serializedUiController.FindProperty("distributedPairsMinigameSession").objectReferenceValue = session;
+        serializedUiController.FindProperty("topPanelView").objectReferenceValue = topPanelView;
+        serializedUiController.FindProperty("bottomPanelView").objectReferenceValue = bottomPanelView;
         serializedUiController.FindProperty("localHandView").objectReferenceValue = handView;
         serializedUiController.FindProperty("titleLabel").objectReferenceValue = titleLabel;
         serializedUiController.FindProperty("timerLabel").objectReferenceValue = timerLabel;
@@ -397,7 +430,6 @@ public static class DistributedPairsMinigameSetup
         serializedUiController.FindProperty("mismatchResetLabel").objectReferenceValue = mismatchResetLabel;
         serializedUiController.ApplyModifiedPropertiesWithoutUndo();
 
-        FantasyWoodenThemeUtility.ApplyThemeToOpenScene(scene);
         EditorSceneManager.SaveScene(scene, MinigameScenePath);
     }
 
@@ -710,7 +742,7 @@ public static class DistributedPairsMinigameSetup
         text.fontSize = fontSize;
         text.alignment = ConvertAlignment(alignment);
         text.color = new Color(0.12f, 0.15f, 0.17f, 1f);
-        text.enableWordWrapping = true;
+        text.textWrappingMode = TextWrappingModes.Normal;
         text.overflowMode = TextOverflowModes.Overflow;
         return text;
     }

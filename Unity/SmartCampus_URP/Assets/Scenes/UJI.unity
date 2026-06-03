@@ -198,7 +198,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Minijuego 1 - Imagenes del jardin
+  m_text: Minijuego 5 - Taxonomia del jardin del olfato
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1265,13 +1265,13 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1014938310}
-  - {fileID: 1934883209}
   - {fileID: 1163899781}
   - {fileID: 929115670}
   - {fileID: 592403943}
   - {fileID: 2106978049}
   - {fileID: 1264930932}
+  - {fileID: 1014938310}
+  - {fileID: 1934883209}
   m_Father: {fileID: 2086475510}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
@@ -1441,8 +1441,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Adivina una planta entre todos con historial compartido, autocompletado
-    y pistas de atributos tipo Loldle.
+  m_text: Cada dispositivo decide con un gesto si una imagen pertenece o no al jardin.
+    La puntuacion se comparte entre todo el grupo.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1616,8 +1616,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Cada dispositivo decide con un gesto si una imagen pertenece o no al jardin.
-    La puntuacion se comparte entre todo el grupo.
+  m_text: Un dispositivo fotografia una planta guiado por una pista y otro la adivina
+    por nombre comun.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1768,8 +1768,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Un dispositivo fotografia una planta guiado por una pista y otro la adivina
-    por nombre comun.
+  m_text: Minijuego cooperativo con informacion parcial repartida entre dispositivos.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -2095,7 +2094,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Minijuego 4 - Parejas distribuidas
+  m_text: Minijuego 2 - Sonido y consenso
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -2321,7 +2320,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Minijuego 5 - Taxonomia del jardin del olfato
+  m_text: Minijuego 3 - Adivina la planta
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -2588,7 +2587,7 @@ GameObject:
   - component: {fileID: 592403945}
   - component: {fileID: 592403944}
   m_Layer: 5
-  m_Name: MinigameShortcut_4_Minijuego5Taxonomiadeljardindelolfato
+  m_Name: MinigameShortcut_2_Minijuego3Adivinalaplanta
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3038,7 +3037,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Minijuego 3 - Adivina la planta
+  m_text: Minijuego 1 - Imagenes del jardin
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -3231,7 +3230,7 @@ MonoBehaviour:
   coopSessionProgressSync: {fileID: 0}
   minigameCatalogConfig: {fileID: 11400000, guid: ef497b60053910d4d999ca24f25c6e58, type: 2}
   entryRoot: {fileID: 363153324}
-  entryTemplate: {fileID: 1014938312}
+  entryTemplate: {fileID: 1163899783}
   helperLabel: {fileID: 227387554}
 --- !u!114 &756439483
 MonoBehaviour:
@@ -4088,7 +4087,7 @@ GameObject:
   - component: {fileID: 929115672}
   - component: {fileID: 929115671}
   m_Layer: 5
-  m_Name: MinigameShortcut_3_Minijuego4Parejasdistribuidas
+  m_Name: MinigameShortcut_1_Minijuego2Sonidoyconsenso
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4324,7 +4323,7 @@ GameObject:
   - component: {fileID: 1014938312}
   - component: {fileID: 1014938311}
   m_Layer: 5
-  m_Name: MinigameShortcut_0_Minijuego1Imagenesdeljardin
+  m_Name: MinigameShortcut_5_Minijuego6Pistafotoyplanta
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4632,7 +4631,7 @@ GameObject:
   - component: {fileID: 1163899783}
   - component: {fileID: 1163899782}
   m_Layer: 5
-  m_Name: MinigameShortcut_2_Minijuego3Adivinalaplanta
+  m_Name: MinigameShortcut_0_Minijuego1Imagenesdeljardin
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5162,12 +5161,12 @@ GameObject:
   - component: {fileID: 1264930933}
   - component: {fileID: 1264930937}
   m_Layer: 5
-  m_Name: EntryTemplate
+  m_Name: MinigameShortcut_4_Minijuego5Taxonomiadeljardindelolfato
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1264930932
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5571,7 +5570,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Minijuego 2 - Sonido y consenso
+  m_text: Minijuego 1 - Imagenes del jardin
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -6014,7 +6013,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Minijuego 6 - Pista, foto y planta
+  m_text: Minijuego 4 - Parejas distribuidas
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -12227,8 +12226,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Clasifica en grupo cada planta entre decoracion, alimentacion y curacion
-    con feedback comun y nota compartida.
+  m_text: Adivina una planta entre todos con historial compartido, autocompletado
+    y pistas de atributos tipo Loldle.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -12564,8 +12563,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Cada dispositivo decide con un gesto si una imagen pertenece o no al jardin.
-    La puntuacion se comparte entre todo el grupo.
+  m_text: Clasifica en grupo cada planta entre decoracion, alimentacion y curacion
+    con feedback comun y nota compartida.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -12706,12 +12705,12 @@ GameObject:
   - component: {fileID: 1934883211}
   - component: {fileID: 1934883210}
   m_Layer: 5
-  m_Name: MinigameShortcut_1_Minijuego2Sonidoyconsenso
+  m_Name: EntryTemplate
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1934883209
 RectTransform:
   m_ObjectHideFlags: 0
@@ -13069,7 +13068,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Minijuego cooperativo con informacion parcial repartida entre dispositivos.
+  m_text: Un dispositivo reproduce un sonido y el resto compara palabras diferentes
+    para decidir en grupo cual debe pulsarse.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -13266,8 +13266,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Un dispositivo reproduce un sonido y el resto compara palabras diferentes
-    para decidir en grupo cual debe pulsarse.
+  m_text: Cada dispositivo decide con un gesto si una imagen pertenece o no al jardin.
+    La puntuacion se comparte entre todo el grupo.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -13456,7 +13456,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Minijuego 1 - Imagenes del jardin
+  m_text: Minijuego 6 - Pista, foto y planta
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -13633,7 +13633,7 @@ GameObject:
   - component: {fileID: 2106978051}
   - component: {fileID: 2106978050}
   m_Layer: 5
-  m_Name: MinigameShortcut_5_Minijuego6Pistafotoyplanta
+  m_Name: MinigameShortcut_3_Minijuego4Parejasdistribuidas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

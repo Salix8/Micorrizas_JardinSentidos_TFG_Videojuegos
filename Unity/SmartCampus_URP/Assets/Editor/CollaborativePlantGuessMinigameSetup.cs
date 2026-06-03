@@ -170,9 +170,12 @@ public static class CollaborativePlantGuessMinigameSetup
     private static void SetupMinigameScene(CollaborativePlantGuessMinigameConfig config)
     {
         var font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        var themeConfig = CoopMinigameThemeSetupUtility.GetOrCreateDefaultTheme();
+        CoopMinigameSharedPanelPrefabUtility.CreateOrUpdateSharedPanelPrefabs();
+
         var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
         EnsureInputSystemUiEventSystem();
-        MinigameSceneCameraUtility.EnsureFixedCamera(scene, config.VisualSettings.BackgroundColor);
+        MinigameSceneCameraUtility.EnsureFixedCamera(scene, themeConfig.Palette.ScreenBackground);
 
         var sessionObject = new GameObject("CollaborativePlantGuessSession", typeof(Unity.Netcode.NetworkObject), typeof(CollaborativePlantGuessMinigameSession));
         var session = sessionObject.GetComponent<CollaborativePlantGuessMinigameSession>();
@@ -186,7 +189,7 @@ public static class CollaborativePlantGuessMinigameSetup
 
         var background = CreateUiObject("Background", safeAreaRoot.transform, typeof(Image));
         Stretch(background.GetComponent<RectTransform>(), Vector2.zero, Vector2.zero);
-        background.GetComponent<Image>().color = config.VisualSettings.BackgroundColor;
+        background.GetComponent<Image>().color = themeConfig.Palette.ScreenBackground;
 
         var uiRoot = CreateUiObject("CollaborativePlantGuessUI", safeAreaRoot.transform, typeof(CollaborativePlantGuessMinigameUIController));
         Stretch(uiRoot.GetComponent<RectTransform>(), Vector2.zero, Vector2.zero);
@@ -197,28 +200,44 @@ public static class CollaborativePlantGuessMinigameSetup
         Stretch(waitingStatus.GetComponent<RectTransform>(), new Vector2(28f, 28f), new Vector2(-28f, -28f));
 
         var gameplayPanel = CreateUiObject("GameplayPanel", uiRoot.transform, typeof(Image), typeof(VerticalLayoutGroup));
-        Stretch(gameplayPanel.GetComponent<RectTransform>(), new Vector2(36f, 36f), new Vector2(-36f, -36f));
-        gameplayPanel.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.12f);
+        var screenMargin = themeConfig.ScreenLayout.ScreenMargin;
+        Stretch(gameplayPanel.GetComponent<RectTransform>(), screenMargin, -screenMargin);
+        gameplayPanel.GetComponent<Image>().color = Color.clear;
         var gameplayLayout = gameplayPanel.GetComponent<VerticalLayoutGroup>();
-        gameplayLayout.padding = new RectOffset(24, 24, 24, 24);
-        gameplayLayout.spacing = 18f;
+        gameplayLayout.padding = new RectOffset(0, 0, 0, 0);
+        gameplayLayout.spacing = themeConfig.ScreenLayout.VerticalSpacing;
         gameplayLayout.childControlHeight = true;
         gameplayLayout.childControlWidth = true;
         gameplayLayout.childForceExpandHeight = false;
 
-        var titleLabel = CreateText("TitleLabel", gameplayPanel.transform, font, config.DisplayName, 40, TextAnchor.MiddleCenter);
-        titleLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 64f;
+        var topPanelView = CoopMinigameSharedPanelSetupUtility.InstantiateSharedPanel<CoopMinigameTopPanelView>(
+            CoopMinigameSharedPanelPrefabUtility.TopPanelPrefabPath,
+            gameplayPanel.transform,
+            themeConfig.ScreenLayout.TopPanelHeight);
+        topPanelView.SetTheme(themeConfig);
+        topPanelView.Bind(config.DisplayName, 0f, string.Empty, string.Empty);
 
-        var statusPanel = CreatePanel("StatusPanel", gameplayPanel.transform, config.VisualSettings.PanelColor);
-        statusPanel.AddComponent<LayoutElement>().preferredHeight = 240f;
+        TMP_Text titleLabel = null;
+        TMP_Text timerLabel = null;
+
+        var interactivePanel = CreatePanel("InteractivePanel", gameplayPanel.transform, themeConfig.Palette.PanelBackground);
+        interactivePanel.AddComponent<LayoutElement>().flexibleHeight = 1f;
+        interactivePanel.GetComponent<LayoutElement>().minHeight = 360f;
+        var interactiveLayout = interactivePanel.AddComponent<VerticalLayoutGroup>();
+        interactiveLayout.padding = new RectOffset(24, 24, 24, 24);
+        interactiveLayout.spacing = 16f;
+        interactiveLayout.childControlWidth = true;
+        interactiveLayout.childControlHeight = true;
+        interactiveLayout.childForceExpandHeight = false;
+
+        var statusPanel = CreatePanel("StatusPanel", interactivePanel.transform, themeConfig.Palette.PanelBackground);
+        statusPanel.AddComponent<LayoutElement>().preferredHeight = 196f;
         var statusLayout = statusPanel.AddComponent<VerticalLayoutGroup>();
         statusLayout.padding = new RectOffset(24, 24, 18, 18);
         statusLayout.spacing = 10f;
         statusLayout.childControlWidth = true;
         statusLayout.childControlHeight = true;
 
-        var timerLabel = CreateText("TimerLabel", statusPanel.transform, font, "Tiempo restante: 03:00", 24, TextAnchor.MiddleLeft);
-        timerLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 30f;
         var attemptsLabel = CreateText("AttemptsLabel", statusPanel.transform, font, "Intentos: 0/8", 24, TextAnchor.MiddleLeft);
         attemptsLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 30f;
         var statusLabel = CreateText("StatusLabel", statusPanel.transform, font, "Preparando la partida.", 20, TextAnchor.UpperLeft);
@@ -229,7 +248,7 @@ public static class CollaborativePlantGuessMinigameSetup
         hintLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 42f;
         hintLabel.gameObject.SetActive(false);
 
-        var inputPanel = CreatePanel("InputPanel", gameplayPanel.transform, config.VisualSettings.PanelColor);
+        var inputPanel = CreatePanel("InputPanel", interactivePanel.transform, themeConfig.Palette.PanelBackground);
         inputPanel.AddComponent<LayoutElement>().preferredHeight = 240f;
         var inputLayout = inputPanel.AddComponent<VerticalLayoutGroup>();
         inputLayout.padding = new RectOffset(20, 20, 18, 18);
@@ -254,7 +273,7 @@ public static class CollaborativePlantGuessMinigameSetup
         var suggestionTemplate = CreateSuggestionTemplate(suggestionPanel.transform, font, config.VisualSettings.SecondaryButtonColor);
         suggestionTemplate.gameObject.SetActive(false);
 
-        var historyPanel = CreatePanel("HistoryPanel", gameplayPanel.transform, config.VisualSettings.PanelColor);
+        var historyPanel = CreatePanel("HistoryPanel", interactivePanel.transform, themeConfig.Palette.PanelBackground);
         historyPanel.AddComponent<LayoutElement>().flexibleHeight = 1f;
         historyPanel.GetComponent<LayoutElement>().minHeight = 360f;
 
@@ -266,6 +285,18 @@ public static class CollaborativePlantGuessMinigameSetup
         scrollView.ContentVerticalLayout.spacing = 12f;
         var historyTemplate = CreateHistoryTemplate(scrollView.ContentRoot.transform, font, config);
         historyTemplate.gameObject.SetActive(false);
+
+        var bottomPanelView = CoopMinigameSharedPanelSetupUtility.InstantiateSharedPanel<CoopMinigameBottomPanelView>(
+            CoopMinigameSharedPanelPrefabUtility.BottomPanelPrefabPath,
+            gameplayPanel.transform,
+            themeConfig.ScreenLayout.BottomPanelHeight);
+        bottomPanelView.SetTheme(themeConfig);
+        bottomPanelView.Bind(
+            "ENCONTRAD EL ARBOL",
+            "Uno escribe el nombre y el juego da pistas. Adivinad cual es.",
+            config.TimeLimitSeconds,
+            config.TimeLimitSeconds,
+            0f);
 
         var tutorialPopup = CreateTutorialPopup(uiRoot.transform, font);
         tutorialPopup.gameObject.SetActive(false);
@@ -282,6 +313,8 @@ public static class CollaborativePlantGuessMinigameSetup
         serializedUiController.FindProperty("gameplayPanel").objectReferenceValue = gameplayPanel;
         serializedUiController.FindProperty("waitingStatusLabel").objectReferenceValue = waitingStatus;
         serializedUiController.FindProperty("collaborativePlantGuessMinigameSession").objectReferenceValue = session;
+        serializedUiController.FindProperty("topPanelView").objectReferenceValue = topPanelView;
+        serializedUiController.FindProperty("bottomPanelView").objectReferenceValue = bottomPanelView;
         serializedUiController.FindProperty("titleLabel").objectReferenceValue = titleLabel;
         serializedUiController.FindProperty("timerLabel").objectReferenceValue = timerLabel;
         serializedUiController.FindProperty("attemptsLabel").objectReferenceValue = attemptsLabel;
@@ -298,7 +331,6 @@ public static class CollaborativePlantGuessMinigameSetup
         serializedUiController.FindProperty("emptyHistoryLabel").objectReferenceValue = emptyHistoryLabel;
         serializedUiController.ApplyModifiedPropertiesWithoutUndo();
 
-        FantasyWoodenThemeUtility.ApplyThemeToOpenScene(scene);
         EditorSceneManager.SaveScene(scene, MinigameScenePath);
     }
 
@@ -463,11 +495,11 @@ public static class CollaborativePlantGuessMinigameSetup
         fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
         var header = CreateText("HeaderLabel", root.transform, font, headerText, 16, TextAnchor.UpperCenter);
-        header.enableWordWrapping = true;
+        header.textWrappingMode = TextWrappingModes.Normal;
         header.overflowMode = TextOverflowModes.Overflow;
         header.gameObject.AddComponent<LayoutElement>().minHeight = 34f;
         var valueLabel = CreateText("ValueLabel", root.transform, font, value, 20, TextAnchor.UpperCenter);
-        valueLabel.enableWordWrapping = true;
+        valueLabel.textWrappingMode = TextWrappingModes.Normal;
         valueLabel.overflowMode = TextOverflowModes.Overflow;
         valueLabel.gameObject.AddComponent<LayoutElement>().minHeight = 36f;
 
@@ -674,7 +706,7 @@ public static class CollaborativePlantGuessMinigameSetup
         text.fontSize = fontSize;
         text.alignment = ConvertAlignment(alignment);
         text.color = new Color(0.12f, 0.15f, 0.17f, 1f);
-        text.enableWordWrapping = true;
+        text.textWrappingMode = TextWrappingModes.Normal;
         text.overflowMode = TextOverflowModes.Overflow;
         return text;
     }
@@ -924,7 +956,7 @@ internal static class CoopMinigameSetupEditorUtility
         if (helperLabelField != null)
         {
             helperLabelField.enableAutoSizing = false;
-            helperLabelField.enableWordWrapping = true;
+        helperLabelField.textWrappingMode = TextWrappingModes.Normal;
             helperLabelField.overflowMode = TextOverflowModes.Overflow;
         }
     }
@@ -1098,7 +1130,7 @@ internal static class CoopMinigameSetupEditorUtility
         text.fontSize = fontSize;
         text.alignment = ConvertAlignment(alignment);
         text.color = color;
-        text.enableWordWrapping = true;
+        text.textWrappingMode = TextWrappingModes.Normal;
         text.overflowMode = TextOverflowModes.Overflow;
         text.raycastTarget = false;
 
@@ -1134,7 +1166,7 @@ internal static class CoopMinigameSetupEditorUtility
         text.fontSize = fontSize;
         text.alignment = TextAlignmentOptions.Center;
         text.color = new Color(0.27f, 0.13f, 0.03f, 1f);
-        text.enableWordWrapping = true;
+        text.textWrappingMode = TextWrappingModes.Normal;
         text.overflowMode = TextOverflowModes.Overflow;
         text.raycastTarget = false;
 

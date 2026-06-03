@@ -9,7 +9,19 @@ namespace SmartCampus.Coop.Minigames.GardenImageVoting
     public sealed class GardenImageVotingMinigameUIController : MinigameUIControllerBase
     {
         [SerializeField] private GardenImageVotingMinigameSession gardenImageVotingMinigameSession;
+        [SerializeField] private CoopSessionProgressSync sessionProgressSync;
+        [SerializeField] private CoopMinigameTopPanelView topPanelView;
+        [SerializeField] private CoopMinigameBottomPanelView bottomPanelView;
         [SerializeField] private GardenImageVotingCardView cardView;
+
+        [Header("Shared Panel Copy")]
+        [SerializeField] private string bottomInstructionTitle = "DE ACUERDO EN EQUIPO";
+        [SerializeField] private string bottomInstructionBody = "Cuando todos hayais clasificado la tarjeta, se contara el resultado.";
+        [SerializeField] private float displayedPenaltySeconds;
+        [SerializeField] private string teamName;
+        [SerializeField] private string roomCode;
+
+        [Header("Legacy Labels")]
         [SerializeField] private TMP_Text titleLabel;
         [SerializeField] private TMP_Text timerLabel;
         [SerializeField] private TMP_Text scoreLabel;
@@ -24,15 +36,22 @@ namespace SmartCampus.Coop.Minigames.GardenImageVoting
         protected override void Awake()
         {
             gardenImageVotingMinigameSession ??= FindFirstObjectByType<GardenImageVotingMinigameSession>(FindObjectsInactive.Include);
+            sessionProgressSync ??= FindFirstObjectByType<CoopSessionProgressSync>(FindObjectsInactive.Include);
             base.Awake();
         }
 
         protected override void OnEnable()
         {
             gardenImageVotingMinigameSession ??= FindFirstObjectByType<GardenImageVotingMinigameSession>(FindObjectsInactive.Include);
+            sessionProgressSync ??= FindFirstObjectByType<CoopSessionProgressSync>(FindObjectsInactive.Include);
             if (TypedSession != null)
             {
                 TypedSession.StateChanged += HandleStateChanged;
+            }
+
+            if (sessionProgressSync != null)
+            {
+                sessionProgressSync.ProgressChanged += HandleStateChanged;
             }
 
             base.OnEnable();
@@ -43,6 +62,11 @@ namespace SmartCampus.Coop.Minigames.GardenImageVoting
             if (TypedSession != null)
             {
                 TypedSession.StateChanged -= HandleStateChanged;
+            }
+
+            if (sessionProgressSync != null)
+            {
+                sessionProgressSync.ProgressChanged -= HandleStateChanged;
             }
 
             base.OnDisable();
@@ -84,6 +108,21 @@ namespace SmartCampus.Coop.Minigames.GardenImageVoting
             if (titleLabel != null)
             {
                 titleLabel.text = config.DisplayName;
+            }
+
+            if (topPanelView != null)
+            {
+                topPanelView.Bind(config.DisplayName, CalculateGlobalProgress01(), teamName, roomCode);
+            }
+
+            if (bottomPanelView != null)
+            {
+                bottomPanelView.Bind(
+                    bottomInstructionTitle,
+                    bottomInstructionBody,
+                    TypedSession.RemainingTimeSeconds,
+                    config.TimeLimitSeconds,
+                    displayedPenaltySeconds);
             }
 
             if (timerLabel != null)
@@ -155,6 +194,16 @@ namespace SmartCampus.Coop.Minigames.GardenImageVoting
         private void HandleStateChanged()
         {
             RefreshUi();
+        }
+
+        private float CalculateGlobalProgress01()
+        {
+            if (sessionProgressSync == null || sessionProgressSync.ConfiguredMinigameCount <= 0)
+            {
+                return 0f;
+            }
+
+            return Mathf.Clamp01((float)sessionProgressSync.CompletedCount / sessionProgressSync.ConfiguredMinigameCount);
         }
 
         private static string FormatTime(float remainingSeconds)

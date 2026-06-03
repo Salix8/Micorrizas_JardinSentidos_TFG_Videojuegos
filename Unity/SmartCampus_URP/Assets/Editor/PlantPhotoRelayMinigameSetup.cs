@@ -174,9 +174,12 @@ public static class PlantPhotoRelayMinigameSetup
 
     private static void SetupMinigameScene(PlantPhotoRelayMinigameConfig config)
     {
+        var themeConfig = CoopMinigameThemeSetupUtility.GetOrCreateDefaultTheme();
+        CoopMinigameSharedPanelPrefabUtility.CreateOrUpdateSharedPanelPrefabs();
+
         var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
         EnsureInputSystemUiEventSystem();
-        MinigameSceneCameraUtility.EnsureFixedCamera(scene, config.VisualSettings.BackgroundColor);
+        MinigameSceneCameraUtility.EnsureFixedCamera(scene, themeConfig.Palette.ScreenBackground);
 
         var sessionObject = new GameObject("PlantPhotoRelaySession", typeof(Unity.Netcode.NetworkObject), typeof(PlantPhotoRelayMinigameSession));
         var session = sessionObject.GetComponent<PlantPhotoRelayMinigameSession>();
@@ -190,7 +193,7 @@ public static class PlantPhotoRelayMinigameSetup
 
         var background = CreateUiObject("Background", safeAreaRoot.transform, typeof(Image));
         Stretch(background.GetComponent<RectTransform>(), Vector2.zero, Vector2.zero);
-        background.GetComponent<Image>().color = config.VisualSettings.BackgroundColor;
+        background.GetComponent<Image>().color = themeConfig.Palette.ScreenBackground;
 
         var uiRoot = CreateUiObject("PlantPhotoRelayUI", safeAreaRoot.transform, typeof(PlantPhotoRelayMinigameUIController));
         Stretch(uiRoot.GetComponent<RectTransform>(), Vector2.zero, Vector2.zero);
@@ -201,28 +204,45 @@ public static class PlantPhotoRelayMinigameSetup
         Stretch(waitingStatus.rectTransform, new Vector2(28f, 28f), new Vector2(-28f, -28f));
 
         var gameplayPanel = CreateUiObject("GameplayPanel", uiRoot.transform, typeof(Image), typeof(VerticalLayoutGroup));
-        Stretch(gameplayPanel.GetComponent<RectTransform>(), new Vector2(36f, 36f), new Vector2(-36f, -36f));
-        gameplayPanel.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.12f);
+        var screenMargin = themeConfig.ScreenLayout.ScreenMargin;
+        Stretch(gameplayPanel.GetComponent<RectTransform>(), screenMargin, -screenMargin);
+        gameplayPanel.GetComponent<Image>().color = Color.clear;
         var gameplayLayout = gameplayPanel.GetComponent<VerticalLayoutGroup>();
-        gameplayLayout.padding = new RectOffset(24, 24, 24, 24);
-        gameplayLayout.spacing = 12f;
+        gameplayLayout.padding = new RectOffset(0, 0, 0, 0);
+        gameplayLayout.spacing = themeConfig.ScreenLayout.VerticalSpacing;
         gameplayLayout.childControlWidth = true;
         gameplayLayout.childControlHeight = true;
         gameplayLayout.childForceExpandHeight = false;
 
-        var titleLabel = CreateText("TitleLabel", gameplayPanel.transform, config.DisplayName, 36, TextAlignmentOptions.Center);
-        titleLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 52f;
+        var topPanelView = CoopMinigameSharedPanelSetupUtility.InstantiateSharedPanel<CoopMinigameTopPanelView>(
+            CoopMinigameSharedPanelPrefabUtility.TopPanelPrefabPath,
+            gameplayPanel.transform,
+            themeConfig.ScreenLayout.TopPanelHeight);
+        topPanelView.SetTheme(themeConfig);
+        topPanelView.Bind(config.DisplayName, 0f, string.Empty, string.Empty);
 
-        var topPanel = CreatePanel("TopPanel", gameplayPanel.transform, config.VisualSettings.PanelColor);
-        topPanel.AddComponent<LayoutElement>().preferredHeight = 220f;
-        var topLayout = topPanel.AddComponent<VerticalLayoutGroup>();
-        topLayout.padding = new RectOffset(18, 18, 18, 18);
-        topLayout.spacing = 8f;
-        topLayout.childControlWidth = true;
-        topLayout.childControlHeight = true;
-        topLayout.childForceExpandHeight = false;
+        TMP_Text titleLabel = null;
 
-        var primaryStatusRow = CreateUiObject("PrimaryStatusRow", topPanel.transform, typeof(HorizontalLayoutGroup));
+        var interactivePanel = CreatePanel("InteractivePanel", gameplayPanel.transform, themeConfig.Palette.PanelBackground);
+        interactivePanel.AddComponent<LayoutElement>().flexibleHeight = 1f;
+        interactivePanel.GetComponent<LayoutElement>().minHeight = 360f;
+        var interactiveLayout = interactivePanel.AddComponent<VerticalLayoutGroup>();
+        interactiveLayout.padding = new RectOffset(24, 24, 24, 24);
+        interactiveLayout.spacing = 16f;
+        interactiveLayout.childControlWidth = true;
+        interactiveLayout.childControlHeight = true;
+        interactiveLayout.childForceExpandHeight = false;
+
+        var statusPanel = CreatePanel("StatusPanel", interactivePanel.transform, themeConfig.Palette.PanelBackground);
+        statusPanel.AddComponent<LayoutElement>().preferredHeight = 220f;
+        var statusPanelLayout = statusPanel.AddComponent<VerticalLayoutGroup>();
+        statusPanelLayout.padding = new RectOffset(18, 18, 18, 18);
+        statusPanelLayout.spacing = 8f;
+        statusPanelLayout.childControlWidth = true;
+        statusPanelLayout.childControlHeight = true;
+        statusPanelLayout.childForceExpandHeight = false;
+
+        var primaryStatusRow = CreateUiObject("PrimaryStatusRow", statusPanel.transform, typeof(HorizontalLayoutGroup));
         primaryStatusRow.AddComponent<LayoutElement>().preferredHeight = 32f;
         var primaryStatusLayout = primaryStatusRow.GetComponent<HorizontalLayoutGroup>();
         primaryStatusLayout.spacing = 12f;
@@ -236,7 +256,7 @@ public static class PlantPhotoRelayMinigameSetup
         var phaseLabel = CreateText("PhaseLabel", primaryStatusRow.transform, "Fase: Pista", 22, TextAlignmentOptions.Left);
         phaseLabel.gameObject.AddComponent<LayoutElement>().flexibleWidth = 1f;
 
-        var secondaryStatusRow = CreateUiObject("SecondaryStatusRow", topPanel.transform, typeof(HorizontalLayoutGroup));
+        var secondaryStatusRow = CreateUiObject("SecondaryStatusRow", statusPanel.transform, typeof(HorizontalLayoutGroup));
         secondaryStatusRow.AddComponent<LayoutElement>().preferredHeight = 32f;
         var secondaryStatusLayout = secondaryStatusRow.GetComponent<HorizontalLayoutGroup>();
         secondaryStatusLayout.spacing = 12f;
@@ -250,7 +270,7 @@ public static class PlantPhotoRelayMinigameSetup
         var roleLabel = CreateText("RoleLabel", secondaryStatusRow.transform, "Rol local: Observador", 20, TextAlignmentOptions.Left);
         roleLabel.gameObject.AddComponent<LayoutElement>().flexibleWidth = 1f;
 
-        var detailsRow = CreateUiObject("DetailsRow", topPanel.transform, typeof(HorizontalLayoutGroup));
+        var detailsRow = CreateUiObject("DetailsRow", statusPanel.transform, typeof(HorizontalLayoutGroup));
         detailsRow.AddComponent<LayoutElement>().flexibleHeight = 1f;
         var detailsLayout = detailsRow.GetComponent<HorizontalLayoutGroup>();
         detailsLayout.spacing = 12f;
@@ -269,7 +289,7 @@ public static class PlantPhotoRelayMinigameSetup
         clueContainerLayout.childForceExpandHeight = false;
 
         var clueLabel = CreateText("ClueLabel", clueContainer.transform, "Pista: ...", 20, TextAlignmentOptions.TopLeft);
-        clueLabel.enableWordWrapping = true;
+        clueLabel.textWrappingMode = TextWrappingModes.Normal;
         clueLabel.gameObject.AddComponent<LayoutElement>().flexibleHeight = 1f;
 
         var statusContainer = CreateUiObject("StatusContainer", detailsRow.transform, typeof(VerticalLayoutGroup));
@@ -282,10 +302,10 @@ public static class PlantPhotoRelayMinigameSetup
         statusContainerLayout.childForceExpandHeight = false;
 
         var statusLabel = CreateText("StatusLabel", statusContainer.transform, "Estado compartido", 18, TextAlignmentOptions.TopLeft);
-        statusLabel.enableWordWrapping = true;
+        statusLabel.textWrappingMode = TextWrappingModes.Normal;
         statusLabel.gameObject.AddComponent<LayoutElement>().flexibleHeight = 1f;
 
-        var centerArea = CreateUiObject("CenterArea", gameplayPanel.transform, typeof(VerticalLayoutGroup));
+        var centerArea = CreateUiObject("CenterArea", interactivePanel.transform, typeof(VerticalLayoutGroup));
         var centerLayout = centerArea.GetComponent<VerticalLayoutGroup>();
         centerLayout.spacing = 12f;
         centerLayout.childControlWidth = true;
@@ -295,7 +315,7 @@ public static class PlantPhotoRelayMinigameSetup
         centerArea.AddComponent<LayoutElement>().flexibleHeight = 1f;
         centerArea.GetComponent<LayoutElement>().minHeight = 520f;
 
-        var inputPanel = CreatePanel("InputPanel", centerArea.transform, config.VisualSettings.PanelColor);
+        var inputPanel = CreatePanel("InputPanel", centerArea.transform, themeConfig.Palette.PanelBackground);
         inputPanel.AddComponent<LayoutElement>().preferredHeight = 280f;
         var inputLayout = inputPanel.AddComponent<VerticalLayoutGroup>();
         inputLayout.padding = new RectOffset(18, 18, 18, 18);
@@ -305,7 +325,7 @@ public static class PlantPhotoRelayMinigameSetup
         inputLayout.childForceExpandHeight = false;
 
         var helperLabel = CreateText("HelperLabel", inputPanel.transform, "Ayuda contextual", 18, TextAlignmentOptions.TopLeft);
-        helperLabel.enableWordWrapping = true;
+        helperLabel.textWrappingMode = TextWrappingModes.Normal;
         helperLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 72f;
         var inputField = CreateInputField("CommonNameInputField", inputPanel.transform, "Escribe un nombre comun...");
         inputField.gameObject.AddComponent<LayoutElement>().preferredHeight = 56f;
@@ -333,7 +353,7 @@ public static class PlantPhotoRelayMinigameSetup
         var submitGuessButton = submitGuessButtonObject.GetComponent<Button>();
         var submitGuessButtonLabel = submitGuessButtonObject.GetComponentInChildren<TMP_Text>();
 
-        var photoPanel = CreatePanel("PhotoPanel", centerArea.transform, config.VisualSettings.PanelColor);
+        var photoPanel = CreatePanel("PhotoPanel", centerArea.transform, themeConfig.Palette.PanelBackground);
         photoPanel.AddComponent<LayoutElement>().flexibleHeight = 1f;
         photoPanel.GetComponent<LayoutElement>().minHeight = 260f;
         var photoLayout = photoPanel.AddComponent<VerticalLayoutGroup>();
@@ -358,6 +378,18 @@ public static class PlantPhotoRelayMinigameSetup
         var captureButton = captureButtonObject.GetComponent<Button>();
         var captureButtonLabel = captureButtonObject.GetComponentInChildren<TMP_Text>();
 
+        var bottomPanelView = CoopMinigameSharedPanelSetupUtility.InstantiateSharedPanel<CoopMinigameBottomPanelView>(
+            CoopMinigameSharedPanelPrefabUtility.BottomPanelPrefabPath,
+            gameplayPanel.transform,
+            themeConfig.ScreenLayout.BottomPanelHeight);
+        bottomPanelView.SetTheme(themeConfig);
+        bottomPanelView.Bind(
+            "FOTOGRAFIAD Y ADIVINAD",
+            "Un dispositivo fotografia la planta guiado por una pista y otro intenta adivinarla.",
+            config.CluePhaseDurationSeconds,
+            config.CluePhaseDurationSeconds,
+            0f);
+
         var tutorialPopup = CreateTutorialPopup(uiRoot.transform);
         tutorialPopup.gameObject.SetActive(false);
         var resultPopup = CreateResultPopup(uiRoot.transform);
@@ -375,6 +407,8 @@ public static class PlantPhotoRelayMinigameSetup
         serializedUiController.FindProperty("gameplayPanel").objectReferenceValue = gameplayPanel;
         serializedUiController.FindProperty("waitingStatusLabel").objectReferenceValue = waitingStatus;
         serializedUiController.FindProperty("plantPhotoRelayMinigameSession").objectReferenceValue = session;
+        serializedUiController.FindProperty("topPanelView").objectReferenceValue = topPanelView;
+        serializedUiController.FindProperty("bottomPanelView").objectReferenceValue = bottomPanelView;
         serializedUiController.FindProperty("titleLabel").objectReferenceValue = titleLabel;
         serializedUiController.FindProperty("roundLabel").objectReferenceValue = roundLabel;
         serializedUiController.FindProperty("phaseLabel").objectReferenceValue = phaseLabel;
@@ -396,7 +430,6 @@ public static class PlantPhotoRelayMinigameSetup
         serializedUiController.FindProperty("suggestionTemplate").objectReferenceValue = suggestionTemplate;
         serializedUiController.ApplyModifiedPropertiesWithoutUndo();
 
-        FantasyWoodenThemeUtility.ApplyThemeToOpenScene(scene);
         EditorSceneManager.SaveScene(scene, MinigameScenePath);
     }
 
@@ -716,6 +749,7 @@ public static class PlantPhotoRelayMinigameSetup
     private static Canvas CreateCanvas(string name)
     {
         var canvasObject = new GameObject(name, typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
+        canvasObject.layer = 5;
         var canvas = canvasObject.GetComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
         var scaler = canvasObject.GetComponent<CanvasScaler>();

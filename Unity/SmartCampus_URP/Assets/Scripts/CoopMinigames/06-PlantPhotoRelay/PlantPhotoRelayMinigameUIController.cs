@@ -10,6 +10,18 @@ namespace SmartCampus.Coop.Minigames.PlantPhotoRelay
     public sealed class PlantPhotoRelayMinigameUIController : MinigameUIControllerBase
     {
         [SerializeField] private PlantPhotoRelayMinigameSession plantPhotoRelayMinigameSession;
+        [SerializeField] private CoopSessionProgressSync sessionProgressSync;
+        [SerializeField] private CoopMinigameTopPanelView topPanelView;
+        [SerializeField] private CoopMinigameBottomPanelView bottomPanelView;
+
+        [Header("Shared Panel Copy")]
+        [SerializeField] private string bottomInstructionTitle = "FOTOGRAFIAD Y ADIVINAD";
+        [SerializeField] private string bottomInstructionBody = "Un dispositivo fotografia la planta guiado por una pista y otro intenta adivinarla.";
+        [SerializeField] private float displayedPenaltySeconds;
+        [SerializeField] private string teamName;
+        [SerializeField] private string roomCode;
+
+        [Header("Legacy Labels")]
         [SerializeField] private TMP_Text titleLabel;
         [SerializeField] private TMP_Text roundLabel;
         [SerializeField] private TMP_Text phaseLabel;
@@ -39,15 +51,22 @@ namespace SmartCampus.Coop.Minigames.PlantPhotoRelay
         protected override void Awake()
         {
             plantPhotoRelayMinigameSession ??= FindFirstObjectByType<PlantPhotoRelayMinigameSession>(FindObjectsInactive.Include);
+            sessionProgressSync ??= FindFirstObjectByType<CoopSessionProgressSync>(FindObjectsInactive.Include);
             base.Awake();
         }
 
         protected override void OnEnable()
         {
             plantPhotoRelayMinigameSession ??= FindFirstObjectByType<PlantPhotoRelayMinigameSession>(FindObjectsInactive.Include);
+            sessionProgressSync ??= FindFirstObjectByType<CoopSessionProgressSync>(FindObjectsInactive.Include);
             if (TypedSession != null)
             {
                 TypedSession.StateChanged += HandleStateChanged;
+            }
+
+            if (sessionProgressSync != null)
+            {
+                sessionProgressSync.ProgressChanged += HandleStateChanged;
             }
 
             if (commonNameInputField != null)
@@ -78,6 +97,11 @@ namespace SmartCampus.Coop.Minigames.PlantPhotoRelay
             if (TypedSession != null)
             {
                 TypedSession.StateChanged -= HandleStateChanged;
+            }
+
+            if (sessionProgressSync != null)
+            {
+                sessionProgressSync.ProgressChanged -= HandleStateChanged;
             }
 
             if (commonNameInputField != null)
@@ -130,6 +154,8 @@ namespace SmartCampus.Coop.Minigames.PlantPhotoRelay
             {
                 titleLabel.text = config.DisplayName;
             }
+
+            BindSharedPanels(config.DisplayName, TypedSession.RemainingPhaseTimeSeconds, GetActivePhaseDurationSeconds(config));
 
             if (roundLabel != null)
             {
@@ -341,6 +367,51 @@ namespace SmartCampus.Coop.Minigames.PlantPhotoRelay
         private void HandleStateChanged()
         {
             RefreshUi();
+        }
+
+        private void BindSharedPanels(string minigameTitle, float remainingSeconds, float totalSeconds)
+        {
+            if (topPanelView != null)
+            {
+                topPanelView.Bind(minigameTitle, CalculateGlobalProgress01(), teamName, roomCode);
+            }
+
+            if (bottomPanelView != null)
+            {
+                bottomPanelView.Bind(
+                    bottomInstructionTitle,
+                    bottomInstructionBody,
+                    remainingSeconds,
+                    totalSeconds,
+                    displayedPenaltySeconds);
+            }
+        }
+
+        private float CalculateGlobalProgress01()
+        {
+            if (sessionProgressSync == null || sessionProgressSync.ConfiguredMinigameCount <= 0)
+            {
+                return 0f;
+            }
+
+            return Mathf.Clamp01((float)sessionProgressSync.CompletedCount / sessionProgressSync.ConfiguredMinigameCount);
+        }
+
+        private float GetActivePhaseDurationSeconds(PlantPhotoRelayMinigameConfig config)
+        {
+            switch (TypedSession.ActivePhase)
+            {
+                case PlantPhotoRelayPhase.Clue:
+                    return config.CluePhaseDurationSeconds;
+                case PlantPhotoRelayPhase.Capture:
+                    return config.CapturePhaseDurationSeconds;
+                case PlantPhotoRelayPhase.Guess:
+                    return config.GuessPhaseDurationSeconds;
+                case PlantPhotoRelayPhase.RoundResults:
+                    return config.ResultsRevealDurationSeconds;
+                default:
+                    return Mathf.Max(1f, TypedSession.RemainingPhaseTimeSeconds);
+            }
         }
 
         private void HandleInputChanged(string _)

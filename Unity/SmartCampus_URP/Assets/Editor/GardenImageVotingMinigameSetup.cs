@@ -143,9 +143,12 @@ public static class GardenImageVotingMinigameSetup
     private static void SetupGardenImageVotingScene(GardenImageVotingMinigameConfig config)
     {
         var font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        var themeConfig = CoopMinigameThemeSetupUtility.GetOrCreateDefaultTheme();
+        CoopMinigameSharedPanelPrefabUtility.CreateOrUpdateSharedPanelPrefabs();
+
         var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
         CreateEventSystemIfMissing();
-        MinigameSceneCameraUtility.EnsureFixedCamera(scene, new Color(0.92f, 0.96f, 0.9f, 1f));
+        MinigameSceneCameraUtility.EnsureFixedCamera(scene, themeConfig.Palette.ScreenBackground);
 
         var sessionObject = new GameObject("GardenImageVotingSession", typeof(Unity.Netcode.NetworkObject), typeof(GardenImageVotingMinigameSession));
         var session = sessionObject.GetComponent<GardenImageVotingMinigameSession>();
@@ -159,7 +162,7 @@ public static class GardenImageVotingMinigameSetup
 
         var background = CreateUiObject("Background", safeAreaRoot.transform, typeof(Image));
         Stretch(background.GetComponent<RectTransform>(), Vector2.zero, Vector2.zero);
-        background.GetComponent<Image>().color = new Color(0.92f, 0.96f, 0.9f, 1f);
+        background.GetComponent<Image>().color = themeConfig.Palette.ScreenBackground;
 
         var uiRoot = CreateUiObject("GardenImageVotingUI", safeAreaRoot.transform, typeof(GardenImageVotingMinigameUIController));
         Stretch(uiRoot.GetComponent<RectTransform>(), Vector2.zero, Vector2.zero);
@@ -171,37 +174,30 @@ public static class GardenImageVotingMinigameSetup
         Stretch(waitingStatus.GetComponent<RectTransform>(), new Vector2(28f, 28f), new Vector2(-28f, -28f));
 
         var gameplayPanel = CreateUiObject("GameplayPanel", uiRoot.transform, typeof(Image), typeof(VerticalLayoutGroup));
-        Stretch(gameplayPanel.GetComponent<RectTransform>(), new Vector2(40f, 40f), new Vector2(-40f, -40f));
-        gameplayPanel.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.14f);
+        var screenMargin = themeConfig.ScreenLayout.ScreenMargin;
+        Stretch(gameplayPanel.GetComponent<RectTransform>(), screenMargin, -screenMargin);
+        gameplayPanel.GetComponent<Image>().color = Color.clear;
         var gameplayLayout = gameplayPanel.GetComponent<VerticalLayoutGroup>();
-        gameplayLayout.padding = new RectOffset(28, 28, 28, 28);
-        gameplayLayout.spacing = 16f;
+        gameplayLayout.padding = new RectOffset(0, 0, 0, 0);
+        gameplayLayout.spacing = themeConfig.ScreenLayout.VerticalSpacing;
         gameplayLayout.childControlHeight = true;
         gameplayLayout.childControlWidth = true;
         gameplayLayout.childForceExpandHeight = false;
 
-        var titleLabel = CreateText("TitleLabel", gameplayPanel.transform, font, config.DisplayName, 42, TextAnchor.MiddleCenter);
-        titleLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 72f;
+        var topPanelView = CoopMinigameSharedPanelSetupUtility.InstantiateSharedPanel<CoopMinigameTopPanelView>(
+            CoopMinigameSharedPanelPrefabUtility.TopPanelPrefabPath,
+            gameplayPanel.transform,
+            themeConfig.ScreenLayout.TopPanelHeight);
+        topPanelView.SetTheme(themeConfig);
+        topPanelView.Bind(config.DisplayName, 0f, string.Empty, string.Empty);
 
-        var statusPanel = CreatePanel("StatusPanel", gameplayPanel.transform, new Color(1f, 1f, 1f, 0.75f));
-        statusPanel.AddComponent<LayoutElement>().preferredHeight = 220f;
-        var statusLayout = statusPanel.AddComponent<VerticalLayoutGroup>();
-        statusLayout.padding = new RectOffset(24, 24, 20, 20);
-        statusLayout.spacing = 10f;
-        statusLayout.childControlHeight = true;
-        statusLayout.childControlWidth = true;
-        statusLayout.childForceExpandHeight = false;
+        TMP_Text titleLabel = null;
+        TMP_Text timerLabel = null;
+        TMP_Text scoreLabel = null;
+        TMP_Text progressLabel = null;
+        TMP_Text statusLabel = null;
 
-        var timerLabel = CreateText("TimerLabel", statusPanel.transform, font, "Tiempo restante: 05:00", 24, TextAnchor.MiddleLeft);
-        timerLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 34f;
-        var scoreLabel = CreateText("ScoreLabel", statusPanel.transform, font, "Puntos compartidos: 0", 24, TextAnchor.MiddleLeft);
-        scoreLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 34f;
-        var progressLabel = CreateText("ProgressLabel", statusPanel.transform, font, "Respondidas: 0/0", 24, TextAnchor.MiddleLeft);
-        progressLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 34f;
-        var statusLabel = CreateText("StatusLabel", statusPanel.transform, font, "Desliza a la derecha si la has visto y a la izquierda si no.", 20, TextAnchor.UpperLeft);
-        statusLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 72f;
-
-        var cardPanel = CreatePanel("CardPanel", gameplayPanel.transform, new Color(1f, 1f, 1f, 0.88f));
+        var cardPanel = CreatePanel("InteractivePanel", gameplayPanel.transform, themeConfig.Palette.PanelBackground);
         var cardPanelLayout = cardPanel.AddComponent<LayoutElement>();
         cardPanelLayout.flexibleHeight = 1f;
         cardPanelLayout.minHeight = 360f;
@@ -265,6 +261,18 @@ public static class GardenImageVotingMinigameSetup
         completionLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 44f;
         completionLabel.gameObject.SetActive(false);
 
+        var bottomPanelView = CoopMinigameSharedPanelSetupUtility.InstantiateSharedPanel<CoopMinigameBottomPanelView>(
+            CoopMinigameSharedPanelPrefabUtility.BottomPanelPrefabPath,
+            gameplayPanel.transform,
+            themeConfig.ScreenLayout.BottomPanelHeight);
+        bottomPanelView.SetTheme(themeConfig);
+        bottomPanelView.Bind(
+            "DE ACUERDO EN EQUIPO",
+            "Cuando todos hayais clasificado la tarjeta, se contara el resultado.",
+            config.TimeLimitSeconds,
+            config.TimeLimitSeconds,
+            0f);
+
         var tutorialPopup = CreateTutorialPopup(uiRoot.transform, font);
         tutorialPopup.gameObject.SetActive(false);
 
@@ -294,6 +302,8 @@ public static class GardenImageVotingMinigameSetup
         serializedUiController.FindProperty("gameplayPanel").objectReferenceValue = gameplayPanel;
         serializedUiController.FindProperty("waitingStatusLabel").objectReferenceValue = waitingStatus;
         serializedUiController.FindProperty("gardenImageVotingMinigameSession").objectReferenceValue = session;
+        serializedUiController.FindProperty("topPanelView").objectReferenceValue = topPanelView;
+        serializedUiController.FindProperty("bottomPanelView").objectReferenceValue = bottomPanelView;
         serializedUiController.FindProperty("cardView").objectReferenceValue = cardView;
         serializedUiController.FindProperty("titleLabel").objectReferenceValue = titleLabel;
         serializedUiController.FindProperty("timerLabel").objectReferenceValue = timerLabel;
@@ -303,7 +313,6 @@ public static class GardenImageVotingMinigameSetup
         serializedUiController.FindProperty("completionLabel").objectReferenceValue = completionLabel;
         serializedUiController.ApplyModifiedPropertiesWithoutUndo();
 
-        FantasyWoodenThemeUtility.ApplyThemeToOpenScene(scene);
         EditorSceneManager.SaveScene(scene, MinigameScenePath);
     }
 
@@ -527,7 +536,7 @@ public static class GardenImageVotingMinigameSetup
         text.fontSize = fontSize;
         text.alignment = ConvertAlignment(alignment);
         text.color = new Color(0.12f, 0.15f, 0.17f, 1f);
-        text.enableWordWrapping = true;
+        text.textWrappingMode = TextWrappingModes.Normal;
         text.overflowMode = TextOverflowModes.Overflow;
         return text;
     }

@@ -62,7 +62,19 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
         }
 
         [SerializeField] private AudioWordConsensusMinigameSession audioWordConsensusMinigameSession;
+        [SerializeField] private CoopSessionProgressSync sessionProgressSync;
+        [SerializeField] private CoopMinigameTopPanelView topPanelView;
+        [SerializeField] private CoopMinigameBottomPanelView bottomPanelView;
         [SerializeField] private AudioSource localAudioSource;
+
+        [Header("Shared Panel Copy")]
+        [SerializeField] private string bottomInstructionTitle = "ESCUCHA CON ATENCION";
+        [SerializeField] private string bottomInstructionBody = "Reproducid el sonido del jardin y elegid juntos la respuesta correcta.";
+        [SerializeField] private float displayedPenaltySeconds;
+        [SerializeField] private string teamName;
+        [SerializeField] private string roomCode;
+
+        [Header("Legacy Labels")]
         [SerializeField] private TMP_Text titleLabel;
         [SerializeField] private TMP_Text roundLabel;
         [SerializeField] private TMP_Text timerLabel;
@@ -106,6 +118,7 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
         protected override void Awake()
         {
             audioWordConsensusMinigameSession ??= FindFirstObjectByType<AudioWordConsensusMinigameSession>(FindObjectsInactive.Include);
+            sessionProgressSync ??= FindFirstObjectByType<CoopSessionProgressSync>(FindObjectsInactive.Include);
             ResolveCanvasReferences();
             base.Awake();
         }
@@ -113,11 +126,17 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
         protected override void OnEnable()
         {
             audioWordConsensusMinigameSession ??= FindFirstObjectByType<AudioWordConsensusMinigameSession>(FindObjectsInactive.Include);
+            sessionProgressSync ??= FindFirstObjectByType<CoopSessionProgressSync>(FindObjectsInactive.Include);
             ResolveCanvasReferences();
             ApplyCanvasVisibilityContract();
             if (TypedSession != null)
             {
                 TypedSession.StateChanged += HandleStateChanged;
+            }
+
+            if (sessionProgressSync != null)
+            {
+                sessionProgressSync.ProgressChanged += HandleStateChanged;
             }
 
             RegisterLocalButtons();
@@ -129,6 +148,11 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
             if (TypedSession != null)
             {
                 TypedSession.StateChanged -= HandleStateChanged;
+            }
+
+            if (sessionProgressSync != null)
+            {
+                sessionProgressSync.ProgressChanged -= HandleStateChanged;
             }
 
             if (playSoundButton != null)
@@ -211,6 +235,7 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
 
             SyncLocalAudioState(isEmitter, roundDefinition);
             EnsureRestartSoundButton();
+            BindSharedPanels(config.DisplayName, TypedSession.RemainingTimeSeconds, config.TimeLimitSeconds);
 
             if (titleLabel != null)
             {
@@ -225,8 +250,7 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
 
             if (timerLabel != null)
             {
-                var remainingSeconds = Mathf.CeilToInt(TypedSession.RemainingTimeSeconds);
-                timerLabel.text = $"Tiempo restante: {remainingSeconds / 60:00}:{remainingSeconds % 60:00}";
+                timerLabel.text = $"Tiempo restante: {FormatTime(TypedSession.RemainingTimeSeconds)}";
             }
 
             if (scoreLabel != null)
@@ -523,6 +547,42 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
             RefreshUi();
         }
 
+        private void BindSharedPanels(string minigameTitle, float remainingSeconds, float totalSeconds)
+        {
+            if (topPanelView != null)
+            {
+                topPanelView.Bind(minigameTitle, CalculateGlobalProgress01(), teamName, roomCode);
+            }
+
+            if (bottomPanelView != null)
+            {
+                bottomPanelView.Bind(
+                    bottomInstructionTitle,
+                    bottomInstructionBody,
+                    remainingSeconds,
+                    totalSeconds,
+                    displayedPenaltySeconds);
+            }
+        }
+
+        private float CalculateGlobalProgress01()
+        {
+            if (sessionProgressSync == null || sessionProgressSync.ConfiguredMinigameCount <= 0)
+            {
+                return 0f;
+            }
+
+            return Mathf.Clamp01((float)sessionProgressSync.CompletedCount / sessionProgressSync.ConfiguredMinigameCount);
+        }
+
+        private static string FormatTime(float remainingSeconds)
+        {
+            var totalSeconds = Mathf.Max(0, Mathf.CeilToInt(remainingSeconds));
+            var minutes = totalSeconds / 60;
+            var seconds = totalSeconds % 60;
+            return $"{minutes:00}:{seconds:00}";
+        }
+
         private void RebuildWordOptionsLayout()
         {
             Canvas.ForceUpdateCanvases();
@@ -676,6 +736,10 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
             var roundDefinition = ResolvePreviewRoundDefinition(config);
             var isEmitter = PreviewSettings.Role == EditorPreviewRole.Emitter;
             SyncLocalAudioState(isEmitter, roundDefinition);
+            BindSharedPanels(
+                config == null ? "Sonido y consenso" : config.DisplayName,
+                PreviewSettings.PreviewRemainingTimeSeconds,
+                config == null ? Mathf.Max(1f, PreviewSettings.PreviewRemainingTimeSeconds) : config.TimeLimitSeconds);
 
             if (titleLabel != null)
             {
@@ -689,8 +753,7 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
 
             if (timerLabel != null)
             {
-                var remainingSeconds = Mathf.CeilToInt(PreviewSettings.PreviewRemainingTimeSeconds);
-                timerLabel.text = $"Tiempo restante: {remainingSeconds / 60:00}:{remainingSeconds % 60:00}";
+                timerLabel.text = $"Tiempo restante: {FormatTime(PreviewSettings.PreviewRemainingTimeSeconds)}";
             }
 
             if (scoreLabel != null)

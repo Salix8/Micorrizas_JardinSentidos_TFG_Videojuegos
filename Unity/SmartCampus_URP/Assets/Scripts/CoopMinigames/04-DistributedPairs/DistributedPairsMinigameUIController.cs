@@ -9,6 +9,18 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
     public sealed class DistributedPairsMinigameUIController : MinigameUIControllerBase
     {
         [SerializeField] private DistributedPairsMinigameSession distributedPairsMinigameSession;
+        [SerializeField] private CoopSessionProgressSync sessionProgressSync;
+        [SerializeField] private CoopMinigameTopPanelView topPanelView;
+        [SerializeField] private CoopMinigameBottomPanelView bottomPanelView;
+
+        [Header("Shared Panel Copy")]
+        [SerializeField] private string bottomInstructionTitle = "ENCONTRAD LOS PARES";
+        [SerializeField] private string bottomInstructionBody = "En cada dispositivo hay varias cartas. Volved dos a la vez para encontrar los pares.";
+        [SerializeField] private float displayedPenaltySeconds;
+        [SerializeField] private string teamName;
+        [SerializeField] private string roomCode;
+
+        [Header("Legacy Labels")]
         [SerializeField] private DistributedPairsHandView localHandView;
         [SerializeField] private TMP_Text titleLabel;
         [SerializeField] private TMP_Text timerLabel;
@@ -44,6 +56,7 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
         protected override void Awake()
         {
             distributedPairsMinigameSession ??= FindFirstObjectByType<DistributedPairsMinigameSession>(FindObjectsInactive.Include);
+            sessionProgressSync ??= FindFirstObjectByType<CoopSessionProgressSync>(FindObjectsInactive.Include);
             EnsureRuntimeHud();
             base.Awake();
         }
@@ -51,9 +64,15 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
         protected override void OnEnable()
         {
             distributedPairsMinigameSession ??= FindFirstObjectByType<DistributedPairsMinigameSession>(FindObjectsInactive.Include);
+            sessionProgressSync ??= FindFirstObjectByType<CoopSessionProgressSync>(FindObjectsInactive.Include);
             if (TypedSession != null)
             {
                 TypedSession.StateChanged += HandleStateChanged;
+            }
+
+            if (sessionProgressSync != null)
+            {
+                sessionProgressSync.ProgressChanged += HandleStateChanged;
             }
 
             EnsureRuntimeHud();
@@ -66,6 +85,11 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
             if (TypedSession != null)
             {
                 TypedSession.StateChanged -= HandleStateChanged;
+            }
+
+            if (sessionProgressSync != null)
+            {
+                sessionProgressSync.ProgressChanged -= HandleStateChanged;
             }
 
             if (mismatchResetButton != null)
@@ -103,6 +127,8 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
             {
                 titleLabel.text = config.DisplayName;
             }
+
+            BindSharedPanels(config.DisplayName, TypedSession.RemainingTimeSeconds, config.TimeLimitSeconds);
 
             if (progressLabel != null)
             {
@@ -164,6 +190,34 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
         private void HandleStateChanged()
         {
             RefreshUi();
+        }
+
+        private void BindSharedPanels(string minigameTitle, float remainingSeconds, float totalSeconds)
+        {
+            if (topPanelView != null)
+            {
+                topPanelView.Bind(minigameTitle, CalculateGlobalProgress01(), teamName, roomCode);
+            }
+
+            if (bottomPanelView != null)
+            {
+                bottomPanelView.Bind(
+                    bottomInstructionTitle,
+                    bottomInstructionBody,
+                    remainingSeconds,
+                    totalSeconds,
+                    displayedPenaltySeconds);
+            }
+        }
+
+        private float CalculateGlobalProgress01()
+        {
+            if (sessionProgressSync == null || sessionProgressSync.ConfiguredMinigameCount <= 0)
+            {
+                return 0f;
+            }
+
+            return Mathf.Clamp01((float)sessionProgressSync.CompletedCount / sessionProgressSync.ConfiguredMinigameCount);
         }
 
         private void HandleMismatchResetRequested()
@@ -434,7 +488,7 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
             text.fontSize = fontSize;
             text.alignment = ConvertAlignment(alignment);
             text.color = new Color(0.12f, 0.15f, 0.17f, 1f);
-            text.enableWordWrapping = true;
+            text.textWrappingMode = TextWrappingModes.Normal;
             text.overflowMode = TextOverflowModes.Overflow;
             text.raycastTarget = false;
             return text;
