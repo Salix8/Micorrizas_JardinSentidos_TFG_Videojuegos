@@ -17,7 +17,7 @@ MonoBehaviour:
   successMessage: Rondas completadas
   returnToMapButtonLabel: Volver al mapa
   maxSupportedDevices: 6
-  timeLimitSeconds: 120
+  timeLimitSeconds: 180
   feedbackDurationSeconds: 1.2
   timeoutMessage: Tiempo agotado
   missingAudioClipLabel: Sonido pendiente de asignar
@@ -32,7 +32,7 @@ MonoBehaviour:
     - {fileID: 21300000, guid: bbe8a41f16bf9c5498247bf3e7feeb1d, type: 3}
     distractorWords:
     - Mirlo
-    - Piti rojo
+    - Petirrojo
     - "Rana com\xFAn"
     - Urraca
     - "Verder\xF3n com\xFAn"
@@ -46,18 +46,18 @@ MonoBehaviour:
     - {fileID: 21300000, guid: a8a285208401d37428b24109b2764ba3, type: 3}
     distractorWords:
     - Gorrion
-    - Piti rojo
+    - Petirrojo
     - "Rana com\xFAn"
     - Urraca
     - "Verder\xF3n com\xFAn"
-  - promptLabel: Piti rojo - European Robin - Erithacus rubecula
+  - promptLabel: Petirrojo - European Robin - Erithacus rubecula
     soundClip: {fileID: 8300000, guid: 7609f8f889c98dc43b4184db0688ed2d, type: 3}
-    correctWord: Piti rojo
+    correctWord: Petirrojo
     revealStageImages:
-    - {fileID: 21300000, guid: 480144379cc9c7d47a8e19f58b0e6ee3, type: 3}
-    - {fileID: 21300000, guid: ca45d178d188e034aa96a68aceeef41b, type: 3}
-    - {fileID: 21300000, guid: 236f907df848c1849bc978b2482a6e2a, type: 3}
-    - {fileID: 21300000, guid: 236f907df848c1849bc978b2482a6e2a, type: 3}
+    - {fileID: 21300000, guid: d9d08fad246bdaf46b306031fcfc641a, type: 3}
+    - {fileID: 21300000, guid: 5131d019eb3a3a7428d1196c7ea37daa, type: 3}
+    - {fileID: 21300000, guid: 06cf0bafc7df6f6448a5b4305a3e26f2, type: 3}
+    - {fileID: 21300000, guid: 96b4ee94660095747abb4316cc53912a, type: 3}
     distractorWords:
     - Gorrion
     - Mirlo
@@ -68,14 +68,14 @@ MonoBehaviour:
     soundClip: {fileID: 8300000, guid: abed4ac60bceffd478d1f49aafb6a23f, type: 3}
     correctWord: "Rana com\xFAn"
     revealStageImages:
-    - {fileID: 21300000, guid: 480144379cc9c7d47a8e19f58b0e6ee3, type: 3}
-    - {fileID: 21300000, guid: ca45d178d188e034aa96a68aceeef41b, type: 3}
-    - {fileID: 21300000, guid: 236f907df848c1849bc978b2482a6e2a, type: 3}
-    - {fileID: 21300000, guid: 236f907df848c1849bc978b2482a6e2a, type: 3}
+    - {fileID: 21300000, guid: e4d83a9e73781cd4190a833727dddcc6, type: 3}
+    - {fileID: 21300000, guid: 67d779d4522e7be43a4578b18c0b664d, type: 3}
+    - {fileID: 21300000, guid: 25596c0f13a6afe419d80174bab925c0, type: 3}
+    - {fileID: 21300000, guid: d5722256e72286c479ba96183a645864, type: 3}
     distractorWords:
     - Gorrion
     - Mirlo
-    - Piti rojo
+    - Petirrojo
     - Urraca
     - "Verder\xF3n com\xFAn"
   - promptLabel: Urraca - Eurasian Magpie - Pica pica
@@ -89,21 +89,21 @@ MonoBehaviour:
     distractorWords:
     - Gorrion
     - Mirlo
-    - Piti rojo
+    - Petirrojo
     - "Rana com\xFAn"
     - "Verder\xF3n com\xFAn"
   - promptLabel: "Verder\xF3n com\xFAn - European Greenfinch - Chloris chloris"
     soundClip: {fileID: 8300000, guid: 71fde34d17d68954ebe9d5f85bee2a07, type: 3}
     correctWord: "Verder\xF3n com\xFAn"
     revealStageImages:
-    - {fileID: 21300000, guid: fcd2a5f705fe18942af066f27d5f9c07, type: 3}
-    - {fileID: 21300000, guid: 2b05819aab2abef4d86529279722df69, type: 3}
-    - {fileID: 21300000, guid: fed31f02b47cb66428d666f132a7efb2, type: 3}
-    - {fileID: 21300000, guid: 236f907df848c1849bc978b2482a6e2a, type: 3}
+    - {fileID: 21300000, guid: d09eb986c09e0104394307116cd0a7e6, type: 3}
+    - {fileID: 21300000, guid: 4bbf1815887b83646a3f8b04de5b0922, type: 3}
+    - {fileID: 21300000, guid: 7a818af03d016e04187403b4c5602093, type: 3}
+    - {fileID: 21300000, guid: 972c292bde3deeb478de1f3348799427, type: 3}
     distractorWords:
     - Gorrion
     - Mirlo
-    - Piti rojo
+    - Petirrojo
     - "Rana com\xFAn"
     - Urraca
   scoreSettings:

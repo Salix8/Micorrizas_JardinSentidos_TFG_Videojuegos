@@ -1,0 +1,105 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 826a951176d13e74c89151ca66f50d9c, type: 3}
+  m_Name: CoopMinigameThemeConfig
+  m_EditorClassIdentifier: Assembly-CSharp::SmartCampus.Coop.Minigames.CoopMinigameThemeConfig
+  projectTitle: JARDIN MICORRIZAL
+  projectSubtitle: 'Restauramos juntos
+
+    la red de micorrizas'
+  globalProgressLabel: RED DE MICORRIZAS
+  teamTitle: EQUIPO
+  unnamedTeamRoomCodeFormat: SALA {0}
+  minigameTitlePrefix: 'MINIJUEGO:'
+  globalProgressPercentFormat: '{0:0}%'
+  logoSprite: {fileID: 21300000, guid: 011549272f0cc8e42b79659c0ca10a44, type: 3}
+  defaultAvatarSprites:
+  - {fileID: 21300000, guid: 0c06e1806008ef0448c12bac22506c65, type: 3}
+  - {fileID: 21300000, guid: 38ce64f647a53964f898964ed941c782, type: 3}
+  - {fileID: 21300000, guid: fa0bd799f5f71294baa2aae50fbb121a, type: 3}
+  - {fileID: 21300000, guid: c4bd8fb8e2d2e1145895078170c8eab5, type: 3}
+  - {fileID: 21300000, guid: 8db33b4ec64019744828e9ec8f775829, type: 3}
+  - {fileID: 21300000, guid: ac84291b30a34f442a9b68d4e1984555, type: 3}
+  primaryFont: {fileID: 11400000, guid: 2e498d1c8094910479dc3e1b768306a4, type: 2}
+  typography:
+    captionSize: 18
+    bodySize: 24
+    bodyLargeSize: 28
+    sectionTitleSize: 34
+    minigameTitleSize: 40
+    projectTitleSize: 38
+    headingBoldWeight: 0.72
+  palette:
+    screenBackground: {r: 0.982, g: 0.965, b: 0.925, a: 1}
+    panelBackground: {r: 0.996, g: 0.988, b: 0.956, a: 0.94}
+    panelBorder: {r: 0.84, g: 0.79, b: 0.63, a: 1}
+    primaryGreen: {r: 0.075, g: 0.29, b: 0.095, a: 1}
+    secondaryGreen: {r: 0.23, g: 0.46, b: 0.16, a: 1}
+    progressGreen: {r: 0.38, g: 0.63, b: 0.22, a: 1}
+    mutedGreen: {r: 0.68, g: 0.78, b: 0.49, a: 1}
+    cream: {r: 0.93, g: 0.9, b: 0.78, a: 1}
+    textPrimary: {r: 0.08, g: 0.11, b: 0.09, a: 1}
+    textMuted: {r: 0.33, g: 0.38, b: 0.32, a: 1}
+    success: {r: 0.28, g: 0.55, b: 0.18, a: 1}
+    warning: {r: 0.82, g: 0.55, b: 0.18, a: 1}
+    danger: {r: 0.78, g: 0.12, b: 0.1, a: 1}
+    dangerSoft: {r: 0.95, g: 0.78, b: 0.72, a: 1}
+  screenLayout:
+    referenceResolution: {x: 1080, y: 1920}
+    screenMargin: {x: 32, y: 28}
+    topPanelHeight: 318
+    bottomPanelHeight: 278
+    verticalSpacing: 22
+    useSafeArea: 1
+  cardPanelStyle:
+    cornerRadius: 32
+    borderWidth: 2
+    shadowOffset: {x: 0, y: -7}
+    shadowAlpha: 0.16
+    padding: {x: 34, y: 28}
+  topPanelStyle:
+    upperHeight: 222
+    titleBandHeight: 96
+    logoSize: 126
+    avatarSize: 62
+    avatarOverlap: 8
+    progressBarWidth: 210
+    progressBarHeight: 22
+  bottomPanelStyle:
+    instructionHeight: 118
+    timerPanelHeight: 150
+    largeIconSize: 86
+    timerBarHeight: 18
+    timerBarWidth: 310
+    defaultInstructionTitle: DE ACUERDO EN EQUIPO
+    defaultInstructionBody: Cuando todos hayais terminado, se contara el resultado.
+    timeRemainingLabel: TIEMPO RESTANTE
+    penaltyLabel: PENALIZACION
+  instructionPanelStyle:
+    iconCircleSize: 86
+    iconCircleBorderWidth: 2
+    preferredHeight: 156
+  icons:
+    teamIcon: {fileID: 0}
+    infoIcon: {fileID: 0}
+    chatIcon: {fileID: 0}
+    leafIcon: {fileID: 0}
+    timerIcon: {fileID: 0}
+    penaltyTimerIcon: {fileID: 0}
+    successIcon: {fileID: 0}
+    failureIcon: {fileID: 0}
+  decorationStyle:
+    leftPlantSprite: {fileID: 0}
+    rightPlantSprite: {fileID: 0}
+    mushroomSprite: {fileID: 0}
+    opacity: 0.72
+    bottomHillHeight: 210

@@ -16,8 +16,8 @@ MonoBehaviour:
   - shapeId: cube
     displayName: Cubo
     visualPrefab: {fileID: 6773837048716332206, guid: 6ef6ecf4bf6816246b34ba7f93202032, type: 3}
-    markerScale: {x: 1, y: 1, z: 1}
-    previewScale: {x: 1.2, y: 1.2, z: 1.2}
+    markerScale: {x: 1.08, y: 1.08, z: 1.08}
+    previewScale: {x: 1.45, y: 1.45, z: 1.45}
     previewEulerAngles: {x: 18, y: -25, z: 0}
   - shapeId: sphere
     displayName: Esfera
@@ -25,12 +25,6 @@ MonoBehaviour:
     markerScale: {x: 1, y: 1, z: 1}
     previewScale: {x: 1.2, y: 1.2, z: 1.2}
     previewEulerAngles: {x: 20, y: -20, z: 0}
-  - shapeId: cylinder
-    displayName: Cilindro
-    visualPrefab: {fileID: 8865485073794692341, guid: 5463eae402ecdcb40aab588fbbe414f0, type: 3}
-    markerScale: {x: 0.92, y: 1.05, z: 0.92}
-    previewScale: {x: 0.95, y: 1.25, z: 0.95}
-    previewEulerAngles: {x: 15, y: -30, z: 0}
   colors:
   - colorId: sky
     displayName: Cielo

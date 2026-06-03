@@ -1,0 +1,17 @@
+commonNameCanonical,displayCommonName,acceptedCommonNameVariants,plantType,surfaceTexture,hasThorns,hasFruit,leafType,sizeCategory
+alcornoque,Alcornoque,Alzina Surera|Chaparro|Roble sobrero,Árbol,Muy rugosa,false,true,Coriacea,grande
+espino_negro,Espino negro,Arçot|Cambrón|Escambrón,Arbusto,Media,true,true,Lanceolada,pequeno
+almez,Almez,Lledoner|Lodón|Litonero|Aligonero,Árbol,Lisa,false,true,Aserrada,grande
+adelfa,Adelfa,Baladre|Laurel romano,Arbusto,Media,false,true,Lanceolada,pequeno
+algarrobo,Algarrobo,Garrofera,Árbol,Media,false,true,Compuesta,grande
+encina,Encina,Carrasca|Chaparra|Alzina,Árbol,Rugosa,false,true,Coriacea,grande
+aladierna,Aladierno,Aladern|Aladierna|Carrasquilla,Arbusto,Media,false,true,Coriácea,pequeno
+pino_pinonero,Pino piñonero,Pi pinyoner|Pino manso|Pino doncel|Pino albar,Árbol,Rugosa,false,false,Acicular,grande
+pino_carrasco,Pino carrasco,Pi blanc,Árbol,Rugosa,false,false,Acicular,grande
+pino_silvestre,Pino silvestre,Pi roig|Pino serrano|Pino bermejo|Pino rojo,Árbol,Rugosa,false,false,Acicular,grande
+acebo,Acebo,Grèvol,Arbusto,Rugosa,true,true,Coriacea,pequeno
+palmito,Palmito,Margalló|Palmera enana,Palmera,Aspera,false,true,Palmada,mediano
+madrono,Madroño,Arboç,Arbusto,Media,false,true,Aserrada,pequeno
+olivo,Olivo,Olivera|Aceituno,Árbol,Media,false,true,Lanceolada,grande
+hiedra,Hiedra común,Heura|Yedra,Trepadora,Media,false,true,Lobulada,mediano
+chumbera,Chumbera,Figuera de moro|Nopal|Tuna,Suculenta,Media,true,true,Carnosa,pequeno

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -26,12 +27,24 @@ public sealed class CoopMinigameZoneTriggerController : MonoBehaviour
     private void Awake()
     {
         ResolveReferences();
+        RefreshZoneDefinitionsFromChildren();
     }
 
     private void OnEnable()
     {
         ResolveReferences();
+        RefreshZoneDefinitionsFromChildren();
         ResetCountdown();
+    }
+
+    private void OnValidate()
+    {
+        RefreshZoneDefinitionsFromChildren();
+    }
+
+    private void OnTransformChildrenChanged()
+    {
+        RefreshZoneDefinitionsFromChildren();
     }
 
     private void Update()
@@ -200,7 +213,46 @@ public sealed class CoopMinigameZoneTriggerController : MonoBehaviour
 
         if (zoneDefinitions == null || zoneDefinitions.Length == 0)
         {
-            zoneDefinitions = GetComponentsInChildren<CoopMinigameZoneDefinition>(true);
+            RefreshZoneDefinitionsFromChildren();
         }
+    }
+
+    private void RefreshZoneDefinitionsFromChildren()
+    {
+        var resolvedDefinitions = GetComponentsInChildren<CoopMinigameZoneDefinition>(true);
+        if (resolvedDefinitions == null || resolvedDefinitions.Length == 0)
+        {
+            zoneDefinitions = Array.Empty<CoopMinigameZoneDefinition>();
+            return;
+        }
+
+        Array.Sort(resolvedDefinitions, CompareZoneDefinitions);
+        zoneDefinitions = resolvedDefinitions;
+    }
+
+    private static int CompareZoneDefinitions(CoopMinigameZoneDefinition left, CoopMinigameZoneDefinition right)
+    {
+        if (ReferenceEquals(left, right))
+        {
+            return 0;
+        }
+
+        if (left == null)
+        {
+            return 1;
+        }
+
+        if (right == null)
+        {
+            return -1;
+        }
+
+        var miniGameComparison = left.MiniGameNumber.CompareTo(right.MiniGameNumber);
+        if (miniGameComparison != 0)
+        {
+            return miniGameComparison;
+        }
+
+        return string.Compare(left.DisplayName, right.DisplayName, StringComparison.Ordinal);
     }
 }

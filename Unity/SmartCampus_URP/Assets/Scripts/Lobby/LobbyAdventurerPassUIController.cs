@@ -77,6 +77,15 @@ public sealed class LobbyAdventurerPassUIController : MonoBehaviour
 
     private void ConfigureOptionViews()
     {
+        if (profileService != null && appearanceCatalog != null)
+        {
+            var resolvedShapeId = appearanceCatalog.ResolveShapeIdOrDefault(profileService.CurrentShapeId);
+            if (!string.Equals(profileService.CurrentShapeId, resolvedShapeId))
+            {
+                profileService.SetShapeId(resolvedShapeId);
+            }
+        }
+
         for (var index = 0; index < shapeOptions.Length; index++)
         {
             var option = shapeOptions[index];
@@ -196,6 +205,7 @@ public sealed class LobbyAdventurerPassUIController : MonoBehaviour
             : Color.white;
 
         ApplyColor(currentPreviewInstance, previewColor);
+        ApplyPreviewCameraAccent(previewColor);
         ApplyPreviewFrameAccent(previewColor);
         EnsurePreviewCameraEnabled();
     }
@@ -331,9 +341,22 @@ public sealed class LobbyAdventurerPassUIController : MonoBehaviour
         }
 
         previewFrameImage.color = Color.Lerp(
-            new Color(0.26f, 0.44f, 0.62f, 0.9f),
+            new Color(0.21f, 0.18f, 0.16f, 0.94f),
             new Color(markerColor.r, markerColor.g, markerColor.b, 0.92f),
-            0.35f);
+            0.24f);
+    }
+
+    private void ApplyPreviewCameraAccent(Color markerColor)
+    {
+        if (previewCamera == null)
+        {
+            return;
+        }
+
+        previewCamera.backgroundColor = Color.Lerp(
+            new Color(0.14f, 0.12f, 0.11f, 1f),
+            new Color(markerColor.r, markerColor.g, markerColor.b, 1f),
+            0.12f);
     }
 
     private static void ApplyColor(GameObject targetRoot, Color color)
@@ -346,6 +369,12 @@ public sealed class LobbyAdventurerPassUIController : MonoBehaviour
             {
                 continue;
             }
+
+            var propertyBlock = new MaterialPropertyBlock();
+            renderer.GetPropertyBlock(propertyBlock);
+            propertyBlock.SetColor("_BaseColor", color);
+            propertyBlock.SetColor("_Color", color);
+            renderer.SetPropertyBlock(propertyBlock);
 
             var sourceMaterials = renderer.sharedMaterials;
             var runtimeMaterials = new Material[sourceMaterials.Length];
