@@ -12,41 +12,34 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8cf0bc88ef4cc64eae796f2580ed52b, type: 3}
   m_Name: PlayerMarkerAppearanceCatalogConfig
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMarkerAppearanceCatalogConfig
-  shapes:
-  - shapeId: cube
-    displayName: Cubo
-    visualPrefab: {fileID: 6773837048716332206, guid: 6ef6ecf4bf6816246b34ba7f93202032, type: 3}
-    markerScale: {x: 1.08, y: 1.08, z: 1.08}
-    previewScale: {x: 1.45, y: 1.45, z: 1.45}
-    previewEulerAngles: {x: 18, y: -25, z: 0}
-  - shapeId: sphere
-    displayName: Esfera
-    visualPrefab: {fileID: 68271200480271438, guid: 14b8459b88094a245ad0e6b93b884c75, type: 3}
-    markerScale: {x: 1, y: 1, z: 1}
-    previewScale: {x: 1.2, y: 1.2, z: 1.2}
-    previewEulerAngles: {x: 20, y: -20, z: 0}
-  colors:
-  - colorId: sky
-    displayName: Cielo
-    color: {r: 0.31, g: 0.68, b: 0.95, a: 1}
-  - colorId: jade
-    displayName: Jade
-    color: {r: 0.22, g: 0.72, b: 0.58, a: 1}
-  - colorId: sun
-    displayName: Sol
-    color: {r: 0.96, g: 0.73, b: 0.25, a: 1}
-  - colorId: coral
-    displayName: Coral
-    color: {r: 0.93, g: 0.45, b: 0.38, a: 1}
-  - colorId: berry
-    displayName: Baya
-    color: {r: 0.76, g: 0.38, b: 0.71, a: 1}
-  - colorId: ocean
-    displayName: Oceano
-    color: {r: 0.21, g: 0.41, b: 0.87, a: 1}
-  - colorId: mint
-    displayName: Menta
-    color: {r: 0.68, g: 0.89, b: 0.72, a: 1}
-  - colorId: sand
-    displayName: Arena
-    color: {r: 0.82, g: 0.67, b: 0.44, a: 1}
+  avatars:
+  - avatarId: bee
+    displayName: Abeja
+    avatarSprite: {fileID: 21300000, guid: 38ce64f647a53964f898964ed941c782, type: 3}
+    markerScale: {x: 0.2, y: 0.2, z: 0.2}
+    previewSize: {x: 190, y: 190}
+  - avatarId: hedgehog
+    displayName: Erizo
+    avatarSprite: {fileID: 21300000, guid: fa0bd799f5f71294baa2aae50fbb121a, type: 3}
+    markerScale: {x: 0.2, y: 0.2, z: 0.2}
+    previewSize: {x: 190, y: 190}
+  - avatarId: mushroom
+    displayName: Seta
+    avatarSprite: {fileID: 21300000, guid: 0c06e1806008ef0448c12bac22506c65, type: 3}
+    markerScale: {x: 0.2, y: 0.2, z: 0.2}
+    previewSize: {x: 190, y: 190}
+  - avatarId: robin
+    displayName: Petirrojo
+    avatarSprite: {fileID: 21300000, guid: 8db33b4ec64019744828e9ec8f775829, type: 3}
+    markerScale: {x: 0.2, y: 0.2, z: 0.2}
+    previewSize: {x: 190, y: 190}
+  - avatarId: sprout
+    displayName: Brote
+    avatarSprite: {fileID: 21300000, guid: c4bd8fb8e2d2e1145895078170c8eab5, type: 3}
+    markerScale: {x: 0.2, y: 0.2, z: 0.2}
+    previewSize: {x: 190, y: 190}
+  - avatarId: water-drop
+    displayName: Gota
+    avatarSprite: {fileID: 21300000, guid: ac84291b30a34f442a9b68d4e1984555, type: 3}
+    markerScale: {x: 0.2, y: 0.2, z: 0.2}
+    previewSize: {x: 190, y: 190}

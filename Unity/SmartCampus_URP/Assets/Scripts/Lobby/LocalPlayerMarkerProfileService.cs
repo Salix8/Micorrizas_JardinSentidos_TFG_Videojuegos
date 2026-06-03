@@ -5,8 +5,8 @@ using UnityEngine;
 public sealed class LocalPlayerMarkerProfileService : MonoBehaviour
 {
     private const string DisplayNamePlayerPrefsKey = "SmartCampus.Lobby.PlayerMarker.DisplayName";
-    private const string ShapeIdPlayerPrefsKey = "SmartCampus.Lobby.PlayerMarker.ShapeId";
-    private const string ColorIdPlayerPrefsKey = "SmartCampus.Lobby.PlayerMarker.ColorId";
+    private const string AvatarIdPlayerPrefsKey = "SmartCampus.Lobby.PlayerMarker.AvatarId";
+    private const string LegacyShapeIdPlayerPrefsKey = "SmartCampus.Lobby.PlayerMarker.ShapeId";
 
     [Header("Defaults")]
     [SerializeField] private PlayerMarkerAppearanceCatalogConfig appearanceCatalog;
@@ -15,8 +15,7 @@ public sealed class LocalPlayerMarkerProfileService : MonoBehaviour
     [SerializeField] private bool saveSelectionToPlayerPrefs = true;
 
     private string currentDisplayName = string.Empty;
-    private string currentShapeId = string.Empty;
-    private string currentColorId = string.Empty;
+    private string currentAvatarId = string.Empty;
     private bool isInitialized;
 
     public string CurrentDisplayName
@@ -28,23 +27,15 @@ public sealed class LocalPlayerMarkerProfileService : MonoBehaviour
         }
     }
 
-    public string CurrentShapeId
+    public string CurrentAvatarId
     {
         get
         {
             EnsureInitialized();
-            return currentShapeId;
+            return currentAvatarId;
         }
     }
 
-    public string CurrentColorId
-    {
-        get
-        {
-            EnsureInitialized();
-            return currentColorId;
-        }
-    }
     public PlayerMarkerAppearanceCatalogConfig AppearanceCatalog => appearanceCatalog;
 
     public event Action ProfileChanged;
@@ -76,34 +67,18 @@ public sealed class LocalPlayerMarkerProfileService : MonoBehaviour
         ProfileChanged?.Invoke();
     }
 
-    public void SetShapeId(string shapeId)
+    public void SetAvatarId(string avatarId)
     {
-        var resolvedShapeId = appearanceCatalog != null
-            ? appearanceCatalog.ResolveShapeIdOrDefault(shapeId)
-            : NormalizeIdentifier(shapeId);
+        var resolvedAvatarId = appearanceCatalog != null
+            ? appearanceCatalog.ResolveAvatarIdOrDefault(avatarId)
+            : NormalizeIdentifier(avatarId);
 
-        if (string.Equals(currentShapeId, resolvedShapeId, StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(currentAvatarId, resolvedAvatarId, StringComparison.OrdinalIgnoreCase))
         {
             return;
         }
 
-        currentShapeId = resolvedShapeId;
-        Save();
-        ProfileChanged?.Invoke();
-    }
-
-    public void SetColorId(string colorId)
-    {
-        var resolvedColorId = appearanceCatalog != null
-            ? appearanceCatalog.ResolveColorIdOrDefault(colorId)
-            : NormalizeIdentifier(colorId);
-
-        if (string.Equals(currentColorId, resolvedColorId, StringComparison.OrdinalIgnoreCase))
-        {
-            return;
-        }
-
-        currentColorId = resolvedColorId;
+        currentAvatarId = resolvedAvatarId;
         Save();
         ProfileChanged?.Invoke();
     }
@@ -111,12 +86,12 @@ public sealed class LocalPlayerMarkerProfileService : MonoBehaviour
     public void Reload()
     {
         currentDisplayName = NormalizeDisplayName(PlayerPrefs.GetString(DisplayNamePlayerPrefsKey, defaultDisplayName));
-        currentShapeId = appearanceCatalog != null
-            ? appearanceCatalog.ResolveShapeIdOrDefault(PlayerPrefs.GetString(ShapeIdPlayerPrefsKey, appearanceCatalog.DefaultShapeId))
-            : NormalizeIdentifier(PlayerPrefs.GetString(ShapeIdPlayerPrefsKey, string.Empty));
-        currentColorId = appearanceCatalog != null
-            ? appearanceCatalog.ResolveColorIdOrDefault(PlayerPrefs.GetString(ColorIdPlayerPrefsKey, appearanceCatalog.DefaultColorId))
-            : NormalizeIdentifier(PlayerPrefs.GetString(ColorIdPlayerPrefsKey, string.Empty));
+        var savedAvatarId = PlayerPrefs.GetString(
+            AvatarIdPlayerPrefsKey,
+            PlayerPrefs.GetString(LegacyShapeIdPlayerPrefsKey, appearanceCatalog != null ? appearanceCatalog.DefaultAvatarId : string.Empty));
+        currentAvatarId = appearanceCatalog != null
+            ? appearanceCatalog.ResolveAvatarIdOrDefault(savedAvatarId)
+            : NormalizeIdentifier(savedAvatarId);
         isInitialized = true;
     }
 
@@ -124,8 +99,7 @@ public sealed class LocalPlayerMarkerProfileService : MonoBehaviour
     {
         if (isInitialized &&
             !string.IsNullOrWhiteSpace(currentDisplayName) &&
-            !string.IsNullOrWhiteSpace(currentShapeId) &&
-            !string.IsNullOrWhiteSpace(currentColorId))
+            !string.IsNullOrWhiteSpace(currentAvatarId))
         {
             return;
         }
@@ -133,27 +107,15 @@ public sealed class LocalPlayerMarkerProfileService : MonoBehaviour
         Reload();
     }
 
-    public bool TryGetSelectedShape(out PlayerMarkerShapeDefinition shape)
+    public bool TryGetSelectedAvatar(out PlayerMarkerAvatarDefinition avatar)
     {
         EnsureInitialized();
         if (appearanceCatalog != null)
         {
-            return appearanceCatalog.TryGetShape(currentShapeId, out shape);
+            return appearanceCatalog.TryGetAvatar(currentAvatarId, out avatar);
         }
 
-        shape = null;
-        return false;
-    }
-
-    public bool TryGetSelectedColor(out PlayerMarkerColorDefinition color)
-    {
-        EnsureInitialized();
-        if (appearanceCatalog != null)
-        {
-            return appearanceCatalog.TryGetColor(currentColorId, out color);
-        }
-
-        color = null;
+        avatar = null;
         return false;
     }
 
@@ -165,8 +127,7 @@ public sealed class LocalPlayerMarkerProfileService : MonoBehaviour
         }
 
         PlayerPrefs.SetString(DisplayNamePlayerPrefsKey, currentDisplayName);
-        PlayerPrefs.SetString(ShapeIdPlayerPrefsKey, currentShapeId);
-        PlayerPrefs.SetString(ColorIdPlayerPrefsKey, currentColorId);
+        PlayerPrefs.SetString(AvatarIdPlayerPrefsKey, currentAvatarId);
         PlayerPrefs.Save();
     }
 

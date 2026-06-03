@@ -1,22 +1,20 @@
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 [DisallowMultipleComponent]
-public sealed class LobbyMarkerColorOptionView : MonoBehaviour
+public sealed class LobbyMarkerAvatarOptionView : MonoBehaviour
 {
-    [SerializeField] private string colorId = string.Empty;
+    [SerializeField] private string avatarId = string.Empty;
     [SerializeField] private Button button;
-    [SerializeField] private TMP_Text label;
-    [SerializeField] private Image swatchImage;
+    [SerializeField] private Image avatarImage;
     [SerializeField] private Image selectionOutline;
     [SerializeField] private Image backgroundImage;
-    [SerializeField] private Color normalLabelColor = new(0.29f, 0.22f, 0.17f, 1f);
-    [SerializeField] private Color selectedLabelColor = new(0.98f, 0.95f, 0.88f, 1f);
-    [SerializeField] private Color normalBackgroundColor = new(0.96f, 0.91f, 0.82f, 0.92f);
-    [SerializeField] private Color selectedBackgroundColor = new(0.42f, 0.29f, 0.16f, 1f);
+    [SerializeField] private Color normalBackgroundColor = new(0.86f, 0.8f, 0.68f, 0.94f);
+    [SerializeField] private Color selectedBackgroundColor = new(0.25f, 0.34f, 0.18f, 1f);
+    [SerializeField] private Color normalAvatarColor = Color.white;
+    [SerializeField] private Color selectedAvatarColor = Color.white;
 
-    public string ColorId => colorId;
+    public string AvatarId => avatarId;
     public Button Button => button;
 
     private void Awake()
@@ -29,19 +27,16 @@ public sealed class LobbyMarkerColorOptionView : MonoBehaviour
         ResolveReferences();
     }
 
-    public void Configure(string displayName, Color color)
+    public void Configure(string id, Sprite avatarSprite)
     {
+        avatarId = id;
         ResolveReferences();
 
-        if (label != null)
+        if (avatarImage != null)
         {
-            label.text = displayName;
-            label.color = normalLabelColor;
-        }
-
-        if (swatchImage != null)
-        {
-            swatchImage.color = color;
+            avatarImage.sprite = avatarSprite;
+            avatarImage.color = normalAvatarColor;
+            avatarImage.preserveAspect = true;
         }
     }
 
@@ -59,9 +54,9 @@ public sealed class LobbyMarkerColorOptionView : MonoBehaviour
             backgroundImage.color = selected ? selectedBackgroundColor : normalBackgroundColor;
         }
 
-        if (label != null)
+        if (avatarImage != null)
         {
-            label.color = selected ? selectedLabelColor : normalLabelColor;
+            avatarImage.color = selected ? selectedAvatarColor : normalAvatarColor;
         }
     }
 
@@ -70,17 +65,12 @@ public sealed class LobbyMarkerColorOptionView : MonoBehaviour
         button ??= GetComponent<Button>();
         backgroundImage ??= GetComponent<Image>();
 
-        if (label == null)
+        if (avatarImage == null)
         {
-            label = GetComponentInChildren<TMP_Text>(true);
-        }
-
-        if (swatchImage == null)
-        {
-            var swatchTransform = transform.Find("Swatch");
-            if (swatchTransform != null)
+            var avatarTransform = transform.Find("AvatarImage");
+            if (avatarTransform != null)
             {
-                swatchImage = swatchTransform.GetComponent<Image>();
+                avatarImage = avatarTransform.GetComponent<Image>();
             }
         }
 

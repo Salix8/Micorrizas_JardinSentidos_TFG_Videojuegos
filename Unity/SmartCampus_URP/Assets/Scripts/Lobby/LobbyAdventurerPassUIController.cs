@@ -9,14 +9,10 @@ public sealed class LobbyAdventurerPassUIController : MonoBehaviour
     [SerializeField] private LocalPlayerMarkerProfileService profileService;
     [SerializeField] private PlayerMarkerAppearanceCatalogConfig appearanceCatalog;
     [SerializeField] private TMP_InputField playerNameInput;
-    [SerializeField] private RawImage previewImage;
-    [SerializeField] private Camera previewCamera;
-    [SerializeField] private Transform previewRoot;
+    [SerializeField] private Image previewImage;
     [SerializeField] private Image previewFrameImage;
-    [SerializeField] private LobbyMarkerShapeOptionView[] shapeOptions = new LobbyMarkerShapeOptionView[0];
-    [SerializeField] private LobbyMarkerColorOptionView[] colorOptions = new LobbyMarkerColorOptionView[0];
+    [SerializeField] private LobbyMarkerAvatarOptionView[] avatarOptions = new LobbyMarkerAvatarOptionView[0];
 
-    private GameObject currentPreviewInstance;
     private bool suppressInputCallback;
 
     private void Awake()
@@ -79,28 +75,31 @@ public sealed class LobbyAdventurerPassUIController : MonoBehaviour
     {
         if (profileService != null && appearanceCatalog != null)
         {
-            var resolvedShapeId = appearanceCatalog.ResolveShapeIdOrDefault(profileService.CurrentShapeId);
-            if (!string.Equals(profileService.CurrentShapeId, resolvedShapeId))
+            var resolvedAvatarId = appearanceCatalog.ResolveAvatarIdOrDefault(profileService.CurrentAvatarId);
+            if (!string.Equals(profileService.CurrentAvatarId, resolvedAvatarId))
             {
-                profileService.SetShapeId(resolvedShapeId);
+                profileService.SetAvatarId(resolvedAvatarId);
             }
         }
 
-        for (var index = 0; index < shapeOptions.Length; index++)
+        for (var index = 0; index < avatarOptions.Length; index++)
         {
-            var option = shapeOptions[index];
+            var option = avatarOptions[index];
             if (option == null || option.Button == null)
             {
                 continue;
             }
 
             option.Button.onClick.RemoveAllListeners();
-            var capturedShapeId = option.ShapeId;
-            option.Button.onClick.AddListener(() => SelectShape(capturedShapeId));
+            var capturedAvatarId = option.AvatarId;
+            option.Button.onClick.AddListener(() => SelectAvatar(capturedAvatarId));
 
-            if (appearanceCatalog != null && appearanceCatalog.TryGetShape(capturedShapeId, out var shape))
+            if (appearanceCatalog != null &&
+                appearanceCatalog.TryGetAvatar(capturedAvatarId, out var avatar) &&
+                avatar != null &&
+                avatar.AvatarSprite != null)
             {
-                option.Configure(shape.DisplayName);
+                option.Configure(avatar.AvatarId, avatar.AvatarSprite);
                 option.gameObject.SetActive(true);
             }
             else
@@ -109,30 +108,7 @@ public sealed class LobbyAdventurerPassUIController : MonoBehaviour
             }
         }
 
-        RefreshShapeOptionsLayout();
-
-        for (var index = 0; index < colorOptions.Length; index++)
-        {
-            var option = colorOptions[index];
-            if (option == null || option.Button == null)
-            {
-                continue;
-            }
-
-            option.Button.onClick.RemoveAllListeners();
-            var capturedColorId = option.ColorId;
-            option.Button.onClick.AddListener(() => SelectColor(capturedColorId));
-
-            if (appearanceCatalog != null && appearanceCatalog.TryGetColor(capturedColorId, out var color))
-            {
-                option.Configure(color.DisplayName, color.Color);
-                option.gameObject.SetActive(true);
-            }
-            else
-            {
-                option.gameObject.SetActive(false);
-            }
-        }
+        RefreshAvatarOptionsLayout();
     }
 
     private void SyncUiFromProfile()
@@ -153,138 +129,55 @@ public sealed class LobbyAdventurerPassUIController : MonoBehaviour
             suppressInputCallback = false;
         }
 
-        for (var index = 0; index < shapeOptions.Length; index++)
+        for (var index = 0; index < avatarOptions.Length; index++)
         {
-            if (shapeOptions[index] != null)
+            if (avatarOptions[index] != null)
             {
-                shapeOptions[index].SetSelected(string.Equals(shapeOptions[index].ShapeId, profileService.CurrentShapeId));
-            }
-        }
-
-        for (var index = 0; index < colorOptions.Length; index++)
-        {
-            if (colorOptions[index] != null)
-            {
-                colorOptions[index].SetSelected(string.Equals(colorOptions[index].ColorId, profileService.CurrentColorId));
+                avatarOptions[index].SetSelected(string.Equals(avatarOptions[index].AvatarId, profileService.CurrentAvatarId));
             }
         }
     }
 
-    private void SelectShape(string shapeId)
+    private void SelectAvatar(string avatarId)
     {
-        profileService?.SetShapeId(shapeId);
-    }
-
-    private void SelectColor(string colorId)
-    {
-        profileService?.SetColorId(colorId);
+        profileService?.SetAvatarId(avatarId);
     }
 
     private void RebuildPreview()
     {
-        if (previewRoot == null || profileService == null)
+        if (previewImage == null || profileService == null)
         {
             return;
         }
 
-        ClearPreviewRoot();
-
-        if (!profileService.TryGetSelectedShape(out var shape) || shape == null || shape.VisualPrefab == null)
+        if (!profileService.TryGetSelectedAvatar(out var avatar) || avatar == null || avatar.AvatarSprite == null)
         {
+            previewImage.enabled = false;
             return;
         }
 
-        currentPreviewInstance = Instantiate(shape.VisualPrefab, previewRoot);
-        currentPreviewInstance.name = "PreviewVisual";
-        currentPreviewInstance.transform.localPosition = Vector3.zero;
-        currentPreviewInstance.transform.localRotation = Quaternion.Euler(shape.PreviewEulerAngles);
-        currentPreviewInstance.transform.localScale = shape.PreviewScale;
+        previewImage.enabled = true;
+        previewImage.sprite = avatar.AvatarSprite;
+        previewImage.color = Color.white;
+        previewImage.preserveAspect = true;
 
-        var previewColor = profileService.TryGetSelectedColor(out var colorDefinition) && colorDefinition != null
-            ? colorDefinition.Color
-            : Color.white;
+        var previewRect = previewImage.rectTransform;
+        previewRect.sizeDelta = avatar.PreviewSize;
 
-        ApplyColor(currentPreviewInstance, previewColor);
-        ApplyPreviewCameraAccent(previewColor);
-        ApplyPreviewFrameAccent(previewColor);
-        EnsurePreviewCameraEnabled();
-    }
-
-    private void EnsurePreviewCameraEnabled()
-    {
-        if (previewCamera != null)
+        if (previewFrameImage != null)
         {
-            previewCamera.enabled = true;
-            if (previewRoot != null)
-            {
-                previewCamera.transform.LookAt(previewRoot.position);
-            }
-
-            previewCamera.Render();
-        }
-
-        if (previewImage != null && previewCamera != null)
-        {
-            previewImage.texture = previewCamera.targetTexture;
-            previewImage.raycastTarget = false;
+            previewFrameImage.color = new Color(0.25f, 0.34f, 0.18f, 0.96f);
         }
     }
 
-    private void DestroyPreviewInstance()
+    private void RefreshAvatarOptionsLayout()
     {
-        if (currentPreviewInstance == null)
+        if (avatarOptions == null || avatarOptions.Length == 0)
         {
             return;
         }
 
-        if (Application.isPlaying)
-        {
-            Destroy(currentPreviewInstance);
-        }
-        else
-        {
-            DestroyImmediate(currentPreviewInstance);
-        }
-
-        currentPreviewInstance = null;
-    }
-
-    private void ClearPreviewRoot()
-    {
-        DestroyPreviewInstance();
-
-        if (previewRoot == null)
-        {
-            return;
-        }
-
-        for (var index = previewRoot.childCount - 1; index >= 0; index--)
-        {
-            var child = previewRoot.GetChild(index);
-            if (child == null)
-            {
-                continue;
-            }
-
-            if (Application.isPlaying)
-            {
-                Destroy(child.gameObject);
-            }
-            else
-            {
-                DestroyImmediate(child.gameObject);
-            }
-        }
-    }
-
-    private void RefreshShapeOptionsLayout()
-    {
-        if (shapeOptions == null || shapeOptions.Length == 0)
-        {
-            return;
-        }
-
-        var firstOption = shapeOptions[0];
+        var firstOption = avatarOptions[0];
         if (firstOption == null || firstOption.transform.parent == null)
         {
             return;
@@ -299,9 +192,9 @@ public sealed class LobbyAdventurerPassUIController : MonoBehaviour
         }
 
         var activeOptionCount = 0;
-        for (var index = 0; index < shapeOptions.Length; index++)
+        for (var index = 0; index < avatarOptions.Length; index++)
         {
-            if (shapeOptions[index] != null && shapeOptions[index].gameObject.activeSelf)
+            if (avatarOptions[index] != null && avatarOptions[index].gameObject.activeSelf)
             {
                 activeOptionCount++;
             }
@@ -330,78 +223,6 @@ public sealed class LobbyAdventurerPassUIController : MonoBehaviour
         if (previewFrameImage == null && previewImage != null && previewImage.transform.parent != null)
         {
             previewFrameImage = previewImage.transform.parent.GetComponent<Image>();
-        }
-    }
-
-    private void ApplyPreviewFrameAccent(Color markerColor)
-    {
-        if (previewFrameImage == null)
-        {
-            return;
-        }
-
-        previewFrameImage.color = Color.Lerp(
-            new Color(0.21f, 0.18f, 0.16f, 0.94f),
-            new Color(markerColor.r, markerColor.g, markerColor.b, 0.92f),
-            0.24f);
-    }
-
-    private void ApplyPreviewCameraAccent(Color markerColor)
-    {
-        if (previewCamera == null)
-        {
-            return;
-        }
-
-        previewCamera.backgroundColor = Color.Lerp(
-            new Color(0.14f, 0.12f, 0.11f, 1f),
-            new Color(markerColor.r, markerColor.g, markerColor.b, 1f),
-            0.12f);
-    }
-
-    private static void ApplyColor(GameObject targetRoot, Color color)
-    {
-        var renderers = targetRoot.GetComponentsInChildren<Renderer>(true);
-        for (var index = 0; index < renderers.Length; index++)
-        {
-            var renderer = renderers[index];
-            if (renderer == null)
-            {
-                continue;
-            }
-
-            var propertyBlock = new MaterialPropertyBlock();
-            renderer.GetPropertyBlock(propertyBlock);
-            propertyBlock.SetColor("_BaseColor", color);
-            propertyBlock.SetColor("_Color", color);
-            renderer.SetPropertyBlock(propertyBlock);
-
-            var sourceMaterials = renderer.sharedMaterials;
-            var runtimeMaterials = new Material[sourceMaterials.Length];
-            for (var materialIndex = 0; materialIndex < sourceMaterials.Length; materialIndex++)
-            {
-                var sourceMaterial = sourceMaterials[materialIndex];
-                if (sourceMaterial == null)
-                {
-                    continue;
-                }
-
-                var runtimeMaterial = new Material(sourceMaterial);
-                if (runtimeMaterial.HasProperty("_BaseColor"))
-                {
-                    runtimeMaterial.SetColor("_BaseColor", color);
-                }
-
-                if (runtimeMaterial.HasProperty("_Color"))
-                {
-                    runtimeMaterial.SetColor("_Color", color);
-                }
-
-                runtimeMaterial.color = color;
-                runtimeMaterials[materialIndex] = runtimeMaterial;
-            }
-
-            renderer.materials = runtimeMaterials;
         }
     }
 }

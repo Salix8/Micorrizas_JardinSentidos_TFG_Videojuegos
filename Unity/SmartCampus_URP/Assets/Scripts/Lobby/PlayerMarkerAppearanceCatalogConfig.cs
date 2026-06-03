@@ -7,89 +7,46 @@ using UnityEngine;
     menuName = "SmartCampus/Lobby/Player Marker Appearance Catalog")]
 public sealed class PlayerMarkerAppearanceCatalogConfig : ScriptableObject
 {
-    [SerializeField] private List<PlayerMarkerShapeDefinition> shapes = new();
-    [SerializeField] private List<PlayerMarkerColorDefinition> colors = new();
+    [SerializeField] private List<PlayerMarkerAvatarDefinition> avatars = new();
 
-    public IReadOnlyList<PlayerMarkerShapeDefinition> Shapes => shapes;
-    public IReadOnlyList<PlayerMarkerColorDefinition> Colors => colors;
+    public IReadOnlyList<PlayerMarkerAvatarDefinition> Avatars => avatars;
 
-    public string DefaultShapeId => GetFirstShapeId();
-    public string DefaultColorId => GetFirstColorId();
+    public string DefaultAvatarId => GetFirstAvatarId();
 
-    public bool TryGetShape(string shapeId, out PlayerMarkerShapeDefinition shape)
+    public bool TryGetAvatar(string avatarId, out PlayerMarkerAvatarDefinition avatar)
     {
-        var normalizedId = NormalizeId(shapeId);
-        for (var index = 0; index < shapes.Count; index++)
+        var normalizedId = NormalizeId(avatarId);
+        for (var index = 0; index < avatars.Count; index++)
         {
-            var candidate = shapes[index];
-            if (candidate == null || string.IsNullOrWhiteSpace(candidate.ShapeId))
+            var candidate = avatars[index];
+            if (candidate == null || string.IsNullOrWhiteSpace(candidate.AvatarId))
             {
                 continue;
             }
 
-            if (string.Equals(candidate.ShapeId, normalizedId, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(candidate.AvatarId, normalizedId, StringComparison.OrdinalIgnoreCase))
             {
-                shape = candidate;
+                avatar = candidate;
                 return true;
             }
         }
 
-        shape = null;
+        avatar = null;
         return false;
     }
 
-    public bool TryGetColor(string colorId, out PlayerMarkerColorDefinition color)
+    public string ResolveAvatarIdOrDefault(string avatarId)
     {
-        var normalizedId = NormalizeId(colorId);
-        for (var index = 0; index < colors.Count; index++)
+        return TryGetAvatar(avatarId, out var avatar) ? NormalizeId(avatar.AvatarId) : DefaultAvatarId;
+    }
+
+    private string GetFirstAvatarId()
+    {
+        for (var index = 0; index < avatars.Count; index++)
         {
-            var candidate = colors[index];
-            if (candidate == null || string.IsNullOrWhiteSpace(candidate.ColorId))
+            if (avatars[index] != null && !string.IsNullOrWhiteSpace(avatars[index].AvatarId))
             {
-                continue;
-            }
-
-            if (string.Equals(candidate.ColorId, normalizedId, StringComparison.OrdinalIgnoreCase))
-            {
-                color = candidate;
-                return true;
-            }
-        }
-
-        color = null;
-        return false;
-    }
-
-    public string ResolveShapeIdOrDefault(string shapeId)
-    {
-        return TryGetShape(shapeId, out var shape) ? NormalizeId(shape.ShapeId) : DefaultShapeId;
-    }
-
-    public string ResolveColorIdOrDefault(string colorId)
-    {
-        return TryGetColor(colorId, out var color) ? NormalizeId(color.ColorId) : DefaultColorId;
-    }
-
-    private string GetFirstShapeId()
-    {
-        for (var index = 0; index < shapes.Count; index++)
-        {
-            if (shapes[index] != null && !string.IsNullOrWhiteSpace(shapes[index].ShapeId))
-            {
-                return NormalizeId(shapes[index].ShapeId);
-            }
-        }
-
-        return string.Empty;
-    }
-
-    private string GetFirstColorId()
-    {
-        for (var index = 0; index < colors.Count; index++)
-        {
-            if (colors[index] != null && !string.IsNullOrWhiteSpace(colors[index].ColorId))
-            {
-                return NormalizeId(colors[index].ColorId);
+                return NormalizeId(avatars[index].AvatarId);
             }
         }
 
@@ -103,31 +60,17 @@ public sealed class PlayerMarkerAppearanceCatalogConfig : ScriptableObject
 }
 
 [Serializable]
-public sealed class PlayerMarkerShapeDefinition
+public sealed class PlayerMarkerAvatarDefinition
 {
-    [SerializeField] private string shapeId = "shape";
-    [SerializeField] private string displayName = "Forma";
-    [SerializeField] private GameObject visualPrefab;
+    [SerializeField] private string avatarId = "avatar";
+    [SerializeField] private string displayName = "Avatar";
+    [SerializeField] private Sprite avatarSprite;
     [SerializeField] private Vector3 markerScale = Vector3.one;
-    [SerializeField] private Vector3 previewScale = Vector3.one;
-    [SerializeField] private Vector3 previewEulerAngles = new(18f, -28f, 0f);
+    [SerializeField] private Vector2 previewSize = new(180f, 180f);
 
-    public string ShapeId => shapeId;
+    public string AvatarId => avatarId;
     public string DisplayName => displayName;
-    public GameObject VisualPrefab => visualPrefab;
+    public Sprite AvatarSprite => avatarSprite;
     public Vector3 MarkerScale => markerScale;
-    public Vector3 PreviewScale => previewScale;
-    public Vector3 PreviewEulerAngles => previewEulerAngles;
-}
-
-[Serializable]
-public sealed class PlayerMarkerColorDefinition
-{
-    [SerializeField] private string colorId = "color";
-    [SerializeField] private string displayName = "Color";
-    [SerializeField] private Color color = Color.white;
-
-    public string ColorId => colorId;
-    public string DisplayName => displayName;
-    public Color Color => color;
+    public Vector2 PreviewSize => previewSize;
 }
