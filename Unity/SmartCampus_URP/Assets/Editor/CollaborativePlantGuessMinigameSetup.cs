@@ -182,6 +182,7 @@ public static class CollaborativePlantGuessMinigameSetup
         var serializedSession = new SerializedObject(session);
         serializedSession.FindProperty("collaborativePlantGuessMinigameConfig").objectReferenceValue = config;
         serializedSession.ApplyModifiedPropertiesWithoutUndo();
+        EditorUtility.SetDirty(session);
 
         var canvas = CreateCanvas("CollaborativePlantGuessCanvas");
         var safeAreaRoot = CreateUiObject("SafeAreaRoot", canvas.transform, typeof(SafeAreaFitter));
@@ -345,7 +346,7 @@ public static class CollaborativePlantGuessMinigameSetup
 
         var serializedCoordinator = new SerializedObject(coordinator);
         var miniGameSceneNames = serializedCoordinator.FindProperty("miniGameSceneNames");
-        miniGameSceneNames.arraySize = Math.Max(5, miniGameSceneNames.arraySize);
+        miniGameSceneNames.arraySize = Math.Max(MinigameIndex + 1, miniGameSceneNames.arraySize);
         miniGameSceneNames.GetArrayElementAtIndex(MinigameIndex).stringValue = MinigameSceneName;
         serializedCoordinator.ApplyModifiedPropertiesWithoutUndo();
         EditorUtility.SetDirty(coordinator);

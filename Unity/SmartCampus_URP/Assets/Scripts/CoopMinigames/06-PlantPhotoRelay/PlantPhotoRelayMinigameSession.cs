@@ -197,6 +197,11 @@ namespace SmartCampus.Coop.Minigames.PlantPhotoRelay
 
         protected override void OnGameplayStartedServer()
         {
+            if (HasBlockingError)
+            {
+                return;
+            }
+
             if (!hasLoadedCatalog)
             {
                 pendingGameplayStart = true;
@@ -341,10 +346,17 @@ namespace SmartCampus.Coop.Minigames.PlantPhotoRelay
 
             loadingCoroutine = null;
             loadedPlantDefinitions.Clear();
+            hasLoadedCatalog = false;
 
             if (!string.IsNullOrWhiteSpace(errorMessage))
             {
                 dataLoadError.Value = new FixedString512Bytes(errorMessage);
+                statusText.Value = new FixedString512Bytes(errorMessage);
+                if (IsServer)
+                {
+                    SetBlockingErrorServer(errorMessage);
+                }
+
                 StateChanged?.Invoke();
                 yield break;
             }
@@ -352,6 +364,26 @@ namespace SmartCampus.Coop.Minigames.PlantPhotoRelay
             if (!PlantPhotoRelayCatalogService.TryParse(csvContent, out var definitions, out errorMessage))
             {
                 dataLoadError.Value = new FixedString512Bytes(errorMessage);
+                statusText.Value = new FixedString512Bytes(errorMessage);
+                if (IsServer)
+                {
+                    SetBlockingErrorServer(errorMessage);
+                }
+
+                StateChanged?.Invoke();
+                yield break;
+            }
+
+            if (definitions.Count == 0)
+            {
+                const string emptyCatalogMessage = "El catalogo no contiene plantas utilizables.";
+                dataLoadError.Value = new FixedString512Bytes(emptyCatalogMessage);
+                statusText.Value = new FixedString512Bytes(emptyCatalogMessage);
+                if (IsServer)
+                {
+                    SetBlockingErrorServer(emptyCatalogMessage);
+                }
+
                 StateChanged?.Invoke();
                 yield break;
             }
@@ -373,14 +405,26 @@ namespace SmartCampus.Coop.Minigames.PlantPhotoRelay
             var participantIds = GetParticipantIds();
             if (plantPhotoRelayMinigameConfig == null)
             {
-                PublishResultServer(new MinigameResultData("Configuracion invalida", 0f, 0, 0));
+                statusText.Value = new FixedString512Bytes("Configuracion invalida.");
+                SetBlockingErrorServer("Configuracion invalida");
                 return;
             }
 
             if (participantIds.Count < plantPhotoRelayMinigameConfig.MinimumSupportedPlayers ||
                 participantIds.Count > plantPhotoRelayMinigameConfig.MaxSupportedDevices)
             {
-                PublishResultServer(new MinigameResultData("Numero de jugadores no compatible", 0f, 0, 0));
+                statusText.Value = new FixedString512Bytes("Numero de jugadores no compatible.");
+                SetBlockingErrorServer("Numero de jugadores no compatible");
+                return;
+            }
+
+            if (!hasLoadedCatalog || loadedPlantDefinitions.Count == 0)
+            {
+                var errorMessage = string.IsNullOrWhiteSpace(DataLoadError)
+                    ? "No se ha podido preparar el catalogo compartido."
+                    : DataLoadError;
+                statusText.Value = new FixedString512Bytes(errorMessage);
+                SetBlockingErrorServer(errorMessage);
                 return;
             }
 

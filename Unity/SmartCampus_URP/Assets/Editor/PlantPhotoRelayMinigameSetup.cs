@@ -186,6 +186,7 @@ public static class PlantPhotoRelayMinigameSetup
         var serializedSession = new SerializedObject(session);
         serializedSession.FindProperty("plantPhotoRelayMinigameConfig").objectReferenceValue = config;
         serializedSession.ApplyModifiedPropertiesWithoutUndo();
+        EditorUtility.SetDirty(session);
 
         var canvas = CreateCanvas("PlantPhotoRelayCanvas");
         var safeAreaRoot = CreateUiObject("SafeAreaRoot", canvas.transform, typeof(SafeAreaFitter));

@@ -213,7 +213,8 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
             if (distributedPairsMinigameConfig == null || distributedPairsMinigameConfig.ActivePairCount <= 0)
             {
                 Debug.LogError($"{nameof(DistributedPairsMinigameSession)} requires a valid {nameof(DistributedPairsMinigameConfig)}.", this);
-                PublishResultServer(new MinigameResultData("Configuracion invalida", 0f, 0, 0));
+                sharedStatusMessage.Value = new FixedString128Bytes("Configuracion invalida.");
+                SetBlockingErrorServer("Configuracion invalida");
                 return;
             }
 

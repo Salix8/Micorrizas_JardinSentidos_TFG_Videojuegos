@@ -13,9 +13,9 @@ namespace SmartCampus.Coop.Minigames.GardenImageVoting
         [SerializeField] private RectTransform cardTransform;
         [SerializeField] private CanvasGroup canvasGroup;
         [SerializeField] private Image frameImage;
+        [SerializeField] private RoundedPanelGraphic frameGraphic;
         [SerializeField] private Image illustrationImage;
         [SerializeField] private GameObject illustrationPlaceholderRoot;
-        [SerializeField] private TMP_Text topicLabel;
         [SerializeField] private TMP_Text titleLabel;
         [SerializeField] private TMP_Text bodyLabel;
         [SerializeField] private TMP_Text decisionHintLabel;
@@ -50,7 +50,7 @@ namespace SmartCampus.Coop.Minigames.GardenImageVoting
         {
             var bindingKey = definition == null
                 ? "<null>"
-                : $"{definition.RoundIndex}|{definition.DeviceSlot}|{definition.Topic}|{definition.Title}|{definition.ImagePath}";
+                : $"{definition.RoundIndex}|{definition.DeviceSlot}|{definition.Title}|{definition.CommonName}|{definition.ImagePath}";
 
             visualSettings = visuals;
             swipeThreshold = configuredSwipeThreshold;
@@ -70,13 +70,12 @@ namespace SmartCampus.Coop.Minigames.GardenImageVoting
 
             if (frameImage != null)
             {
-                frameImage.color = visualSettings.FrameColor;
+                frameImage.color = new Color(1f, 1f, 1f, 0f);
             }
 
-            if (topicLabel != null)
+            if (frameGraphic != null)
             {
-                topicLabel.color = visualSettings.TopicColor;
-                topicLabel.text = definition == null ? "Sin datos" : definition.Topic;
+                frameGraphic.Configure(visualSettings.FrameColor, new Color(0.84f, 0.79f, 0.63f, 1f), 34f, 3f);
             }
 
             if (titleLabel != null)
@@ -89,8 +88,8 @@ namespace SmartCampus.Coop.Minigames.GardenImageVoting
             {
                 bodyLabel.color = visualSettings.BodyColor;
                 bodyLabel.text = definition == null
-                    ? "Todavia no hay una imagen disponible para este dispositivo."
-                    : "Desliza a la derecha si la has visto en el jardin o a la izquierda si no la has visto.";
+                    ? "Todavia no hay una planta disponible para este dispositivo."
+                    : definition.CommonName;
             }
 
             if (decisionHintLabel != null)
@@ -111,11 +110,6 @@ namespace SmartCampus.Coop.Minigames.GardenImageVoting
             currentBindingKey = string.Empty;
             ResetTransform();
             ReleaseRuntimeSprite();
-
-            if (topicLabel != null)
-            {
-                topicLabel.text = string.Empty;
-            }
 
             if (titleLabel != null)
             {

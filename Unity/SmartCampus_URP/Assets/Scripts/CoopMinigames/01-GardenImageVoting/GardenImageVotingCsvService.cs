@@ -14,6 +14,7 @@ namespace SmartCampus.Coop.Minigames.GardenImageVoting
             Title = string.IsNullOrWhiteSpace(title) ? $"Imagen {roundIndex}" : title.Trim();
             ImagePath = imagePath == null ? string.Empty : imagePath.Trim();
             IsSeenInGarden = isSeenInGarden;
+            CommonName = ResolveCommonName(topic, title, ImagePath);
         }
 
         public int RoundIndex { get; }
@@ -22,6 +23,31 @@ namespace SmartCampus.Coop.Minigames.GardenImageVoting
         public string Title { get; }
         public string ImagePath { get; }
         public bool IsSeenInGarden { get; }
+        public string CommonName { get; }
+
+        private static string ResolveCommonName(string topic, string title, string imagePath)
+        {
+            if (!string.IsNullOrWhiteSpace(topic))
+            {
+                return topic.Trim();
+            }
+
+            if (!string.IsNullOrWhiteSpace(imagePath))
+            {
+                var fileName = imagePath.Trim();
+                var separatorIndex = fileName.IndexOf("--", StringComparison.Ordinal);
+                if (separatorIndex > 0)
+                {
+                    var rawCommonName = fileName.Substring(0, separatorIndex).Replace('-', ' ').Trim();
+                    if (!string.IsNullOrWhiteSpace(rawCommonName))
+                    {
+                        return rawCommonName;
+                    }
+                }
+            }
+
+            return string.IsNullOrWhiteSpace(title) ? "Nombre comun pendiente" : title.Trim();
+        }
     }
 
     public static class GardenImageVotingCsvService

@@ -11,6 +11,7 @@ public static class CoopMinigameSharedPanelPrefabUtility
     public const string SharedPrefabFolder = "Assets/CoopMinigames/Prefabs";
     public const string TopPanelPrefabPath = SharedPrefabFolder + "/CoopMinigameTopPanel.prefab";
     public const string BottomPanelPrefabPath = SharedPrefabFolder + "/CoopMinigameBottomPanel.prefab";
+    private const string PlayerAvatarCatalogPath = "Assets/ScriptableObjects/Lobby/PlayerMarkerAppearanceCatalogConfig.asset";
 
     [MenuItem("Tools/Coop/Theme/Create Or Update Shared Panel Prefabs")]
     public static void CreateOrUpdateSharedPanelPrefabs()
@@ -28,9 +29,10 @@ public static class CoopMinigameSharedPanelPrefabUtility
 
     private static void CreateOrUpdateTopPanelPrefab(CoopMinigameThemeConfig themeConfig)
     {
-        var root = CreateUiObject("CoopMinigameTopPanel", null, typeof(Image), typeof(VerticalLayoutGroup), typeof(CoopMinigameTopPanelView));
+        var root = CreateUiObject("CoopMinigameTopPanel", null, typeof(RoundedPanelGraphic), typeof(Mask), typeof(VerticalLayoutGroup), typeof(CoopMinigameTopPanelView));
         var rootRect = root.GetComponent<RectTransform>();
         rootRect.sizeDelta = new Vector2(themeConfig.ScreenLayout.ReferenceResolution.x, themeConfig.ScreenLayout.TopPanelHeight);
+        root.GetComponent<Mask>().showMaskGraphic = true;
 
         var rootLayout = root.GetComponent<VerticalLayoutGroup>();
         rootLayout.padding = new RectOffset(32, 32, 28, 0);
@@ -52,7 +54,7 @@ public static class CoopMinigameSharedPanelPrefabUtility
 
         var progressColumn = CreateTopProgressColumn(upperSection.transform, themeConfig);
         var brandColumn = CreateTopBrandColumn(upperSection.transform, themeConfig);
-        var teamColumn = CreateTopTeamColumn(upperSection.transform, themeConfig, out var avatarImages);
+        var teamColumn = CreateTopTeamColumn(upperSection.transform, themeConfig, out var avatarGridLayout, out var avatarImages);
 
         var titleBand = CreateUiObject("TitleBand", root.transform, typeof(Image), typeof(HorizontalLayoutGroup), typeof(LayoutElement));
         titleBand.GetComponent<LayoutElement>().preferredHeight = themeConfig.TopPanelStyle.TitleBandHeight;
@@ -72,8 +74,10 @@ public static class CoopMinigameSharedPanelPrefabUtility
         var view = root.GetComponent<CoopMinigameTopPanelView>();
         var serializedView = new SerializedObject(view);
         Assign(serializedView, "themeConfig", themeConfig);
-        Assign(serializedView, "backgroundImage", root.GetComponent<Image>());
+        Assign(serializedView, "backgroundGraphic", root.GetComponent<RoundedPanelGraphic>());
+        Assign(serializedView, "backgroundImage", null);
         Assign(serializedView, "titleBandImage", titleBand.GetComponent<Image>());
+        Assign(serializedView, "logoFrameGraphic", progressColumn.LogoFrameGraphic);
         Assign(serializedView, "logoImage", progressColumn.LogoImage);
         Assign(serializedView, "projectTitleLabel", brandColumn.ProjectTitle);
         Assign(serializedView, "projectSubtitleLabel", brandColumn.ProjectSubtitle);
@@ -84,6 +88,8 @@ public static class CoopMinigameSharedPanelPrefabUtility
         Assign(serializedView, "progressBackgroundImage", progressColumn.ProgressBackground);
         Assign(serializedView, "teamTitleLabel", teamColumn.TeamTitle);
         Assign(serializedView, "teamNameLabel", teamColumn.TeamName);
+        Assign(serializedView, "avatarGridLayout", avatarGridLayout);
+        Assign(serializedView, "avatarCatalog", AssetDatabase.LoadAssetAtPath<PlayerMarkerAppearanceCatalogConfig>(PlayerAvatarCatalogPath));
         Assign(serializedView, "minigameTitleLabel", titleLabel);
         Assign(serializedView, "leftLeafImage", leftLeaf);
         Assign(serializedView, "rightLeafImage", rightLeaf);
@@ -110,10 +116,19 @@ public static class CoopMinigameSharedPanelPrefabUtility
         rootLayout.childForceExpandWidth = true;
         rootLayout.childForceExpandHeight = false;
 
-        var instructionPanel = CreateInstructionPanel(root.transform, themeConfig, out var instructionIcon, out var instructionTitle, out var instructionBody);
+        var instructionPanel = CreateInstructionPanel(
+            root.transform,
+            themeConfig,
+            out var instructionPanelGraphic,
+            out var instructionIconCircleGraphic,
+            out var instructionIcon,
+            out var instructionTitle,
+            out var instructionBody);
         var timerPanel = CreateTimerPanel(
             root.transform,
             themeConfig,
+            out var timerPanelGraphic,
+            out var timerIconCircleGraphic,
             out var timerIcon,
             out var timeLabel,
             out var timeValue,
@@ -121,6 +136,7 @@ public static class CoopMinigameSharedPanelPrefabUtility
             out var timeFill,
             out var timeBackground,
             out var divider,
+            out var penaltyIconCircleGraphic,
             out var penaltyIcon,
             out var penaltyLabel,
             out var penaltyValue);
@@ -128,11 +144,15 @@ public static class CoopMinigameSharedPanelPrefabUtility
         var view = root.GetComponent<CoopMinigameBottomPanelView>();
         var serializedView = new SerializedObject(view);
         Assign(serializedView, "themeConfig", themeConfig);
-        Assign(serializedView, "instructionPanelImage", instructionPanel.GetComponent<Image>());
+        Assign(serializedView, "instructionPanelGraphic", instructionPanelGraphic);
+        Assign(serializedView, "instructionPanelImage", null);
+        Assign(serializedView, "instructionIconCircleGraphic", instructionIconCircleGraphic);
         Assign(serializedView, "instructionIconImage", instructionIcon);
         Assign(serializedView, "instructionTitleLabel", instructionTitle);
         Assign(serializedView, "instructionBodyLabel", instructionBody);
-        Assign(serializedView, "timerPanelImage", timerPanel.GetComponent<Image>());
+        Assign(serializedView, "timerPanelGraphic", timerPanelGraphic);
+        Assign(serializedView, "timerPanelImage", null);
+        Assign(serializedView, "timerIconCircleGraphic", timerIconCircleGraphic);
         Assign(serializedView, "timerIconImage", timerIcon);
         Assign(serializedView, "timeLabel", timeLabel);
         Assign(serializedView, "timeValueLabel", timeValue);
@@ -140,6 +160,7 @@ public static class CoopMinigameSharedPanelPrefabUtility
         Assign(serializedView, "timeSliderFillImage", timeFill);
         Assign(serializedView, "timeSliderBackgroundImage", timeBackground);
         Assign(serializedView, "dividerImage", divider);
+        Assign(serializedView, "penaltyIconCircleGraphic", penaltyIconCircleGraphic);
         Assign(serializedView, "penaltyIconImage", penaltyIcon);
         Assign(serializedView, "penaltyLabel", penaltyLabel);
         Assign(serializedView, "penaltyValueLabel", penaltyValue);
@@ -162,7 +183,18 @@ public static class CoopMinigameSharedPanelPrefabUtility
         rootLayout.childControlWidth = false;
         root.GetComponent<LayoutElement>().preferredWidth = 330f;
 
-        var logo = CreateIconImage("Logo", root.transform, Vector2.one * themeConfig.TopPanelStyle.LogoSize);
+        var logoFrame = CreateUiObject("LogoFrame", root.transform, typeof(RoundedPanelGraphic), typeof(LayoutElement));
+        logoFrame.GetComponent<LayoutElement>().preferredWidth = themeConfig.TopPanelStyle.LogoSize;
+        logoFrame.GetComponent<LayoutElement>().preferredHeight = themeConfig.TopPanelStyle.LogoSize;
+        var logoFrameGraphic = logoFrame.GetComponent<RoundedPanelGraphic>();
+        logoFrameGraphic.Configure(
+            themeConfig.Palette.PrimaryGreen,
+            themeConfig.Palette.MutedGreen,
+            themeConfig.TopPanelStyle.LogoSize * 0.5f,
+            2f);
+
+        var logo = CreateIconImage("Logo", logoFrame.transform, Vector2.one * (themeConfig.TopPanelStyle.LogoSize - 22f));
+        Stretch(logo.rectTransform, new Vector2(11f, 11f), new Vector2(-11f, -11f));
 
         var labels = CreateUiObject("ProgressLabels", root.transform, typeof(VerticalLayoutGroup), typeof(LayoutElement));
         labels.GetComponent<LayoutElement>().preferredWidth = 190f;
@@ -176,7 +208,7 @@ public static class CoopMinigameSharedPanelPrefabUtility
         var percent = CreateText("ProgressPercentLabel", labels.transform, themeConfig, "45%", themeConfig.Typography.BodyLargeSize, TextAlignmentOptions.Left, FontStyles.Bold);
         var slider = CreateSlider("GlobalProgressSlider", labels.transform, themeConfig.TopPanelStyle.ProgressBarWidth, themeConfig.TopPanelStyle.ProgressBarHeight, out var fill, out var background);
 
-        return new TopProgressReferences(logo, title, percent, slider, fill, background);
+        return new TopProgressReferences(logoFrameGraphic, logo, title, percent, slider, fill, background);
     }
 
     private static TopBrandReferences CreateTopBrandColumn(Transform parent, CoopMinigameThemeConfig themeConfig)
@@ -196,10 +228,14 @@ public static class CoopMinigameSharedPanelPrefabUtility
         return new TopBrandReferences(title, subtitle);
     }
 
-    private static TopTeamReferences CreateTopTeamColumn(Transform parent, CoopMinigameThemeConfig themeConfig, out List<Image> avatarImages)
+    private static TopTeamReferences CreateTopTeamColumn(
+        Transform parent,
+        CoopMinigameThemeConfig themeConfig,
+        out GridLayoutGroup avatarGridLayout,
+        out List<Image> avatarImages)
     {
         var root = CreateUiObject("TeamArea", parent, typeof(VerticalLayoutGroup), typeof(LayoutElement));
-        root.GetComponent<LayoutElement>().preferredWidth = 300f;
+        root.GetComponent<LayoutElement>().preferredWidth = 330f;
         var layout = root.GetComponent<VerticalLayoutGroup>();
         layout.spacing = 5f;
         layout.childAlignment = TextAnchor.MiddleCenter;
@@ -209,13 +245,15 @@ public static class CoopMinigameSharedPanelPrefabUtility
         var title = CreateText("TeamTitleLabel", root.transform, themeConfig, themeConfig.TeamTitle, themeConfig.Typography.CaptionSize, TextAlignmentOptions.Center, FontStyles.Bold);
         var name = CreateText("TeamNameLabel", root.transform, themeConfig, themeConfig.TeamTitle, themeConfig.Typography.CaptionSize, TextAlignmentOptions.Center, FontStyles.Bold);
 
-        var avatarRow = CreateUiObject("AvatarRow", root.transform, typeof(HorizontalLayoutGroup), typeof(LayoutElement));
-        avatarRow.GetComponent<LayoutElement>().preferredHeight = themeConfig.TopPanelStyle.AvatarSize;
-        var avatarLayout = avatarRow.GetComponent<HorizontalLayoutGroup>();
-        avatarLayout.spacing = -themeConfig.TopPanelStyle.AvatarOverlap;
-        avatarLayout.childAlignment = TextAnchor.MiddleCenter;
-        avatarLayout.childControlWidth = false;
-        avatarLayout.childControlHeight = false;
+        var avatarRow = CreateUiObject("AvatarRow", root.transform, typeof(GridLayoutGroup), typeof(LayoutElement));
+        avatarRow.GetComponent<LayoutElement>().preferredHeight = themeConfig.TopPanelStyle.AvatarSize * 2f + 6f;
+        avatarGridLayout = avatarRow.GetComponent<GridLayoutGroup>();
+        avatarGridLayout.padding = new RectOffset(0, 0, 0, 0);
+        avatarGridLayout.spacing = Vector2.one * 6f;
+        avatarGridLayout.cellSize = Vector2.one * themeConfig.TopPanelStyle.AvatarSize;
+        avatarGridLayout.childAlignment = TextAnchor.MiddleCenter;
+        avatarGridLayout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+        avatarGridLayout.constraintCount = 3;
 
         avatarImages = new List<Image>();
         for (var index = 0; index < 6; index++)
@@ -235,11 +273,19 @@ public static class CoopMinigameSharedPanelPrefabUtility
     private static GameObject CreateInstructionPanel(
         Transform parent,
         CoopMinigameThemeConfig themeConfig,
+        out RoundedPanelGraphic panelGraphic,
+        out RoundedPanelGraphic instructionIconCircleGraphic,
         out Image instructionIcon,
         out TMP_Text instructionTitle,
         out TMP_Text instructionBody)
     {
-        var panel = CreateUiObject("InstructionPanel", parent, typeof(Image), typeof(HorizontalLayoutGroup), typeof(LayoutElement));
+        var panel = CreateUiObject("InstructionPanel", parent, typeof(RoundedPanelGraphic), typeof(HorizontalLayoutGroup), typeof(LayoutElement));
+        panelGraphic = panel.GetComponent<RoundedPanelGraphic>();
+        panelGraphic.Configure(
+            themeConfig.Palette.PanelBackground,
+            themeConfig.Palette.PanelBorder,
+            themeConfig.CardPanelStyle.CornerRadius + 8f,
+            themeConfig.CardPanelStyle.BorderWidth);
         panel.GetComponent<LayoutElement>().preferredHeight = themeConfig.BottomPanelStyle.InstructionHeight;
         var layout = panel.GetComponent<HorizontalLayoutGroup>();
         layout.padding = new RectOffset(28, 28, 18, 18);
@@ -248,10 +294,15 @@ public static class CoopMinigameSharedPanelPrefabUtility
         layout.childControlHeight = true;
         layout.childControlWidth = false;
 
-        var iconCircle = CreateUiObject("InstructionIconCircle", panel.transform, typeof(Image), typeof(LayoutElement));
+        var iconCircle = CreateUiObject("InstructionIconCircle", panel.transform, typeof(RoundedPanelGraphic), typeof(LayoutElement));
         iconCircle.GetComponent<LayoutElement>().preferredWidth = themeConfig.InstructionPanelStyle.IconCircleSize;
         iconCircle.GetComponent<LayoutElement>().preferredHeight = themeConfig.InstructionPanelStyle.IconCircleSize;
-        iconCircle.GetComponent<Image>().color = themeConfig.Palette.PanelBackground;
+        instructionIconCircleGraphic = iconCircle.GetComponent<RoundedPanelGraphic>();
+        instructionIconCircleGraphic.Configure(
+            themeConfig.Palette.PanelBackground,
+            themeConfig.Palette.PanelBorder,
+            themeConfig.InstructionPanelStyle.IconCircleSize * 0.5f,
+            themeConfig.InstructionPanelStyle.IconCircleBorderWidth);
         instructionIcon = CreateIconImage("Icon", iconCircle.transform, Vector2.one * (themeConfig.InstructionPanelStyle.IconCircleSize * 0.58f));
         Center(instructionIcon.rectTransform);
 
@@ -272,6 +323,8 @@ public static class CoopMinigameSharedPanelPrefabUtility
     private static GameObject CreateTimerPanel(
         Transform parent,
         CoopMinigameThemeConfig themeConfig,
+        out RoundedPanelGraphic panelGraphic,
+        out RoundedPanelGraphic timerIconCircleGraphic,
         out Image timerIcon,
         out TMP_Text timeLabel,
         out TMP_Text timeValue,
@@ -279,11 +332,18 @@ public static class CoopMinigameSharedPanelPrefabUtility
         out Image timeFill,
         out Image timeBackground,
         out Image divider,
+        out RoundedPanelGraphic penaltyIconCircleGraphic,
         out Image penaltyIcon,
         out TMP_Text penaltyLabel,
         out TMP_Text penaltyValue)
     {
-        var panel = CreateUiObject("TimerPenaltyPanel", parent, typeof(Image), typeof(HorizontalLayoutGroup), typeof(LayoutElement));
+        var panel = CreateUiObject("TimerPenaltyPanel", parent, typeof(RoundedPanelGraphic), typeof(HorizontalLayoutGroup), typeof(LayoutElement));
+        panelGraphic = panel.GetComponent<RoundedPanelGraphic>();
+        panelGraphic.Configure(
+            themeConfig.Palette.PanelBackground,
+            themeConfig.Palette.PanelBorder,
+            themeConfig.CardPanelStyle.CornerRadius + 8f,
+            themeConfig.CardPanelStyle.BorderWidth);
         panel.GetComponent<LayoutElement>().preferredHeight = themeConfig.BottomPanelStyle.TimerPanelHeight;
         var layout = panel.GetComponent<HorizontalLayoutGroup>();
         layout.padding = new RectOffset(30, 30, 18, 18);
@@ -300,10 +360,15 @@ public static class CoopMinigameSharedPanelPrefabUtility
         timeGroupLayout.childControlWidth = false;
         timeGroupLayout.childControlHeight = true;
 
-        var timerIconCircle = CreateUiObject("TimerIconCircle", timeGroup.transform, typeof(Image), typeof(LayoutElement));
+        var timerIconCircle = CreateUiObject("TimerIconCircle", timeGroup.transform, typeof(RoundedPanelGraphic), typeof(LayoutElement));
         timerIconCircle.GetComponent<LayoutElement>().preferredWidth = themeConfig.BottomPanelStyle.LargeIconSize;
         timerIconCircle.GetComponent<LayoutElement>().preferredHeight = themeConfig.BottomPanelStyle.LargeIconSize;
-        timerIconCircle.GetComponent<Image>().color = themeConfig.Palette.PanelBackground;
+        timerIconCircleGraphic = timerIconCircle.GetComponent<RoundedPanelGraphic>();
+        timerIconCircleGraphic.Configure(
+            themeConfig.Palette.PanelBackground,
+            themeConfig.Palette.ProgressGreen,
+            themeConfig.BottomPanelStyle.LargeIconSize * 0.5f,
+            2f);
         timerIcon = CreateIconImage("Icon", timerIconCircle.transform, Vector2.one * (themeConfig.BottomPanelStyle.LargeIconSize * 0.58f));
         Center(timerIcon.rectTransform);
 
@@ -321,7 +386,8 @@ public static class CoopMinigameSharedPanelPrefabUtility
 
         var dividerObject = CreateUiObject("Divider", panel.transform, typeof(Image), typeof(LayoutElement));
         divider = dividerObject.GetComponent<Image>();
-        dividerObject.GetComponent<LayoutElement>().preferredWidth = 2f;
+        divider.raycastTarget = false;
+        dividerObject.GetComponent<LayoutElement>().preferredWidth = themeConfig.BottomPanelStyle.DividerWidth;
 
         var penaltyGroup = CreateUiObject("PenaltyGroup", panel.transform, typeof(HorizontalLayoutGroup), typeof(LayoutElement));
         penaltyGroup.GetComponent<LayoutElement>().flexibleWidth = 1f;
@@ -341,10 +407,15 @@ public static class CoopMinigameSharedPanelPrefabUtility
         penaltyLabel = CreateText("PenaltyLabel", penaltyTexts.transform, themeConfig, themeConfig.BottomPanelStyle.PenaltyLabel, themeConfig.Typography.CaptionSize, TextAlignmentOptions.Center, FontStyles.Bold);
         penaltyValue = CreateText("PenaltyValueLabel", penaltyTexts.transform, themeConfig, "-10s", themeConfig.Typography.ProjectTitleSize, TextAlignmentOptions.Center, FontStyles.Bold);
 
-        var penaltyIconCircle = CreateUiObject("PenaltyIconCircle", penaltyGroup.transform, typeof(Image), typeof(LayoutElement));
+        var penaltyIconCircle = CreateUiObject("PenaltyIconCircle", penaltyGroup.transform, typeof(RoundedPanelGraphic), typeof(LayoutElement));
         penaltyIconCircle.GetComponent<LayoutElement>().preferredWidth = themeConfig.BottomPanelStyle.LargeIconSize;
         penaltyIconCircle.GetComponent<LayoutElement>().preferredHeight = themeConfig.BottomPanelStyle.LargeIconSize;
-        penaltyIconCircle.GetComponent<Image>().color = themeConfig.Palette.PanelBackground;
+        penaltyIconCircleGraphic = penaltyIconCircle.GetComponent<RoundedPanelGraphic>();
+        penaltyIconCircleGraphic.Configure(
+            themeConfig.Palette.PanelBackground,
+            themeConfig.Palette.DangerSoft,
+            themeConfig.BottomPanelStyle.LargeIconSize * 0.5f,
+            2f);
         penaltyIcon = CreateIconImage("Icon", penaltyIconCircle.transform, Vector2.one * (themeConfig.BottomPanelStyle.LargeIconSize * 0.58f));
         Center(penaltyIcon.rectTransform);
 
@@ -488,8 +559,9 @@ public static class CoopMinigameSharedPanelPrefabUtility
 
     private readonly struct TopProgressReferences
     {
-        public TopProgressReferences(Image logoImage, TMP_Text progressTitle, TMP_Text progressPercent, Slider progressSlider, Image progressFill, Image progressBackground)
+        public TopProgressReferences(RoundedPanelGraphic logoFrameGraphic, Image logoImage, TMP_Text progressTitle, TMP_Text progressPercent, Slider progressSlider, Image progressFill, Image progressBackground)
         {
+            LogoFrameGraphic = logoFrameGraphic;
             LogoImage = logoImage;
             ProgressTitle = progressTitle;
             ProgressPercent = progressPercent;
@@ -498,6 +570,7 @@ public static class CoopMinigameSharedPanelPrefabUtility
             ProgressBackground = progressBackground;
         }
 
+        public RoundedPanelGraphic LogoFrameGraphic { get; }
         public Image LogoImage { get; }
         public TMP_Text ProgressTitle { get; }
         public TMP_Text ProgressPercent { get; }

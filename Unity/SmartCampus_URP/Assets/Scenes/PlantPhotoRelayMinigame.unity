@@ -7921,7 +7921,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SmartCampus.Coop.Minigames.PlantPhotoRelay.PlantPhotoRelayMinigameSession
   ShowTopMostFoldoutHeaderGroup: 1
   coopSessionCoordinator: {fileID: 0}
-  plantPhotoRelayMinigameConfig: {fileID: 0}
+  plantPhotoRelayMinigameConfig: {fileID: 11400000, guid: e0954a3028f303c48a698c1d2d6de561, type: 2}
 --- !u!114 &1991553551
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -155,6 +155,7 @@ public static class GardenImageVotingMinigameSetup
         var serializedSession = new SerializedObject(session);
         serializedSession.FindProperty("gardenImageVotingMinigameConfig").objectReferenceValue = config;
         serializedSession.ApplyModifiedPropertiesWithoutUndo();
+        EditorUtility.SetDirty(session);
 
         var canvas = CreateCanvas("GardenImageVotingCanvas");
         var safeAreaRoot = CreateUiObject("SafeAreaRoot", canvas.transform, typeof(SafeAreaFitter));
@@ -201,6 +202,14 @@ public static class GardenImageVotingMinigameSetup
         var cardPanelLayout = cardPanel.AddComponent<LayoutElement>();
         cardPanelLayout.flexibleHeight = 1f;
         cardPanelLayout.minHeight = 360f;
+        var cardPanelGraphic = cardPanel.GetComponent<RoundedPanelGraphic>();
+        cardPanelGraphic.Configure(
+            new Color(0.996f, 0.988f, 0.956f, 0.32f),
+            themeConfig.Palette.PanelBorder,
+            44f,
+            2f);
+
+        CreateSwipeDecisionZones(cardPanel.transform, font, themeConfig);
 
         var cardRoot = CreateUiObject("CardRoot", cardPanel.transform, typeof(Image), typeof(CanvasGroup), typeof(GardenImageVotingCardView), typeof(ResponsiveAspectRatioLayoutController));
         var cardRootRect = cardRoot.GetComponent<RectTransform>();
@@ -209,6 +218,15 @@ public static class GardenImageVotingMinigameSetup
         cardRootRect.pivot = new Vector2(0.5f, 0.5f);
         cardRootRect.sizeDelta = new Vector2(640f, 920f);
         cardRoot.GetComponent<Image>().color = config.CardVisualSettings.BackgroundColor;
+        cardRoot.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0f);
+        var cardBackground = CreateUiObject("RoundedCardBackground", cardRoot.transform, typeof(RoundedPanelGraphic));
+        Stretch(cardBackground.GetComponent<RectTransform>(), Vector2.zero, Vector2.zero);
+        cardBackground.GetComponent<RoundedPanelGraphic>().Configure(
+            config.CardVisualSettings.BackgroundColor,
+            themeConfig.Palette.PanelBorder,
+            34f,
+            3f);
+        cardBackground.transform.SetAsFirstSibling();
         cardRoot.GetComponent<ResponsiveAspectRatioLayoutController>().Configure(
             cardPanel.GetComponent<RectTransform>(),
             640f / 920f,
@@ -229,24 +247,17 @@ public static class GardenImageVotingMinigameSetup
         var illustrationPlaceholderLabel = CreateText("IllustrationPlaceholderLabel", illustrationPlaceholder.transform, font, "Imagen pendiente", 30, TextAnchor.MiddleCenter);
         Stretch(illustrationPlaceholderLabel.GetComponent<RectTransform>(), new Vector2(16f, 16f), new Vector2(-16f, -16f));
 
-        var topicLabel = CreateText("TopicLabel", cardRoot.transform, font, "Tema", 30, TextAnchor.MiddleCenter);
-        var topicRect = topicLabel.GetComponent<RectTransform>();
-        topicRect.anchorMin = new Vector2(0.08f, 0.33f);
-        topicRect.anchorMax = new Vector2(0.92f, 0.39f);
-        topicRect.offsetMin = Vector2.zero;
-        topicRect.offsetMax = Vector2.zero;
-
-        var cardTitleLabel = CreateText("CardTitleLabel", cardRoot.transform, font, "Detalle", 42, TextAnchor.MiddleCenter);
+        var cardTitleLabel = CreateText("CardTitleLabel", cardRoot.transform, font, "Nombre cientifico", 42, TextAnchor.MiddleCenter);
         var cardTitleRect = cardTitleLabel.GetComponent<RectTransform>();
-        cardTitleRect.anchorMin = new Vector2(0.08f, 0.24f);
-        cardTitleRect.anchorMax = new Vector2(0.92f, 0.32f);
+        cardTitleRect.anchorMin = new Vector2(0.08f, 0.28f);
+        cardTitleRect.anchorMax = new Vector2(0.92f, 0.36f);
         cardTitleRect.offsetMin = Vector2.zero;
         cardTitleRect.offsetMax = Vector2.zero;
 
-        var bodyLabel = CreateText("BodyLabel", cardRoot.transform, font, "Desliza a la derecha si la has visto en el jardin o a la izquierda si no la has visto.", 24, TextAnchor.UpperCenter);
+        var bodyLabel = CreateText("BodyLabel", cardRoot.transform, font, "Nombre comun", 30, TextAnchor.MiddleCenter);
         var bodyRect = bodyLabel.GetComponent<RectTransform>();
-        bodyRect.anchorMin = new Vector2(0.08f, 0.1f);
-        bodyRect.anchorMax = new Vector2(0.92f, 0.21f);
+        bodyRect.anchorMin = new Vector2(0.08f, 0.18f);
+        bodyRect.anchorMax = new Vector2(0.92f, 0.26f);
         bodyRect.offsetMin = Vector2.zero;
         bodyRect.offsetMax = Vector2.zero;
 
@@ -266,12 +277,11 @@ public static class GardenImageVotingMinigameSetup
             gameplayPanel.transform,
             themeConfig.ScreenLayout.BottomPanelHeight);
         bottomPanelView.SetTheme(themeConfig);
-        bottomPanelView.Bind(
-            "DE ACUERDO EN EQUIPO",
-            "Cuando todos hayais clasificado la tarjeta, se contara el resultado.",
-            config.TimeLimitSeconds,
-            config.TimeLimitSeconds,
-            0f);
+        bottomPanelView.SetInstruction(
+            "IMAGENES DEL JARDIN",
+            "Desliza la tarjeta a la derecha si esa planta si aparece en el jardin y a la izquierda si no aparece.");
+        bottomPanelView.SetTimer(config.TimeLimitSeconds, config.TimeLimitSeconds);
+        bottomPanelView.SetPenaltySeconds(config.IncorrectAnswerPenaltySeconds);
 
         var tutorialPopup = CreateTutorialPopup(uiRoot.transform, font);
         tutorialPopup.gameObject.SetActive(false);
@@ -285,9 +295,9 @@ public static class GardenImageVotingMinigameSetup
         serializedCardView.FindProperty("cardTransform").objectReferenceValue = cardRootRect;
         serializedCardView.FindProperty("canvasGroup").objectReferenceValue = cardRoot.GetComponent<CanvasGroup>();
         serializedCardView.FindProperty("frameImage").objectReferenceValue = cardRoot.GetComponent<Image>();
+        serializedCardView.FindProperty("frameGraphic").objectReferenceValue = cardBackground.GetComponent<RoundedPanelGraphic>();
         serializedCardView.FindProperty("illustrationImage").objectReferenceValue = illustration.GetComponent<Image>();
         serializedCardView.FindProperty("illustrationPlaceholderRoot").objectReferenceValue = illustrationPlaceholder;
-        serializedCardView.FindProperty("topicLabel").objectReferenceValue = topicLabel;
         serializedCardView.FindProperty("titleLabel").objectReferenceValue = cardTitleLabel;
         serializedCardView.FindProperty("bodyLabel").objectReferenceValue = bodyLabel;
         serializedCardView.FindProperty("decisionHintLabel").objectReferenceValue = decisionHintLabel;
@@ -305,6 +315,7 @@ public static class GardenImageVotingMinigameSetup
         serializedUiController.FindProperty("topPanelView").objectReferenceValue = topPanelView;
         serializedUiController.FindProperty("bottomPanelView").objectReferenceValue = bottomPanelView;
         serializedUiController.FindProperty("cardView").objectReferenceValue = cardView;
+        serializedUiController.FindProperty("displayedPenaltySeconds").floatValue = config.IncorrectAnswerPenaltySeconds;
         serializedUiController.FindProperty("titleLabel").objectReferenceValue = titleLabel;
         serializedUiController.FindProperty("timerLabel").objectReferenceValue = timerLabel;
         serializedUiController.FindProperty("scoreLabel").objectReferenceValue = scoreLabel;
@@ -327,7 +338,7 @@ public static class GardenImageVotingMinigameSetup
 
         var serializedCoordinator = new SerializedObject(coordinator);
         var miniGameSceneNames = serializedCoordinator.FindProperty("miniGameSceneNames");
-        miniGameSceneNames.arraySize = Math.Max(5, miniGameSceneNames.arraySize);
+        miniGameSceneNames.arraySize = Math.Max(MinigameIndex + 1, miniGameSceneNames.arraySize);
         miniGameSceneNames.GetArrayElementAtIndex(MinigameIndex).stringValue = MinigameSceneName;
         serializedCoordinator.ApplyModifiedPropertiesWithoutUndo();
 
@@ -503,18 +514,121 @@ public static class GardenImageVotingMinigameSetup
 
     private static GameObject CreatePanel(string name, Transform parent, Color color)
     {
-        var panel = CreateUiObject(name, parent, typeof(Image));
-        panel.GetComponent<Image>().color = color;
+        var panel = CreateUiObject(name, parent, typeof(RoundedPanelGraphic));
+        panel.GetComponent<RoundedPanelGraphic>().Configure(
+            color,
+            new Color(0.84f, 0.79f, 0.63f, 1f),
+            30f,
+            2f);
         return panel;
+    }
+
+    private static void CreateSwipeDecisionZones(Transform parent, Font font, CoopMinigameThemeConfig themeConfig)
+    {
+        var zonesRoot = CreateUiObject("SwipeDecisionZones", parent);
+        Stretch(zonesRoot.GetComponent<RectTransform>(), new Vector2(20f, 44f), new Vector2(-20f, -44f));
+
+        CreateSwipeDecisionZone(
+            "NoSeenZone",
+            zonesRoot.transform,
+            font,
+            "←",
+            "NO LO\nHE VISTO",
+            new Color(0.78f, 0.18f, 0.10f, 1f),
+            new Color(0.95f, 0.78f, 0.72f, 0.3f),
+            new Vector2(0f, 0.16f),
+            new Vector2(0.31f, 0.92f),
+            new Vector2(0f, 0f),
+            new Vector2(-18f, 0f));
+
+        CreateSwipeDecisionZone(
+            "SeenZone",
+            zonesRoot.transform,
+            font,
+            "→",
+            "SI LO\nHE VISTO",
+            themeConfig.Palette.SecondaryGreen,
+            new Color(0.68f, 0.78f, 0.49f, 0.32f),
+            new Vector2(0.69f, 0.16f),
+            new Vector2(1f, 0.92f),
+            new Vector2(18f, 0f),
+            new Vector2(0f, 0f));
+    }
+
+    private static void CreateSwipeDecisionZone(
+        string name,
+        Transform parent,
+        Font font,
+        string arrow,
+        string label,
+        Color accentColor,
+        Color fillColor,
+        Vector2 anchorMin,
+        Vector2 anchorMax,
+        Vector2 offsetMin,
+        Vector2 offsetMax)
+    {
+        var zone = CreateUiObject(name, parent);
+        var zoneRect = zone.GetComponent<RectTransform>();
+        zoneRect.anchorMin = anchorMin;
+        zoneRect.anchorMax = anchorMax;
+        zoneRect.offsetMin = offsetMin;
+        zoneRect.offsetMax = offsetMax;
+
+        var fill = CreateUiObject("SoftFill", zone.transform, typeof(RoundedPanelGraphic));
+        Stretch(fill.GetComponent<RectTransform>(), Vector2.zero, Vector2.zero);
+        fill.GetComponent<RoundedPanelGraphic>().Configure(
+            fillColor,
+            new Color(accentColor.r, accentColor.g, accentColor.b, 0f),
+            44f,
+            0f);
+
+        var dashedBorder = CreateUiObject("DashedBorder", zone.transform, typeof(DashedRoundedRectGraphic));
+        Stretch(dashedBorder.GetComponent<RectTransform>(), Vector2.zero, Vector2.zero);
+        dashedBorder.GetComponent<DashedRoundedRectGraphic>().Configure(accentColor, 44f, 5f, 20f, 12f);
+
+        var content = CreateUiObject("Content", zone.transform, typeof(VerticalLayoutGroup));
+        Stretch(content.GetComponent<RectTransform>(), new Vector2(18f, 18f), new Vector2(-18f, -18f));
+        var layout = content.GetComponent<VerticalLayoutGroup>();
+        layout.spacing = 16f;
+        layout.childAlignment = TextAnchor.MiddleCenter;
+        layout.childControlWidth = true;
+        layout.childControlHeight = false;
+        layout.childForceExpandHeight = false;
+
+        var arrowLabel = CreateText("ArrowLabel", content.transform, font, arrow, 68, TextAnchor.MiddleCenter);
+        arrowLabel.color = accentColor;
+        arrowLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 72f;
+
+        var textLabel = CreateText("DecisionLabel", content.transform, font, label, 34, TextAnchor.MiddleCenter);
+        textLabel.color = accentColor;
+        textLabel.fontStyle = FontStyles.Bold;
+        textLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 82f;
     }
 
     private static GameObject CreateUiObject(string name, Transform parent, params Type[] components)
     {
-        var objectComponents = new Type[components.Length + 1];
-        objectComponents[0] = typeof(RectTransform);
+        var requiresCanvasRenderer = false;
         for (var index = 0; index < components.Length; index++)
         {
-            objectComponents[index + 1] = components[index];
+            if (typeof(MaskableGraphic).IsAssignableFrom(components[index]) && components[index] != typeof(CanvasRenderer))
+            {
+                requiresCanvasRenderer = true;
+                break;
+            }
+        }
+
+        var extraComponentCount = requiresCanvasRenderer ? 2 : 1;
+        var objectComponents = new Type[components.Length + extraComponentCount];
+        objectComponents[0] = typeof(RectTransform);
+        if (requiresCanvasRenderer)
+        {
+            objectComponents[1] = typeof(CanvasRenderer);
+        }
+
+        for (var index = 0; index < components.Length; index++)
+        {
+            objectComponents[index + extraComponentCount - 1] = components[index];
         }
 
         var gameObject = new GameObject(name, objectComponents);

@@ -234,14 +234,18 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             var participantCount = GetParticipantIds().Count;
             if (collaborativePlantGuessMinigameConfig == null)
             {
-                PublishResultServer(new MinigameResultData("Configuracion invalida", 0f, 0, 0));
+                dataLoadError = "Configuracion invalida.";
+                sharedStatusMessage.Value = new FixedString128Bytes(dataLoadError);
+                SetBlockingErrorServer("Configuracion invalida");
                 return;
             }
 
             if (participantCount < collaborativePlantGuessMinigameConfig.MinimumSupportedPlayers ||
                 participantCount > collaborativePlantGuessMinigameConfig.MaxSupportedDevices)
             {
-                PublishResultServer(new MinigameResultData("Numero de jugadores no compatible", 0f, 0, 0));
+                dataLoadError = "Numero de jugadores no compatible.";
+                sharedStatusMessage.Value = new FixedString128Bytes(dataLoadError);
+                SetBlockingErrorServer("Numero de jugadores no compatible");
                 return;
             }
 
@@ -327,7 +331,8 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
         {
             if (IsServer && !HasPublishedResult)
             {
-                PublishResultServer(new MinigameResultData("CSV invalido", 0f, 0, 0));
+                sharedStatusMessage.Value = new FixedString128Bytes(string.IsNullOrWhiteSpace(dataLoadError) ? "CSV invalido." : dataLoadError);
+                SetBlockingErrorServer(string.IsNullOrWhiteSpace(dataLoadError) ? "CSV invalido" : dataLoadError);
             }
 
             StateChanged?.Invoke();
@@ -335,8 +340,16 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
 
         private void TryPrepareServerData()
         {
-            if (!IsServer || !hasLoadedPlantDefinitions || serverDataPrepared || HasPublishedResult)
+            if (!IsServer || !hasLoadedPlantDefinitions || serverDataPrepared || HasPublishedResult || HasBlockingError)
             {
+                return;
+            }
+
+            if (loadedPlantDefinitions.Count == 0)
+            {
+                dataLoadError = "El CSV no contiene plantas utilizables.";
+                sharedStatusMessage.Value = new FixedString128Bytes(dataLoadError);
+                SetBlockingErrorServer(dataLoadError);
                 return;
             }
 
@@ -357,7 +370,7 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
 
         private void StartGameplayServer()
         {
-            if (!IsServer || !serverDataPrepared || serverGameplayActive || collaborativePlantGuessMinigameConfig == null || HasPublishedResult)
+            if (!IsServer || !serverDataPrepared || serverGameplayActive || collaborativePlantGuessMinigameConfig == null || HasPublishedResult || HasBlockingError)
             {
                 return;
             }

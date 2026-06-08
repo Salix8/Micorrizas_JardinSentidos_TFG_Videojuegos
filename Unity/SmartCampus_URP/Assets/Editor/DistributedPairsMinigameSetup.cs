@@ -217,6 +217,7 @@ public static class DistributedPairsMinigameSetup
         var serializedSession = new SerializedObject(session);
         serializedSession.FindProperty("distributedPairsMinigameConfig").objectReferenceValue = config;
         serializedSession.ApplyModifiedPropertiesWithoutUndo();
+        EditorUtility.SetDirty(session);
 
         var canvas = CreateCanvas("DistributedPairsCanvas");
         var safeAreaRoot = CreateUiObject("SafeAreaRoot", canvas.transform, typeof(SafeAreaFitter));
@@ -446,7 +447,7 @@ public static class DistributedPairsMinigameSetup
         serializedCoordinator.FindProperty("persistAcrossScenes").boolValue = true;
 
         var miniGameSceneNames = serializedCoordinator.FindProperty("miniGameSceneNames");
-        miniGameSceneNames.arraySize = Math.Max(5, miniGameSceneNames.arraySize);
+        miniGameSceneNames.arraySize = Math.Max(MinigameIndex + 1, miniGameSceneNames.arraySize);
         miniGameSceneNames.GetArrayElementAtIndex(MinigameIndex).stringValue = MinigameSceneName;
         serializedCoordinator.ApplyModifiedPropertiesWithoutUndo();
 

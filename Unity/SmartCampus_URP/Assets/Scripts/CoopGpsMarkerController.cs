@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Esri.ArcGISMapsSDK.Components;
 using Esri.ArcGISMapsSDK.Utils.GeoCoord;
 using Esri.HPFramework;
+using SmartCampus.Coop.Minigames;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -13,6 +14,7 @@ public sealed class CoopGpsMarkerController : MonoBehaviour
     [Header("References")]
     [SerializeField] private DeviceGpsService deviceGpsService;
     [SerializeField] private CoopGpsStateSync gpsStateSync;
+    [SerializeField] private CoopPlayerProfileSync playerProfileSync;
     [SerializeField] private ArcGISMapCoordinateProjector mapCoordinateProjector;
     [SerializeField] private CoopSessionCoordinator coopSessionCoordinator;
     [SerializeField] private Transform markerRoot;
@@ -28,6 +30,7 @@ public sealed class CoopGpsMarkerController : MonoBehaviour
     [SerializeField] private Color remotePlayerColor = new(1f, 0.52f, 0.08f, 1f);
     [SerializeField] [Min(0.1f)] private float markerScale = 10f;
     [SerializeField] [Min(0f)] private float markerVisualHeightOffset = 12f;
+    [SerializeField] private Vector3 markerVisualLocalEulerAngles = new(90f, 0f, 0f);
     [SerializeField] [Min(0f)] private double markerSurfaceOffsetMeters = 3d;
     [SerializeField] private bool allowOfflineLocalMarker = true;
 
@@ -66,6 +69,7 @@ public sealed class CoopGpsMarkerController : MonoBehaviour
         }
 
         SubscribeToGpsSync();
+        SubscribeToPlayerProfiles();
         SubscribeToLocalProfile();
         RefreshAllMarkers();
     }
@@ -82,6 +86,11 @@ public sealed class CoopGpsMarkerController : MonoBehaviour
             gpsStateSync.StatesChanged -= HandleStatesChanged;
         }
 
+        if (playerProfileSync != null)
+        {
+            playerProfileSync.ProfilesChanged -= HandleProfilesChanged;
+        }
+
         if (localPlayerMarkerProfileService != null)
         {
             localPlayerMarkerProfileService.ProfileChanged -= HandleLocalProfileChanged;
@@ -92,6 +101,7 @@ public sealed class CoopGpsMarkerController : MonoBehaviour
     {
         ResolveReferences();
         SubscribeToGpsSync();
+        SubscribeToPlayerProfiles();
         SubscribeToLocalProfile();
 
         if (!hasLocalReading)
@@ -123,6 +133,11 @@ public sealed class CoopGpsMarkerController : MonoBehaviour
     }
 
     private void HandleStatesChanged()
+    {
+        RefreshAllMarkers();
+    }
+
+    private void HandleProfilesChanged()
     {
         RefreshAllMarkers();
     }
@@ -173,11 +188,8 @@ public sealed class CoopGpsMarkerController : MonoBehaviour
             markerViews.Add(clientId, markerView);
         }
 
-        if (isLocal)
-        {
-            markerView = EnsureLocalMarkerAppearance(markerView);
-            markerViews[clientId] = markerView;
-        }
+        markerView = EnsureMarkerAppearance(markerView, clientId, isLocal);
+        markerViews[clientId] = markerView;
 
         markerView.Root.SetActive(hasFix);
         if (!hasFix)
@@ -281,7 +293,7 @@ public sealed class CoopGpsMarkerController : MonoBehaviour
         root.SetActive(true);
 
         var locationComponent = root.GetComponent<ArcGISLocationComponent>();
-        var markerView = BuildMarkerView(root, isLocal ? ResolveDesiredLocalAvatarId() : string.Empty);
+        var markerView = BuildMarkerView(root, ResolveDesiredAvatarId(clientId, isLocal));
         ApplyVisualSettings(markerView);
 
         var hpTransform = root.GetComponent<HPTransform>();
@@ -316,6 +328,7 @@ public sealed class CoopGpsMarkerController : MonoBehaviour
         }
 
         markerView.VisualTransform.localPosition = Vector3.up * markerVisualHeightOffset;
+        markerView.VisualTransform.localRotation = Quaternion.Euler(markerVisualLocalEulerAngles);
         markerView.VisualTransform.localScale = markerView.MarkerScale * markerScale;
     }
 
@@ -375,6 +388,11 @@ public sealed class CoopGpsMarkerController : MonoBehaviour
         if (localPlayerAppearanceCatalog == null && localPlayerMarkerProfileService != null)
         {
             localPlayerAppearanceCatalog = localPlayerMarkerProfileService.AppearanceCatalog;
+        }
+
+        if (localPlayerAppearanceCatalog == null && playerProfileSync != null)
+        {
+            localPlayerAppearanceCatalog = playerProfileSync.AppearanceCatalog;
         }
     }
 
@@ -481,20 +499,60 @@ public sealed class CoopGpsMarkerController : MonoBehaviour
         localPlayerMarkerProfileService.ProfileChanged += HandleLocalProfileChanged;
     }
 
+    private void SubscribeToPlayerProfiles()
+    {
+        var resolvedSync = playerProfileSync;
+        if (resolvedSync == null)
+        {
+            resolvedSync = FindFirstObjectByType<CoopPlayerProfileSync>(FindObjectsInactive.Include);
+        }
+
+        if (resolvedSync == null)
+        {
+            return;
+        }
+
+        if (playerProfileSync != null && playerProfileSync != resolvedSync)
+        {
+            playerProfileSync.ProfilesChanged -= HandleProfilesChanged;
+        }
+
+        playerProfileSync = resolvedSync;
+        playerProfileSync.ProfilesChanged -= HandleProfilesChanged;
+        playerProfileSync.ProfilesChanged += HandleProfilesChanged;
+
+        if (localPlayerAppearanceCatalog == null)
+        {
+            localPlayerAppearanceCatalog = playerProfileSync.AppearanceCatalog;
+        }
+    }
+
     private void HandleLocalProfileChanged()
     {
         RefreshAllMarkers();
     }
 
-    private PlayerMarkerView EnsureLocalMarkerAppearance(PlayerMarkerView markerView)
+    private PlayerMarkerView EnsureMarkerAppearance(PlayerMarkerView markerView, ulong clientId, bool isLocal)
     {
-        var desiredAvatarId = ResolveDesiredLocalAvatarId();
+        var desiredAvatarId = ResolveDesiredAvatarId(clientId, isLocal);
         if (string.Equals(markerView.AvatarId, desiredAvatarId, System.StringComparison.OrdinalIgnoreCase))
         {
             return markerView;
         }
 
         return BuildMarkerView(markerView.Root, desiredAvatarId, markerView.LocationComponent, markerView.HpTransform, markerView.HpRoot);
+    }
+
+    private string ResolveDesiredAvatarId(ulong clientId, bool isLocal)
+    {
+        if (playerProfileSync != null &&
+            playerProfileSync.TryGetProfile(clientId, out var profile) &&
+            !profile.AvatarId.IsEmpty)
+        {
+            return profile.AvatarId.ToString();
+        }
+
+        return isLocal ? ResolveDesiredLocalAvatarId() : string.Empty;
     }
 
     private string ResolveDesiredLocalAvatarId()
@@ -560,7 +618,7 @@ public sealed class CoopGpsMarkerController : MonoBehaviour
         var visualInstance = new GameObject("Visual", typeof(SpriteRenderer));
         visualInstance.transform.SetParent(markerRootTransform, false);
         visualInstance.transform.localPosition = Vector3.zero;
-        visualInstance.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
+        visualInstance.transform.localRotation = Quaternion.Euler(markerVisualLocalEulerAngles);
         visualInstance.transform.localScale = Vector3.one;
 
         var spriteRenderer = visualInstance.GetComponent<SpriteRenderer>();

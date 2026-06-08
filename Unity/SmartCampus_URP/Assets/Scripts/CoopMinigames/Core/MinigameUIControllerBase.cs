@@ -37,6 +37,10 @@ namespace SmartCampus.Coop.Minigames
         [Header("Labels")]
         [SerializeField] private TMP_Text waitingStatusLabel;
 
+        [Header("Optional Waiting Actions")]
+        [SerializeField] private Button waitingActionButton;
+        [SerializeField] private TMP_Text waitingActionButtonLabel;
+
         private bool hasFailureFeedbackBaseline;
         private int lastFailureFeedbackCount;
 
@@ -60,6 +64,7 @@ namespace SmartCampus.Coop.Minigames
             minigameSession.StageChanged += HandleStageChanged;
             minigameSession.TutorialProgressChanged += HandleTutorialProgressChanged;
             minigameSession.ResultPublished += HandleResultPublished;
+            minigameSession.BlockingErrorChanged += HandleBlockingErrorChanged;
 
             if (tutorialPopupController != null)
             {
@@ -76,6 +81,7 @@ namespace SmartCampus.Coop.Minigames
                 minigameSession.StageChanged -= HandleStageChanged;
                 minigameSession.TutorialProgressChanged -= HandleTutorialProgressChanged;
                 minigameSession.ResultPublished -= HandleResultPublished;
+                minigameSession.BlockingErrorChanged -= HandleBlockingErrorChanged;
             }
 
             if (tutorialPopupController != null)
@@ -142,6 +148,11 @@ namespace SmartCampus.Coop.Minigames
             RefreshView();
         }
 
+        private void HandleBlockingErrorChanged()
+        {
+            RefreshView();
+        }
+
         private void RefreshView()
         {
             if (Session == null)
@@ -166,6 +177,15 @@ namespace SmartCampus.Coop.Minigames
                 {
                     waitingMessage = overriddenViewState.WaitingMessage;
                 }
+            }
+
+            if (Session.HasBlockingError)
+            {
+                showTutorialPopup = false;
+                showWaiting = true;
+                showGameplay = false;
+                showResults = false;
+                waitingMessage = Session.BlockingErrorMessage;
             }
 
             if (tutorialPopupController != null)
@@ -193,6 +213,8 @@ namespace SmartCampus.Coop.Minigames
                 waitingStatusLabel.text = waitingMessage;
             }
 
+            RefreshWaitingActionButton(showWaiting);
+
             if (minigameResultView != null)
             {
                 minigameResultView.gameObject.SetActive(showResults);
@@ -209,6 +231,100 @@ namespace SmartCampus.Coop.Minigames
             RefreshGameplay();
             RefreshResults();
             RefreshFailureFeedback(showGameplay);
+        }
+
+        private void RefreshWaitingActionButton(bool showWaiting)
+        {
+            if (!showWaiting || Session == null || !Session.HasBlockingError)
+            {
+                if (waitingActionButton != null)
+                {
+                    waitingActionButton.gameObject.SetActive(false);
+                }
+
+                return;
+            }
+
+            EnsureWaitingActionButton();
+            if (waitingActionButton == null)
+            {
+                return;
+            }
+
+            waitingActionButton.onClick.RemoveAllListeners();
+            waitingActionButton.gameObject.SetActive(Session.CanLocalPlayerAbortAfterBlockingError);
+            waitingActionButton.interactable = Session.CanLocalPlayerAbortAfterBlockingError;
+
+            if (waitingActionButtonLabel != null)
+            {
+                waitingActionButtonLabel.text = Session.GetReturnToMainMapButtonLabel();
+            }
+
+            if (Session.CanLocalPlayerAbortAfterBlockingError)
+            {
+                waitingActionButton.onClick.AddListener(Session.RequestAbortAfterBlockingError);
+            }
+        }
+
+        private void EnsureWaitingActionButton()
+        {
+            if (waitingActionButton != null || waitingPanel == null)
+            {
+                return;
+            }
+
+            var sourceButton = minigameResultView == null ? null : minigameResultView.GetComponentInChildren<Button>(true);
+            if (sourceButton != null)
+            {
+                var clonedButton = Instantiate(sourceButton.gameObject, waitingPanel.transform);
+                clonedButton.name = "BlockingErrorActionButton";
+                waitingActionButton = clonedButton.GetComponent<Button>();
+                waitingActionButtonLabel = clonedButton.GetComponentInChildren<TMP_Text>(true);
+            }
+            else
+            {
+                var buttonRoot = new GameObject("BlockingErrorActionButton", typeof(RectTransform), typeof(Image), typeof(Button));
+                buttonRoot.transform.SetParent(waitingPanel.transform, false);
+                waitingActionButton = buttonRoot.GetComponent<Button>();
+
+                var labelRoot = new GameObject("Label", typeof(RectTransform), typeof(TextMeshProUGUI));
+                labelRoot.transform.SetParent(buttonRoot.transform, false);
+                waitingActionButtonLabel = labelRoot.GetComponent<TextMeshProUGUI>();
+                waitingActionButtonLabel.alignment = TextAlignmentOptions.Center;
+                waitingActionButtonLabel.fontSize = 24f;
+                waitingActionButtonLabel.color = Color.white;
+                if (waitingStatusLabel != null)
+                {
+                    waitingActionButtonLabel.font = waitingStatusLabel.font;
+                    waitingActionButtonLabel.fontSharedMaterial = waitingStatusLabel.fontSharedMaterial;
+                }
+
+                var image = buttonRoot.GetComponent<Image>();
+                image.color = new Color(0.21f, 0.42f, 0.46f, 1f);
+
+                var labelRect = labelRoot.GetComponent<RectTransform>();
+                labelRect.anchorMin = Vector2.zero;
+                labelRect.anchorMax = Vector2.one;
+                labelRect.offsetMin = Vector2.zero;
+                labelRect.offsetMax = Vector2.zero;
+            }
+
+            if (waitingActionButton == null)
+            {
+                return;
+            }
+
+            waitingActionButton.onClick.RemoveAllListeners();
+            var buttonRect = waitingActionButton.GetComponent<RectTransform>();
+            buttonRect.anchorMin = new Vector2(0.5f, 0f);
+            buttonRect.anchorMax = new Vector2(0.5f, 0f);
+            buttonRect.pivot = new Vector2(0.5f, 0f);
+            if (buttonRect.sizeDelta.x <= 0f || buttonRect.sizeDelta.y <= 0f)
+            {
+                buttonRect.sizeDelta = new Vector2(280f, 72f);
+            }
+
+            buttonRect.anchoredPosition = new Vector2(0f, 24f);
         }
 
         private void RefreshFailureFeedback(bool showGameplay)

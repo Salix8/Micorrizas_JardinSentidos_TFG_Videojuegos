@@ -12,10 +12,12 @@ namespace SmartCampus.Coop.Minigames
         [SerializeField] private CoopMinigameThemeConfig themeConfig;
 
         [Header("Backgrounds")]
+        [SerializeField] private RoundedPanelGraphic backgroundGraphic;
         [SerializeField] private Image backgroundImage;
         [SerializeField] private Image titleBandImage;
 
         [Header("Brand")]
+        [SerializeField] private RoundedPanelGraphic logoFrameGraphic;
         [SerializeField] private Image logoImage;
         [SerializeField] private TMP_Text projectTitleLabel;
         [SerializeField] private TMP_Text projectSubtitleLabel;
@@ -30,7 +32,11 @@ namespace SmartCampus.Coop.Minigames
         [Header("Team")]
         [SerializeField] private TMP_Text teamTitleLabel;
         [SerializeField] private TMP_Text teamNameLabel;
+        [SerializeField] private GridLayoutGroup avatarGridLayout;
         [SerializeField] private List<Image> avatarImages = new();
+        [SerializeField] private CoopPlayerProfileSync playerProfileSync;
+        [SerializeField] private CoopSessionCoordinator sessionCoordinator;
+        [SerializeField] private PlayerMarkerAppearanceCatalogConfig avatarCatalog;
 
         [Header("Minigame Title")]
         [SerializeField] private TMP_Text minigameTitleLabel;
@@ -38,10 +44,24 @@ namespace SmartCampus.Coop.Minigames
         [SerializeField] private Image rightLeafImage;
 
         public CoopMinigameThemeConfig ThemeConfig => themeConfig;
+        private readonly List<Sprite> roomAvatarSprites = new();
 
         private void Awake()
         {
+            ResolveRuntimeReferences();
             ApplyTheme();
+        }
+
+        private void OnEnable()
+        {
+            ResolveRuntimeReferences();
+            SubscribeRuntimeEvents();
+            RefreshRoomAvatars();
+        }
+
+        private void OnDisable()
+        {
+            UnsubscribeRuntimeEvents();
         }
 
         private void OnValidate()
@@ -55,6 +75,7 @@ namespace SmartCampus.Coop.Minigames
             SetMinigameTitle(minigameTitle);
             SetProgress(globalProgress01);
             SetTeam(teamName, roomCode);
+            RefreshRoomAvatars();
         }
 
         public void SetTheme(CoopMinigameThemeConfig theme)
@@ -109,6 +130,9 @@ namespace SmartCampus.Coop.Minigames
                 return;
             }
 
+            var activeAvatarCount = CountValidSprites(avatarSprites);
+            ConfigureAvatarGrid(activeAvatarCount);
+
             for (var index = 0; index < avatarImages.Count; index++)
             {
                 var image = avatarImages[index];
@@ -120,7 +144,8 @@ namespace SmartCampus.Coop.Minigames
                 var hasSprite = avatarSprites != null && index < avatarSprites.Count && avatarSprites[index] != null;
                 image.sprite = hasSprite ? avatarSprites[index] : null;
                 image.enabled = hasSprite;
-                image.gameObject.SetActive(hasSprite);
+                var avatarFrame = image.transform.parent != null ? image.transform.parent.gameObject : image.gameObject;
+                avatarFrame.SetActive(hasSprite);
             }
         }
 
@@ -132,6 +157,10 @@ namespace SmartCampus.Coop.Minigames
             }
 
             var palette = themeConfig.Palette;
+            var panelStyle = themeConfig.CardPanelStyle;
+            SetRoundedPanel(backgroundGraphic, palette.PanelBackground, palette.PanelBorder, panelStyle.CornerRadius + 18f, panelStyle.BorderWidth);
+            SetRoundedPanel(logoFrameGraphic, palette.PrimaryGreen, palette.MutedGreen, themeConfig.TopPanelStyle.LogoSize * 0.5f, 2f);
+
             SetImageColor(backgroundImage, palette.PanelBackground);
             SetImageColor(titleBandImage, palette.PrimaryGreen);
             SetImageColor(progressFillImage, palette.ProgressGreen);
@@ -165,7 +194,154 @@ namespace SmartCampus.Coop.Minigames
                 progressSlider.interactable = false;
             }
 
-            SetAvatarSprites(themeConfig.DefaultAvatarSprites);
+            if (playerProfileSync == null || playerProfileSync.PlayerProfiles.Count == 0)
+            {
+                SetAvatarSprites(themeConfig.DefaultAvatarSprites);
+            }
+        }
+
+        private void RefreshRoomAvatars()
+        {
+            ResolveRuntimeReferences();
+            if (playerProfileSync == null || avatarCatalog == null)
+            {
+                return;
+            }
+
+            roomAvatarSprites.Clear();
+            AppendRoomAvatarsInSlotOrder();
+            if (roomAvatarSprites.Count == 0)
+            {
+                SetAvatarSprites(null);
+                return;
+            }
+
+            SetAvatarSprites(roomAvatarSprites);
+        }
+
+        private void AppendRoomAvatarsInSlotOrder()
+        {
+            if (sessionCoordinator != null && sessionCoordinator.RegisteredPlayerCount > 0)
+            {
+                for (var slotIndex = 0; slotIndex < sessionCoordinator.RegisteredPlayerCount; slotIndex++)
+                {
+                    if (sessionCoordinator.TryGetPlayerClientIdAtSlot(slotIndex, out var clientId))
+                    {
+                        TryAppendAvatarForClient(clientId);
+                    }
+                }
+
+                return;
+            }
+
+            for (var index = 0; index < playerProfileSync.PlayerProfiles.Count; index++)
+            {
+                TryAppendAvatar(playerProfileSync.PlayerProfiles[index].AvatarId.ToString());
+            }
+        }
+
+        private void TryAppendAvatarForClient(ulong clientId)
+        {
+            if (playerProfileSync.TryGetProfile(clientId, out var profile))
+            {
+                TryAppendAvatar(profile.AvatarId.ToString());
+            }
+        }
+
+        private void TryAppendAvatar(string avatarId)
+        {
+            if (avatarCatalog.TryGetAvatar(avatarId, out var avatar) && avatar != null && avatar.AvatarSprite != null)
+            {
+                roomAvatarSprites.Add(avatar.AvatarSprite);
+            }
+        }
+
+        private void ResolveRuntimeReferences()
+        {
+            playerProfileSync ??= FindFirstObjectByType<CoopPlayerProfileSync>(FindObjectsInactive.Include);
+            sessionCoordinator ??= FindFirstObjectByType<CoopSessionCoordinator>(FindObjectsInactive.Include);
+            avatarCatalog ??= playerProfileSync != null ? playerProfileSync.AppearanceCatalog : null;
+        }
+
+        private void SubscribeRuntimeEvents()
+        {
+            if (playerProfileSync != null)
+            {
+                playerProfileSync.ProfilesChanged -= HandleProfilesChanged;
+                playerProfileSync.ProfilesChanged += HandleProfilesChanged;
+            }
+
+            if (sessionCoordinator != null)
+            {
+                sessionCoordinator.SlotsChanged -= HandleSlotsChanged;
+                sessionCoordinator.SlotsChanged += HandleSlotsChanged;
+            }
+        }
+
+        private void UnsubscribeRuntimeEvents()
+        {
+            if (playerProfileSync != null)
+            {
+                playerProfileSync.ProfilesChanged -= HandleProfilesChanged;
+            }
+
+            if (sessionCoordinator != null)
+            {
+                sessionCoordinator.SlotsChanged -= HandleSlotsChanged;
+            }
+        }
+
+        private void HandleProfilesChanged()
+        {
+            RefreshRoomAvatars();
+        }
+
+        private void HandleSlotsChanged()
+        {
+            RefreshRoomAvatars();
+        }
+
+        private void ConfigureAvatarGrid(int activeAvatarCount)
+        {
+            if (avatarGridLayout == null || themeConfig == null)
+            {
+                return;
+            }
+
+            var visibleCount = Mathf.Max(1, activeAvatarCount);
+            var columns = visibleCount <= 2 ? visibleCount : 3;
+            var rows = Mathf.CeilToInt(visibleCount / (float)columns);
+            var avatarSize = themeConfig.TopPanelStyle.AvatarSize;
+
+            avatarGridLayout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+            avatarGridLayout.constraintCount = columns;
+            avatarGridLayout.cellSize = Vector2.one * avatarSize;
+            avatarGridLayout.spacing = Vector2.one * 6f;
+
+            var layoutElement = avatarGridLayout.GetComponent<LayoutElement>();
+            if (layoutElement != null)
+            {
+                layoutElement.preferredHeight = rows * avatarSize + Mathf.Max(0, rows - 1) * avatarGridLayout.spacing.y;
+            }
+        }
+
+        private static int CountValidSprites(IReadOnlyList<Sprite> avatarSprites)
+        {
+            if (avatarSprites == null)
+            {
+                return 0;
+            }
+
+            var count = 0;
+            for (var index = 0; index < avatarSprites.Count; index++)
+            {
+                if (avatarSprites[index] != null)
+                {
+                    count++;
+                }
+            }
+
+            return count;
         }
 
         private void ApplyText(TMP_Text label, string value, int fontSize, Color color, FontStyles style)
@@ -194,6 +370,14 @@ namespace SmartCampus.Coop.Minigames
             }
         }
 
+        private static void SetRoundedPanel(RoundedPanelGraphic graphic, Color fill, Color border, float radius, float width)
+        {
+            if (graphic != null)
+            {
+                graphic.Configure(fill, border, radius, width);
+            }
+        }
+
         private static void SetImageSprite(Image image, Sprite sprite)
         {
             if (image == null)
@@ -206,4 +390,5 @@ namespace SmartCampus.Coop.Minigames
             image.preserveAspect = true;
         }
     }
+
 }

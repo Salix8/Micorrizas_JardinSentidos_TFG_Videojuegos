@@ -31,11 +31,11 @@ MonoBehaviour:
   - {fileID: 21300000, guid: ac84291b30a34f442a9b68d4e1984555, type: 3}
   primaryFont: {fileID: 11400000, guid: 2e498d1c8094910479dc3e1b768306a4, type: 2}
   typography:
-    captionSize: 18
+    captionSize: 20
     bodySize: 24
-    bodyLargeSize: 28
+    bodyLargeSize: 30
     sectionTitleSize: 34
-    minigameTitleSize: 40
+    minigameTitleSize: 38
     projectTitleSize: 38
     headingBoldWeight: 0.72
   palette:
@@ -57,7 +57,7 @@ MonoBehaviour:
     referenceResolution: {x: 1080, y: 1920}
     screenMargin: {x: 32, y: 28}
     topPanelHeight: 318
-    bottomPanelHeight: 278
+    bottomPanelHeight: 360
     verticalSpacing: 22
     useSafeArea: 1
   cardPanelStyle:
@@ -80,6 +80,7 @@ MonoBehaviour:
     largeIconSize: 86
     timerBarHeight: 18
     timerBarWidth: 310
+    dividerWidth: 1
     defaultInstructionTitle: DE ACUERDO EN EQUIPO
     defaultInstructionBody: Cuando todos hayais terminado, se contara el resultado.
     timeRemainingLabel: TIEMPO RESTANTE

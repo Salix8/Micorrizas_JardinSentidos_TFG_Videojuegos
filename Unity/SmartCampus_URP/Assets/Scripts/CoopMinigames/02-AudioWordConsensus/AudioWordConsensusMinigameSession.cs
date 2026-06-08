@@ -333,19 +333,22 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
             var participantIds = GetParticipantIds();
             if (audioWordConsensusMinigameConfig == null)
             {
-                PublishResultServer(new MinigameResultData("Configuracion invalida", 0f, 0, 0));
+                sharedStatusMessage.Value = new FixedString128Bytes("Configuracion invalida.");
+                SetBlockingErrorServer("Configuracion invalida");
                 return;
             }
 
             if (!audioWordConsensusMinigameConfig.TryValidateForParticipantCount(participantIds.Count, out var validationError))
             {
-                PublishResultServer(new MinigameResultData(validationError, 0f, 0, 0));
+                sharedStatusMessage.Value = new FixedString128Bytes(validationError);
+                SetBlockingErrorServer(validationError);
+                return;
             }
         }
 
         protected override void OnGameplayStartedServer()
         {
-            if (!IsServer || audioWordConsensusMinigameConfig == null || HasPublishedResult)
+            if (!IsServer || audioWordConsensusMinigameConfig == null || HasPublishedResult || HasBlockingError)
             {
                 return;
             }
@@ -357,7 +360,8 @@ namespace SmartCampus.Coop.Minigames.AudioWordConsensus
 
             if (!TryBuildRoundPlanServer(out var errorMessage))
             {
-                PublishResultServer(new MinigameResultData(errorMessage, 0f, 0, 0));
+                sharedStatusMessage.Value = new FixedString128Bytes(errorMessage);
+                SetBlockingErrorServer(errorMessage);
                 return;
             }
 

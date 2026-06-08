@@ -2,14 +2,23 @@ using System.Collections.Generic;
 using System;
 using Unity.Netcode;
 using UnityEngine;
+using SmartCampus.Coop.Minigames;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 [DisallowMultipleComponent]
 public sealed class CoopMinigameZoneTriggerController : MonoBehaviour
 {
+    private const string IncompleteZoneSpriteAssetPath = "Assets/Art/MicorrizaMarron.png";
+    private const string CompletedZoneSpriteAssetPath = "Assets/Art/MicorrizaVerde.png";
+    private const string ZoneVisualObjectName = "ZoneMicorrizaVisual";
+
     [Header("References")]
     [SerializeField] private CoopGpsMarkerController gpsMarkerController;
     [SerializeField] private CoopGpsStateSync gpsStateSync;
     [SerializeField] private CoopSessionCoordinator coopSessionCoordinator;
+    [SerializeField] private CoopSessionProgressSync coopSessionProgressSync;
     [SerializeField] private CoopMinigameZoneCountdownUIController countdownUiController;
     [SerializeField] private CoopMinigameZoneDefinition[] zoneDefinitions;
 
@@ -18,8 +27,17 @@ public sealed class CoopMinigameZoneTriggerController : MonoBehaviour
     [SerializeField] [Min(0.1f)] private float evaluationIntervalSeconds = 0.1f;
     [SerializeField] private bool logZoneTransitionsToConsole = true;
 
+    [Header("Zone Visuals")]
+    [SerializeField] private Sprite incompleteZoneSprite;
+    [SerializeField] private Sprite completedZoneSprite;
+    [SerializeField] private Vector3 zoneVisualLocalOffset = new(0f, 8f, 0f);
+    [SerializeField] private Vector3 zoneVisualLocalEulerAngles = new(90f, 0f, 0f);
+    [SerializeField] [Min(0.01f)] private float zoneVisualScaleMultiplier = 0.035f;
+    [SerializeField] private int zoneVisualSortingOrder = 25;
+
     private readonly CoopMinigameZoneCountdownTracker countdownTracker = new();
     private readonly List<ulong> activePlayerIds = new();
+    private readonly Dictionary<int, SpriteRenderer> zoneVisualRenderers = new();
     private float nextEvaluationTime;
     private int previousCandidateZoneId = -1;
     private int lastTriggeredZoneId = -1;
@@ -28,23 +46,41 @@ public sealed class CoopMinigameZoneTriggerController : MonoBehaviour
     {
         ResolveReferences();
         RefreshZoneDefinitionsFromChildren();
+        EnsureZoneVisuals();
+        RefreshZoneVisualStates();
     }
 
     private void OnEnable()
     {
         ResolveReferences();
         RefreshZoneDefinitionsFromChildren();
+        SubscribeToProgressSync();
+        EnsureZoneVisuals();
+        RefreshZoneVisualStates();
         ResetCountdown();
+    }
+
+    private void OnDisable()
+    {
+        if (coopSessionProgressSync != null)
+        {
+            coopSessionProgressSync.ProgressChanged -= HandleProgressChanged;
+        }
     }
 
     private void OnValidate()
     {
+        TryResolveEditorSpriteReferences();
         RefreshZoneDefinitionsFromChildren();
+        EnsureZoneVisuals();
+        RefreshZoneVisualStates();
     }
 
     private void OnTransformChildrenChanged()
     {
         RefreshZoneDefinitionsFromChildren();
+        EnsureZoneVisuals();
+        RefreshZoneVisualStates();
     }
 
     private void Update()
@@ -62,6 +98,8 @@ public sealed class CoopMinigameZoneTriggerController : MonoBehaviour
 
     private void EvaluateZones()
     {
+        RefreshZoneVisualStates();
+
         if (!IsWorldMapPhaseReady())
         {
             ResetCountdown();
@@ -202,6 +240,7 @@ public sealed class CoopMinigameZoneTriggerController : MonoBehaviour
         previousCandidateZoneId = -1;
         lastTriggeredZoneId = -1;
         countdownUiController?.Hide();
+        RefreshZoneVisualStates();
     }
 
     private void ResolveReferences()
@@ -209,6 +248,9 @@ public sealed class CoopMinigameZoneTriggerController : MonoBehaviour
         gpsMarkerController ??= FindFirstObjectByType<CoopGpsMarkerController>(FindObjectsInactive.Include);
         gpsStateSync ??= FindFirstObjectByType<CoopGpsStateSync>(FindObjectsInactive.Include);
         coopSessionCoordinator ??= FindFirstObjectByType<CoopSessionCoordinator>(FindObjectsInactive.Include);
+        coopSessionProgressSync ??= coopSessionCoordinator != null
+            ? coopSessionCoordinator.SessionProgressSync
+            : FindFirstObjectByType<CoopSessionProgressSync>(FindObjectsInactive.Include);
         countdownUiController ??= FindFirstObjectByType<CoopMinigameZoneCountdownUIController>(FindObjectsInactive.Include);
 
         if (zoneDefinitions == null || zoneDefinitions.Length == 0)
@@ -228,6 +270,152 @@ public sealed class CoopMinigameZoneTriggerController : MonoBehaviour
 
         Array.Sort(resolvedDefinitions, CompareZoneDefinitions);
         zoneDefinitions = resolvedDefinitions;
+    }
+
+    private void SubscribeToProgressSync()
+    {
+        if (coopSessionProgressSync == null)
+        {
+            return;
+        }
+
+        coopSessionProgressSync.ProgressChanged -= HandleProgressChanged;
+        coopSessionProgressSync.ProgressChanged += HandleProgressChanged;
+    }
+
+    private void HandleProgressChanged()
+    {
+        RefreshZoneVisualStates();
+    }
+
+    private void EnsureZoneVisuals()
+    {
+        zoneVisualRenderers.Clear();
+        if (zoneDefinitions == null || zoneDefinitions.Length == 0)
+        {
+            return;
+        }
+
+        for (var index = 0; index < zoneDefinitions.Length; index++)
+        {
+            var zone = zoneDefinitions[index];
+            if (zone == null)
+            {
+                continue;
+            }
+
+            var renderer = EnsureZoneVisualRenderer(zone);
+            if (renderer != null)
+            {
+                zoneVisualRenderers[zone.GetInstanceID()] = renderer;
+            }
+        }
+    }
+
+    private SpriteRenderer EnsureZoneVisualRenderer(CoopMinigameZoneDefinition zone)
+    {
+        var visualTransform = zone.transform.Find(ZoneVisualObjectName);
+        GameObject visualObject;
+        SpriteRenderer renderer;
+
+        if (visualTransform == null)
+        {
+            visualObject = new GameObject(ZoneVisualObjectName, typeof(SpriteRenderer));
+            visualObject.transform.SetParent(zone.transform, false);
+            renderer = visualObject.GetComponent<SpriteRenderer>();
+        }
+        else
+        {
+            visualObject = visualTransform.gameObject;
+            renderer = visualObject.GetComponent<SpriteRenderer>();
+            if (renderer == null)
+            {
+                renderer = visualObject.AddComponent<SpriteRenderer>();
+            }
+        }
+
+        ConfigureZoneVisualTransform(zone, visualObject.transform);
+        renderer.sortingOrder = zoneVisualSortingOrder;
+        renderer.sprite = ResolveZoneSprite(zone);
+        renderer.enabled = renderer.sprite != null;
+        return renderer;
+    }
+
+    private void ConfigureZoneVisualTransform(CoopMinigameZoneDefinition zone, Transform visualTransform)
+    {
+        visualTransform.localPosition = zoneVisualLocalOffset;
+        visualTransform.localRotation = Quaternion.Euler(zoneVisualLocalEulerAngles);
+        visualTransform.localScale = Vector3.one * ResolveZoneVisualScale(zone);
+    }
+
+    private float ResolveZoneVisualScale(CoopMinigameZoneDefinition zone)
+    {
+        if (zone != null && zone.ZoneCollider is BoxCollider boxCollider)
+        {
+            var size = boxCollider.size;
+            var largestSide = Mathf.Max(size.x, size.z);
+            return Mathf.Max(0.01f, largestSide * zoneVisualScaleMultiplier);
+        }
+
+        return Mathf.Max(0.01f, zoneVisualScaleMultiplier);
+    }
+
+    private void RefreshZoneVisualStates()
+    {
+        if (zoneDefinitions == null || zoneDefinitions.Length == 0)
+        {
+            return;
+        }
+
+        for (var index = 0; index < zoneDefinitions.Length; index++)
+        {
+            var zone = zoneDefinitions[index];
+            if (zone == null)
+            {
+                continue;
+            }
+
+            if (!zoneVisualRenderers.TryGetValue(zone.GetInstanceID(), out var renderer) || renderer == null)
+            {
+                renderer = EnsureZoneVisualRenderer(zone);
+                if (renderer == null)
+                {
+                    continue;
+                }
+
+                zoneVisualRenderers[zone.GetInstanceID()] = renderer;
+            }
+
+            renderer.sprite = ResolveZoneSprite(zone);
+            renderer.enabled = renderer.sprite != null;
+            ConfigureZoneVisualTransform(zone, renderer.transform);
+        }
+    }
+
+    private Sprite ResolveZoneSprite(CoopMinigameZoneDefinition zone)
+    {
+        if (zone == null)
+        {
+            return incompleteZoneSprite;
+        }
+
+        var isCompleted = coopSessionProgressSync != null && coopSessionProgressSync.IsMinigameCompleted(zone.MiniGameIndex);
+        return isCompleted ? completedZoneSprite : incompleteZoneSprite;
+    }
+
+    private void TryResolveEditorSpriteReferences()
+    {
+#if UNITY_EDITOR
+        if (incompleteZoneSprite == null)
+        {
+            incompleteZoneSprite = AssetDatabase.LoadAssetAtPath<Sprite>(IncompleteZoneSpriteAssetPath);
+        }
+
+        if (completedZoneSprite == null)
+        {
+            completedZoneSprite = AssetDatabase.LoadAssetAtPath<Sprite>(CompletedZoneSpriteAssetPath);
+        }
+#endif
     }
 
     private static int CompareZoneDefinitions(CoopMinigameZoneDefinition left, CoopMinigameZoneDefinition right)

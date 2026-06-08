@@ -260,6 +260,7 @@ public static class AudioWordConsensusMinigameSetup
         var serializedSession = new SerializedObject(session);
         serializedSession.FindProperty("audioWordConsensusMinigameConfig").objectReferenceValue = config;
         serializedSession.ApplyModifiedPropertiesWithoutUndo();
+        EditorUtility.SetDirty(session);
 
         var canvas = CreateCanvas("AudioWordConsensusCanvas");
         var safeAreaRoot = CreateUiObject("SafeAreaRoot", canvas.transform, typeof(SafeAreaFitter));
@@ -502,7 +503,7 @@ public static class AudioWordConsensusMinigameSetup
 
         var serializedCoordinator = new SerializedObject(coordinator);
         var miniGameSceneNames = serializedCoordinator.FindProperty("miniGameSceneNames");
-        miniGameSceneNames.arraySize = Math.Max(5, miniGameSceneNames.arraySize);
+        miniGameSceneNames.arraySize = Math.Max(MinigameIndex + 1, miniGameSceneNames.arraySize);
         miniGameSceneNames.GetArrayElementAtIndex(MinigameIndex).stringValue = MinigameSceneName;
         serializedCoordinator.ApplyModifiedPropertiesWithoutUndo();
         EditorUtility.SetDirty(coordinator);

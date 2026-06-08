@@ -130,12 +130,12 @@ namespace SmartCampus.Coop.Minigames
         {
             return new CoopMinigameTypographySettings
             {
-                captionSize = 18,
-                bodySize = 24,
-                bodyLargeSize = 28,
-                sectionTitleSize = 34,
-                minigameTitleSize = 40,
-                projectTitleSize = 38,
+                captionSize = 24,
+                bodySize = 30,
+                bodyLargeSize = 36,
+                sectionTitleSize = 42,
+                minigameTitleSize = 48,
+                projectTitleSize = 46,
                 headingBoldWeight = 0.72f
             };
         }
@@ -362,6 +362,7 @@ namespace SmartCampus.Coop.Minigames
         [SerializeField] [Min(32f)] private float largeIconSize;
         [SerializeField] [Min(8f)] private float timerBarHeight;
         [SerializeField] [Min(40f)] private float timerBarWidth;
+        [SerializeField] [Min(0.5f)] private float dividerWidth;
         [SerializeField] private string defaultInstructionTitle;
         [SerializeField] [TextArea(2, 3)] private string defaultInstructionBody;
         [SerializeField] private string timeRemainingLabel;
@@ -372,6 +373,7 @@ namespace SmartCampus.Coop.Minigames
         public float LargeIconSize => largeIconSize;
         public float TimerBarHeight => timerBarHeight;
         public float TimerBarWidth => timerBarWidth;
+        public float DividerWidth => dividerWidth;
         public string DefaultInstructionTitle => defaultInstructionTitle;
         public string DefaultInstructionBody => defaultInstructionBody;
         public string TimeRemainingLabel => timeRemainingLabel;
@@ -386,6 +388,7 @@ namespace SmartCampus.Coop.Minigames
                 largeIconSize = 86f,
                 timerBarHeight = 18f,
                 timerBarWidth = 310f,
+                dividerWidth = 1f,
                 defaultInstructionTitle = "DE ACUERDO EN EQUIPO",
                 defaultInstructionBody = "Cuando todos hayais terminado, se contara el resultado.",
                 timeRemainingLabel = "TIEMPO RESTANTE",
@@ -400,6 +403,7 @@ namespace SmartCampus.Coop.Minigames
             largeIconSize = Mathf.Max(32f, largeIconSize);
             timerBarHeight = Mathf.Max(8f, timerBarHeight);
             timerBarWidth = Mathf.Max(40f, timerBarWidth);
+            dividerWidth = Mathf.Max(0.5f, dividerWidth);
             defaultInstructionTitle = Normalize(defaultInstructionTitle, "DE ACUERDO EN EQUIPO");
             defaultInstructionBody = Normalize(defaultInstructionBody, "Cuando todos hayais terminado, se contara el resultado.");
             timeRemainingLabel = Normalize(timeRemainingLabel, "TIEMPO RESTANTE");

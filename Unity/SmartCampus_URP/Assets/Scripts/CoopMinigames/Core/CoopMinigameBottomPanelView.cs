@@ -11,13 +11,17 @@ namespace SmartCampus.Coop.Minigames
         [SerializeField] private CoopMinigameThemeConfig themeConfig;
 
         [Header("Instruction")]
+        [SerializeField] private RoundedPanelGraphic instructionPanelGraphic;
         [SerializeField] private Image instructionPanelImage;
+        [SerializeField] private RoundedPanelGraphic instructionIconCircleGraphic;
         [SerializeField] private Image instructionIconImage;
         [SerializeField] private TMP_Text instructionTitleLabel;
         [SerializeField] private TMP_Text instructionBodyLabel;
 
         [Header("Timer")]
+        [SerializeField] private RoundedPanelGraphic timerPanelGraphic;
         [SerializeField] private Image timerPanelImage;
+        [SerializeField] private RoundedPanelGraphic timerIconCircleGraphic;
         [SerializeField] private Image timerIconImage;
         [SerializeField] private TMP_Text timeLabel;
         [SerializeField] private TMP_Text timeValueLabel;
@@ -27,6 +31,7 @@ namespace SmartCampus.Coop.Minigames
 
         [Header("Penalty")]
         [SerializeField] private Image dividerImage;
+        [SerializeField] private RoundedPanelGraphic penaltyIconCircleGraphic;
         [SerializeField] private Image penaltyIconImage;
         [SerializeField] private TMP_Text penaltyLabel;
         [SerializeField] private TMP_Text penaltyValueLabel;
@@ -119,6 +124,14 @@ namespace SmartCampus.Coop.Minigames
             var palette = themeConfig.Palette;
             var typography = themeConfig.Typography;
             var bottomStyle = themeConfig.BottomPanelStyle;
+            var panelStyle = themeConfig.CardPanelStyle;
+            var iconRadius = bottomStyle.LargeIconSize * 0.5f;
+
+            SetRoundedPanel(instructionPanelGraphic, palette.PanelBackground, palette.PanelBorder, panelStyle.CornerRadius + 8f, panelStyle.BorderWidth);
+            SetRoundedPanel(timerPanelGraphic, palette.PanelBackground, palette.PanelBorder, panelStyle.CornerRadius + 8f, panelStyle.BorderWidth);
+            SetRoundedPanel(instructionIconCircleGraphic, palette.PanelBackground, palette.PanelBorder, themeConfig.InstructionPanelStyle.IconCircleSize * 0.5f, themeConfig.InstructionPanelStyle.IconCircleBorderWidth);
+            SetRoundedPanel(timerIconCircleGraphic, palette.PanelBackground, palette.ProgressGreen, iconRadius, 2f);
+            SetRoundedPanel(penaltyIconCircleGraphic, palette.PanelBackground, palette.DangerSoft, iconRadius, 2f);
 
             SetImageColor(instructionPanelImage, palette.PanelBackground);
             SetImageColor(timerPanelImage, palette.PanelBackground);
@@ -130,8 +143,8 @@ namespace SmartCampus.Coop.Minigames
             SetImageSprite(timerIconImage, themeConfig.Icons.TimerIcon);
             SetImageSprite(penaltyIconImage, themeConfig.Icons.PenaltyTimerIcon);
 
-            ApplyText(instructionTitleLabel, bottomStyle.DefaultInstructionTitle, typography.SectionTitleSize, palette.PrimaryGreen, FontStyles.Bold);
-            ApplyText(instructionBodyLabel, bottomStyle.DefaultInstructionBody, typography.BodySize, palette.TextPrimary, FontStyles.Normal);
+            ApplyTextStyle(instructionTitleLabel, typography.SectionTitleSize, palette.PrimaryGreen, FontStyles.Bold);
+            ApplyTextStyle(instructionBodyLabel, typography.BodySize, palette.TextPrimary, FontStyles.Normal);
             ApplyText(timeLabel, bottomStyle.TimeRemainingLabel, typography.CaptionSize, palette.PrimaryGreen, FontStyles.Bold);
             ApplyText(timeValueLabel, "00:00", typography.ProjectTitleSize, palette.PrimaryGreen, FontStyles.Bold);
             ApplyText(penaltyLabel, bottomStyle.PenaltyLabel, typography.CaptionSize, palette.Danger, FontStyles.Bold);
@@ -162,6 +175,23 @@ namespace SmartCampus.Coop.Minigames
             label.fontStyle = style;
         }
 
+        private void ApplyTextStyle(TMP_Text label, int fontSize, Color color, FontStyles style)
+        {
+            if (label == null)
+            {
+                return;
+            }
+
+            if (themeConfig.PrimaryFont != null)
+            {
+                label.font = themeConfig.PrimaryFont;
+            }
+
+            label.fontSize = fontSize;
+            label.color = color;
+            label.fontStyle = style;
+        }
+
         private static string FormatTime(float seconds)
         {
             var totalSeconds = Mathf.Max(0, Mathf.CeilToInt(seconds));
@@ -175,6 +205,14 @@ namespace SmartCampus.Coop.Minigames
             if (image != null)
             {
                 image.color = color;
+            }
+        }
+
+        private static void SetRoundedPanel(RoundedPanelGraphic graphic, Color fill, Color border, float radius, float width)
+        {
+            if (graphic != null)
+            {
+                graphic.Configure(fill, border, radius, width);
             }
         }
 

@@ -159,6 +159,7 @@ public static class GardenSmellTaxonomyMinigameSetup
         var serializedSession = new SerializedObject(session);
         serializedSession.FindProperty("gardenSmellTaxonomyMinigameConfig").objectReferenceValue = config;
         serializedSession.ApplyModifiedPropertiesWithoutUndo();
+        EditorUtility.SetDirty(session);
 
         var canvas = CreateCanvas("GardenSmellTaxonomyCanvas");
         var safeAreaRoot = CreateUiObject("SafeAreaRoot", canvas.transform, typeof(SafeAreaFitter));

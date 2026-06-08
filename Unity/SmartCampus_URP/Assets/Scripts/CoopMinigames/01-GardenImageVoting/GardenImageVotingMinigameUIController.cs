@@ -14,9 +14,6 @@ namespace SmartCampus.Coop.Minigames.GardenImageVoting
         [SerializeField] private CoopMinigameBottomPanelView bottomPanelView;
         [SerializeField] private GardenImageVotingCardView cardView;
 
-        [Header("Shared Panel Copy")]
-        [SerializeField] private string bottomInstructionTitle = "DE ACUERDO EN EQUIPO";
-        [SerializeField] private string bottomInstructionBody = "Cuando todos hayais clasificado la tarjeta, se contara el resultado.";
         [SerializeField] private float displayedPenaltySeconds;
         [SerializeField] private string teamName;
         [SerializeField] private string roomCode;
@@ -117,12 +114,11 @@ namespace SmartCampus.Coop.Minigames.GardenImageVoting
 
             if (bottomPanelView != null)
             {
-                bottomPanelView.Bind(
-                    bottomInstructionTitle,
-                    bottomInstructionBody,
-                    TypedSession.RemainingTimeSeconds,
-                    config.TimeLimitSeconds,
-                    displayedPenaltySeconds);
+                var penaltySeconds = displayedPenaltySeconds > 0f
+                    ? displayedPenaltySeconds
+                    : config.IncorrectAnswerPenaltySeconds;
+                bottomPanelView.SetTimer(TypedSession.RemainingTimeSeconds, config.TimeLimitSeconds);
+                bottomPanelView.SetPenaltySeconds(penaltySeconds);
             }
 
             if (timerLabel != null)
