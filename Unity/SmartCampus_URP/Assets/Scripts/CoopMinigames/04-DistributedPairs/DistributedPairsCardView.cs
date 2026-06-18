@@ -103,7 +103,9 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
 
             if (backFaceLabel != null)
             {
-                backFaceLabel.text = $"Carta {state.HandOrder + 1}";
+                backFaceLabel.text = pairDefinition == null || string.IsNullOrWhiteSpace(pairDefinition.FlavorHint)
+                    ? $"Carta {state.HandOrder + 1}"
+                    : pairDefinition.FlavorHint.Trim();
                 backFaceLabel.color = visualSettings.BackTextColor;
             }
 

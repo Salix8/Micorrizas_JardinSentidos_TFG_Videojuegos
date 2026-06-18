@@ -16,50 +16,72 @@ MonoBehaviour:
   tutorialContent: {fileID: 11400000, guid: 7673dedfbbe043442a9ab6923dbb5db9, type: 2}
   successMessage: Lo habeis conseguido
   returnToMapButtonLabel: Volver al mapa
-  cardsPerDevice: 4
-  pairsToUse: 10
+  cardsPerDevice: 6
+  pairsToUse: 12
   guaranteedVisiblePairsOffset: 1
+  timeLimitSeconds: 180
+  timeoutMessage: Tiempo agotado
   pairDefinitions:
-  - title: Jinjolero
-    description: Ziziphus jujuba
+  - title: Pareja 1
+    flavorHint: Sabor 1
+    description: Placeholder editable desde el asset del minijuego.
     illustration: {fileID: -484932828, guid: fa814ec1efa0a3d49a13b56a527d0b72, type: 3}
     faceColor: {r: 0.92, g: 0.598, b: 0.598, a: 1}
-  - title: Vid
-    description: Vitis vinifera
+  - title: Pareja 2
+    flavorHint: Sabor 2
+    description: Placeholder editable desde el asset del minijuego.
     illustration: {fileID: 1263514170, guid: fa814ec1efa0a3d49a13b56a527d0b72, type: 3}
     faceColor: {r: 0.92, g: 0.79120004, b: 0.598, a: 1}
-  - title: Morera blanca
-    description: Morus alba
+  - title: Pareja 3
+    flavorHint: Sabor 3
+    description: Placeholder editable desde el asset del minijuego.
     illustration: {fileID: 1559184815, guid: fa814ec1efa0a3d49a13b56a527d0b72, type: 3}
     faceColor: {r: 0.8556, g: 0.92, b: 0.598, a: 1}
-  - title: Cerezo
-    description: Prunus avium
+  - title: Pareja 4
+    flavorHint: Sabor 4
+    description: Placeholder editable desde el asset del minijuego.
     illustration: {fileID: -2119495254, guid: fa814ec1efa0a3d49a13b56a527d0b72, type: 3}
     faceColor: {r: 0.6624, g: 0.92, b: 0.598, a: 1}
-  - title: Membrillo
-    description: Cydonia oblonga
+  - title: Pareja 5
+    flavorHint: Sabor 5
+    description: Placeholder editable desde el asset del minijuego.
     illustration: {fileID: 1320482387, guid: d532f8d4278a95f4e92ed683e8f2688c, type: 3}
     faceColor: {r: 0.598, g: 0.92, b: 0.7268, a: 1}
-  - title: Almendro
-    description: Prunus dulcis
+  - title: Pareja 6
+    flavorHint: Sabor 6
+    description: Placeholder editable desde el asset del minijuego.
     illustration: {fileID: -819823926, guid: 5a44e729ac374b641889e50d30869a9a, type: 3}
     faceColor: {r: 0.598, g: 0.92, b: 0.92, a: 1}
-  - title: Limonero
-    description: Citrus limon
+  - title: Pareja 7
+    flavorHint: Sabor 7
+    description: Placeholder editable desde el asset del minijuego.
     illustration: {fileID: -1138599245, guid: d532f8d4278a95f4e92ed683e8f2688c, type: 3}
     faceColor: {r: 0.598, g: 0.72679996, b: 0.92, a: 1}
-  - title: Granado
-    description: Punica granatum
+  - title: Pareja 8
+    flavorHint: Sabor 8
+    description: Placeholder editable desde el asset del minijuego.
     illustration: {fileID: 1504186947, guid: d532f8d4278a95f4e92ed683e8f2688c, type: 3}
     faceColor: {r: 0.66239995, g: 0.598, b: 0.92, a: 1}
-  - title: Olivera
-    description: Olea europaea
+  - title: Pareja 9
+    flavorHint: Sabor 9
+    description: Placeholder editable desde el asset del minijuego.
     illustration: {fileID: 1821559536, guid: 5a44e729ac374b641889e50d30869a9a, type: 3}
     faceColor: {r: 0.85560006, g: 0.598, b: 0.92, a: 1}
-  - title: Palmera datilera
-    description: Phoenix dactylifera
+  - title: Pareja 10
+    flavorHint: Sabor 10
+    description: Placeholder editable desde el asset del minijuego.
     illustration: {fileID: -1826667125, guid: 5a44e729ac374b641889e50d30869a9a, type: 3}
     faceColor: {r: 0.92, g: 0.598, b: 0.79120016, a: 1}
+  - title: Pareja 11
+    flavorHint: Sabor 11
+    description: Placeholder editable desde el asset del minijuego.
+    illustration: {fileID: 26041034, guid: be898fb718093b34086c71f3c20f7215, type: 3}
+    faceColor: {r: 0.92, g: 0.598, b: 0.598, a: 1}
+  - title: Pareja 12
+    flavorHint: Sabor 12
+    description: Placeholder editable desde el asset del minijuego.
+    illustration: {fileID: 772582622, guid: be898fb718093b34086c71f3c20f7215, type: 3}
+    faceColor: {r: 0.92, g: 0.79120016, b: 0.598, a: 1}
   scoreSettings:
     maxScore: 10
     minimumScore: 0
@@ -72,7 +94,13 @@ MonoBehaviour:
     frameColor: {r: 0.77, g: 0.87, b: 0.88, a: 1}
     selectedFrameColor: {r: 0.95, g: 0.69, b: 0.22, a: 1}
     frontTextColor: {r: 0.12, g: 0.15, b: 0.17, a: 1}
+    minColumns: 2
     maxColumns: 2
-    minCardSize: {x: 120, y: 170}
-    maxCardSize: {x: 240, y: 330}
-    cardAspectRatio: 0.72
+    minCardSize: {x: 140, y: 180}
+    maxCardSize: {x: 280, y: 340}
+    cardAspectRatio: 0.82
+  matchFeedbackSettings:
+    matchedRevealDuration: 0.9
+    matchedPulseScale: 1.06
+    matchedPulseDuration: 0.32
+    matchedFrameColor: {r: 0.42, g: 0.76, b: 0.31, a: 1}

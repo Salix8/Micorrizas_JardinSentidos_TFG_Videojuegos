@@ -15,7 +15,8 @@ public static class TutorialPopupPrefabUtility
         "Assets/Scenes/AudioWordConsensusMinigame.unity",
         "Assets/Scenes/CollaborativePlantGuessMinigame.unity",
         "Assets/Scenes/DistributedPairsMinigame.unity",
-        "Assets/Scenes/GardenSmellTaxonomyMinigame.unity"
+        "Assets/Scenes/GardenSmellTaxonomyMinigame.unity",
+        "Assets/Scenes/PlantPhotoRelayMinigame.unity"
     };
 
     public static TutorialPopupController InstantiateTutorialPopup(Transform parent)
@@ -39,6 +40,8 @@ public static class TutorialPopupPrefabUtility
         {
             StretchToParent(popupRect);
         }
+
+        NormalizeNestedRectTransformOverrides(popupInstance.transform);
 
         var controller = popupInstance.GetComponent<TutorialPopupController>();
         if (controller == null)
@@ -118,6 +121,8 @@ public static class TutorialPopupPrefabUtility
             popupRect.SetSiblingIndex(Mathf.Clamp(popupSiblingIndex, 0, popupParent.childCount - 1));
         }
 
+        NormalizeNestedRectTransformOverrides(popupInstance.transform);
+
         var popupController = popupInstance.GetComponent<TutorialPopupController>();
         if (popupController == null)
         {
@@ -192,5 +197,27 @@ public static class TutorialPopupPrefabUtility
         target.localScale = source.localScale;
         target.localRotation = source.localRotation;
         target.localPosition = source.localPosition;
+    }
+
+    private static void NormalizeNestedRectTransformOverrides(Transform popupRoot)
+    {
+        if (popupRoot == null)
+        {
+            return;
+        }
+
+        var rectTransforms = popupRoot.GetComponentsInChildren<RectTransform>(true);
+        foreach (var rectTransform in rectTransforms)
+        {
+            if (rectTransform == null || rectTransform.transform == popupRoot)
+            {
+                continue;
+            }
+
+            if (PrefabUtility.IsPartOfPrefabInstance(rectTransform))
+            {
+                PrefabUtility.RevertObjectOverride(rectTransform, InteractionMode.AutomatedAction);
+            }
+        }
     }
 }

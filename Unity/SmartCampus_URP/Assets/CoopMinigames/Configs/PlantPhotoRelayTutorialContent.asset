@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b823e944a6ef724fbb919335770f994, type: 3}
+  m_Name: PlantPhotoRelayTutorialContent
+  m_EditorClassIdentifier: Assembly-CSharp::SmartCampus.Coop.Minigames.MinigameTutorialContentConfig
+  title: Pista, foto y planta
+  subtitle: Un jugador fotografia y otro adivina
+  bodyText: "En cada ronda aparece una pista descriptiva de una planta del catalogo
+    UJI.\n\nEl dispositivo fotografo debe localizar una planta que encaje, abrir
+    la camara, hacer una foto y confirmar su nombre comun desde el autocompletado.\n\nDespues,
+    el dispositivo adivinador recibe la foto y debe elegir una planta valida del
+    mismo catalogo.\n\nSe acierta cuando ambos dispositivos confirman el mismo nombre
+    comun can\xF3nico."
+  illustration: {fileID: 0}
+  videoClip: {fileID: 0}
+  customContentPrefab: {fileID: 0}

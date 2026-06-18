@@ -22,14 +22,18 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
         private readonly NetworkVariable<int> matchedPairCount = new();
         private readonly NetworkVariable<int> failedAttemptCount = new();
         private readonly NetworkVariable<int> totalPairCount = new();
+        private readonly NetworkVariable<float> remainingTimeSeconds = new();
         private readonly NetworkVariable<FixedString128Bytes> sharedStatusMessage = new();
 
         private int assignmentSeed;
         private Coroutine pendingMatchedPairCoroutine;
+        private double gameplayEndServerTime;
+        private int lastPublishedWholeSecond;
 
         public int MatchedPairCount => matchedPairCount.Value;
         public int FailedAttemptCount => failedAttemptCount.Value;
         public int TotalPairCount => totalPairCount.Value;
+        public float RemainingTimeSeconds => remainingTimeSeconds.Value;
         public string SharedStatusMessage => sharedStatusMessage.Value.ToString();
         public bool HasPendingMismatch => pendingMismatchCardInstanceIds.Count > 0;
         public bool HasPendingMatchedPair => pendingMatchedCardInstanceIds.Count > 0;
@@ -49,6 +53,7 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
             matchedPairCount.OnValueChanged += HandleSimpleStateChanged;
             failedAttemptCount.OnValueChanged += HandleSimpleStateChanged;
             totalPairCount.OnValueChanged += HandleSimpleStateChanged;
+            remainingTimeSeconds.OnValueChanged += HandleTimerChanged;
             sharedStatusMessage.OnValueChanged += HandleStatusMessageChanged;
 
             base.OnNetworkSpawn();
@@ -63,10 +68,33 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
             matchedPairCount.OnValueChanged -= HandleSimpleStateChanged;
             failedAttemptCount.OnValueChanged -= HandleSimpleStateChanged;
             totalPairCount.OnValueChanged -= HandleSimpleStateChanged;
+            remainingTimeSeconds.OnValueChanged -= HandleTimerChanged;
             sharedStatusMessage.OnValueChanged -= HandleStatusMessageChanged;
 
             base.OnNetworkDespawn();
             StopPendingMatchedPairCoroutine();
+        }
+
+        private void Update()
+        {
+            if (!IsServer || Stage != CooperativeMinigameStage.Playing || HasPublishedResult || distributedPairsMinigameConfig == null)
+            {
+                return;
+            }
+
+            var remainingSeconds = Mathf.Max(0f, (float)(gameplayEndServerTime - NetworkManager.ServerTime.Time));
+            var wholeSeconds = Mathf.CeilToInt(remainingSeconds);
+            if (!Mathf.Approximately(remainingTimeSeconds.Value, remainingSeconds) &&
+                (wholeSeconds != lastPublishedWholeSecond || remainingSeconds <= 0f))
+            {
+                remainingTimeSeconds.Value = remainingSeconds;
+                lastPublishedWholeSecond = wholeSeconds;
+            }
+
+            if (remainingSeconds <= 0f)
+            {
+                CompleteMinigameServer();
+            }
         }
 
         public IReadOnlyList<DistributedPairsCardNetworkState> GetLocalHandStates()
@@ -177,6 +205,7 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
             matchedPairCount.Value = 0;
             failedAttemptCount.Value = 0;
             totalPairCount.Value = distributedPairsMinigameConfig == null ? 0 : distributedPairsMinigameConfig.ActivePairCount;
+            remainingTimeSeconds.Value = distributedPairsMinigameConfig == null ? 0f : distributedPairsMinigameConfig.TimeLimitSeconds;
             sharedStatusMessage.Value = new FixedString128Bytes("Selecciona una carta y comunicate con el resto del grupo.");
 
             cardStates.Clear();
@@ -184,7 +213,8 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
             if (distributedPairsMinigameConfig == null || distributedPairsMinigameConfig.ActivePairCount <= 0)
             {
                 Debug.LogError($"{nameof(DistributedPairsMinigameSession)} requires a valid {nameof(DistributedPairsMinigameConfig)}.", this);
-                PublishResultServer(new MinigameResultData("Configuracion invalida", 0f, 0, 0));
+                sharedStatusMessage.Value = new FixedString128Bytes("Configuracion invalida.");
+                SetBlockingErrorServer("Configuracion invalida");
                 return;
             }
 
@@ -222,6 +252,20 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
             }
 
             NormalizeHandOrderFields();
+        }
+
+        protected override void OnGameplayStartedServer()
+        {
+            if (!IsServer || distributedPairsMinigameConfig == null || HasPublishedResult)
+            {
+                return;
+            }
+
+            gameplayEndServerTime = NetworkManager.ServerTime.Time + distributedPairsMinigameConfig.TimeLimitSeconds;
+            remainingTimeSeconds.Value = distributedPairsMinigameConfig.TimeLimitSeconds;
+            lastPublishedWholeSecond = Mathf.CeilToInt(distributedPairsMinigameConfig.TimeLimitSeconds);
+            sharedStatusMessage.Value = new FixedString128Bytes("Selecciona una carta y comunicate con el resto del grupo.");
+            StateChanged?.Invoke();
         }
 
         [Rpc(SendTo.Server)]
@@ -708,6 +752,33 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
             pendingMatchedPairCoroutine = null;
         }
 
+        private void CompleteMinigameServer()
+        {
+            if (!IsServer || HasPublishedResult)
+            {
+                return;
+            }
+
+            StopPendingMatchedPairCoroutine();
+            remainingTimeSeconds.Value = Mathf.Max(0f, remainingTimeSeconds.Value);
+
+            var result = DistributedPairsScoreService.CreateResult(
+                distributedPairsMinigameConfig,
+                matchedPairCount.Value,
+                failedAttemptCount.Value);
+
+            if (matchedPairCount.Value < totalPairCount.Value && distributedPairsMinigameConfig != null)
+            {
+                result = new MinigameResultData(
+                    distributedPairsMinigameConfig.TimeoutMessage,
+                    result.ScoreOutOfTen,
+                    result.SuccessfulActions,
+                    result.FailedActions);
+            }
+
+            PublishResultServer(result);
+        }
+
         private int CountCardsInZone(DistributedPairsCardZone zone)
         {
             var count = 0;
@@ -738,6 +809,11 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
         }
 
         private void HandleSimpleStateChanged(int _, int __)
+        {
+            StateChanged?.Invoke();
+        }
+
+        private void HandleTimerChanged(float _, float __)
         {
             StateChanged?.Invoke();
         }

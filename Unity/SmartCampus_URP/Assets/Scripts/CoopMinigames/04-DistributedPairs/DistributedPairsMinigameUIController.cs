@@ -9,11 +9,39 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
     public sealed class DistributedPairsMinigameUIController : MinigameUIControllerBase
     {
         [SerializeField] private DistributedPairsMinigameSession distributedPairsMinigameSession;
+        [SerializeField] private CoopSessionProgressSync sessionProgressSync;
+        [SerializeField] private CoopMinigameTopPanelView topPanelView;
+        [SerializeField] private CoopMinigameBottomPanelView bottomPanelView;
+
+        [Header("Shared Panel Copy")]
+        [SerializeField] private string bottomInstructionTitle = "ENCONTRAD LOS PARES";
+        [SerializeField] private string bottomInstructionBody = "En cada dispositivo hay varias cartas. Volved dos a la vez para encontrar los pares.";
+        [SerializeField] private float displayedPenaltySeconds;
+        [SerializeField] private string teamName;
+        [SerializeField] private string roomCode;
+
+        [Header("Legacy Labels")]
         [SerializeField] private DistributedPairsHandView localHandView;
         [SerializeField] private TMP_Text titleLabel;
+        [SerializeField] private TMP_Text timerLabel;
         [SerializeField] private TMP_Text progressLabel;
         [SerializeField] private TMP_Text sharedStatusLabel;
         [SerializeField] private TMP_Text localSelectionLabel;
+        [Header("Status Copy")]
+        [SerializeField] private string defaultStatusMessage = "Seleccionad 2 cartas entre todos";
+        [SerializeField] private string selectedCardPrefix = "Sabor a ";
+        [SerializeField] private string[] successStatusMessages =
+        {
+            "Sabor correcto",
+            "Eso es",
+            "Si esas dos van juntas"
+        };
+        [SerializeField] private string[] failureStatusMessages =
+        {
+            "No, esas no son iguales",
+            "Buen intento pero diferentes",
+            "Casi, pero no"
+        };
         [SerializeField] private bool showRuntimePileHud;
         [SerializeField] private RectTransform drawPileAnchor;
         [SerializeField] private TMP_Text drawPileCountLabel;
@@ -28,6 +56,7 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
         protected override void Awake()
         {
             distributedPairsMinigameSession ??= FindFirstObjectByType<DistributedPairsMinigameSession>(FindObjectsInactive.Include);
+            sessionProgressSync ??= FindFirstObjectByType<CoopSessionProgressSync>(FindObjectsInactive.Include);
             EnsureRuntimeHud();
             base.Awake();
         }
@@ -35,9 +64,15 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
         protected override void OnEnable()
         {
             distributedPairsMinigameSession ??= FindFirstObjectByType<DistributedPairsMinigameSession>(FindObjectsInactive.Include);
+            sessionProgressSync ??= FindFirstObjectByType<CoopSessionProgressSync>(FindObjectsInactive.Include);
             if (TypedSession != null)
             {
                 TypedSession.StateChanged += HandleStateChanged;
+            }
+
+            if (sessionProgressSync != null)
+            {
+                sessionProgressSync.ProgressChanged += HandleStateChanged;
             }
 
             EnsureRuntimeHud();
@@ -50,6 +85,11 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
             if (TypedSession != null)
             {
                 TypedSession.StateChanged -= HandleStateChanged;
+            }
+
+            if (sessionProgressSync != null)
+            {
+                sessionProgressSync.ProgressChanged -= HandleStateChanged;
             }
 
             if (mismatchResetButton != null)
@@ -88,32 +128,29 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
                 titleLabel.text = config.DisplayName;
             }
 
+            BindSharedPanels(config.DisplayName, TypedSession.RemainingTimeSeconds, config.TimeLimitSeconds);
+
             if (progressLabel != null)
             {
                 progressLabel.text = $"Parejas: {TypedSession.MatchedPairCount}/{TypedSession.TotalPairCount}   Errores: {TypedSession.FailedAttemptCount}";
             }
 
+            if (timerLabel != null)
+            {
+                timerLabel.text = $"Tiempo {FormatTime(TypedSession.RemainingTimeSeconds)}";
+            }
+
             if (sharedStatusLabel != null)
             {
-                sharedStatusLabel.text = TypedSession.SharedStatusMessage;
+                sharedStatusLabel.text = BuildPrimaryStatusMessage(config);
             }
 
             if (localSelectionLabel != null)
             {
-                var localSelectedCard = TypedSession.GetLocalSelectedCard();
-                if (TypedSession.HasPendingMatchedPair)
+                localSelectionLabel.text = string.Empty;
+                if (localSelectionLabel.gameObject.activeSelf)
                 {
-                    localSelectionLabel.text = "Pareja encontrada. Las cartas se muestran un momento antes de descartarse.";
-                }
-                else if (TypedSession.HasPendingMismatch)
-                {
-                    localSelectionLabel.text = "El intento no coincide. Toca la pantalla para girar ambas cartas y seguir jugando.";
-                }
-                else
-                {
-                    localSelectionLabel.text = localSelectedCard.HasValue
-                        ? $"Carta activa: {config.GetPairDefinition(localSelectedCard.Value.PairId)?.Title}"
-                        : "Solo puedes tener una carta activa. Espera a que otro dispositivo revele la segunda carta.";
+                    localSelectionLabel.gameObject.SetActive(false);
                 }
             }
 
@@ -145,9 +182,42 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
             }
         }
 
+        protected override int? GetFailureFeedbackCount()
+        {
+            return TypedSession?.FailedAttemptCount;
+        }
+
         private void HandleStateChanged()
         {
-            RefreshGameplay();
+            RefreshUi();
+        }
+
+        private void BindSharedPanels(string minigameTitle, float remainingSeconds, float totalSeconds)
+        {
+            if (topPanelView != null)
+            {
+                topPanelView.Bind(minigameTitle, CalculateGlobalProgress01(), teamName, roomCode);
+            }
+
+            if (bottomPanelView != null)
+            {
+                bottomPanelView.Bind(
+                    bottomInstructionTitle,
+                    bottomInstructionBody,
+                    remainingSeconds,
+                    totalSeconds,
+                    displayedPenaltySeconds);
+            }
+        }
+
+        private float CalculateGlobalProgress01()
+        {
+            if (sessionProgressSync == null || sessionProgressSync.ConfiguredMinigameCount <= 0)
+            {
+                return 0f;
+            }
+
+            return Mathf.Clamp01((float)sessionProgressSync.CompletedCount / sessionProgressSync.ConfiguredMinigameCount);
         }
 
         private void HandleMismatchResetRequested()
@@ -281,6 +351,83 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
             labelRect.sizeDelta = new Vector2(760f, 72f);
         }
 
+        private static string FormatTime(float remainingSeconds)
+        {
+            var clampedSeconds = Mathf.Max(0, Mathf.CeilToInt(remainingSeconds));
+            return $"{clampedSeconds / 60:00}:{clampedSeconds % 60:00}";
+        }
+
+        private string BuildPrimaryStatusMessage(DistributedPairsMinigameConfig config)
+        {
+            if (TypedSession == null)
+            {
+                return defaultStatusMessage;
+            }
+
+            if (TypedSession.HasPendingMatchedPair)
+            {
+                return ResolveFeedbackMessage(successStatusMessages, TypedSession.MatchedPairCount - 1, "Sabor correcto");
+            }
+
+            if (TypedSession.HasPendingMismatch)
+            {
+                return ResolveFeedbackMessage(failureStatusMessages, TypedSession.FailedAttemptCount - 1, "No, esas no son iguales");
+            }
+
+            var localSelectedCard = TypedSession.GetLocalSelectedCard();
+            if (localSelectedCard.HasValue)
+            {
+                var cardName = config.GetPairDefinition(localSelectedCard.Value.PairId)?.Title;
+                if (!string.IsNullOrWhiteSpace(cardName))
+                {
+                    return $"{selectedCardPrefix}{cardName.Trim()}";
+                }
+            }
+
+            return defaultStatusMessage;
+        }
+
+        private static string ResolveFeedbackMessage(string[] pool, int seed, string fallback)
+        {
+            if (pool == null || pool.Length == 0)
+            {
+                return fallback;
+            }
+
+            var validCount = 0;
+            for (var index = 0; index < pool.Length; index++)
+            {
+                if (!string.IsNullOrWhiteSpace(pool[index]))
+                {
+                    validCount++;
+                }
+            }
+
+            if (validCount == 0)
+            {
+                return fallback;
+            }
+
+            var targetIndex = Mathf.Abs(seed) % validCount;
+            var currentValidIndex = 0;
+            for (var index = 0; index < pool.Length; index++)
+            {
+                if (string.IsNullOrWhiteSpace(pool[index]))
+                {
+                    continue;
+                }
+
+                if (currentValidIndex == targetIndex)
+                {
+                    return pool[index].Trim();
+                }
+
+                currentValidIndex++;
+            }
+
+            return fallback;
+        }
+
         private static GameObject CreatePilePanel(string name, Transform parent, string title)
         {
             var panel = CreateUiObject(name, parent, typeof(Image));
@@ -341,7 +488,7 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
             text.fontSize = fontSize;
             text.alignment = ConvertAlignment(alignment);
             text.color = new Color(0.12f, 0.15f, 0.17f, 1f);
-            text.enableWordWrapping = true;
+            text.textWrappingMode = TextWrappingModes.Normal;
             text.overflowMode = TextOverflowModes.Overflow;
             text.raycastTarget = false;
             return text;

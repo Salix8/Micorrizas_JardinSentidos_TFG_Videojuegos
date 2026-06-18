@@ -32,6 +32,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/CoopFinalResults.unity
     guid: 4b797190529009040a2603c9fdf20b90
+  - enabled: 1
+    path: Assets/Scenes/PlantPhotoRelayMinigame.unity
+    guid: 1946e7d74fc6ba74eaf2dde173f5e510
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 35845fe01580c41289b024647b1d1c53, type: 3}
   m_UseUCBPForAssetBundles: 0

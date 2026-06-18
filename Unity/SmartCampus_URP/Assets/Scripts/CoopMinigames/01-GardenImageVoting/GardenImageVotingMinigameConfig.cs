@@ -15,6 +15,7 @@ namespace SmartCampus.Coop.Minigames.GardenImageVoting
 
         [Header("Gameplay")]
         [SerializeField] [Min(5f)] private float timeLimitSeconds = 300f;
+        [SerializeField] [Min(0f)] private float incorrectAnswerPenaltySeconds = 10f;
         [SerializeField] [Min(40f)] private float swipeThreshold = 120f;
         [SerializeField] [Min(0.05f)] private float transitionDuration = 0.22f;
         [SerializeField] private string timeoutMessage = "Tiempo agotado";
@@ -30,6 +31,7 @@ namespace SmartCampus.Coop.Minigames.GardenImageVoting
         public int MaxSupportedDevices => maxSupportedDevices;
         public bool AllowRepeatedImagesAcrossDevices => allowRepeatedImagesAcrossDevices;
         public float TimeLimitSeconds => timeLimitSeconds;
+        public float IncorrectAnswerPenaltySeconds => incorrectAnswerPenaltySeconds;
         public float SwipeThreshold => swipeThreshold;
         public float TransitionDuration => transitionDuration;
         public string TimeoutMessage => timeoutMessage;
@@ -41,6 +43,7 @@ namespace SmartCampus.Coop.Minigames.GardenImageVoting
             cardsPerDevice = Mathf.Max(1, cardsPerDevice);
             maxSupportedDevices = Mathf.Max(1, maxSupportedDevices);
             timeLimitSeconds = Mathf.Max(5f, timeLimitSeconds);
+            incorrectAnswerPenaltySeconds = Mathf.Max(0f, incorrectAnswerPenaltySeconds);
             swipeThreshold = Mathf.Max(40f, swipeThreshold);
             transitionDuration = Mathf.Max(0.05f, transitionDuration);
             scoreSettings.Clamp();

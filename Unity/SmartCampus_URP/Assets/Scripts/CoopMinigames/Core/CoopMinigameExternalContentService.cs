@@ -104,7 +104,12 @@ namespace SmartCampus.Coop.Minigames
 
         public static string ResolveConfiguredPath(string configuredPath, string relativeToConfiguredPath = null)
         {
-            var resolvedUri = ResolveUri(configuredPath, relativeToConfiguredPath);
+            return ResolveConfiguredPath(configuredPath, relativeToConfiguredPath, null);
+        }
+
+        public static string ResolveConfiguredPath(string configuredPath, string relativeToConfiguredPath, string streamingAssetsPathOverride)
+        {
+            var resolvedUri = ResolveUri(configuredPath, relativeToConfiguredPath, streamingAssetsPathOverride);
             if (resolvedUri == null)
             {
                 return configuredPath;
@@ -113,7 +118,7 @@ namespace SmartCampus.Coop.Minigames
             return resolvedUri.IsFile ? resolvedUri.LocalPath : resolvedUri.AbsoluteUri;
         }
 
-        private static Uri ResolveUri(string configuredPath, string relativeToConfiguredPath = null)
+        private static Uri ResolveUri(string configuredPath, string relativeToConfiguredPath = null, string streamingAssetsPathOverride = null)
         {
             if (Uri.TryCreate(configuredPath, UriKind.Absolute, out var absoluteUri))
             {
@@ -124,7 +129,7 @@ namespace SmartCampus.Coop.Minigames
 
             if (!string.IsNullOrWhiteSpace(relativeToConfiguredPath))
             {
-                var baseUri = ResolveUri(relativeToConfiguredPath);
+                var baseUri = ResolveUri(relativeToConfiguredPath, null, streamingAssetsPathOverride);
                 if (baseUri != null)
                 {
                     if (baseUri.IsFile)
@@ -148,9 +153,38 @@ namespace SmartCampus.Coop.Minigames
 
             var combinedPath = Path.IsPathRooted(configuredPath)
                 ? configuredPath
-                : Path.Combine(Application.streamingAssetsPath, configuredPath);
+                : CombineWithStreamingAssetsPath(configuredPath, streamingAssetsPathOverride);
 
             return Uri.TryCreate(combinedPath, UriKind.Absolute, out absoluteUri) ? absoluteUri : null;
+        }
+
+        private static string CombineWithStreamingAssetsPath(string configuredPath, string streamingAssetsPathOverride)
+        {
+            var normalizedConfiguredPath = NormalizePath(configuredPath).Replace(Path.DirectorySeparatorChar, '/').TrimStart('/');
+            var streamingAssetsPath = string.IsNullOrWhiteSpace(streamingAssetsPathOverride)
+                ? Application.streamingAssetsPath
+                : streamingAssetsPathOverride;
+
+            if (string.IsNullOrWhiteSpace(streamingAssetsPath))
+            {
+                return normalizedConfiguredPath;
+            }
+
+            var normalizedStreamingAssetsPath = streamingAssetsPath.Replace('\\', '/');
+            if (Uri.TryCreate(normalizedStreamingAssetsPath, UriKind.Absolute, out var streamingAssetsUri))
+            {
+                if (streamingAssetsUri.IsFile)
+                {
+                    return Path.Combine(streamingAssetsUri.LocalPath, NormalizePath(configuredPath));
+                }
+
+                var baseUri = normalizedStreamingAssetsPath.EndsWith("/", StringComparison.Ordinal)
+                    ? new Uri(normalizedStreamingAssetsPath, UriKind.Absolute)
+                    : new Uri(normalizedStreamingAssetsPath + "/", UriKind.Absolute);
+                return new Uri(baseUri, normalizedConfiguredPath).AbsoluteUri;
+            }
+
+            return Path.Combine(streamingAssetsPath, NormalizePath(configuredPath));
         }
 
         private static string NormalizePath(string configuredPath)

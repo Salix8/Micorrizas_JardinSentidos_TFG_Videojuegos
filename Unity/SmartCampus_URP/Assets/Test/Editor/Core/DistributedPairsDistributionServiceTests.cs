@@ -16,18 +16,18 @@ namespace SmartCampus.Testing.Editor.Core
             var participantIds = new ulong[] { 1UL, 2UL, 3UL };
             var currentHandPairIds = participantIds.ToDictionary(id => id, _ => (IReadOnlyList<int>)new List<int>());
             var currentHandCounts = participantIds.ToDictionary(id => id, _ => 0);
-            var deck = BuildDeck(pairCount: 10);
+            var deck = BuildDeck(pairCount: 12);
 
             var assignments = DistributedPairsDistributionService.PlanAssignments(
                 participantIds,
                 currentHandPairIds,
                 currentHandCounts,
                 deck,
-                targetHandSize: 4,
+                targetHandSize: 6,
                 randomSeed: 42,
                 guaranteedVisiblePairsOffset: GuaranteedVisiblePairsOffset);
 
-            Assert.That(assignments.Count, Is.EqualTo(12));
+            Assert.That(assignments.Count, Is.EqualTo(18));
             AssertNoPlayerReceivesDuplicatePair(assignments, deck);
         }
 
@@ -37,18 +37,18 @@ namespace SmartCampus.Testing.Editor.Core
             var participantIds = new ulong[] { 1UL, 2UL };
             var currentHandPairIds = participantIds.ToDictionary(id => id, _ => (IReadOnlyList<int>)new List<int>());
             var currentHandCounts = participantIds.ToDictionary(id => id, _ => 0);
-            var deck = BuildDeck(pairCount: 10);
+            var deck = BuildDeck(pairCount: 12);
 
             var assignments = DistributedPairsDistributionService.PlanAssignments(
                 participantIds,
                 currentHandPairIds,
                 currentHandCounts,
                 deck,
-                targetHandSize: 4,
+                targetHandSize: 6,
                 randomSeed: 7,
                 guaranteedVisiblePairsOffset: GuaranteedVisiblePairsOffset);
 
-            Assert.That(assignments.Count, Is.EqualTo(8));
+            Assert.That(assignments.Count, Is.EqualTo(12));
             Assert.That(CountVisiblePairs(assignments, deck), Is.GreaterThanOrEqualTo(1));
         }
 
@@ -58,18 +58,18 @@ namespace SmartCampus.Testing.Editor.Core
             var participantIds = new ulong[] { 1UL, 2UL, 3UL, 4UL };
             var currentHandPairIds = participantIds.ToDictionary(id => id, _ => (IReadOnlyList<int>)new List<int>());
             var currentHandCounts = participantIds.ToDictionary(id => id, _ => 0);
-            var deck = BuildDeck(pairCount: 10);
+            var deck = BuildDeck(pairCount: 12);
 
             var assignments = DistributedPairsDistributionService.PlanAssignments(
                 participantIds,
                 currentHandPairIds,
                 currentHandCounts,
                 deck,
-                targetHandSize: 4,
+                targetHandSize: 6,
                 randomSeed: 23,
                 guaranteedVisiblePairsOffset: GuaranteedVisiblePairsOffset);
 
-            Assert.That(assignments.Count, Is.EqualTo(16));
+            Assert.That(assignments.Count, Is.EqualTo(24));
             Assert.That(CountVisiblePairs(assignments, deck), Is.GreaterThanOrEqualTo(3));
         }
 
@@ -79,7 +79,7 @@ namespace SmartCampus.Testing.Editor.Core
             var participantIds = new ulong[] { 1UL, 2UL, 3UL };
             var currentHandPairIds = participantIds.ToDictionary(id => id, _ => (IReadOnlyList<int>)new List<int>());
             var currentHandCounts = participantIds.ToDictionary(id => id, _ => 0);
-            var deck = BuildDeck(pairCount: 10);
+            var deck = BuildDeck(pairCount: 12);
 
             var snapshots = new HashSet<string>();
             for (var seed = 0; seed < 8; seed++)
@@ -89,7 +89,7 @@ namespace SmartCampus.Testing.Editor.Core
                     currentHandPairIds,
                     currentHandCounts,
                     deck,
-                    targetHandSize: 4,
+                    targetHandSize: 6,
                     randomSeed: seed,
                     guaranteedVisiblePairsOffset: GuaranteedVisiblePairsOffset);
 

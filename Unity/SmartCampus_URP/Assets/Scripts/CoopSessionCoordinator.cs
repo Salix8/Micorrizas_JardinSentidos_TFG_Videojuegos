@@ -21,7 +21,7 @@ public sealed class CoopSessionCoordinator : NetworkBehaviour
     [SerializeField] private string lobbySceneName = "Lobby";
     [SerializeField] private string mainMapSceneName = "UJI";
     [SerializeField] private string sessionSummarySceneName = "CoopFinalResults";
-    [SerializeField] private string[] miniGameSceneNames = new string[5];
+    [SerializeField] private string[] miniGameSceneNames = new string[6];
 
     private readonly NetworkVariable<CoopGamePhase> currentPhase = new(CoopGamePhase.Lobby);
     private readonly NetworkVariable<int> activeMiniGameIndex = new(-1);

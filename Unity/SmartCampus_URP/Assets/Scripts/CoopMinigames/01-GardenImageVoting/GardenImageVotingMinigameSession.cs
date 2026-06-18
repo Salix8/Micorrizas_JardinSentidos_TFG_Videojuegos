@@ -152,7 +152,8 @@ namespace SmartCampus.Coop.Minigames.GardenImageVoting
             if (gardenImageVotingMinigameConfig == null)
             {
                 dataLoadError = $"{nameof(GardenImageVotingMinigameSession)} requiere una configuracion valida.";
-                PublishResultServer(new MinigameResultData("Configuracion invalida", 0f, 0, 0));
+                sharedStatusMessage.Value = new FixedString128Bytes(dataLoadError);
+                SetBlockingErrorServer("Configuracion invalida");
                 return;
             }
 
@@ -249,10 +250,18 @@ namespace SmartCampus.Coop.Minigames.GardenImageVoting
         {
             hasLoadedCardDefinitions = false;
             loadedCardDefinitions.Clear();
+            serverDataPrepared = false;
+            serverGameplayActive = false;
+            pendingGameplayStart = false;
+            totalScheduledCards.Value = 0;
+            remainingTimeSeconds.Value = 0f;
+            sharedStatusMessage.Value = new FixedString128Bytes(string.IsNullOrWhiteSpace(dataLoadError)
+                ? "No se ha podido preparar el contenido del minijuego."
+                : dataLoadError);
 
             if (IsServer && !HasPublishedResult)
             {
-                PublishResultServer(new MinigameResultData("CSV invalido", 0f, 0, 0));
+                SetBlockingErrorServer(string.IsNullOrWhiteSpace(dataLoadError) ? "CSV invalido" : dataLoadError);
             }
 
             StateChanged?.Invoke();
@@ -344,7 +353,9 @@ namespace SmartCampus.Coop.Minigames.GardenImageVoting
 
             if (assignedCardCount <= 0)
             {
-                CompleteMinigameServer(completedAllCards: true);
+                dataLoadError = "No hay cartas disponibles para los participantes actuales.";
+                sharedStatusMessage.Value = new FixedString128Bytes(dataLoadError);
+                SetBlockingErrorServer(dataLoadError);
                 return;
             }
 
@@ -407,6 +418,7 @@ namespace SmartCampus.Coop.Minigames.GardenImageVoting
             {
                 progressState.IncorrectAnswers += 1;
                 sharedIncorrectAnswers.Value += 1;
+                ApplyIncorrectAnswerPenaltyServer();
             }
 
             progressState.CurrentCardIndex += 1;
@@ -417,10 +429,29 @@ namespace SmartCampus.Coop.Minigames.GardenImageVoting
                 ? new FixedString128Bytes("Respuesta correcta. El grupo suma un punto.")
                 : new FixedString128Bytes("Respuesta incorrecta. El grupo no suma en esta imagen.");
 
+            if (remainingTimeSeconds.Value <= 0f)
+            {
+                CompleteMinigameServer(completedAllCards: false);
+                return;
+            }
+
             if (HaveAllPlayersCompleted())
             {
                 CompleteMinigameServer(completedAllCards: true);
             }
+        }
+
+        private void ApplyIncorrectAnswerPenaltyServer()
+        {
+            if (gardenImageVotingMinigameConfig == null || gardenImageVotingMinigameConfig.IncorrectAnswerPenaltySeconds <= 0f)
+            {
+                return;
+            }
+
+            var currentServerTime = NetworkManager.ServerTime.Time;
+            gameplayEndServerTime = Math.Max(currentServerTime, gameplayEndServerTime - gardenImageVotingMinigameConfig.IncorrectAnswerPenaltySeconds);
+            remainingTimeSeconds.Value = Mathf.Max(0f, (float)(gameplayEndServerTime - currentServerTime));
+            lastPublishedWholeSecond = Mathf.CeilToInt(remainingTimeSeconds.Value);
         }
 
         private void CompleteMinigameServer(bool completedAllCards)

@@ -21,6 +21,7 @@ internal static class FantasyWoodenThemeUtility
     private const string PrimaryButtonPath = ThemeRoot + "/TextBTN_Big.png";
     private const string PrimaryButtonPressedPath = ThemeRoot + "/TextBTN_Big_Pressed.png";
     private const string CloseButtonPath = ThemeRoot + "/Close Button.png";
+    private const string TutorialBackgroundPath = "Assets/Art/Background.png";
     private const float ButtonSpriteAspectRatio = 338f / 112f;
     private const float MinimumButtonWidth = 220f;
     private const float MaximumButtonWidth = 400f;
@@ -275,6 +276,16 @@ internal static class FantasyWoodenThemeUtility
         var image = button.GetComponent<Image>();
         if (image == null)
         {
+            return;
+        }
+
+        if (string.Equals(button.gameObject.name, "DismissBackground", StringComparison.OrdinalIgnoreCase))
+        {
+            button.transition = Selectable.Transition.None;
+            button.targetGraphic = image;
+            image.sprite = AssetDatabase.LoadAssetAtPath<Sprite>(TutorialBackgroundPath);
+            image.type = Image.Type.Sliced;
+            image.color = Color.white;
             return;
         }
 

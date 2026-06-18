@@ -4,12 +4,17 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace SmartCampus.Coop.Minigames
 {
     [DisallowMultipleComponent]
     public sealed class CoopMinigameLauncherUIController : MonoBehaviour
     {
+        private const string CatalogAssetPath = "Assets/CoopMinigames/Configs/CoopMinigameCatalog.asset";
+
         [SerializeField] private CoopSessionCoordinator coopSessionCoordinator;
         [SerializeField] private CoopSessionProgressSync coopSessionProgressSync;
         [SerializeField] private CoopMinigameCatalogConfig minigameCatalogConfig;
@@ -44,6 +49,27 @@ namespace SmartCampus.Coop.Minigames
 
             RefreshEntries();
         }
+
+#if UNITY_EDITOR
+        private void OnValidate()
+        {
+            if (Application.isPlaying)
+            {
+                return;
+            }
+
+            if (minigameCatalogConfig != null)
+            {
+                return;
+            }
+
+            minigameCatalogConfig = AssetDatabase.LoadAssetAtPath<CoopMinigameCatalogConfig>(CatalogAssetPath);
+            if (minigameCatalogConfig != null)
+            {
+                EditorUtility.SetDirty(this);
+            }
+        }
+#endif
 
         private void OnDisable()
         {

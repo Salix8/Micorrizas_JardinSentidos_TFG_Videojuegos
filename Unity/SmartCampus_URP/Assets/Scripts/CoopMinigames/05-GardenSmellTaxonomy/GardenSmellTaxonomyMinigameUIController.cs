@@ -10,6 +10,18 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
     public sealed class GardenSmellTaxonomyMinigameUIController : MinigameUIControllerBase
     {
         [SerializeField] private GardenSmellTaxonomyMinigameSession gardenSmellTaxonomyMinigameSession;
+        [SerializeField] private CoopSessionProgressSync sessionProgressSync;
+        [SerializeField] private CoopMinigameTopPanelView topPanelView;
+        [SerializeField] private CoopMinigameBottomPanelView bottomPanelView;
+
+        [Header("Shared Panel Copy")]
+        [SerializeField] private string bottomInstructionTitle = "CLASIFICAD POR USO";
+        [SerializeField] private string bottomInstructionBody = "Arrastrad cada planta hacia decoracion, alimentacion o curacion segun su uso principal.";
+        [SerializeField] private float displayedPenaltySeconds;
+        [SerializeField] private string teamName;
+        [SerializeField] private string roomCode;
+
+        [Header("Legacy Labels")]
         [SerializeField] private GardenSmellTaxonomyPlantCardView plantCardView;
         [SerializeField] private GardenSmellTaxonomyDropZoneView decorationDropZone;
         [SerializeField] private GardenSmellTaxonomyDropZoneView foodDropZone;
@@ -32,15 +44,22 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
         protected override void Awake()
         {
             gardenSmellTaxonomyMinigameSession ??= FindFirstObjectByType<GardenSmellTaxonomyMinigameSession>(FindObjectsInactive.Include);
+            sessionProgressSync ??= FindFirstObjectByType<CoopSessionProgressSync>(FindObjectsInactive.Include);
             base.Awake();
         }
 
         protected override void OnEnable()
         {
             gardenSmellTaxonomyMinigameSession ??= FindFirstObjectByType<GardenSmellTaxonomyMinigameSession>(FindObjectsInactive.Include);
+            sessionProgressSync ??= FindFirstObjectByType<CoopSessionProgressSync>(FindObjectsInactive.Include);
             if (TypedSession != null)
             {
                 TypedSession.StateChanged += HandleStateChanged;
+            }
+
+            if (sessionProgressSync != null)
+            {
+                sessionProgressSync.ProgressChanged += HandleStateChanged;
             }
 
             base.OnEnable();
@@ -51,6 +70,11 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
             if (TypedSession != null)
             {
                 TypedSession.StateChanged -= HandleStateChanged;
+            }
+
+            if (sessionProgressSync != null)
+            {
+                sessionProgressSync.ProgressChanged -= HandleStateChanged;
             }
 
             base.OnDisable();
@@ -94,6 +118,8 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
                 titleLabel.text = config.DisplayName;
                 titleLabel.color = config.VisualSettings.TitleColor;
             }
+
+            BindSharedPanels(config.DisplayName, TypedSession.RemainingTimeSeconds, config.TimeLimitSeconds);
 
             if (timerLabel != null)
             {
@@ -152,10 +178,43 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
                 HandleClassificationSubmitted);
         }
 
+        protected override int? GetFailureFeedbackCount()
+        {
+            return TypedSession?.IncorrectAnswerCount;
+        }
+
         private void HandleStateChanged()
         {
             hoveredCategory = null;
-            RefreshGameplay();
+            RefreshUi();
+        }
+
+        private void BindSharedPanels(string minigameTitle, float remainingSeconds, float totalSeconds)
+        {
+            if (topPanelView != null)
+            {
+                topPanelView.Bind(minigameTitle, CalculateGlobalProgress01(), teamName, roomCode);
+            }
+
+            if (bottomPanelView != null)
+            {
+                bottomPanelView.Bind(
+                    bottomInstructionTitle,
+                    bottomInstructionBody,
+                    remainingSeconds,
+                    totalSeconds,
+                    displayedPenaltySeconds);
+            }
+        }
+
+        private float CalculateGlobalProgress01()
+        {
+            if (sessionProgressSync == null || sessionProgressSync.ConfiguredMinigameCount <= 0)
+            {
+                return 0f;
+            }
+
+            return Mathf.Clamp01((float)sessionProgressSync.CompletedCount / sessionProgressSync.ConfiguredMinigameCount);
         }
 
         private void HandleHoveredCategoryChanged(GardenSmellTaxonomyCategory? category)

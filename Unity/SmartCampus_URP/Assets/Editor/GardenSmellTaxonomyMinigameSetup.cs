@@ -26,7 +26,7 @@ public static class GardenSmellTaxonomyMinigameSetup
     private const string LobbyScenePath = SceneFolder + "/Lobby.unity";
     private const string MainMapScenePath = SceneFolder + "/UJI.unity";
     private const string MinigameSceneName = "GardenSmellTaxonomyMinigame";
-    private const int MinigameIndex = 5;
+    private const int MinigameIndex = 4;
 
     [MenuItem("Tools/Coop/Setup Garden Smell Taxonomy Minigame")]
     public static void SetupGardenSmellTaxonomyMinigame()
@@ -147,15 +147,19 @@ public static class GardenSmellTaxonomyMinigameSetup
     private static void SetupMinigameScene(GardenSmellTaxonomyMinigameConfig config)
     {
         var font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        var themeConfig = CoopMinigameThemeSetupUtility.GetOrCreateDefaultTheme();
+        CoopMinigameSharedPanelPrefabUtility.CreateOrUpdateSharedPanelPrefabs();
+
         var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
         EnsureInputSystemUiEventSystem();
-        MinigameSceneCameraUtility.EnsureFixedCamera(scene, config.VisualSettings.BackgroundColor);
+        MinigameSceneCameraUtility.EnsureFixedCamera(scene, themeConfig.Palette.ScreenBackground);
 
         var sessionObject = new GameObject("GardenSmellTaxonomySession", typeof(Unity.Netcode.NetworkObject), typeof(GardenSmellTaxonomyMinigameSession));
         var session = sessionObject.GetComponent<GardenSmellTaxonomyMinigameSession>();
         var serializedSession = new SerializedObject(session);
         serializedSession.FindProperty("gardenSmellTaxonomyMinigameConfig").objectReferenceValue = config;
         serializedSession.ApplyModifiedPropertiesWithoutUndo();
+        EditorUtility.SetDirty(session);
 
         var canvas = CreateCanvas("GardenSmellTaxonomyCanvas");
         var safeAreaRoot = CreateUiObject("SafeAreaRoot", canvas.transform, typeof(SafeAreaFitter));
@@ -163,7 +167,7 @@ public static class GardenSmellTaxonomyMinigameSetup
 
         var background = CreateUiObject("Background", safeAreaRoot.transform, typeof(Image));
         Stretch(background.GetComponent<RectTransform>(), Vector2.zero, Vector2.zero);
-        background.GetComponent<Image>().color = config.VisualSettings.BackgroundColor;
+        background.GetComponent<Image>().color = themeConfig.Palette.ScreenBackground;
 
         var uiRoot = CreateUiObject("GardenSmellTaxonomyUI", safeAreaRoot.transform, typeof(GardenSmellTaxonomyMinigameUIController));
         Stretch(uiRoot.GetComponent<RectTransform>(), Vector2.zero, Vector2.zero);
@@ -174,19 +178,36 @@ public static class GardenSmellTaxonomyMinigameSetup
         Stretch(waitingStatus.rectTransform, new Vector2(28f, 28f), new Vector2(-28f, -28f));
 
         var gameplayPanel = CreateUiObject("GameplayPanel", uiRoot.transform, typeof(Image), typeof(VerticalLayoutGroup));
-        Stretch(gameplayPanel.GetComponent<RectTransform>(), new Vector2(32f, 32f), new Vector2(-32f, -32f));
-        gameplayPanel.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.1f);
+        var screenMargin = themeConfig.ScreenLayout.ScreenMargin;
+        Stretch(gameplayPanel.GetComponent<RectTransform>(), screenMargin, -screenMargin);
+        gameplayPanel.GetComponent<Image>().color = Color.clear;
         var gameplayLayout = gameplayPanel.GetComponent<VerticalLayoutGroup>();
-        gameplayLayout.padding = new RectOffset(24, 24, 20, 20);
-        gameplayLayout.spacing = 12f;
+        gameplayLayout.padding = new RectOffset(0, 0, 0, 0);
+        gameplayLayout.spacing = themeConfig.ScreenLayout.VerticalSpacing;
         gameplayLayout.childControlWidth = true;
         gameplayLayout.childControlHeight = true;
         gameplayLayout.childForceExpandHeight = false;
 
-        var titleLabel = CreateText("TitleLabel", gameplayPanel.transform, font, config.DisplayName, 42, TextAnchor.MiddleCenter);
-        titleLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 56f;
+        var topPanelView = CoopMinigameSharedPanelSetupUtility.InstantiateSharedPanel<CoopMinigameTopPanelView>(
+            CoopMinigameSharedPanelPrefabUtility.TopPanelPrefabPath,
+            gameplayPanel.transform,
+            themeConfig.ScreenLayout.TopPanelHeight);
+        topPanelView.SetTheme(themeConfig);
+        topPanelView.Bind(config.DisplayName, 0f, string.Empty, string.Empty);
 
-        var statusPanel = CreatePanel("StatusPanel", gameplayPanel.transform, config.VisualSettings.PanelColor);
+        TMP_Text titleLabel = null;
+
+        var interactivePanel = CreatePanel("InteractivePanel", gameplayPanel.transform, themeConfig.Palette.PanelBackground);
+        interactivePanel.AddComponent<LayoutElement>().flexibleHeight = 1f;
+        interactivePanel.GetComponent<LayoutElement>().minHeight = 360f;
+        var interactiveLayout = interactivePanel.AddComponent<VerticalLayoutGroup>();
+        interactiveLayout.padding = new RectOffset(24, 24, 24, 24);
+        interactiveLayout.spacing = 16f;
+        interactiveLayout.childControlWidth = true;
+        interactiveLayout.childControlHeight = true;
+        interactiveLayout.childForceExpandHeight = false;
+
+        var statusPanel = CreatePanel("StatusPanel", interactivePanel.transform, themeConfig.Palette.PanelBackground);
         statusPanel.AddComponent<LayoutElement>().preferredHeight = 176f;
         var statusLayout = statusPanel.AddComponent<VerticalLayoutGroup>();
         statusLayout.padding = new RectOffset(20, 20, 16, 16);
@@ -204,7 +225,7 @@ public static class GardenSmellTaxonomyMinigameSetup
         var statusLabel = CreateText("StatusLabel", statusPanel.transform, font, "Arrastra la planta activa hacia la categoria correcta.", 20, TextAnchor.UpperLeft);
         statusLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 64f;
 
-        var centerArea = CreateUiObject("CenterArea", gameplayPanel.transform, typeof(HorizontalLayoutGroup));
+        var centerArea = CreateUiObject("CenterArea", interactivePanel.transform, typeof(HorizontalLayoutGroup));
         var centerAreaLayout = centerArea.GetComponent<HorizontalLayoutGroup>();
         centerAreaLayout.spacing = 10f;
         centerAreaLayout.childControlWidth = true;
@@ -218,7 +239,7 @@ public static class GardenSmellTaxonomyMinigameSetup
         var foodZone = CreateDropZone("FoodZone", centerArea.transform, font, GardenSmellTaxonomyCategory.Food, config.VisualSettings);
         var healingZone = CreateDropZone("HealingZone", centerArea.transform, font, GardenSmellTaxonomyCategory.Healing, config.VisualSettings);
 
-        var bottomArea = CreatePanel("BottomArea", gameplayPanel.transform, new Color(1f, 1f, 1f, 0.06f));
+        var bottomArea = CreatePanel("BottomArea", interactivePanel.transform, themeConfig.Palette.PanelBackground);
         bottomArea.AddComponent<LayoutElement>().preferredHeight = 320f;
 
         var cardRoot = CreateUiObject(
@@ -290,14 +311,31 @@ public static class GardenSmellTaxonomyMinigameSetup
         serializedCardView.FindProperty("helperLabel").objectReferenceValue = helperLabel;
         serializedCardView.ApplyModifiedPropertiesWithoutUndo();
 
+        var bottomPanelView = CoopMinigameSharedPanelSetupUtility.InstantiateSharedPanel<CoopMinigameBottomPanelView>(
+            CoopMinigameSharedPanelPrefabUtility.BottomPanelPrefabPath,
+            gameplayPanel.transform,
+            themeConfig.ScreenLayout.BottomPanelHeight);
+        bottomPanelView.SetTheme(themeConfig);
+        bottomPanelView.Bind(
+            "CLASIFICAD POR USO",
+            "Arrastrad cada planta hacia decoracion, alimentacion o curacion segun su uso principal.",
+            config.TimeLimitSeconds,
+            config.TimeLimitSeconds,
+            0f);
+
+        var failureFeedback = MinigameFailureFeedbackSetupUtility.CreateOrUpdateFailureFeedback(uiRoot, gameplayPanel);
+
         var serializedUiController = new SerializedObject(uiRoot.GetComponent<GardenSmellTaxonomyMinigameUIController>());
         serializedUiController.FindProperty("minigameSession").objectReferenceValue = session;
         serializedUiController.FindProperty("tutorialPopupController").objectReferenceValue = tutorialPopup;
         serializedUiController.FindProperty("minigameResultView").objectReferenceValue = resultPopup;
+        MinigameFailureFeedbackSetupUtility.AssignToUiController(serializedUiController, failureFeedback);
         serializedUiController.FindProperty("waitingPanel").objectReferenceValue = waitingPanel;
         serializedUiController.FindProperty("gameplayPanel").objectReferenceValue = gameplayPanel;
         serializedUiController.FindProperty("waitingStatusLabel").objectReferenceValue = waitingStatus;
         serializedUiController.FindProperty("gardenSmellTaxonomyMinigameSession").objectReferenceValue = session;
+        serializedUiController.FindProperty("topPanelView").objectReferenceValue = topPanelView;
+        serializedUiController.FindProperty("bottomPanelView").objectReferenceValue = bottomPanelView;
         serializedUiController.FindProperty("plantCardView").objectReferenceValue = cardView;
         serializedUiController.FindProperty("decorationDropZone").objectReferenceValue = decorationZone.DropZoneView;
         serializedUiController.FindProperty("foodDropZone").objectReferenceValue = foodZone.DropZoneView;
@@ -309,7 +347,6 @@ public static class GardenSmellTaxonomyMinigameSetup
         serializedUiController.FindProperty("statusLabel").objectReferenceValue = statusLabel;
         serializedUiController.ApplyModifiedPropertiesWithoutUndo();
 
-        FantasyWoodenThemeUtility.ApplyThemeToOpenScene(scene);
         EditorSceneManager.SaveScene(scene, MinigameScenePath);
     }
 
@@ -611,7 +648,7 @@ public static class GardenSmellTaxonomyMinigameSetup
         text.fontSize = fontSize;
         text.alignment = ConvertAlignment(alignment);
         text.color = new Color(0.12f, 0.15f, 0.17f, 1f);
-        text.enableWordWrapping = true;
+        text.textWrappingMode = TextWrappingModes.Normal;
         text.overflowMode = TextOverflowModes.Overflow;
         return text;
     }

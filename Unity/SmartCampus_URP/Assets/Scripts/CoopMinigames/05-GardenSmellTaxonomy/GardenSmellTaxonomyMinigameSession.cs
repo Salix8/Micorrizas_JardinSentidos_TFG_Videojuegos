@@ -206,14 +206,18 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
             var participantCount = GetParticipantIds().Count;
             if (gardenSmellTaxonomyMinigameConfig == null)
             {
-                PublishResultServer(new MinigameResultData("Configuracion invalida", 0f, 0, 0));
+                dataLoadError = "Configuracion invalida.";
+                sharedStatusMessage.Value = new FixedString128Bytes(dataLoadError);
+                SetBlockingErrorServer("Configuracion invalida");
                 return;
             }
 
             if (participantCount < gardenSmellTaxonomyMinigameConfig.MinimumSupportedPlayers ||
                 participantCount > gardenSmellTaxonomyMinigameConfig.MaxSupportedDevices)
             {
-                PublishResultServer(new MinigameResultData("Numero de jugadores no compatible", 0f, 0, 0));
+                dataLoadError = "Numero de jugadores no compatible.";
+                sharedStatusMessage.Value = new FixedString128Bytes(dataLoadError);
+                SetBlockingErrorServer("Numero de jugadores no compatible");
                 return;
             }
 
@@ -314,7 +318,8 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
 
             if (IsServer && !HasPublishedResult)
             {
-                PublishResultServer(new MinigameResultData("CSV invalido", 0f, 0, 0));
+                sharedStatusMessage.Value = new FixedString128Bytes(string.IsNullOrWhiteSpace(dataLoadError) ? "CSV invalido." : dataLoadError);
+                SetBlockingErrorServer(string.IsNullOrWhiteSpace(dataLoadError) ? "CSV invalido" : dataLoadError);
             }
 
             StateChanged?.Invoke();
@@ -322,14 +327,16 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
 
         private void TryPrepareServerData()
         {
-            if (!IsServer || !hasLoadedDefinitions || serverDataPrepared || HasPublishedResult || gardenSmellTaxonomyMinigameConfig == null)
+            if (!IsServer || !hasLoadedDefinitions || serverDataPrepared || HasPublishedResult || HasBlockingError || gardenSmellTaxonomyMinigameConfig == null)
             {
                 return;
             }
 
             if (loadedDefinitions.Count < gardenSmellTaxonomyMinigameConfig.MinimumRequiredPlants)
             {
-                PublishResultServer(new MinigameResultData("CSV insuficiente", 0f, 0, 0));
+                dataLoadError = "CSV insuficiente.";
+                sharedStatusMessage.Value = new FixedString128Bytes(dataLoadError);
+                SetBlockingErrorServer(dataLoadError);
                 return;
             }
 
@@ -342,7 +349,9 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
 
             if (scheduledDefinitions.Count < gardenSmellTaxonomyMinigameConfig.MinimumRequiredPlants)
             {
-                PublishResultServer(new MinigameResultData("CSV insuficiente", 0f, 0, 0));
+                dataLoadError = "CSV insuficiente.";
+                sharedStatusMessage.Value = new FixedString128Bytes(dataLoadError);
+                SetBlockingErrorServer(dataLoadError);
                 return;
             }
 
@@ -359,7 +368,7 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
 
         private void StartGameplayServer()
         {
-            if (!serverDataPrepared || gardenSmellTaxonomyMinigameConfig == null || scheduledDefinitions.Count == 0)
+            if (!serverDataPrepared || gardenSmellTaxonomyMinigameConfig == null || scheduledDefinitions.Count == 0 || HasBlockingError)
             {
                 return;
             }

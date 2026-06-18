@@ -17,6 +17,39 @@ MonoBehaviour:
   successMessage: Planta encontrada
   returnToMapButtonLabel: Volver al mapa
   csvRelativePath: CoopMinigames/CollaborativePlantGuessPlants.csv
+  plantImages:
+  - plantId: alcornoque
+    image: {fileID: 21300000, guid: 502d6e4c76e933845932e9e90ab75384, type: 3}
+  - plantId: espino_negro
+    image: {fileID: 21300000, guid: 0abcfd41f95da344a931f6a17116d64f, type: 3}
+  - plantId: almez
+    image: {fileID: 21300000, guid: f89a74c0d4d570d449de4ade01bea667, type: 3}
+  - plantId: adelfa
+    image: {fileID: 21300000, guid: e8b237ce12cef8e4aa1836868d343163, type: 3}
+  - plantId: algarrobo
+    image: {fileID: 21300000, guid: 022d43d8ec7cd0c408b05924f4d7dcc7, type: 3}
+  - plantId: encina
+    image: {fileID: 21300000, guid: d30b42eb2698a1a45909de7f32399763, type: 3}
+  - plantId: aladierna
+    image: {fileID: 21300000, guid: 53eff169c4425ec4d998ca4ac71a0a35, type: 3}
+  - plantId: pino_pinonero
+    image: {fileID: 21300000, guid: daa2b2d9e3d091648accfd1156d3d4e4, type: 3}
+  - plantId: pino_carrasco
+    image: {fileID: 21300000, guid: fc3cfb7e5620d5f42b7057106e8615f1, type: 3}
+  - plantId: pino_silvestre
+    image: {fileID: 21300000, guid: 5c2833a1996f9dc48ab3730844d9a38b, type: 3}
+  - plantId: acebo
+    image: {fileID: 21300000, guid: e17483fd2cdffa94f9cf95a64b172fbe, type: 3}
+  - plantId: palmito
+    image: {fileID: 21300000, guid: 71f31a77320520f48bb7d386b87309d8, type: 3}
+  - plantId: madrono
+    image: {fileID: 21300000, guid: 706d45c7b02cd8c4fa8fe4514168d583, type: 3}
+  - plantId: olivo
+    image: {fileID: 21300000, guid: c4a89b8976882ac42bd9cd0f8909393b, type: 3}
+  - plantId: hiedra
+    image: {fileID: 21300000, guid: 225c00f689f7d414092dd129e520a540, type: 3}
+  - plantId: chumbera
+    image: {fileID: 21300000, guid: e564f87349ce62f48b4436d98e2a30e0, type: 3}
   minimumSupportedPlayers: 2
   maxSupportedDevices: 6
   timeLimitSeconds: 180

@@ -60,12 +60,42 @@ namespace SmartCampus.Testing.Editor.Core
             Assert.That(errorMessage, Does.Contain("Cada sonido necesita al menos una respuesta incorrecta"));
         }
 
-        private static AudioWordConsensusRoundDefinition CreateRoundDefinition(bool hasClip, string correctWord, string[] distractorWords)
+        [Test]
+        public void GetRevealStageImage_FallsBackToLastAvailableConfiguredSprite()
+        {
+            var firstStageTexture = new Texture2D(4, 4);
+            var thirdStageTexture = new Texture2D(4, 4);
+            var firstStageSprite = Sprite.Create(firstStageTexture, new Rect(0f, 0f, 4f, 4f), new Vector2(0.5f, 0.5f));
+            var thirdStageSprite = Sprite.Create(thirdStageTexture, new Rect(0f, 0f, 4f, 4f), new Vector2(0.5f, 0.5f));
+            var definition = CreateRoundDefinition(
+                hasClip: true,
+                correctWord: "Mirlo",
+                distractorWords: new[] { "Garza" },
+                revealStageImages: new List<Sprite> { firstStageSprite, null, thirdStageSprite, null });
+
+            Assert.That(definition.RevealStageImages.Count, Is.EqualTo(4));
+            Assert.That(definition.GetRevealStageImage(0), Is.SameAs(firstStageSprite));
+            Assert.That(definition.GetRevealStageImage(1), Is.SameAs(firstStageSprite));
+            Assert.That(definition.GetRevealStageImage(2), Is.SameAs(thirdStageSprite));
+            Assert.That(definition.GetRevealStageImage(3), Is.SameAs(thirdStageSprite));
+
+            Object.DestroyImmediate(firstStageSprite);
+            Object.DestroyImmediate(thirdStageSprite);
+            Object.DestroyImmediate(firstStageTexture);
+            Object.DestroyImmediate(thirdStageTexture);
+        }
+
+        private static AudioWordConsensusRoundDefinition CreateRoundDefinition(
+            bool hasClip,
+            string correctWord,
+            string[] distractorWords,
+            List<Sprite> revealStageImages = null)
         {
             var definition = (AudioWordConsensusRoundDefinition)System.Activator.CreateInstance(typeof(AudioWordConsensusRoundDefinition), true);
             SetPrivateField(definition, "promptLabel", "Audio");
             SetPrivateField(definition, "soundClip", hasClip ? AudioClip.Create("Audio", 1, 1, 44100, false) : null);
             SetPrivateField(definition, "correctWord", correctWord);
+            SetPrivateField(definition, "revealStageImages", revealStageImages ?? new List<Sprite>(AudioWordConsensusMinigameConfig.DefaultRevealStageCount));
             SetPrivateField(definition, "distractorWords", new List<string>(distractorWords));
             return definition;
         }

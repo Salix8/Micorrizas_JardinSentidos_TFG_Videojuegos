@@ -26,7 +26,7 @@ public static class AudioWordConsensusMinigameSetup
     private const string LobbyScenePath = SceneFolder + "/Lobby.unity";
     private const string MainMapScenePath = SceneFolder + "/UJI.unity";
     private const string MinigameSceneName = "AudioWordConsensusMinigame";
-    private const int MinigameIndex = 2;
+    private const int MinigameIndex = 1;
 
     [MenuItem("Tools/Coop/Setup Audio Word Consensus Minigame")]
     public static void SetupAudioWordConsensusMinigame()
@@ -108,7 +108,8 @@ public static class AudioWordConsensusMinigameSetup
         serializedObject.FindProperty("bodyText").stringValue =
             "En cada ronda un dispositivo solo puede reproducir un sonido. Ese jugador no recibe ninguna palabra.\n\n" +
             "El resto de dispositivos recibe varias opciones en sus botones. Solo una coincide con el sonido reproducido.\n\n" +
-            "Debatid rapidamente y decidid en que dispositivo y sobre que palabra debe pulsarse. El minijuego termina al agotarse los sonidos disponibles o cuando se acaba el tiempo.";
+            "Si fallais, se desactiva la opcion pulsada y la imagen se revela un poco mas. Teneis hasta tres fallos por ronda antes de mostrar la solucion final.\n\n" +
+            "Cuando acertais o agotais los intentos, el dispositivo que reproducia el audio decide cuando pasar a la siguiente ronda.";
         serializedObject.ApplyModifiedPropertiesWithoutUndo();
         EditorUtility.SetDirty(asset);
         return asset;
@@ -160,6 +161,7 @@ public static class AudioWordConsensusMinigameSetup
             round.FindPropertyRelative("promptLabel").stringValue = clips[index].name;
             round.FindPropertyRelative("soundClip").objectReferenceValue = clips[index];
             round.FindPropertyRelative("correctWord").stringValue = correctWords[index];
+            round.FindPropertyRelative("revealStageImages").arraySize = AudioWordConsensusMinigameConfig.DefaultRevealStageCount;
 
             var distractorWords = round.FindPropertyRelative("distractorWords");
             var distractors = BuildDistractorWords(correctWords, index);
@@ -184,6 +186,7 @@ public static class AudioWordConsensusMinigameSetup
             var round = roundDefinitions.GetArrayElementAtIndex(index);
             round.FindPropertyRelative("promptLabel").stringValue = $"Sonido {index + 1}";
             round.FindPropertyRelative("correctWord").stringValue = $"Palabra correcta {index + 1}";
+            round.FindPropertyRelative("revealStageImages").arraySize = AudioWordConsensusMinigameConfig.DefaultRevealStageCount;
         }
     }
 
@@ -245,15 +248,19 @@ public static class AudioWordConsensusMinigameSetup
     private static void SetupMinigameScene(AudioWordConsensusMinigameConfig config)
     {
         var font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        var themeConfig = CoopMinigameThemeSetupUtility.GetOrCreateDefaultTheme();
+        CoopMinigameSharedPanelPrefabUtility.CreateOrUpdateSharedPanelPrefabs();
+
         var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
         CreateEventSystemIfMissing();
-        MinigameSceneCameraUtility.EnsureFixedCamera(scene, config.VisualSettings.BackgroundColor);
+        MinigameSceneCameraUtility.EnsureFixedCamera(scene, themeConfig.Palette.ScreenBackground);
 
         var sessionObject = new GameObject("AudioWordConsensusSession", typeof(Unity.Netcode.NetworkObject), typeof(AudioWordConsensusMinigameSession));
         var session = sessionObject.GetComponent<AudioWordConsensusMinigameSession>();
         var serializedSession = new SerializedObject(session);
         serializedSession.FindProperty("audioWordConsensusMinigameConfig").objectReferenceValue = config;
         serializedSession.ApplyModifiedPropertiesWithoutUndo();
+        EditorUtility.SetDirty(session);
 
         var canvas = CreateCanvas("AudioWordConsensusCanvas");
         var safeAreaRoot = CreateUiObject("SafeAreaRoot", canvas.transform, typeof(SafeAreaFitter));
@@ -261,7 +268,7 @@ public static class AudioWordConsensusMinigameSetup
 
         var background = CreateUiObject("Background", safeAreaRoot.transform, typeof(Image));
         Stretch(background.GetComponent<RectTransform>(), Vector2.zero, Vector2.zero);
-        background.GetComponent<Image>().color = config.VisualSettings.BackgroundColor;
+        background.GetComponent<Image>().color = themeConfig.Palette.ScreenBackground;
 
         var uiRoot = CreateUiObject("AudioWordConsensusUI", safeAreaRoot.transform, typeof(AudioWordConsensusMinigameUIController), typeof(AudioSource));
         Stretch(uiRoot.GetComponent<RectTransform>(), Vector2.zero, Vector2.zero);
@@ -272,39 +279,27 @@ public static class AudioWordConsensusMinigameSetup
         Stretch(waitingStatus.GetComponent<RectTransform>(), new Vector2(28f, 28f), new Vector2(-28f, -28f));
 
         var gameplayPanel = CreateUiObject("GameplayPanel", uiRoot.transform, typeof(Image), typeof(VerticalLayoutGroup));
-        Stretch(gameplayPanel.GetComponent<RectTransform>(), new Vector2(40f, 40f), new Vector2(-40f, -40f));
-        gameplayPanel.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.14f);
+        var screenMargin = themeConfig.ScreenLayout.ScreenMargin;
+        Stretch(gameplayPanel.GetComponent<RectTransform>(), screenMargin, -screenMargin);
+        gameplayPanel.GetComponent<Image>().color = Color.clear;
         var gameplayLayout = gameplayPanel.GetComponent<VerticalLayoutGroup>();
-        gameplayLayout.padding = new RectOffset(28, 28, 28, 28);
-        gameplayLayout.spacing = 16f;
+        gameplayLayout.padding = new RectOffset(0, 0, 0, 0);
+        gameplayLayout.spacing = themeConfig.ScreenLayout.VerticalSpacing;
         gameplayLayout.childControlHeight = true;
         gameplayLayout.childControlWidth = true;
         gameplayLayout.childForceExpandHeight = false;
 
-        var titleLabel = CreateText("TitleLabel", gameplayPanel.transform, font, config.DisplayName, 42, TextAnchor.MiddleCenter);
-        titleLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 72f;
+        var topPanelView = CoopMinigameSharedPanelSetupUtility.InstantiateSharedPanel<CoopMinigameTopPanelView>(
+            CoopMinigameSharedPanelPrefabUtility.TopPanelPrefabPath,
+            gameplayPanel.transform,
+            themeConfig.ScreenLayout.TopPanelHeight);
+        topPanelView.SetTheme(themeConfig);
+        topPanelView.Bind(config.DisplayName, 0f, string.Empty, string.Empty);
 
-        var statusPanel = CreatePanel("StatusPanel", gameplayPanel.transform, config.VisualSettings.PanelColor);
-        statusPanel.AddComponent<LayoutElement>().preferredHeight = 272f;
-        var statusLayout = statusPanel.AddComponent<VerticalLayoutGroup>();
-        statusLayout.padding = new RectOffset(24, 24, 18, 18);
-        statusLayout.spacing = 8f;
-        statusLayout.childControlHeight = true;
-        statusLayout.childControlWidth = true;
-        statusLayout.childForceExpandHeight = false;
+        TMP_Text titleLabel = null;
+        TMP_Text timerLabel = null;
 
-        var roundLabel = CreateText("RoundLabel", statusPanel.transform, font, "Ronda: 1/1", 24, TextAnchor.MiddleLeft);
-        roundLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 34f;
-        var timerLabel = CreateText("TimerLabel", statusPanel.transform, font, "Tiempo restante: 02:00", 24, TextAnchor.MiddleLeft);
-        timerLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 34f;
-        var scoreLabel = CreateText("ScoreLabel", statusPanel.transform, font, "Aciertos: 0   Fallos: 0", 24, TextAnchor.MiddleLeft);
-        scoreLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 34f;
-        var statusLabel = CreateText("StatusLabel", statusPanel.transform, font, "Preparando la ronda cooperativa.", 22, TextAnchor.UpperLeft);
-        statusLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 84f;
-        var roleLabel = CreateText("RoleLabel", statusPanel.transform, font, "Tu rol se mostrara aqui.", 20, TextAnchor.UpperLeft);
-        roleLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 64f;
-
-        var interactionPanel = CreatePanel("InteractionPanel", gameplayPanel.transform, config.VisualSettings.PanelColor);
+        var interactionPanel = CreatePanel("InteractivePanel", gameplayPanel.transform, themeConfig.Palette.PanelBackground);
         interactionPanel.AddComponent<LayoutElement>().flexibleHeight = 1f;
         interactionPanel.GetComponent<LayoutElement>().minHeight = 360f;
         var interactionLayout = interactionPanel.AddComponent<VerticalLayoutGroup>();
@@ -314,51 +309,186 @@ public static class AudioWordConsensusMinigameSetup
         interactionLayout.childControlWidth = true;
         interactionLayout.childForceExpandHeight = false;
 
-        var localWordLabel = CreateText("LocalWordLabel", interactionPanel.transform, font, "Palabra local", 30, TextAnchor.MiddleCenter);
+        var roundStatusPanel = CreatePanel("RoundStatusPanel", interactionPanel.transform, themeConfig.Palette.PanelBackground);
+        roundStatusPanel.AddComponent<LayoutElement>().preferredHeight = 188f;
+        var statusLayout = roundStatusPanel.AddComponent<VerticalLayoutGroup>();
+        statusLayout.padding = new RectOffset(18, 18, 14, 14);
+        statusLayout.spacing = 8f;
+        statusLayout.childControlHeight = true;
+        statusLayout.childControlWidth = true;
+        statusLayout.childForceExpandHeight = false;
+
+        var metricsGrid = CreateUiObject("MetricsGrid", roundStatusPanel.transform, typeof(VerticalLayoutGroup), typeof(LayoutElement));
+        var metricsGridVerticalLayout = metricsGrid.GetComponent<VerticalLayoutGroup>();
+        metricsGridVerticalLayout.spacing = 8f;
+        metricsGridVerticalLayout.childControlHeight = true;
+        metricsGridVerticalLayout.childControlWidth = true;
+        metricsGridVerticalLayout.childForceExpandHeight = false;
+        metricsGridVerticalLayout.childForceExpandWidth = true;
+        var metricsGridLayoutElement = metricsGrid.GetComponent<LayoutElement>();
+        metricsGridLayoutElement.preferredHeight = 88f;
+        metricsGridLayoutElement.flexibleHeight = 0f;
+
+        var metricsTopRow = CreateUiObject("MetricsTopRow", metricsGrid.transform, typeof(HorizontalLayoutGroup), typeof(LayoutElement));
+        var metricsTopRowLayout = metricsTopRow.GetComponent<HorizontalLayoutGroup>();
+        metricsTopRowLayout.spacing = 16f;
+        metricsTopRowLayout.childControlHeight = true;
+        metricsTopRowLayout.childControlWidth = true;
+        metricsTopRowLayout.childForceExpandHeight = false;
+        metricsTopRowLayout.childForceExpandWidth = false;
+        metricsTopRow.GetComponent<LayoutElement>().preferredHeight = 40f;
+
+        var scoreLabel = CreateText("ScoreLabel", metricsTopRow.transform, font, "Aciertos: 0   Fallos: 0", 28, TextAnchor.MiddleLeft);
+        var scoreLabelLayout = scoreLabel.gameObject.AddComponent<LayoutElement>();
+        scoreLabelLayout.preferredHeight = 34f;
+        scoreLabelLayout.flexibleWidth = 1f;
+
+        var metricsSecondRow = CreateUiObject("MetricsSecondRow", metricsGrid.transform, typeof(HorizontalLayoutGroup), typeof(LayoutElement));
+        var metricsSecondRowLayout = metricsSecondRow.GetComponent<HorizontalLayoutGroup>();
+        metricsSecondRowLayout.spacing = 16f;
+        metricsSecondRowLayout.childControlHeight = true;
+        metricsSecondRowLayout.childControlWidth = true;
+        metricsSecondRowLayout.childForceExpandHeight = false;
+        metricsSecondRowLayout.childForceExpandWidth = false;
+        metricsSecondRow.GetComponent<LayoutElement>().preferredHeight = 40f;
+
+        var roundLabel = CreateText("RoundLabel", metricsSecondRow.transform, font, "Ronda: 1/1", 28, TextAnchor.MiddleLeft);
+        var roundLabelLayout = roundLabel.gameObject.AddComponent<LayoutElement>();
+        roundLabelLayout.preferredHeight = 34f;
+        roundLabelLayout.preferredWidth = 420f;
+        roundLabelLayout.flexibleWidth = 0f;
+        var attemptsLabel = CreateText("AttemptsLabel", metricsSecondRow.transform, font, "Intentos: 0/3", 28, TextAnchor.MiddleLeft);
+        var attemptsLabelLayout = attemptsLabel.gameObject.AddComponent<LayoutElement>();
+        attemptsLabelLayout.preferredHeight = 34f;
+        attemptsLabelLayout.flexibleWidth = 1f;
+
+        var statusLabel = CreateText("StatusLabel", roundStatusPanel.transform, font, "Preparando la ronda cooperativa.", 24, TextAnchor.UpperLeft);
+        statusLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 72f;
+
+        var localWordLabel = CreateText("LocalWordLabel", interactionPanel.transform, font, "Palabra local", 34, TextAnchor.MiddleCenter);
         localWordLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 84f;
+
+        var emitterReferenceImage = CreateUiObject("EmitterReferenceImage", interactionPanel.transform, typeof(Image), typeof(LayoutElement));
+        var emitterReferenceImageComponent = emitterReferenceImage.GetComponent<Image>();
+        emitterReferenceImageComponent.preserveAspect = true;
+        emitterReferenceImageComponent.enabled = false;
+        emitterReferenceImage.SetActive(false);
+        var emitterReferenceImageLayout = emitterReferenceImage.GetComponent<LayoutElement>();
+        emitterReferenceImageLayout.minHeight = 280f;
+        emitterReferenceImageLayout.preferredHeight = 420f;
+        emitterReferenceImageLayout.flexibleHeight = 0f;
+
+        var emitterPlaybackControlsContainer = CreateUiObject("EmitterPlaybackControlsContainer", interactionPanel.transform, typeof(VerticalLayoutGroup), typeof(LayoutElement));
+        emitterPlaybackControlsContainer.SetActive(false);
+        var emitterPlaybackControlsLayout = emitterPlaybackControlsContainer.GetComponent<VerticalLayoutGroup>();
+        emitterPlaybackControlsLayout.spacing = 12f;
+        emitterPlaybackControlsLayout.childControlHeight = true;
+        emitterPlaybackControlsLayout.childControlWidth = true;
+        emitterPlaybackControlsLayout.childForceExpandHeight = false;
+        emitterPlaybackControlsLayout.childForceExpandWidth = true;
+        var emitterPlaybackContainerLayoutElement = emitterPlaybackControlsContainer.GetComponent<LayoutElement>();
+        emitterPlaybackContainerLayoutElement.preferredHeight = 164f;
+        emitterPlaybackContainerLayoutElement.flexibleHeight = 0f;
+
+        var playSoundButton = CreateButton("PlaySoundButton", emitterPlaybackControlsContainer.transform, font, "Reproducir sonido", 28, config.VisualSettings.PrimaryButtonColor);
+        playSoundButton.gameObject.AddComponent<LayoutElement>().preferredHeight = 76f;
 
         var wordOptionsContainer = CreateWordOptionsContainer("WordOptionsContainer", interactionPanel.transform);
 
-        var submitWordButton = CreateButton("SubmitWordButton", wordOptionsContainer.transform, font, "Pulsar palabra", 24, config.VisualSettings.ReceiverButtonColor);
+        var submitWordButton = CreateButton("SubmitWordButton", wordOptionsContainer.transform, font, "Pulsar palabra", 28, config.VisualSettings.ReceiverButtonColor);
         var submitWordButtonLayout = submitWordButton.gameObject.AddComponent<LayoutElement>();
         submitWordButtonLayout.minHeight = 76f;
         submitWordButtonLayout.preferredHeight = 76f;
         submitWordButtonLayout.flexibleHeight = 0f;
         submitWordButton.gameObject.SetActive(false);
 
-        var playSoundButton = CreateButton("PlaySoundButton", interactionPanel.transform, font, "Reproducir sonido", 24, config.VisualSettings.PrimaryButtonColor);
-        playSoundButton.gameObject.AddComponent<LayoutElement>().preferredHeight = 76f;
+        var roundClosurePanel = CreatePanel("RoundClosurePanel", uiRoot.transform, new Color(0f, 0f, 0f, 0.62f));
+        Stretch(roundClosurePanel.GetComponent<RectTransform>(), Vector2.zero, Vector2.zero);
+        roundClosurePanel.SetActive(false);
+        var roundClosureContent = CreatePanel("RoundClosureContent", roundClosurePanel.transform, new Color(0.95f, 0.97f, 0.94f, 1f));
+        var roundClosureContentRect = roundClosureContent.GetComponent<RectTransform>();
+        roundClosureContentRect.anchorMin = new Vector2(0.5f, 0.5f);
+        roundClosureContentRect.anchorMax = new Vector2(0.5f, 0.5f);
+        roundClosureContentRect.pivot = new Vector2(0.5f, 0.5f);
+        roundClosureContentRect.anchoredPosition = Vector2.zero;
+        roundClosureContent.AddComponent<ResponsivePanelLayoutController>().Configure(uiRoot.GetComponent<RectTransform>(), 0.88f, 0.62f, new Vector2(320f, 360f), new Vector2(760f, 980f), new Vector2(32f, 32f));
+        var roundClosureLayout = roundClosureContent.AddComponent<VerticalLayoutGroup>();
+        roundClosureLayout.padding = new RectOffset(24, 24, 24, 24);
+        roundClosureLayout.spacing = 16f;
+        roundClosureLayout.childControlHeight = true;
+        roundClosureLayout.childControlWidth = true;
+        roundClosureLayout.childForceExpandHeight = false;
+
+        var roundClosureTitleLabel = CreateText("RoundClosureTitleLabel", roundClosureContent.transform, font, "Ronda acertada", 38, TextAnchor.MiddleCenter);
+        roundClosureTitleLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 56f;
+        var roundClosureImageObject = CreateUiObject("RoundClosureImage", roundClosureContent.transform, typeof(Image), typeof(LayoutElement));
+        var roundClosureImage = roundClosureImageObject.GetComponent<Image>();
+        roundClosureImage.enabled = false;
+        roundClosureImage.preserveAspect = true;
+        var roundClosureImageLayout = roundClosureImageObject.GetComponent<LayoutElement>();
+        roundClosureImageLayout.minHeight = 340f;
+        roundClosureImageLayout.preferredHeight = 460f;
+        var roundClosureStatusLabel = CreateText("RoundClosureStatusLabel", roundClosureContent.transform, font, "Resultado de la ronda", 28, TextAnchor.MiddleCenter);
+        roundClosureStatusLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 112f;
+        var roundClosureInstructionLabel = CreateText("RoundClosureInstructionLabel", roundClosureContent.transform, font, "Esperando para continuar.", 26, TextAnchor.MiddleCenter);
+        roundClosureInstructionLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 88f;
+        var roundClosureContinueButton = CreateButton("RoundClosureContinueButton", roundClosureContent.transform, font, "Continuar", 28, config.VisualSettings.PrimaryButtonColor);
+        roundClosureContinueButton.gameObject.AddComponent<LayoutElement>().preferredHeight = 68f;
+
+        var bottomPanelView = CoopMinigameSharedPanelSetupUtility.InstantiateSharedPanel<CoopMinigameBottomPanelView>(
+            CoopMinigameSharedPanelPrefabUtility.BottomPanelPrefabPath,
+            gameplayPanel.transform,
+            themeConfig.ScreenLayout.BottomPanelHeight);
+        bottomPanelView.SetTheme(themeConfig);
+        bottomPanelView.Bind(
+            "ESCUCHA CON ATENCION",
+            "Reproducid el sonido del jardin y elegid juntos la respuesta correcta.",
+            config.TimeLimitSeconds,
+            config.TimeLimitSeconds,
+            0f);
 
         var tutorialPopup = CreateTutorialPopup(uiRoot.transform, font);
         tutorialPopup.gameObject.SetActive(false);
         var resultPopup = CreateResultPopup(uiRoot.transform, font);
         resultPopup.gameObject.SetActive(false);
+        var failureFeedback = MinigameFailureFeedbackSetupUtility.CreateOrUpdateFailureFeedback(uiRoot, gameplayPanel);
 
         var serializedUiController = new SerializedObject(uiRoot.GetComponent<AudioWordConsensusMinigameUIController>());
         serializedUiController.FindProperty("minigameSession").objectReferenceValue = session;
         serializedUiController.FindProperty("tutorialPopupController").objectReferenceValue = tutorialPopup;
         serializedUiController.FindProperty("minigameResultView").objectReferenceValue = resultPopup;
+        MinigameFailureFeedbackSetupUtility.AssignToUiController(serializedUiController, failureFeedback);
         serializedUiController.FindProperty("waitingPanel").objectReferenceValue = waitingPanel;
         serializedUiController.FindProperty("gameplayPanel").objectReferenceValue = gameplayPanel;
         serializedUiController.FindProperty("waitingStatusLabel").objectReferenceValue = waitingStatus;
         serializedUiController.FindProperty("audioWordConsensusMinigameSession").objectReferenceValue = session;
+        serializedUiController.FindProperty("topPanelView").objectReferenceValue = topPanelView;
+        serializedUiController.FindProperty("bottomPanelView").objectReferenceValue = bottomPanelView;
         serializedUiController.FindProperty("localAudioSource").objectReferenceValue = uiRoot.GetComponent<AudioSource>();
         serializedUiController.FindProperty("titleLabel").objectReferenceValue = titleLabel;
         serializedUiController.FindProperty("roundLabel").objectReferenceValue = roundLabel;
         serializedUiController.FindProperty("timerLabel").objectReferenceValue = timerLabel;
         serializedUiController.FindProperty("scoreLabel").objectReferenceValue = scoreLabel;
+        serializedUiController.FindProperty("attemptsLabel").objectReferenceValue = attemptsLabel;
         serializedUiController.FindProperty("statusLabel").objectReferenceValue = statusLabel;
-        serializedUiController.FindProperty("roleLabel").objectReferenceValue = roleLabel;
         serializedUiController.FindProperty("localWordLabel").objectReferenceValue = localWordLabel;
+        serializedUiController.FindProperty("emitterReferenceImage").objectReferenceValue = emitterReferenceImageComponent;
+        serializedUiController.FindProperty("emitterPlaybackControlsContainer").objectReferenceValue = emitterPlaybackControlsContainer;
         serializedUiController.FindProperty("playSoundButton").objectReferenceValue = playSoundButton.GetComponent<Button>();
         serializedUiController.FindProperty("playSoundButtonLabel").objectReferenceValue = playSoundButton.GetComponentInChildren<TMP_Text>();
         serializedUiController.FindProperty("wordOptionsContainer").objectReferenceValue = wordOptionsContainer.transform;
         serializedUiController.FindProperty("wordOptionButtonTemplate").objectReferenceValue = submitWordButton.GetComponent<Button>();
         serializedUiController.FindProperty("submitWordButton").objectReferenceValue = submitWordButton.GetComponent<Button>();
         serializedUiController.FindProperty("submitWordButtonLabel").objectReferenceValue = submitWordButton.GetComponentInChildren<TMP_Text>();
+        serializedUiController.FindProperty("roundClosurePanel").objectReferenceValue = roundClosurePanel;
+        serializedUiController.FindProperty("roundClosureImage").objectReferenceValue = roundClosureImage;
+        serializedUiController.FindProperty("roundClosureTitleLabel").objectReferenceValue = roundClosureTitleLabel;
+        serializedUiController.FindProperty("roundClosureStatusLabel").objectReferenceValue = roundClosureStatusLabel;
+        serializedUiController.FindProperty("roundClosureInstructionLabel").objectReferenceValue = roundClosureInstructionLabel;
+        serializedUiController.FindProperty("roundClosureContinueButton").objectReferenceValue = roundClosureContinueButton.GetComponent<Button>();
+        serializedUiController.FindProperty("roundClosureContinueButtonLabel").objectReferenceValue = roundClosureContinueButton.GetComponentInChildren<TMP_Text>();
         serializedUiController.ApplyModifiedPropertiesWithoutUndo();
 
-        FantasyWoodenThemeUtility.ApplyThemeToOpenScene(scene);
         EditorSceneManager.SaveScene(scene, MinigameScenePath);
     }
 
@@ -373,7 +503,7 @@ public static class AudioWordConsensusMinigameSetup
 
         var serializedCoordinator = new SerializedObject(coordinator);
         var miniGameSceneNames = serializedCoordinator.FindProperty("miniGameSceneNames");
-        miniGameSceneNames.arraySize = Math.Max(5, miniGameSceneNames.arraySize);
+        miniGameSceneNames.arraySize = Math.Max(MinigameIndex + 1, miniGameSceneNames.arraySize);
         miniGameSceneNames.GetArrayElementAtIndex(MinigameIndex).stringValue = MinigameSceneName;
         serializedCoordinator.ApplyModifiedPropertiesWithoutUndo();
         EditorUtility.SetDirty(coordinator);
@@ -552,7 +682,7 @@ public static class AudioWordConsensusMinigameSetup
         text.fontSize = fontSize;
         text.alignment = ConvertAlignment(alignment);
         text.color = new Color(0.12f, 0.15f, 0.17f, 1f);
-        text.enableWordWrapping = true;
+        text.textWrappingMode = TextWrappingModes.Normal;
         text.overflowMode = TextOverflowModes.Overflow;
         return text;
     }

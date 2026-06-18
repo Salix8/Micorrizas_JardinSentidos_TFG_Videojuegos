@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab48358ce31c4b547a10fd64a3fe4dcc, type: 3}
+  m_Name: PlantPhotoRelayMinigameConfig
+  m_EditorClassIdentifier: Assembly-CSharp::SmartCampus.Coop.Minigames.PlantPhotoRelay.PlantPhotoRelayMinigameConfig
+  displayName: Minijuego 6 - Pista, foto y planta
+  tutorialContent: {fileID: 11400000, guid: 42f1e72e4010a2d468f6e1f08a24c7c0, type: 2}
+  successMessage: Rondas completadas
+  returnToMapButtonLabel: Volver al mapa
+  catalogCsvRelativePath: CoopMinigames/06-PlantPhotoRelay/PlantPhotoRelayPlants.csv
+  maxAutocompleteSuggestionCount: 6
+  minimumSupportedPlayers: 2
+  maxSupportedDevices: 6
+  roundCount: 3
+  cluePhaseDurationSeconds: 12
+  capturePhaseDurationSeconds: 45
+  guessPhaseDurationSeconds: 30
+  resultsRevealDurationSeconds: 4
+  timeoutMessage: Tiempo agotado
+  invalidSelectionMessage: Selecciona una planta valida del catalogo
+  cameraUnavailableMessage: La camara no esta disponible o la captura se ha cancelado
+  scoreExactMatch: 2.5
+  scorePromptMatchBonus: 0.5
+  targetPhotoMaxDimension: 768
+  jpegQuality: 80
+  visualSettings:
+    backgroundColor: {r: 0.92, g: 0.95, b: 0.9, a: 1}
+    panelColor: {r: 1, g: 1, b: 1, a: 0.86}
+    accentColor: {r: 0.22, g: 0.42, b: 0.32, a: 1}
+    secondaryAccentColor: {r: 0.26, g: 0.49, b: 0.62, a: 1}
+    successColor: {r: 0.22, g: 0.64, b: 0.31, a: 1}
+    failureColor: {r: 0.76, g: 0.28, b: 0.24, a: 1}

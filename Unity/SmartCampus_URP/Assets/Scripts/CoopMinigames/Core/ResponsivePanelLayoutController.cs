@@ -13,6 +13,7 @@ namespace SmartCampus.Coop.Minigames
         [SerializeField] [Range(0.1f, 1f)] private float heightRatio = 0.9f;
         [SerializeField] private Vector2 minSize = new(280f, 200f);
         [SerializeField] private Vector2 maxSize = new(960f, 1400f);
+        [SerializeField] private bool clampToMaxSize = true;
         [SerializeField] private Vector2 outerMargin = new(24f, 24f);
 
         private Vector2 lastReferenceSize;
@@ -52,11 +53,31 @@ namespace SmartCampus.Coop.Minigames
             Vector2 configuredMaxSize,
             Vector2 configuredOuterMargin)
         {
+            Configure(
+                configuredReferenceRectTransform,
+                configuredWidthRatio,
+                configuredHeightRatio,
+                configuredMinSize,
+                configuredMaxSize,
+                clampToMaxSize,
+                configuredOuterMargin);
+        }
+
+        public void Configure(
+            RectTransform configuredReferenceRectTransform,
+            float configuredWidthRatio,
+            float configuredHeightRatio,
+            Vector2 configuredMinSize,
+            Vector2 configuredMaxSize,
+            bool configuredClampToMaxSize,
+            Vector2 configuredOuterMargin)
+        {
             referenceRectTransform = configuredReferenceRectTransform;
             widthRatio = Mathf.Clamp01(configuredWidthRatio);
             heightRatio = Mathf.Clamp01(configuredHeightRatio);
             minSize = configuredMinSize;
             maxSize = configuredMaxSize;
+            clampToMaxSize = configuredClampToMaxSize;
             outerMargin = configuredOuterMargin;
             RefreshLayout();
         }
@@ -80,8 +101,14 @@ namespace SmartCampus.Coop.Minigames
                 return;
             }
 
-            var preferredWidth = Mathf.Clamp(availableWidth * widthRatio, minSize.x, maxSize.x);
-            var preferredHeight = Mathf.Clamp(availableHeight * heightRatio, minSize.y, maxSize.y);
+            var preferredWidth = Mathf.Max(minSize.x, availableWidth * widthRatio);
+            var preferredHeight = Mathf.Max(minSize.y, availableHeight * heightRatio);
+
+            if (clampToMaxSize)
+            {
+                preferredWidth = Mathf.Min(preferredWidth, maxSize.x);
+                preferredHeight = Mathf.Min(preferredHeight, maxSize.y);
+            }
 
             targetRectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, Mathf.Min(availableWidth, preferredWidth));
             targetRectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, Mathf.Min(availableHeight, preferredHeight));

@@ -109,10 +109,11 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
         private void EnsureSlots(int slotCount)
         {
             RegisterSceneAuthoredSlots();
+            var cardViewTemplate = ResolveCardViewTemplate();
 
             for (var index = handSlotViews.Count; index < slotCount; index++)
             {
-                if (cardPrefab == null)
+                if (cardViewTemplate == null)
                 {
                     break;
                 }
@@ -135,7 +136,7 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
                 layoutElement.flexibleWidth = 1f;
                 layoutElement.flexibleHeight = 1f;
 
-                var cardView = Instantiate(cardPrefab, slotObject.transform, false);
+                var cardView = Instantiate(cardViewTemplate, slotObject.transform, false);
                 var cardRectTransform = cardView.RectTransform;
                 cardRectTransform.anchorMin = Vector2.zero;
                 cardRectTransform.anchorMax = Vector2.one;
@@ -154,6 +155,16 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
             {
                 handSlotViews[index].SlotRectTransform.SetSiblingIndex(index);
             }
+        }
+
+        private DistributedPairsCardView ResolveCardViewTemplate()
+        {
+            if (cardPrefab != null)
+            {
+                return cardPrefab;
+            }
+
+            return handSlotViews.Count > 0 ? handSlotViews[0].CardView : null;
         }
 
         private void RegisterSceneAuthoredSlots()

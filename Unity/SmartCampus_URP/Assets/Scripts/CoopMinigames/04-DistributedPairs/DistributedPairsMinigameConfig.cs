@@ -12,9 +12,11 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
     public sealed class DistributedPairsMinigameConfig : CooperativeMinigameConfigBase
     {
         [Header("Gameplay")]
-        [SerializeField] [Min(1)] private int cardsPerDevice = 4;
-        [SerializeField] [Min(1)] private int pairsToUse = 10;
+        [SerializeField] [Min(1)] private int cardsPerDevice = 6;
+        [SerializeField] [Min(1)] private int pairsToUse = 12;
         [SerializeField] [Min(1)] private int guaranteedVisiblePairsOffset = 1;
+        [SerializeField] [Min(15f)] private float timeLimitSeconds = 180f;
+        [SerializeField] private string timeoutMessage = "Tiempo agotado";
         [SerializeField] private List<DistributedPairDefinition> pairDefinitions = new();
 
         [Header("Scoring")]
@@ -28,6 +30,8 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
 
         public int CardsPerDevice => cardsPerDevice;
         public int GuaranteedVisiblePairsOffset => guaranteedVisiblePairsOffset;
+        public float TimeLimitSeconds => timeLimitSeconds;
+        public string TimeoutMessage => timeoutMessage;
         public int ActivePairCount => Mathf.Min(pairsToUse, pairDefinitions.Count);
         public int DeckCardCount => ActivePairCount * 2;
         public DistributedPairsScoreSettings ScoreSettings => scoreSettings;
@@ -44,6 +48,7 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
             cardsPerDevice = Mathf.Max(1, cardsPerDevice);
             pairsToUse = Mathf.Max(1, pairsToUse);
             guaranteedVisiblePairsOffset = Mathf.Max(1, guaranteedVisiblePairsOffset);
+            timeLimitSeconds = Mathf.Max(15f, timeLimitSeconds);
             scoreSettings.Clamp();
             cardVisualSettings.Clamp();
             matchFeedbackSettings.Clamp();
@@ -92,12 +97,14 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
     public sealed class DistributedPairDefinition
     {
         [SerializeField] private string title = "Carta";
+        [SerializeField] private string flavorHint = "Sabor";
         [SerializeField] [TextArea(2, 4)] private string description = string.Empty;
         [SerializeField] [Tooltip("DistributedPairs consume Sprite assets imported under Assets/. This minigame does not load card illustrations from StreamingAssets at runtime.")]
         private Sprite illustration;
         [SerializeField] private Color faceColor = new(0.83f, 0.89f, 0.68f, 1f);
 
         public string Title => title;
+        public string FlavorHint => flavorHint;
         public string Description => description;
         public Sprite Illustration => illustration;
         public Color FaceColor => faceColor;
@@ -208,9 +215,9 @@ namespace SmartCampus.Coop.Minigames.DistributedPairs
                 frontTextColor = new Color(0.12f, 0.15f, 0.17f, 1f),
                 minColumns = 2,
                 maxColumns = 2,
-                minCardSize = new Vector2(120f, 170f),
-                maxCardSize = new Vector2(240f, 330f),
-                cardAspectRatio = 0.72f
+                minCardSize = new Vector2(140f, 180f),
+                maxCardSize = new Vector2(280f, 340f),
+                cardAspectRatio = 0.82f
             };
         }
 

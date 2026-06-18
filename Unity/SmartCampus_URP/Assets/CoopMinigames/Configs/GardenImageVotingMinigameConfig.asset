@@ -21,6 +21,7 @@ MonoBehaviour:
   maxSupportedDevices: 6
   allowRepeatedImagesAcrossDevices: 1
   timeLimitSeconds: 300
+  incorrectAnswerPenaltySeconds: 10
   swipeThreshold: 120
   transitionDuration: 0.22
   timeoutMessage: Tiempo agotado

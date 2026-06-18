@@ -37,3 +37,8 @@ MonoBehaviour:
     description: Clasifica en grupo cada planta entre decoracion, alimentacion y
       curacion con feedback comun y nota compartida.
     sceneName: GardenSmellTaxonomyMinigame
+  - minigameIndex: 5
+    displayName: Minijuego 6 - Pista, foto y planta
+    description: Un dispositivo fotografia una planta guiado por una pista y otro
+      la adivina por nombre comun.
+    sceneName: PlantPhotoRelayMinigame

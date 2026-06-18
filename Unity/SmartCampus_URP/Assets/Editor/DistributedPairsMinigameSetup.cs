@@ -25,6 +25,7 @@ public static class DistributedPairsMinigameSetup
     private const string LobbyScenePath = "Assets/Scenes/Lobby.unity";
     private const string MainMapScenePath = "Assets/Scenes/UJI.unity";
     private const string MinigameSceneName = "DistributedPairsMinigame";
+    private const int MinigameIndex = 3;
 
     [MenuItem("Tools/Coop/Setup Distributed Pairs Minigame")]
     public static void SetupDistributedPairsMinigame()
@@ -97,17 +98,24 @@ public static class DistributedPairsMinigameSetup
         serializedObject.FindProperty("tutorialContent").objectReferenceValue = tutorialContent;
         serializedObject.FindProperty("successMessage").stringValue = "Lo habeis conseguido";
         serializedObject.FindProperty("returnToMapButtonLabel").stringValue = "Volver al mapa";
-        serializedObject.FindProperty("cardsPerDevice").intValue = 4;
-        serializedObject.FindProperty("pairsToUse").intValue = 10;
+        serializedObject.FindProperty("cardsPerDevice").intValue = 6;
+        serializedObject.FindProperty("pairsToUse").intValue = 12;
         serializedObject.FindProperty("guaranteedVisiblePairsOffset").intValue = 1;
+        serializedObject.FindProperty("timeLimitSeconds").floatValue = 180f;
+        serializedObject.FindProperty("timeoutMessage").stringValue = "Tiempo agotado";
+        serializedObject.FindProperty("cardVisualSettings").FindPropertyRelative("minColumns").intValue = 2;
         serializedObject.FindProperty("cardVisualSettings").FindPropertyRelative("maxColumns").intValue = 2;
+        serializedObject.FindProperty("cardVisualSettings").FindPropertyRelative("minCardSize").vector2Value = new Vector2(140f, 180f);
+        serializedObject.FindProperty("cardVisualSettings").FindPropertyRelative("maxCardSize").vector2Value = new Vector2(280f, 340f);
+        serializedObject.FindProperty("cardVisualSettings").FindPropertyRelative("cardAspectRatio").floatValue = 0.82f;
 
         var pairDefinitions = serializedObject.FindProperty("pairDefinitions");
-        pairDefinitions.arraySize = 10;
+        pairDefinitions.arraySize = 12;
         for (var index = 0; index < pairDefinitions.arraySize; index++)
         {
             var element = pairDefinitions.GetArrayElementAtIndex(index);
             element.FindPropertyRelative("title").stringValue = $"Pareja {index + 1}";
+            element.FindPropertyRelative("flavorHint").stringValue = $"Sabor {index + 1}";
             element.FindPropertyRelative("description").stringValue = "Placeholder editable desde el asset del minijuego.";
             element.FindPropertyRelative("faceColor").colorValue = Color.HSVToRGB(index / 10f, 0.35f, 0.92f);
         }
@@ -121,7 +129,7 @@ public static class DistributedPairsMinigameSetup
     {
         return CoopMinigameSetupEditorUtility.UpsertCatalogEntry(
             CatalogConfigPath,
-            4,
+            MinigameIndex,
             "Minijuego 4 - Parejas distribuidas",
             "Minijuego cooperativo con informacion parcial repartida entre dispositivos.",
             MinigameSceneName);
@@ -196,16 +204,20 @@ public static class DistributedPairsMinigameSetup
     private static void SetupDistributedPairsScene(DistributedPairsMinigameConfig config, DistributedPairsCardView cardPrefab)
     {
         var font = GetBuiltinFont();
+        var themeConfig = CoopMinigameThemeSetupUtility.GetOrCreateDefaultTheme();
+        CoopMinigameSharedPanelPrefabUtility.CreateOrUpdateSharedPanelPrefabs();
+
         var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
         CreateEventSystemIfMissing();
-        MinigameSceneCameraUtility.EnsureFixedCamera(scene, new Color(0.94f, 0.97f, 0.93f, 1f));
+        MinigameSceneCameraUtility.EnsureFixedCamera(scene, themeConfig.Palette.ScreenBackground);
 
         var sessionObject = new GameObject("DistributedPairsSession", typeof(NetworkObject), typeof(DistributedPairsMinigameSession));
         var session = sessionObject.GetComponent<DistributedPairsMinigameSession>();
         var serializedSession = new SerializedObject(session);
         serializedSession.FindProperty("distributedPairsMinigameConfig").objectReferenceValue = config;
         serializedSession.ApplyModifiedPropertiesWithoutUndo();
+        EditorUtility.SetDirty(session);
 
         var canvas = CreateCanvas("DistributedPairsCanvas");
         var safeAreaRoot = CreateUiObject("SafeAreaRoot", canvas.transform, typeof(SafeAreaFitter));
@@ -213,7 +225,7 @@ public static class DistributedPairsMinigameSetup
 
         var background = CreateUiObject("Background", safeAreaRoot.transform, typeof(Image));
         Stretch(background.GetComponent<RectTransform>(), Vector2.zero, Vector2.zero);
-        background.GetComponent<Image>().color = new Color(0.94f, 0.97f, 0.93f, 1f);
+        background.GetComponent<Image>().color = themeConfig.Palette.ScreenBackground;
 
         var uiRoot = CreateUiObject("DistributedPairsUI", safeAreaRoot.transform, typeof(DistributedPairsMinigameUIController));
         Stretch(uiRoot.GetComponent<RectTransform>(), Vector2.zero, Vector2.zero);
@@ -234,22 +246,38 @@ public static class DistributedPairsMinigameSetup
         var waitingStatus = CreateText("WaitingStatus", waitingPanel.transform, font, "Esperando al resto del grupo.", 28, TextAnchor.MiddleCenter);
         Stretch(waitingStatus.GetComponent<RectTransform>(), new Vector2(28f, 28f), new Vector2(-28f, -28f));
 
-        var gameplayPanel = CreateUiObject("GameplayPanel", uiRoot.transform, typeof(Image), typeof(VerticalLayoutGroup), typeof(ContentSizeFitter));
-        Stretch(gameplayPanel.GetComponent<RectTransform>(), new Vector2(36f, 36f), new Vector2(-36f, -36f));
-        gameplayPanel.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.14f);
+        var gameplayPanel = CreateUiObject("GameplayPanel", uiRoot.transform, typeof(Image), typeof(VerticalLayoutGroup));
+        var screenMargin = themeConfig.ScreenLayout.ScreenMargin;
+        Stretch(gameplayPanel.GetComponent<RectTransform>(), screenMargin, -screenMargin);
+        gameplayPanel.GetComponent<Image>().color = Color.clear;
         var gameplayLayout = gameplayPanel.GetComponent<VerticalLayoutGroup>();
-        gameplayLayout.padding = new RectOffset(24, 24, 24, 24);
-        gameplayLayout.spacing = 16f;
+        gameplayLayout.padding = new RectOffset(0, 0, 0, 0);
+        gameplayLayout.spacing = themeConfig.ScreenLayout.VerticalSpacing;
         gameplayLayout.childControlHeight = true;
         gameplayLayout.childControlWidth = true;
         gameplayLayout.childForceExpandHeight = false;
         gameplayLayout.childForceExpandWidth = true;
-        gameplayPanel.GetComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.Unconstrained;
 
-        var titleLabel = CreateText("TitleLabel", gameplayPanel.transform, font, config.DisplayName, 42, TextAnchor.MiddleCenter);
-        titleLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 72f;
+        var topPanelView = CoopMinigameSharedPanelSetupUtility.InstantiateSharedPanel<CoopMinigameTopPanelView>(
+            CoopMinigameSharedPanelPrefabUtility.TopPanelPrefabPath,
+            gameplayPanel.transform,
+            themeConfig.ScreenLayout.TopPanelHeight);
+        topPanelView.SetTheme(themeConfig);
+        topPanelView.Bind(config.DisplayName, 0f, string.Empty, string.Empty);
 
-        var statusPanel = CreatePanel("StatusPanel", gameplayPanel.transform, new Color(1f, 1f, 1f, 0.72f));
+        TMP_Text titleLabel = null;
+
+        var interactivePanel = CreatePanel("InteractivePanel", gameplayPanel.transform, themeConfig.Palette.PanelBackground);
+        interactivePanel.AddComponent<LayoutElement>().flexibleHeight = 1f;
+        interactivePanel.GetComponent<LayoutElement>().minHeight = 360f;
+        var interactiveLayout = interactivePanel.AddComponent<VerticalLayoutGroup>();
+        interactiveLayout.padding = new RectOffset(24, 24, 24, 24);
+        interactiveLayout.spacing = 16f;
+        interactiveLayout.childControlWidth = true;
+        interactiveLayout.childControlHeight = true;
+        interactiveLayout.childForceExpandHeight = false;
+
+        var statusPanel = CreatePanel("StatusPanel", interactivePanel.transform, themeConfig.Palette.PanelBackground);
         var statusLayout = statusPanel.AddComponent<VerticalLayoutGroup>();
         statusLayout.padding = new RectOffset(24, 24, 20, 20);
         statusLayout.spacing = 10f;
@@ -258,12 +286,30 @@ public static class DistributedPairsMinigameSetup
         statusLayout.childForceExpandHeight = false;
         statusPanel.AddComponent<LayoutElement>().preferredHeight = 320f;
 
-        var progressLabel = CreateText("ProgressLabel", statusPanel.transform, font, "Parejas: 0/0   Errores: 0", 24, TextAnchor.MiddleLeft);
-        progressLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 34f;
-        var sharedStatusLabel = CreateText("SharedStatusLabel", statusPanel.transform, font, "Selecciona una carta y comunicate con el resto del grupo.", 22, TextAnchor.UpperLeft);
+        var statusHeaderRow = CreateUiObject("StatusHeaderRow", statusPanel.transform, typeof(HorizontalLayoutGroup));
+        statusHeaderRow.AddComponent<LayoutElement>().preferredHeight = 40f;
+        var statusHeaderLayout = statusHeaderRow.GetComponent<HorizontalLayoutGroup>();
+        statusHeaderLayout.spacing = 16f;
+        statusHeaderLayout.childAlignment = TextAnchor.MiddleLeft;
+        statusHeaderLayout.childControlWidth = true;
+        statusHeaderLayout.childControlHeight = true;
+        statusHeaderLayout.childForceExpandWidth = false;
+        statusHeaderLayout.childForceExpandHeight = false;
+
+        var timerLabel = CreateText("TimerLabel", statusHeaderRow.transform, font, "Tiempo 03:00", 24, TextAnchor.MiddleLeft);
+        var timerLayout = timerLabel.gameObject.AddComponent<LayoutElement>();
+        timerLayout.preferredWidth = 180f;
+        timerLayout.preferredHeight = 34f;
+
+        var progressLabel = CreateText("ProgressLabel", statusHeaderRow.transform, font, "Parejas: 0/0   Errores: 0", 24, TextAnchor.MiddleLeft);
+        var progressLayout = progressLabel.gameObject.AddComponent<LayoutElement>();
+        progressLayout.flexibleWidth = 1f;
+        progressLayout.preferredHeight = 34f;
+        var sharedStatusLabel = CreateText("SharedStatusLabel", statusPanel.transform, font, "Seleccionad 2 cartas entre todos", 22, TextAnchor.UpperLeft);
         sharedStatusLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 72f;
-        var localSelectionLabel = CreateText("LocalSelectionLabel", statusPanel.transform, font, "Solo puedes tener una carta activa.", 20, TextAnchor.UpperLeft);
+        var localSelectionLabel = CreateText("LocalSelectionLabel", statusPanel.transform, font, string.Empty, 20, TextAnchor.UpperLeft);
         localSelectionLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 64f;
+        localSelectionLabel.gameObject.SetActive(false);
 
         var pileHudRow = CreateUiObject("PileHudRow", statusPanel.transform, typeof(HorizontalLayoutGroup));
         pileHudRow.AddComponent<LayoutElement>().preferredHeight = 116f;
@@ -279,7 +325,7 @@ public static class DistributedPairsMinigameSetup
         var drawPileCountLabel = deckPanel.transform.Find("CountLabel")?.GetComponent<TMP_Text>();
         var discardPileCountLabel = discardPanel.transform.Find("CountLabel")?.GetComponent<TMP_Text>();
 
-        var handPanel = CreatePanel("HandPanel", gameplayPanel.transform, new Color(1f, 1f, 1f, 0.72f));
+        var handPanel = CreatePanel("HandPanel", interactivePanel.transform, themeConfig.Palette.PanelBackground);
         var handLayoutElement = handPanel.AddComponent<LayoutElement>();
         handLayoutElement.flexibleHeight = 1f;
         handLayoutElement.minHeight = 360f;
@@ -292,6 +338,18 @@ public static class DistributedPairsMinigameSetup
         gridLayout.startAxis = GridLayoutGroup.Axis.Horizontal;
         gridLayout.startCorner = GridLayoutGroup.Corner.UpperLeft;
         gridLayout.childAlignment = TextAnchor.UpperCenter;
+        gridLayout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+        gridLayout.constraintCount = config.CardVisualSettings.MaxColumns;
+        gridLayout.cellSize = config.CardVisualSettings.MaxCardSize;
+
+        var responsiveGridLayoutController = handGrid.GetComponent<ResponsiveGridLayoutController>();
+        var serializedResponsiveLayout = new SerializedObject(responsiveGridLayoutController);
+        serializedResponsiveLayout.FindProperty("minColumns").intValue = config.CardVisualSettings.MinColumns;
+        serializedResponsiveLayout.FindProperty("maxColumns").intValue = config.CardVisualSettings.MaxColumns;
+        serializedResponsiveLayout.FindProperty("minCellSize").vector2Value = config.CardVisualSettings.MinCardSize;
+        serializedResponsiveLayout.FindProperty("maxCellSize").vector2Value = config.CardVisualSettings.MaxCardSize;
+        serializedResponsiveLayout.FindProperty("cardAspectRatio").floatValue = config.CardVisualSettings.CardAspectRatio;
+        serializedResponsiveLayout.ApplyModifiedPropertiesWithoutUndo();
 
         CreateSceneVisibleHandSlots(handGrid.transform, config.CardsPerDevice);
 
@@ -299,8 +357,20 @@ public static class DistributedPairsMinigameSetup
         var serializedHandView = new SerializedObject(handView);
         serializedHandView.FindProperty("cardRoot").objectReferenceValue = handGrid.transform;
         serializedHandView.FindProperty("cardPrefab").objectReferenceValue = cardPrefab;
-        serializedHandView.FindProperty("responsiveGridLayoutController").objectReferenceValue = handGrid.GetComponent<ResponsiveGridLayoutController>();
+        serializedHandView.FindProperty("responsiveGridLayoutController").objectReferenceValue = responsiveGridLayoutController;
         serializedHandView.ApplyModifiedPropertiesWithoutUndo();
+
+        var bottomPanelView = CoopMinigameSharedPanelSetupUtility.InstantiateSharedPanel<CoopMinigameBottomPanelView>(
+            CoopMinigameSharedPanelPrefabUtility.BottomPanelPrefabPath,
+            gameplayPanel.transform,
+            themeConfig.ScreenLayout.BottomPanelHeight);
+        bottomPanelView.SetTheme(themeConfig);
+        bottomPanelView.Bind(
+            "ENCONTRAD LOS PARES",
+            "En cada dispositivo hay varias cartas. Volved dos a la vez para encontrar los pares.",
+            config.TimeLimitSeconds,
+            config.TimeLimitSeconds,
+            0f);
 
         var mismatchOverlay = CreateUiObject("MismatchResetOverlay", uiRoot.transform, typeof(Image), typeof(Button));
         Stretch(mismatchOverlay.GetComponent<RectTransform>(), Vector2.zero, Vector2.zero);
@@ -323,20 +393,37 @@ public static class DistributedPairsMinigameSetup
 
         var resultPopup = CreateResultPopup(uiRoot.transform, font);
         resultPopup.gameObject.SetActive(false);
+        var failureFeedback = MinigameFailureFeedbackSetupUtility.CreateOrUpdateFailureFeedback(uiRoot, gameplayPanel);
 
         var serializedUiController = new SerializedObject(uiRoot.GetComponent<DistributedPairsMinigameUIController>());
         serializedUiController.FindProperty("minigameSession").objectReferenceValue = session;
         serializedUiController.FindProperty("tutorialPopupController").objectReferenceValue = tutorialPopup;
         serializedUiController.FindProperty("minigameResultView").objectReferenceValue = resultPopup;
+        MinigameFailureFeedbackSetupUtility.AssignToUiController(serializedUiController, failureFeedback);
         serializedUiController.FindProperty("waitingPanel").objectReferenceValue = waitingPanel;
         serializedUiController.FindProperty("gameplayPanel").objectReferenceValue = gameplayPanel;
         serializedUiController.FindProperty("waitingStatusLabel").objectReferenceValue = waitingStatus;
         serializedUiController.FindProperty("distributedPairsMinigameSession").objectReferenceValue = session;
+        serializedUiController.FindProperty("topPanelView").objectReferenceValue = topPanelView;
+        serializedUiController.FindProperty("bottomPanelView").objectReferenceValue = bottomPanelView;
         serializedUiController.FindProperty("localHandView").objectReferenceValue = handView;
         serializedUiController.FindProperty("titleLabel").objectReferenceValue = titleLabel;
+        serializedUiController.FindProperty("timerLabel").objectReferenceValue = timerLabel;
         serializedUiController.FindProperty("progressLabel").objectReferenceValue = progressLabel;
         serializedUiController.FindProperty("sharedStatusLabel").objectReferenceValue = sharedStatusLabel;
         serializedUiController.FindProperty("localSelectionLabel").objectReferenceValue = localSelectionLabel;
+        serializedUiController.FindProperty("defaultStatusMessage").stringValue = "Seleccionad 2 cartas entre todos";
+        serializedUiController.FindProperty("selectedCardPrefix").stringValue = "Sabor a ";
+        var successMessagesProperty = serializedUiController.FindProperty("successStatusMessages");
+        successMessagesProperty.arraySize = 3;
+        successMessagesProperty.GetArrayElementAtIndex(0).stringValue = "Sabor correcto";
+        successMessagesProperty.GetArrayElementAtIndex(1).stringValue = "Eso es";
+        successMessagesProperty.GetArrayElementAtIndex(2).stringValue = "Si esas dos van juntas";
+        var failureMessagesProperty = serializedUiController.FindProperty("failureStatusMessages");
+        failureMessagesProperty.arraySize = 3;
+        failureMessagesProperty.GetArrayElementAtIndex(0).stringValue = "No, esas no son iguales";
+        failureMessagesProperty.GetArrayElementAtIndex(1).stringValue = "Buen intento pero diferentes";
+        failureMessagesProperty.GetArrayElementAtIndex(2).stringValue = "Casi, pero no";
         serializedUiController.FindProperty("drawPileAnchor").objectReferenceValue = drawPileAnchor;
         serializedUiController.FindProperty("drawPileCountLabel").objectReferenceValue = drawPileCountLabel;
         serializedUiController.FindProperty("discardPileCountLabel").objectReferenceValue = discardPileCountLabel;
@@ -344,7 +431,6 @@ public static class DistributedPairsMinigameSetup
         serializedUiController.FindProperty("mismatchResetLabel").objectReferenceValue = mismatchResetLabel;
         serializedUiController.ApplyModifiedPropertiesWithoutUndo();
 
-        FantasyWoodenThemeUtility.ApplyThemeToOpenScene(scene);
         EditorSceneManager.SaveScene(scene, MinigameScenePath);
     }
 
@@ -361,8 +447,8 @@ public static class DistributedPairsMinigameSetup
         serializedCoordinator.FindProperty("persistAcrossScenes").boolValue = true;
 
         var miniGameSceneNames = serializedCoordinator.FindProperty("miniGameSceneNames");
-        miniGameSceneNames.arraySize = Math.Max(5, miniGameSceneNames.arraySize);
-        miniGameSceneNames.GetArrayElementAtIndex(4).stringValue = MinigameSceneName;
+        miniGameSceneNames.arraySize = Math.Max(MinigameIndex + 1, miniGameSceneNames.arraySize);
+        miniGameSceneNames.GetArrayElementAtIndex(MinigameIndex).stringValue = MinigameSceneName;
         serializedCoordinator.ApplyModifiedPropertiesWithoutUndo();
 
         EditorUtility.SetDirty(coordinator);
@@ -657,7 +743,7 @@ public static class DistributedPairsMinigameSetup
         text.fontSize = fontSize;
         text.alignment = ConvertAlignment(alignment);
         text.color = new Color(0.12f, 0.15f, 0.17f, 1f);
-        text.enableWordWrapping = true;
+        text.textWrappingMode = TextWrappingModes.Normal;
         text.overflowMode = TextOverflowModes.Overflow;
         return text;
     }
