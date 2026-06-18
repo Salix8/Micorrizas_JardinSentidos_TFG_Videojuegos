@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?><project name="Untitled Gantt Project" company="" webLink="http://" view-date="2026-01-01" view-index="0" gantt-divider-location="351" resource-divider-location="300" version="3.3.3322" locale="es_ES">
+    <description/>
+    <view zooming-state="default:8" id="gantt-chart">
+        <field id="tpd3" name="Nombre" width="200" order="0"/>
+        <field id="tpd4" name="Fecha de inicio" width="75" order="1"/>
+        <field id="tpd5" name="Fecha de fin" width="75" order="2"/>
+        <field id="tpd15" name="Notas" width="20" order="3"/>
+        <option id="filter.completedTasks" value="false"/>
+        <option id="filter.dueTodayTasks" value="false"/>
+        <option id="filter.overdueTasks" value="false"/>
+        <option id="filter.inProgressTodayTasks" value="false"/>
+        <timeline><![CDATA[4]]></timeline>
+    </view>
+    <view id="resource-table">
+        <field id="0" name="Nombre" width="210" order="0"/>
+        <field id="1" name="Función" width="86" order="1"/>
+    </view>
+    <!-- -->
+    <calendars>
+        <day-types>
+            <day-type id="0"/>
+            <day-type id="1"/>
+            <default-week id="1" name="default" sun="1" mon="0" tue="0" wed="0" thu="0" fri="0" sat="1"/>
+            <only-show-weekends value="false"/>
+            <overriden-day-types/>
+            <days/>
+        </day-types>
+    </calendars>
+    <tasks empty-milestones="true">
+        <taskproperties>
+            <taskproperty id="tpd0" name="type" type="default" valuetype="icon"/>
+            <taskproperty id="tpd1" name="priority" type="default" valuetype="icon"/>
+            <taskproperty id="tpd2" name="info" type="default" valuetype="icon"/>
+            <taskproperty id="tpd3" name="name" type="default" valuetype="text"/>
+            <taskproperty id="tpd4" name="begindate" type="default" valuetype="date"/>
+            <taskproperty id="tpd5" name="enddate" type="default" valuetype="date"/>
+            <taskproperty id="tpd6" name="duration" type="default" valuetype="int"/>
+            <taskproperty id="tpd7" name="completion" type="default" valuetype="int"/>
+            <taskproperty id="tpd8" name="coordinator" type="default" valuetype="text"/>
+            <taskproperty id="tpd9" name="predecessorsr" type="default" valuetype="text"/>
+        </taskproperties>
+        <task id="0" uid="63a2965e1b39443ba38b97dac477d9b7" name="Project analysis" meeting="false" start="2026-01-28" duration="85" complete="0" expand="true">
+            <task id="1" uid="272bb3e57b274689937a4c9db304a221" name="Meetings" meeting="false" start="2026-05-26" duration="1" complete="0" expand="true"/>
+            <task id="2" uid="5b94f56063a34f8fb02f25e065882496" name="Initial planning" meeting="false" start="2026-01-28" duration="3" complete="0" expand="true"/>
+        </task>
+        <task id="14" uid="ddebedf364bd4dd5a8bf29c984d5b767" name="Game design" meeting="false" start="2026-03-30" duration="20" complete="0" expand="true"/>
+        <task id="15" uid="e03a7959acfe449882418bfd68c1da02" name="Art design" meeting="false" start="2026-04-13" duration="6" complete="0" expand="true">
+            <task id="16" uid="d18960484d194b6493a06db07f5af1ba" name="Search for assets" meeting="false" start="2026-04-13" duration="3" complete="0" expand="true"/>
+            <task id="17" uid="ac1c11a57ede4b0080d7f5e711542133" name="Create assets" meeting="false" start="2026-04-16" duration="3" complete="0" expand="true"/>
+        </task>
+        <task id="3" uid="e87f3663fef64d5190b9153ec979a162" name="Development" meeting="false" start="2026-02-02" duration="84" complete="0" expand="true">
+            <task id="4" uid="dc02457fa563403ca18bc0fd0be22c53" name="Geolocation" meeting="false" start="2026-02-02" duration="16" complete="0" expand="true"/>
+            <task id="18" uid="064a766a51ee4939950d6a7d29523991" name="Geolocation 2" color="#8cb6ce" meeting="false" start="2026-04-14" duration="22" complete="0" expand="true"/>
+            <task id="5" uid="21a2752d6c56423cb2beb9d28333f74f" name="Multiplayer" meeting="false" start="2026-03-30" duration="9" complete="0" expand="true"/>
+            <task id="6" uid="30edb178eaea485d86506a63e45c5d2b" name="Quests" meeting="false" start="2026-03-23" duration="23" complete="0" expand="true"/>
+            <task id="7" uid="f1c159eed06245669eda908bc41de6cd" name="Integration" meeting="false" start="2026-04-06" duration="39" complete="0" expand="true"/>
+        </task>
+        <task id="8" uid="29ec9ec01fb34a898e12e7e9d09a7350" name="Testing and iteration" meeting="false" start="2026-04-06" duration="46" complete="0" thirdDate="2026-04-06" thirdDate-constraint="1" expand="true"/>
+        <task id="9" uid="eb77c8f16b11416da55c3dc55188af24" name="Documentation" meeting="false" start="2026-01-22" duration="126" complete="0" expand="true">
+            <task id="10" uid="d2112bb3a03b4df086927070cef6f691" name="The technical proposal" meeting="false" start="2026-01-22" duration="3" complete="0" expand="true"/>
+            <task id="11" uid="6f9eb03d387142808fa85cfacbc33f13" name="GDD" meeting="false" start="2026-02-26" duration="4" complete="0" expand="true"/>
+            <task id="12" uid="9c3f9ad8b8bc442b91458e1ec4c72ec7" name="The dissertation" meeting="false" start="2026-05-14" duration="30" complete="0" expand="true"/>
+            <task id="13" uid="707d969f291c411e833a7512c63c7536" name="Presentation" meeting="false" start="2026-07-03" duration="10" complete="0" expand="true"/>
+        </task>
+    </tasks>
+    <resources/>
+    <allocations/>
+    <vacations/>
+    <previous/>
+    <roles roleset-name="Default"/>
+</project>
