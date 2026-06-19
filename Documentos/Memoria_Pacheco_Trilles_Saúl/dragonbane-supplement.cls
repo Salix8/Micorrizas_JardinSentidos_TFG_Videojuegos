@@ -76,18 +76,23 @@
     \def\arraystretch{1.5}
     \rowcolors{1}{row}{}
 %%======== BACKGROUND ========%%
-\RequirePackage{graphicx,pagecolor}
+\RequirePackage{graphicx,pagecolor,background}
 \RequirePackage[Export]{adjustbox}
-\RequirePackage{tikz}
     \pagecolor{page}
 \ifdefined\blackwhite
+    \backgroundsetup{
+        contents = {}
+    }
 \else
-    \AddToHook{shipout/background}{%
-        \put(0,-\paperheight){%
-            \begin{tikzpicture}[inner sep=0pt, outer sep=0pt]
-                \node[opacity=0.25, anchor=south west] at (0,0) {\includegraphics[height=\paperheight,width=\paperwidth]{img/Fondo.png}};
-            \end{tikzpicture}%
-        }%
+    \backgroundsetup{
+        scale = 1,
+        angle = 0,
+        opacity = 0.25,
+        position=current page.center,
+        nodeanchor=center,
+        contents = {
+            \includegraphics[height=\paperheight,width=\paperwidth]{img/Fondo.png}
+        }
     }
 \fi
 %% ======== COMMANDS ======== %%
@@ -172,9 +177,6 @@
 %%==== TITLE ====%%
 \providecommand{\subtitle}[1]{\gdef\@subtitle{#1}}
 \providecommand{\credits}[1]{\gdef\@credits{#1}}
-\providecommand{\supervisor}[1]{\gdef\@supervisor{#1}}
-\providecommand{\submission}[1]{\gdef\@submission{#1}}
-\providecommand{\degree}[1]{\gdef\@degree{#1}}
 %\providecommand{\version}[1]{\gdef\@version{#1}}
 
 \renewcommand*{\maketitle}{%
@@ -196,19 +198,8 @@
                 %{\footnotesize\sffamily Version~\@version}
 
                 \vspace{40pt}
-                {\bfseries\sffamily Degree:}\par
-                {\@degree}
-
-                \vspace{40pt}
-                {\bfseries\sffamily Author:}\par
+                {\bfseries\sffamily AUTHOR:}\par
                 {\@author}
-
-                \vspace{10pt}
-                {\bfseries\sffamily Supervised by:}\par
-                {\@supervisor}
-
-                \vspace{40pt}
-                {\bfseries\sffamily Submission date:} {\@submission}
 
                 % \vspace{20pt}
                 % {\footnotesize\bfseries\sffamily CREDITS:}\par\vspace{-0.5em}
@@ -411,6 +402,24 @@
         \pic[fill = DemonGreen,scale=-0.5] at (label.east) {lefttip};
         \pic[fill = DemonGreen,scale=0.5] at (label.west) {lefttip};
         \pic[fill = DemonGreen] at (label.north) {tipup};
+        %
+        \node[minimum width = 17cm] (bottom) at (heading.south) {};
+        \draw[color = DemonGreen,line width = 2pt] (bottom.east) -- (bottom.west);
+        \pic[fill = DemonGreen] at (bottom.east) {head};
+        \pic[fill = DemonGreen] at (bottom.west) {head};
+        \pic[fill = DemonGreen,scale=1.25] at (bottom) {tip};
+    \end{tikzpicture}
+}
+
+\titleformat{name=\chapter,numberless}[hang]{}{}{0pt}{
+    \hspace{-2.5mm}%
+    \begin{tikzpicture}
+        \node[text = DemonGreen,minimum height = 1.8cm] (heading) at (0,0) {\Huge\bfseries\sffamily\uppercase{#1}};
+        %
+        \node[fill = DemonGreen,minimum height = 4.5mm,minimum width = 17cm] (header) at ([yshift = 2mm]heading.north) {};
+        \pic[fill = DemonGreen,scale=0.5] at (header.west) {leftcap};
+        \pic[fill = DemonGreen,scale=-0.5] at (header.east) {leftcap};
+        \pic[fill = DemonGreen] at (header.south) {tip};
         %
         \node[minimum width = 17cm] (bottom) at (heading.south) {};
         \draw[color = DemonGreen,line width = 2pt] (bottom.east) -- (bottom.west);

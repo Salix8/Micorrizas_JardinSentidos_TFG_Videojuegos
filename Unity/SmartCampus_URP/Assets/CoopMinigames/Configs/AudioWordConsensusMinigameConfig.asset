@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3fc83f2072b20a46a20d0bd09b09f50, type: 3}
   m_Name: AudioWordConsensusMinigameConfig
   m_EditorClassIdentifier: Assembly-CSharp::SmartCampus.Coop.Minigames.AudioWordConsensus.AudioWordConsensusMinigameConfig
-  displayName: Minijuego 2 - Sonido y consenso
+  displayName: "Ecos de anta\xF1o"
   tutorialContent: {fileID: 11400000, guid: b36c4f118e2c57746a60f7ffbe4eb601, type: 2}
   successMessage: Rondas completadas
   returnToMapButtonLabel: Volver al mapa

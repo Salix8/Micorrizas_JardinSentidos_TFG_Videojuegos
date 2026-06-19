@@ -12,6 +12,7 @@ namespace SmartCampus.Dialogue
         [Header("References")]
         [SerializeField] private DialogueSystemConfig dialogueSystemConfig;
         [SerializeField] private DialoguePanelView dialoguePanelView;
+        [SerializeField] private DialogueWaitingPanelView waitingPanelView;
 
         private DialogueCatalogService dialogueCatalog;
         private DialogueSequencePlayer dialogueSequencePlayer;
@@ -19,6 +20,8 @@ namespace SmartCampus.Dialogue
         private Coroutine typewriterCoroutine;
         private bool initialized;
         private bool isTypewriterRunning;
+        private bool synchronizedSequenceActive;
+        private bool waitingForPlayers;
 
         public IReadOnlyList<string> AvailableSequenceKeys => dialogueCatalog == null
             ? Array.Empty<string>()
@@ -113,6 +116,11 @@ namespace SmartCampus.Dialogue
                 return;
             }
 
+            if (waitingForPlayers)
+            {
+                return;
+            }
+
             if (isTypewriterRunning && dialogueSystemConfig.RevealFullLineOnAdvanceDuringTypewriter)
             {
                 RevealCurrentLineInstantly();
@@ -121,7 +129,7 @@ namespace SmartCampus.Dialogue
 
             if (dialogueSequencePlayer.IsCompleted)
             {
-                if (dialogueSystemConfig.ClosePanelWhenSequenceCompletes)
+                if (!synchronizedSequenceActive && dialogueSystemConfig.ClosePanelWhenSequenceCompletes)
                 {
                     Close();
                 }
@@ -152,9 +160,41 @@ namespace SmartCampus.Dialogue
             languageSettingsService.SetLanguage(language);
         }
 
+        public void PrepareSynchronizedSequence()
+        {
+            synchronizedSequenceActive = true;
+            waitingForPlayers = false;
+            waitingPanelView?.SetWaiting(false, 0, 0);
+        }
+
+        public void ShowWaitingForPlayers(int confirmedPlayers, int totalPlayers)
+        {
+            synchronizedSequenceActive = true;
+            waitingForPlayers = true;
+            dialoguePanelView.SetVisible(true);
+            waitingPanelView?.SetWaiting(true, confirmedPlayers, totalPlayers);
+        }
+
+        public void UpdateWaitingProgress(int confirmedPlayers, int totalPlayers)
+        {
+            if (waitingForPlayers)
+            {
+                waitingPanelView?.SetWaiting(true, confirmedPlayers, totalPlayers);
+            }
+        }
+
+        public void FinishSynchronizedFlow()
+        {
+            waitingForPlayers = false;
+            synchronizedSequenceActive = false;
+            waitingPanelView?.SetWaiting(false, 0, 0);
+            Close();
+        }
+
         private void ResolveReferences()
         {
             dialoguePanelView ??= GetComponentInChildren<DialoguePanelView>(includeInactive: true);
+            waitingPanelView ??= GetComponentInChildren<DialogueWaitingPanelView>(includeInactive: true);
         }
 
         private bool TryInitialize()
@@ -223,6 +263,8 @@ namespace SmartCampus.Dialogue
 
         private void HandleSequenceStarted(DialogueSequenceDefinition _)
         {
+            waitingForPlayers = false;
+            waitingPanelView?.SetWaiting(false, 0, 0);
             dialoguePanelView.SetVisible(true);
         }
 
@@ -234,7 +276,7 @@ namespace SmartCampus.Dialogue
         private void HandleSequenceCompleted(DialogueSequenceDefinition sequence)
         {
             SequenceCompleted?.Invoke(sequence.Key);
-            if (dialogueSystemConfig.ClosePanelWhenSequenceCompletes)
+            if (!synchronizedSequenceActive && dialogueSystemConfig.ClosePanelWhenSequenceCompletes)
             {
                 Close();
             }
@@ -245,6 +287,8 @@ namespace SmartCampus.Dialogue
             StopTypewriter();
             dialoguePanelView.Clear();
             dialoguePanelView.SetVisible(false);
+            waitingPanelView?.SetWaiting(false, 0, 0);
+            waitingForPlayers = false;
         }
 
         private void HandleLanguageChanged(DialogueLanguage _)

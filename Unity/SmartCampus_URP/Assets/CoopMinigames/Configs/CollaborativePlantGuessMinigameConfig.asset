@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab796ac5275cf914a81eede299b428a7, type: 3}
   m_Name: CollaborativePlantGuessMinigameConfig
   m_EditorClassIdentifier: Assembly-CSharp::SmartCampus.Coop.Minigames.CollaborativePlantGuess.CollaborativePlantGuessMinigameConfig
-  displayName: Minijuego 3 - Adivina la planta
+  displayName: "\xBFQuien es quien?"
   tutorialContent: {fileID: 11400000, guid: b7564c284041354428e8039fe9e67977, type: 2}
   successMessage: Planta encontrada
   returnToMapButtonLabel: Volver al mapa

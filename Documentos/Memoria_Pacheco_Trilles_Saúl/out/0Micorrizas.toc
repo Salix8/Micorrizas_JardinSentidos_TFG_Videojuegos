@@ -1,0 +1,37 @@
+\babel@toc {english}{}\relax 
+\contentsline {chapter}{\numberline {1}Introduction}{6}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Context}{6}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Motivation}{6}{section.1.2}%
+\contentsline {section}{\numberline {1.3}Objectives}{7}{section.1.3}%
+\contentsline {chapter}{\numberline {2}Planning and resources evaluation}{9}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Planning}{9}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Costs}{10}{section.2.2}%
+\contentsline {subsection}{\numberline {2.2.1}Working hours}{10}{subsection.2.2.1}%
+\contentsline {subsection}{\numberline {2.2.2}Hardware}{11}{subsection.2.2.2}%
+\contentsline {subsection}{\numberline {2.2.3}Software}{11}{subsection.2.2.3}%
+\contentsline {subsection}{\numberline {2.2.4}Other expenses}{11}{subsection.2.2.4}%
+\contentsline {section}{\numberline {2.3}Comprobation}{11}{section.2.3}%
+\contentsline {chapter}{\numberline {3}Analysis}{12}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Functional Requirements}{12}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Non-functional Requirements}{12}{section.3.2}%
+\contentsline {chapter}{\numberline {4}Development}{13}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Game concept}{13}{section.4.1}%
+\contentsline {subsection}{\numberline {4.1.1}Lore}{14}{subsection.4.1.1}%
+\contentsline {subsection}{\numberline {4.1.2}Game Loop}{14}{subsection.4.1.2}%
+\contentsline {subsection}{\numberline {4.1.3}Scenes from the game}{14}{subsection.4.1.3}%
+\contentsline {subsection}{\numberline {4.1.4}Mechanics}{15}{subsection.4.1.4}%
+\contentsline {subsection}{\numberline {4.1.5}Game art}{16}{subsection.4.1.5}%
+\contentsline {subsection}{\numberline {4.1.6}Architecture}{16}{subsection.4.1.6}%
+\contentsline {section}{\numberline {4.2}Problems and solutions}{16}{section.4.2}%
+\contentsline {section}{\numberline {4.3}Deviations from the initial proposal}{17}{section.4.3}%
+\contentsline {chapter}{\numberline {5}Testeo y validación}{18}{chapter.5}%
+\contentsline {chapter}{\numberline {6}Results}{19}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Project applications}{19}{section.6.1}%
+\contentsline {chapter}{\numberline {7}Conclusions and future work}{20}{chapter.7}%
+\contentsline {section}{\numberline {7.1}Conclusions}{20}{section.7.1}%
+\contentsline {section}{\numberline {7.2}Future work}{20}{section.7.2}%
+\contentsline {chapter}{\numberline {8}Bibliography}{21}{chapter.8}%
+\contentsline {chapter}{\numberline {9}Appendix}{22}{chapter.9}%
+\contentsline {section}{\numberline {9.1}Source Code}{22}{section.9.1}%
+\contentsline {section}{\numberline {9.2}Simulación en los móviles}{22}{section.9.2}%
+\contentsline {section}{\numberline {9.3}Architecture}{22}{section.9.3}%

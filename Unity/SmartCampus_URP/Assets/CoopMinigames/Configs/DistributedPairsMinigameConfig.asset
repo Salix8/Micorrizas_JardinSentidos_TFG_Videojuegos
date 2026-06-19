@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 910e305e7ea1d0e4cb0d7dba93334a84, type: 3}
   m_Name: DistributedPairsMinigameConfig
   m_EditorClassIdentifier: Assembly-CSharp::SmartCampus.Coop.Minigames.DistributedPairs.DistributedPairsMinigameConfig
-  displayName: Parejas distribuidas
+  displayName: "\xBFQue sabe a que?"
   tutorialContent: {fileID: 11400000, guid: 7673dedfbbe043442a9ab6923dbb5db9, type: 2}
   successMessage: Lo habeis conseguido
   returnToMapButtonLabel: Volver al mapa

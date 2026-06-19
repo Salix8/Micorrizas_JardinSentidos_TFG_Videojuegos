@@ -4,6 +4,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using SmartCampus.Dialogue;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -17,6 +18,7 @@ namespace SmartCampus.Coop.Minigames
 
         [SerializeField] private CoopSessionCoordinator coopSessionCoordinator;
         [SerializeField] private CoopSessionProgressSync coopSessionProgressSync;
+        [SerializeField] private DialogueFlowSync dialogueFlowSync;
         [SerializeField] private CoopMinigameCatalogConfig minigameCatalogConfig;
         [SerializeField] private Transform entryRoot;
         [SerializeField] private CoopMinigameLauncherEntryView entryTemplate;
@@ -109,6 +111,9 @@ namespace SmartCampus.Coop.Minigames
             coopSessionProgressSync ??= coopSessionCoordinator != null
                 ? coopSessionCoordinator.SessionProgressSync
                 : FindFirstObjectByType<CoopSessionProgressSync>(FindObjectsInactive.Include);
+            dialogueFlowSync ??= coopSessionCoordinator != null
+                ? coopSessionCoordinator.GetComponent<DialogueFlowSync>()
+                : FindFirstObjectByType<DialogueFlowSync>(FindObjectsInactive.Include);
             helperLabel ??= transform.Find("HelperLabel")?.GetComponent<TMP_Text>();
 
             if (entryRoot == null)
@@ -237,7 +242,15 @@ namespace SmartCampus.Coop.Minigames
                 Debug.Log(
                     $"Launcher requested minigame '{entry.DisplayName}'. MinigameIndex={entry.MinigameIndex} Scene='{sceneName}'.",
                     this);
-                coopSessionCoordinator.StartMiniGame(entry.MinigameIndex);
+                if (dialogueFlowSync != null)
+                {
+                    dialogueFlowSync.RequestStartMinigame(entry.MinigameIndex);
+                }
+                else
+                {
+                    coopSessionCoordinator.StartMiniGame(entry.MinigameIndex);
+                }
+
                 return;
             }
 

@@ -3,6 +3,7 @@ using System;
 using Unity.Netcode;
 using UnityEngine;
 using SmartCampus.Coop.Minigames;
+using SmartCampus.Dialogue;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -19,6 +20,7 @@ public sealed class CoopMinigameZoneTriggerController : MonoBehaviour
     [SerializeField] private CoopGpsStateSync gpsStateSync;
     [SerializeField] private CoopSessionCoordinator coopSessionCoordinator;
     [SerializeField] private CoopSessionProgressSync coopSessionProgressSync;
+    [SerializeField] private DialogueFlowSync dialogueFlowSync;
     [SerializeField] private CoopMinigameZoneCountdownUIController countdownUiController;
     [SerializeField] private CoopMinigameZoneDefinition[] zoneDefinitions;
 
@@ -155,7 +157,14 @@ public sealed class CoopMinigameZoneTriggerController : MonoBehaviour
             Debug.Log(
                 $"Launching zone minigame '{candidateZone.DisplayName}'. MiniGameNumber={candidateZone.MiniGameNumber} MiniGameIndex={candidateZone.MiniGameIndex} Scene='{sceneName}'.",
                 this);
-            coopSessionCoordinator.StartMiniGame(candidateZone.MiniGameIndex);
+            if (dialogueFlowSync != null)
+            {
+                dialogueFlowSync.RequestStartMinigame(candidateZone.MiniGameIndex);
+            }
+            else
+            {
+                coopSessionCoordinator.StartMiniGame(candidateZone.MiniGameIndex);
+            }
         }
     }
 
@@ -231,6 +240,7 @@ public sealed class CoopMinigameZoneTriggerController : MonoBehaviour
         return gpsMarkerController != null &&
                gpsStateSync != null &&
                coopSessionCoordinator != null &&
+               (dialogueFlowSync == null || !dialogueFlowSync.IsFlowBusy) &&
                coopSessionCoordinator.CurrentPhase == CoopGamePhase.WorldMap;
     }
 
@@ -251,6 +261,9 @@ public sealed class CoopMinigameZoneTriggerController : MonoBehaviour
         coopSessionProgressSync ??= coopSessionCoordinator != null
             ? coopSessionCoordinator.SessionProgressSync
             : FindFirstObjectByType<CoopSessionProgressSync>(FindObjectsInactive.Include);
+        dialogueFlowSync ??= coopSessionCoordinator != null
+            ? coopSessionCoordinator.GetComponent<DialogueFlowSync>()
+            : FindFirstObjectByType<DialogueFlowSync>(FindObjectsInactive.Include);
         countdownUiController ??= FindFirstObjectByType<CoopMinigameZoneCountdownUIController>(FindObjectsInactive.Include);
 
         if (zoneDefinitions == null || zoneDefinitions.Length == 0)

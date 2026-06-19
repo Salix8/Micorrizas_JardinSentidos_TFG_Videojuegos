@@ -22,41 +22,66 @@
 \usepackage{titlesec}
 \titleformat{\paragraph}[runin]{\tffamily\large}{}{0pt}{#1~\quad}
 
+\usepackage{colortbl}
+\usepackage{array}
+
 %% ================ TITLE ================ %%
 \title{Micorrizas\\}
 \subtitle{Design and development of a geolocated mobile video game to promote knowledge and relationship with the natural environment}
-\degree{Design and Development of Video Games}
 \author{\large Saúl Pacheco Trilles}
-\supervisor{\large Águeda Gómez Cambronero}
-\submission{June 2026}
-%\version{2024-07}
-% \credits{
-%     Imagen de portada sacada de  \href{https://forgottenrealms.fandom.com/wiki/Slaad}{\emph{Fandom}}.
-%     }
-% \includegraphics[width=\textwidth]{img/LogoUJI.png} \par
+
 %% ================ DOCUMENT ================ %%
 \begin{document}
-\maketitle
+
+\begin{titlepage}
+\centering
+\vspace*{1.5cm}
+
+{\color[HTML]{2D5D3A}\LARGE\bfseries Universitat Jaume I\par}
+\vspace{0.4cm}
+{\large Bachelor's Thesis in Video Game Design and Development\par}
+
+\vspace{3cm}
+
+{\color[HTML]{2D5D3A}\Huge\bfseries Micorrizas\par}
+\vspace{0.3cm}
+{\color[HTML]{A4B9D2}\rule{0.85\textwidth}{1pt}\par}
+\vspace{0.4cm}
+{\color[HTML]{A45E39}\Large\itshape Design and development of a geolocated mobile video game to promote\par knowledge and relationship with the natural environment\par}
+
+\vspace{3cm}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.8}
+\setlength{\tabcolsep}{10pt}
+\begin{tabular}{>{\bfseries\raggedleft\arraybackslash}p{0.35\textwidth} p{0.45\textwidth}}
+\rowcolor[HTML]{DFE8DF} Student & Saúl Pacheco Trilles \\
+\rowcolor[HTML]{F0F5F0} Supervisor & Águeda Gómez Cambronero \\
+\rowcolor[HTML]{DFE8DF} Course & VJ1241 - Final Degree Project \\
+\rowcolor[HTML]{F0F5F0} Defense date & 13--15 July 2026 \\
+\end{tabular}
+\end{center}
+
+\vfill
+
+\includegraphics[width=0.25\textwidth]{img/LogoUJI.png}\par
+\vspace*{1.5cm}
+\end{titlepage}
 
 \partcolor{Maroon}
 %\partimage{img/Slaad4e.png}
 % \part{GDD}
 
-\include{PropuestaTecnica}
-% \include{1OneSheet}
-% \include{2DisenoJugadores}
-% \include{3Rules}
-% \include{4Mecanicas}
-% \include{5BalanceDelJuego}
-% \include{6Gameplay}
-% \include{7DiseñoNiveles}
-% \include{8Sonido}
-% \include{9Gamificacion}
-% \include{10Monetizacion}
-% \include{11Multijugador}
-
-
-%------------------------------------------
+\include{Preliminares}
+\include{1Introduccion}
+\include{2Planificacion}
+\include{3Analisis}
+\include{4Desarrollo}
+\include{5TesteoValidacion}
+\include{6Resultados}
+\include{7Conclusiones}
+\include{8Bibliografia}
+\include{9Appendix}
 
 %\include{template}
 

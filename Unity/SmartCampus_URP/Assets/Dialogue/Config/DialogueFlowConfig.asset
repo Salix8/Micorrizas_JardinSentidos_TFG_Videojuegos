@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66cb043cbfd24400a2c133a5a46c7374, type: 3}
+  m_Name: DialogueFlowConfig
+  m_EditorClassIdentifier: Assembly-CSharp::SmartCampus.Dialogue.DialogueFlowConfig
+  dialoguesEnabled: 1
+  dialogueSystemConfig: {fileID: 11400000, guid: b297bbda9fb7c3148a7e225cee9c76e3, type: 2}
+  dialoguePanelPrefab: {fileID: 3479520924228261738, guid: 5cbb889dd8caebb48b29b92383fdb85f, type: 3}
+  reclaimSequenceKey: Reclaim
+  warningSequenceKey: "Act I \u2013 Warning"
+  reconnectionSequenceKey: "Act III \u2013 Reconnection"
+  minigameEntries:
+  - minigameIndex: 0
+    introductionSequenceKey: Garden of Sight
+    successSequenceKey: Garden of Sight Succes
+  - minigameIndex: 1
+    introductionSequenceKey: Garden of Sound
+    successSequenceKey: Garden of Sound Succes
+  - minigameIndex: 2
+    introductionSequenceKey: Garden of Touch
+    successSequenceKey: Garden of Touch Succes
+  - minigameIndex: 3
+    introductionSequenceKey: Garden of Taste
+    successSequenceKey: Garden of Taste Succes
+  - minigameIndex: 4
+    introductionSequenceKey: Garden of Smell
+    successSequenceKey: Garden of Smell Succes
+  gpsFixTimeoutSeconds: 8
+  editorGpsFallbackSeconds: 1
+  treatMissingGpsAsOutsideGarden: 1
+  showOpeningLoadingOverlay: 1
+  openingLoadingText: Cargando...
+  logOpeningTiming: 0

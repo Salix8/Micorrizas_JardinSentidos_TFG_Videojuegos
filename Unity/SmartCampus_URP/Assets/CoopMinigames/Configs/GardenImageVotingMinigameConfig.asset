@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 18aa144d0e6402846b41e1fbb3339093, type: 3}
   m_Name: GardenImageVotingMinigameConfig
   m_EditorClassIdentifier: Assembly-CSharp::SmartCampus.Coop.Minigames.GardenImageVoting.GardenImageVotingMinigameConfig
-  displayName: Minijuego 1 - Imagenes del jardin
+  displayName: "Las visiones del jard\xEDn"
   tutorialContent: {fileID: 11400000, guid: f9ddcd0855f1e804bbc4f70a2eda628b, type: 2}
   successMessage: Secuencia completada
   returnToMapButtonLabel: Volver al mapa
