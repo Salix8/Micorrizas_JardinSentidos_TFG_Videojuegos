@@ -30,7 +30,7 @@ namespace SmartCampus.Testing.Editor.Core
 
             view.Bind("MEMORIA DE FRUTOS", 0.45f, string.Empty, "ABCD");
 
-            Assert.That(minigameTitle.text, Is.EqualTo("MINIJUEGO: MEMORIA DE FRUTOS"));
+            Assert.That(minigameTitle.text, Is.EqualTo("MISIÓN: MEMORIA DE FRUTOS"));
             Assert.That(progressPercent.text, Is.EqualTo("45%"));
             Assert.That(teamName.text, Is.EqualTo("SALA ABCD"));
             Assert.That(slider.value, Is.EqualTo(0.45f).Within(0.001f));
@@ -76,7 +76,34 @@ namespace SmartCampus.Testing.Editor.Core
 
             view.Bind("MEMORIA DE FRUTOS", 0.45f, string.Empty, "ABCD");
 
-            Assert.That(minigameTitle.text, Is.EqualTo("MINIJUEGO: MEMORIA DE FRUTOS"));
+            Assert.That(minigameTitle.text, Is.EqualTo("MISIÓN: MEMORIA DE FRUTOS"));
+
+            Object.DestroyImmediate(root);
+            Object.DestroyImmediate(theme);
+        }
+
+        [Test]
+        public void TopPanelBind_UsesUpdatedAuthoredPrefixWhenLabelChangesInEditor()
+        {
+            var theme = ScriptableObject.CreateInstance<CoopMinigameThemeConfig>();
+            var root = new GameObject("TopPanel", typeof(RectTransform), typeof(CoopMinigameTopPanelView));
+            var view = root.GetComponent<CoopMinigameTopPanelView>();
+            var minigameTitle = CreateLabel(root.transform, "MinigameTitle");
+            minigameTitle.text = "MI";
+
+            var serializedView = new SerializedObject(view);
+            Assign(serializedView, "themeConfig", theme);
+            Assign(serializedView, "minigameTitleLabel", minigameTitle);
+            serializedView.ApplyModifiedPropertiesWithoutUndo();
+
+            view.ApplyTheme();
+            minigameTitle.text = "MISIÓN:";
+            typeof(CoopMinigameTopPanelView)
+                .GetMethod("OnValidate", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                ?.Invoke(view, null);
+            view.Bind("MEMORIA DE FRUTOS", 0.45f, string.Empty, "ABCD");
+
+            Assert.That(minigameTitle.text, Is.EqualTo("MISIÓN: MEMORIA DE FRUTOS"));
 
             Object.DestroyImmediate(root);
             Object.DestroyImmediate(theme);

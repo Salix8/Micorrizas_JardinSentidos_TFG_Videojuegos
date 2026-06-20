@@ -20,7 +20,7 @@
 \DeclareOption{blackwhite}{\gdef\blackwhite\true}
 \DeclareOption*{\PassOptionsToClass{\CurrentOption}{report}}
 \ProcessOptions\relax
-\LoadClass[10pt,a4paper,english]{report}
+\LoadClass[12pt,a4paper,english]{report}
 %%========= PACKAGES =========%%
 \RequirePackage{multicol,wrapfig}
 \RequirePackage[hidelinks]{hyperref}
@@ -391,7 +391,7 @@
 \titleformat{\chapter}[hang]{}{}{0pt}{
     \hspace{-2.5mm}%
     \begin{tikzpicture}
-        \node[text = DemonGreen,minimum height = 1.8cm] (heading) at (0,0) {\Huge\bfseries\sffamily\uppercase{#1}};
+        \node[text = DemonGreen,minimum height = 1.8cm] (heading) at (0,0) {\huge\bfseries\sffamily\uppercase{#1}};
         %
         \node[fill = DemonGreen,minimum height = 4.5mm,minimum width = 17cm] (header) at ([yshift = 2mm]heading.north) {};
         \pic[fill = DemonGreen,scale=0.5] at (header.west) {leftcap};
@@ -414,7 +414,7 @@
 \titleformat{name=\chapter,numberless}[hang]{}{}{0pt}{
     \hspace{-2.5mm}%
     \begin{tikzpicture}
-        \node[text = DemonGreen,minimum height = 1.8cm] (heading) at (0,0) {\Huge\bfseries\sffamily\uppercase{#1}};
+        \node[text = DemonGreen,minimum height = 1.8cm] (heading) at (0,0) {\huge\bfseries\sffamily\uppercase{#1}};
         %
         \node[fill = DemonGreen,minimum height = 4.5mm,minimum width = 17cm] (header) at ([yshift = 2mm]heading.north) {};
         \pic[fill = DemonGreen,scale=0.5] at (header.west) {leftcap};
@@ -430,7 +430,7 @@
 }
 \titlespacing*{\chapter}{0pt}{-1.5cm}{0pt}
 
-\titleformat{\section}{\tffamily\color{DemonGreen}\Huge\uppercase}{}{0pt}{\hfill~#1~\hfill}
+\titleformat{\section}{\tffamily\color{DemonGreen}\huge\uppercase}{}{0pt}{\hfill~#1~\hfill}
 \titlespacing*{\section}{0pt}{0pt}{1em}
 
 \titleformat{\subsection}{\tffamily\large\uppercase}{}{0pt}{#1}

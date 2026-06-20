@@ -74,7 +74,7 @@ namespace SmartCampus.Coop.Minigames
         {
             if (!Application.isPlaying)
             {
-                CaptureAuthoredTitlePrefix();
+                CaptureAuthoredTitlePrefix(forceRefresh: true);
             }
 
             ApplyTheme();
@@ -102,7 +102,7 @@ namespace SmartCampus.Coop.Minigames
                 return;
             }
 
-            CaptureAuthoredTitlePrefix();
+            CaptureAuthoredTitlePrefix(forceRefresh: false);
             var normalizedTitle = string.IsNullOrWhiteSpace(minigameTitle) ? string.Empty : minigameTitle.Trim();
             var resolvedPrefix = ResolveTitlePrefix();
             minigameTitleLabel.text = string.IsNullOrWhiteSpace(normalizedTitle)
@@ -339,9 +339,9 @@ namespace SmartCampus.Coop.Minigames
             }
         }
 
-        private void CaptureAuthoredTitlePrefix()
+        private void CaptureAuthoredTitlePrefix(bool forceRefresh = false)
         {
-            if (hasAuthoredTitlePrefix || minigameTitleLabel == null)
+            if ((!forceRefresh && hasAuthoredTitlePrefix) || minigameTitleLabel == null)
             {
                 return;
             }

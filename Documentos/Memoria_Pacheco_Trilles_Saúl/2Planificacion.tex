@@ -2,7 +2,7 @@
 This section presents the organisation of the project work. It describes the task breakdown, the estimated workload assigned to each area and the cost analysis derived from the planned development.
 
 \section{Planning}
-To facilitate its development process, the project was divided into a set of tasks, as outlined below.  was used to manage the development process, organise pending tasks and track progress throughout the project.
+To facilitate its development process, the project was divided into a set of tasks, as outlined below. Trello~\cite{trello} was used to manage the development process, organise pending tasks and track progress throughout the project.
 
 \begin{itemize}
     \item \textbf{Project analysis} (10 hours):
@@ -13,7 +13,7 @@ To facilitate its development process, the project was divided into a set of tas
 
     \item \textbf{Game design} (50 hours): The game design phase is an ongoing process, as the project is constantly evolving. A key aspect of game design is ensuring that the focus of the serious game is not lost sight of. This includes ensuring the game is well-balanced, designing cooperative missions, and making sure the game is rewarding for the user, while meeting the pedagogical goals.
     
-    \item \textbf{Art design} (10 hours): This task involved both sourcing and creating the visual and audio assets used in the game. Part of this time was spent searching for references and assets that matched the project’s artistic style and narrative, primarily through platforms such as the Unity asset store and Itch.io game-assets. It also involved creating or adapting certain necessary resources, such as the character sprites, the images for the Garden of Hearing, and the image representing the mycorrhizae found above each garden. Furthermore, audio resources were explored for the Garden of Hearing quest, including testing recorded sounds and searching specialised sound databases such as Xeno-canto, which offers recordings of birdsong and other natural sound material.
+    \item \textbf{Art design} (10 hours): This task involved both sourcing and creating the visual and audio assets used in the game. Part of this time was spent searching for references and assets that matched the project’s artistic style and narrative, primarily through platforms such as the Unity Asset Store~\cite{unity_asset} and Itch.io game-assets~\cite{itch_io}. It also involved creating or adapting certain necessary resources, such as the character sprites, the images for the Garden of Hearing, and the image representing the mycorrhizae found above each garden. Furthermore, audio resources were explored for the Garden of Hearing quest, including testing recorded sounds and searching specialised sound databases such as Xeno-canto~\cite{xenocanto}, which offers recordings of birdsong and other natural sound material.
     
     \item \textbf{Development} (120 hours): This was the longest phase of the project and the one with the most iterations. It was divided into several implementation milestones, which are detailed below, including geolocation, multiplayer mode, mission logic and final integration.
     \begin{itemize}
@@ -37,9 +37,9 @@ To facilitate its development process, the project was divided into a set of tas
 \vspace{0.5cm}
 \begin{figure}[htpb]
     \centering
-    % \includegraphics[width=\textwidth]{TU_IMAGEN_GANTT.png}
-    \framebox[\textwidth]{\rule{0pt}{5cm} \textit{Sustituye esto por: \textbackslash includegraphics[width=\textbackslash textwidth]\{ruta\_a\_tu\_imagen\}}}
-    \caption{Project Gantt chart}
+    \includegraphics[width=\textwidth]{img/DiagramaGantt.png}
+    %\framebox[\textwidth]{\rule{0pt}{5cm} \textit{Gantt chart of the project planning.}}
+    \caption{Gantt chart of the project planning}
     \label{fig:gantt}
 \end{figure}
 
@@ -48,7 +48,7 @@ To facilitate its development process, the project was divided into a set of tas
 The cost of carrying out this project is broken down below. This does not represent an actual payment, as the project was undertaken as an academic assignment, but it provides an estimate of the professional value of the work carried out
 
 \subsection{Working hours}
-The cost of the work carried out in this project has been estimated according to the number of development hours planned in the Gantt chart.  To assign an economic value to these hours, the reference used was the national collective agreement for consultancy and information technology companies, published in the Spanish Official State Gazette (BOE).
+The cost of the work carried out in this project has been estimated according to the number of development hours planned in the Gantt chart.  To assign an economic value to these hours, the reference used was the national collective agreement for consultancy and information technology companies, published in the Spanish Official State Gazette (BOE)~\cite{boe_convenio}.
 
 
 The selected professional category was Area 3, Group D, Level 3, since it corresponds to software development and programming tasks and represents an appropriate reference for an entry-level profile in the software industry.
@@ -56,7 +56,7 @@ According to the updated 2026 salary tables, this category has an annual gross s
 
 \begin{dragonbox}{Hourly Cost Calculation}
 \begin{center}
-\Large $ \frac{18,542.34 \mbox{ €}}{1,800 \mbox{ hours}} = 10.30 \mbox{ €/hour} $
+\large $ \frac{18,542.34 €}{1,800} = 10.30 €/hour $
 \end{center}
 \end{dragonbox}
 
@@ -64,33 +64,39 @@ Therefore, the estimated labour cost of the project is:
 
 \begin{dragonbox}{Total Labour Cost}
 \begin{center}
-\Large $ \mbox{Total labour cost} = \mbox{Number of hours} \times 10.30 \mbox{ €/hour} $
+\large $ Total labour cost = Number of hours \times 10.30 €/hour $
 \end{center}
 
 \vspace{0.2cm}
 If the project required 300 hours of work: 
 \begin{center}
-\Large $ 300 \mbox{ hours} \times 10.30 \mbox{ €/hour} = 3,090 \mbox{ €} $
+\large $ 300 hours \times 10.30 €/hour = 3,090 € $
 \end{center}
 \end{dragonbox}
 
 \subsection{Hardware}
 The development of a similar project would require a computer capable of running the necessary development tools primarily Unity as well as several mobile devices, between two and six devices. We will estimate six devices to be able to test the application under full conditions. The hardware specifications of the system used for this project is described below.
-OMEN Gaming Laptop 16-ap0xxx, 32GB of RAM and 954GB of hard disk, NVIDIA GeForce RTX 5070 Laptop GPU. Cost: 1,399€.
-Xiaomi Redmi Note 13 Pro 5G. Cost: 80€
+OMEN Gaming Laptop 16-ap0xxx~\cite{hp_omen}, 32GB of RAM and 954GB of hard disk, NVIDIA GeForce RTX 5070 Laptop GPU. Cost: 1,399€.
+Xiaomi Redmi Note 13 Pro 5G~\cite{redmi_note}. Cost: 80€
 In order to provide a realistic cost reference to replicate the project, two alternative scenarios can be considered: purchasing a similar device or renting additional test devices.
-The official Xiaomi reference price for the Redmi Note 13 Pro 5G is approximately 219.99 €. As another option, the company could rent one or two additional Android devices during the validation period. Although the exact Xiaomi Redmi Note 13 Pro 5G was not available in the consulted renting catalogue, similar Android devices were available through Rentik / Phone House, such as the Xiaomi Redmi Note 15C from 6.90 €/month, the Motorola G55 5G from 8.90 €/month, or the Xiaomi Redmi Note 14 5G from 16.90 €/month.
+The official Xiaomi reference price for the Redmi Note 13 Pro 5G is approximately 219.99 €. As another option, the company could rent one or two additional Android devices during the validation period. Although the exact Xiaomi Redmi Note 13 Pro 5G was not available in the consulted renting catalogue, similar Android devices were available through Rentik / Phone House~\cite{rentik}, such as the Xiaomi Redmi Note 15C from 6.90 €/month, the Motorola G55 5G from 8.90 €/month, or the Xiaomi Redmi Note 14 5G from 16.90 €/month.
 
 The current range is between 6.90 €/month and 16.90 €/month, so an average cost of approximately 10 €/month/device will be estimated. Considering that, during one month, only two devices may be needed for testing, but during another month, up to six devices may be required.Therefore, the estimated cost would be 20 € for the first month plus 60 € for the second month, resulting in a total of approximately 80 €.
 
 
 \subsection{Software}
-
+The software tools and licences required to develop this project were free for educational use, but their commercial value is detailed below for replication in a professional setting:
+\begin{itemize}
+    \item \textbf{Unity:} Used as the main game engine. While it currently offers a free Personal edition, the pricing structure was recently modified, cancelling the Runtime Fee~\cite{unity_pricing}. For a professional studio, a Unity Pro licence might be required depending on revenue.
+    \item \textbf{ArcGIS SDK:} Used for the map and geolocation features. A student use licence~\cite{arcgis_license} is available at no cost for academic purposes, whereas commercial development requires a paid subscription.
+    \item \textbf{OpenAI Codex:} Used to assist in the development of certain scripts and technical problem-solving. The pricing model~\cite{codex_pricing} is based on token usage. For this project, the cost was negligible due to the small scale, but it should be considered in larger professional environments.
+\end{itemize}
 \subsection{Other expenses}
 
 \vspace{1cm}
 % Tabla general de costes
-\begin{center}
+\begin{table}[htpb]
+\centering
 \renewcommand{\arraystretch}{1.5}
 \begin{tabular}{>{\raggedright\arraybackslash}p{0.5\textwidth} >{\raggedleft\arraybackslash}p{0.3\textwidth}}
 \rowcolor[HTML]{DFE8DF} \textbf{Concept} & \textbf{Cost (€)} \\
@@ -101,11 +107,14 @@ The current range is between 6.90 €/month and 16.90 €/month, so an average c
 \hline
 \rowcolor[HTML]{DFE8DF} \textbf{Total} & \textbf{} \\
 \end{tabular}
-\end{center}
+\caption{General project costs}
+\label{tab:general_costs}
+\end{table}
 
-\section{Comprobation}
+\section{Planning Deviations}
 
-\begin{center}
+\begin{table}[htpb]
+\centering
 \renewcommand{\arraystretch}{1.5}
 \begin{tabular}{>{\raggedright\arraybackslash}p{0.5\textwidth} >{\raggedleft\arraybackslash}p{0.3\textwidth}}
 \rowcolor[HTML]{DFE8DF} \textbf{Concept} & \textbf{Cost (€)} \\
@@ -116,5 +125,6 @@ The current range is between 6.90 €/month and 16.90 €/month, so an average c
 \hline
 \rowcolor[HTML]{DFE8DF} \textbf{Total} & \textbf{} \\
 \end{tabular}
-\end{center}
-Trello
+\caption{Planning deviations}
+\label{tab:planning_deviations}
+\end{table}
