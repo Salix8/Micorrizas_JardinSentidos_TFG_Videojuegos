@@ -1,4 +1,5 @@
 using System;
+using Unity.Collections;
 using SmartCampus.Coop;
 using SmartCampus.Coop.Minigames;
 using Unity.Netcode;
@@ -19,6 +20,10 @@ public sealed class CoopSessionCoordinator : NetworkBehaviour
     [SerializeField] [Range(CoopSessionRules.DefaultMinimumPlayers, CoopSessionRules.DefaultMaximumPlayers)] private int minPlayersToStart = CoopSessionRules.DefaultMinimumPlayers;
     [SerializeField] [Range(CoopSessionRules.DefaultMinimumPlayers, CoopSessionRules.DefaultMaximumPlayers)] private int maxPlayers = CoopSessionRules.DefaultMaximumPlayers;
 
+    [Header("Session Identity")]
+    [SerializeField] private string defaultTeamName = "Equipo Micorriza";
+    [SerializeField] [Range(3, 32)] private int maxTeamNameLength = 24;
+
     [Header("Scene Flow")]
     [SerializeField] private string lobbySceneName = "Lobby";
     [SerializeField] private string mainMapSceneName = "UJI";
@@ -27,6 +32,7 @@ public sealed class CoopSessionCoordinator : NetworkBehaviour
 
     private readonly NetworkVariable<CoopGamePhase> currentPhase = new(CoopGamePhase.Lobby);
     private readonly NetworkVariable<int> activeMiniGameIndex = new(-1);
+    private readonly NetworkVariable<FixedString64Bytes> teamName = new();
     private readonly NetworkList<ulong> playerSlots = new();
 
     public CoopGamePhase CurrentPhase => currentPhase.Value;
@@ -35,12 +41,15 @@ public sealed class CoopSessionCoordinator : NetworkBehaviour
     public int MaximumPlayers => maxPlayers;
     public CoopSessionRules SessionRules => new(minPlayersToStart, maxPlayers);
     public CoopSessionProgressSync SessionProgressSync => sessionProgressSync;
+    public string TeamName => ResolveTeamName(teamName.Value.ToString());
+    public int MaxTeamNameLength => Mathf.Clamp(maxTeamNameLength, 3, 32);
     public int ConnectedPlayerCount => NetworkManager == null ? 0 : NetworkManager.ConnectedClientsIds.Count;
     public int RegisteredPlayerCount => playerSlots.Count;
     public int ConfiguredMinigameCount => miniGameSceneNames == null ? 0 : miniGameSceneNames.Length;
     public bool CanStartMainMap => IsServer && SessionRules.CanStart(ConnectedPlayerCount);
 
     public event Action<CoopGamePhase> PhaseChanged;
+    public event Action<string> TeamNameChanged;
     public event Action SlotsChanged;
 
     private void Awake()
@@ -76,23 +85,31 @@ public sealed class CoopSessionCoordinator : NetworkBehaviour
         maxPlayers = rules.MaximumPlayers;
 
         currentPhase.OnValueChanged += HandlePhaseChanged;
+        teamName.OnValueChanged += HandleTeamNameChanged;
         playerSlots.OnListChanged += HandlePlayerSlotsChanged;
         sessionProgressSync?.SynchronizeConfigurationServer(resetProgress: sessionProgressSync.ConfiguredMinigameCount == 0);
 
         if (IsServer && NetworkManager != null)
         {
+            if (string.IsNullOrWhiteSpace(teamName.Value.ToString()))
+            {
+                teamName.Value = ToFixedTeamName(defaultTeamName);
+            }
+
             NetworkManager.OnClientConnectedCallback += HandleClientConnected;
             NetworkManager.OnClientDisconnectCallback += HandleClientDisconnected;
             RebuildPlayerSlots();
         }
 
         SlotsChanged?.Invoke();
+        TeamNameChanged?.Invoke(TeamName);
         PhaseChanged?.Invoke(currentPhase.Value);
     }
 
     public override void OnNetworkDespawn()
     {
         currentPhase.OnValueChanged -= HandlePhaseChanged;
+        teamName.OnValueChanged -= HandleTeamNameChanged;
         playerSlots.OnListChanged -= HandlePlayerSlotsChanged;
 
         if (IsServer && NetworkManager != null)
@@ -123,6 +140,16 @@ public sealed class CoopSessionCoordinator : NetworkBehaviour
         activeMiniGameIndex.Value = -1;
         currentPhase.Value = CoopGamePhase.WorldMap;
         LoadScene(mainMapSceneName);
+    }
+
+    public void SetTeamNameServer(string requestedTeamName)
+    {
+        if (!IsServer)
+        {
+            return;
+        }
+
+        teamName.Value = ToFixedTeamName(requestedTeamName);
     }
 
     public void StartMiniGame(int miniGameIndex)
@@ -415,8 +442,38 @@ public sealed class CoopSessionCoordinator : NetworkBehaviour
         PhaseChanged?.Invoke(current);
     }
 
+    private void HandleTeamNameChanged(FixedString64Bytes _, FixedString64Bytes current)
+    {
+        TeamNameChanged?.Invoke(ResolveTeamName(current.ToString()));
+    }
+
     private void HandlePlayerSlotsChanged(NetworkListEvent<ulong> _)
     {
         SlotsChanged?.Invoke();
+    }
+
+    private FixedString64Bytes ToFixedTeamName(string requestedTeamName)
+    {
+        return new FixedString64Bytes(ResolveTeamName(requestedTeamName));
+    }
+
+    private string ResolveTeamName(string requestedTeamName)
+    {
+        var resolvedName = string.IsNullOrWhiteSpace(requestedTeamName)
+            ? defaultTeamName
+            : requestedTeamName.Trim();
+
+        if (string.IsNullOrWhiteSpace(resolvedName))
+        {
+            resolvedName = "Equipo";
+        }
+
+        var maxLength = MaxTeamNameLength;
+        if (resolvedName.Length > maxLength)
+        {
+            resolvedName = resolvedName.Substring(0, maxLength);
+        }
+
+        return resolvedName;
     }
 }

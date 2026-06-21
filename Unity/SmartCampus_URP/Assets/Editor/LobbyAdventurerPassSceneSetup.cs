@@ -283,7 +283,7 @@ public static class LobbyAdventurerPassSceneSetup
         buttonColors.normalColor = Color.white;
         buttonColors.highlightedColor = new Color(1f, 0.95f, 0.78f, 1f);
         buttonColors.pressedColor = new Color(0.78f, 0.62f, 0.32f, 1f);
-        buttonColors.selectedColor = new Color(1f, 0.9f, 0.55f, 1f);
+        buttonColors.selectedColor = Color.white;
         buttonColors.disabledColor = new Color(1f, 1f, 1f, 0.4f);
         button.colors = buttonColors;
 
@@ -301,35 +301,59 @@ public static class LobbyAdventurerPassSceneSetup
         avatarImage.color = Color.white;
         avatarImage.raycastTarget = false;
 
-        var outline = CreateSelectionOutline(root.transform, new Color(0.13f, 0.31f, 0.14f, 1f));
+        var selectionBorder = CreateSelectionBorder(root.transform, new Color(0.13f, 0.31f, 0.14f, 1f));
 
         var option = root.GetComponent<LobbyMarkerAvatarOptionView>();
         var optionSerialized = new SerializedObject(option);
         optionSerialized.FindProperty("avatarId").stringValue = avatar.AvatarId;
         optionSerialized.FindProperty("button").objectReferenceValue = button;
         optionSerialized.FindProperty("avatarImage").objectReferenceValue = avatarImage;
-        optionSerialized.FindProperty("selectionOutline").objectReferenceValue = outline;
+        optionSerialized.FindProperty("selectionBorderRoot").objectReferenceValue = selectionBorder;
         optionSerialized.FindProperty("backgroundImage").objectReferenceValue = rootImage;
         optionSerialized.ApplyModifiedPropertiesWithoutUndo();
         option.Configure(avatar.AvatarId, avatar.AvatarSprite);
         return option;
     }
 
-    private static Image CreateSelectionOutline(Transform parent, Color color)
+    private static GameObject CreateSelectionBorder(Transform parent, Color color)
     {
-        var outlineRoot = new GameObject("SelectionOutline", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
-        outlineRoot.transform.SetParent(parent, false);
-        var outlineRect = outlineRoot.GetComponent<RectTransform>();
-        outlineRect.anchorMin = Vector2.zero;
-        outlineRect.anchorMax = Vector2.one;
-        outlineRect.offsetMin = new Vector2(4f, 4f);
-        outlineRect.offsetMax = new Vector2(-4f, -4f);
+        var borderRoot = new GameObject("SelectionBorder", typeof(RectTransform));
+        borderRoot.transform.SetParent(parent, false);
+        var borderRect = borderRoot.GetComponent<RectTransform>();
+        borderRect.anchorMin = Vector2.zero;
+        borderRect.anchorMax = Vector2.one;
+        borderRect.offsetMin = new Vector2(3f, 3f);
+        borderRect.offsetMax = new Vector2(-3f, -3f);
 
-        var image = outlineRoot.GetComponent<Image>();
+        CreateBorderSegment(borderRoot.transform, "Top", color, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -5f), new Vector2(0f, 0f));
+        CreateBorderSegment(borderRoot.transform, "Bottom", color, Vector2.zero, new Vector2(1f, 0f), new Vector2(0f, 0f), new Vector2(0f, 5f));
+        CreateBorderSegment(borderRoot.transform, "Left", color, Vector2.zero, new Vector2(0f, 1f), new Vector2(0f, 5f), new Vector2(5f, -5f));
+        CreateBorderSegment(borderRoot.transform, "Right", color, new Vector2(1f, 0f), Vector2.one, new Vector2(-5f, 5f), new Vector2(0f, -5f));
+
+        borderRoot.SetActive(false);
+        return borderRoot;
+    }
+
+    private static void CreateBorderSegment(
+        Transform parent,
+        string name,
+        Color color,
+        Vector2 anchorMin,
+        Vector2 anchorMax,
+        Vector2 offsetMin,
+        Vector2 offsetMax)
+    {
+        var segment = new GameObject($"Border{name}", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+        segment.transform.SetParent(parent, false);
+        var rect = segment.GetComponent<RectTransform>();
+        rect.anchorMin = anchorMin;
+        rect.anchorMax = anchorMax;
+        rect.offsetMin = offsetMin;
+        rect.offsetMax = offsetMax;
+
+        var image = segment.GetComponent<Image>();
         image.color = color;
-        image.enabled = false;
         image.raycastTarget = false;
-        return image;
     }
 
     private static GameObject CreateCardColumn(Transform parent, string name, Color backgroundColor, float preferredWidth, float flexibleWidth = 0f)
@@ -469,6 +493,7 @@ public static class LobbyAdventurerPassSceneSetup
         var serializedController = new SerializedObject(controller);
         serializedController.FindProperty("hostButton").objectReferenceValue = contentRoot.Find("HomePanel/CreateSessionButton")?.GetComponent<Button>();
         serializedController.FindProperty("joinButton").objectReferenceValue = contentRoot.Find("JoinPanel/JoinSessionButton")?.GetComponent<Button>();
+        serializedController.FindProperty("teamNameInput").objectReferenceValue = contentRoot.Find("SessionPanel/TeamNameInput")?.GetComponent<TMP_InputField>();
         serializedController.FindProperty("startMatchButton").objectReferenceValue = contentRoot.Find("SessionPanel/ActionsRoot/StartMatchButton")?.GetComponent<Button>();
         serializedController.FindProperty("leaveSessionButton").objectReferenceValue = contentRoot.Find("SessionPanel/ActionsRoot/LeaveSessionButton")?.GetComponent<Button>();
         serializedController.FindProperty("copyJoinCodeButton").objectReferenceValue = contentRoot.Find("SessionPanel/ActionsRoot/CopyJoinCodeButton")?.GetComponent<Button>();

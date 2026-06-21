@@ -28,6 +28,7 @@ public sealed class MultiplayerMenuController : MonoBehaviour
 
     [Header("UI")]
     [SerializeField] private TMP_InputField joinCodeInput;
+    [SerializeField] private TMP_InputField teamNameInput;
     [SerializeField] private TMP_Text statusLabel;
     [SerializeField] private TMP_Text joinCodeLabel;
     [SerializeField] private TMP_Text playerCountLabel;
@@ -37,6 +38,8 @@ public sealed class MultiplayerMenuController : MonoBehaviour
     [SerializeField] private Button startMatchButton;
     [SerializeField] private Button leaveSessionButton;
     [SerializeField] private Button copyJoinCodeButton;
+
+    private bool suppressTeamNameInputCallback;
 
     private void Awake()
     {
@@ -62,20 +65,39 @@ public sealed class MultiplayerMenuController : MonoBehaviour
         relayConnectionService.JoinCodeChanged += HandleJoinCodeChanged;
         relayConnectionService.PlayerCountChanged += HandlePlayerCountChanged;
 
+        if (teamNameInput != null)
+        {
+            teamNameInput.onValueChanged.AddListener(HandleTeamNameChanged);
+        }
+
+        if (coopSessionCoordinator != null)
+        {
+            coopSessionCoordinator.TeamNameChanged -= HandleSessionTeamNameChanged;
+            coopSessionCoordinator.TeamNameChanged += HandleSessionTeamNameChanged;
+        }
+
         ShowHomePanel();
         RefreshState();
     }
 
     private void OnDisable()
     {
-        if (relayConnectionService == null)
+        if (relayConnectionService != null)
         {
-            return;
+            relayConnectionService.StatusChanged -= HandleStatusChanged;
+            relayConnectionService.JoinCodeChanged -= HandleJoinCodeChanged;
+            relayConnectionService.PlayerCountChanged -= HandlePlayerCountChanged;
         }
 
-        relayConnectionService.StatusChanged -= HandleStatusChanged;
-        relayConnectionService.JoinCodeChanged -= HandleJoinCodeChanged;
-        relayConnectionService.PlayerCountChanged -= HandlePlayerCountChanged;
+        if (teamNameInput != null)
+        {
+            teamNameInput.onValueChanged.RemoveListener(HandleTeamNameChanged);
+        }
+
+        if (coopSessionCoordinator != null)
+        {
+            coopSessionCoordinator.TeamNameChanged -= HandleSessionTeamNameChanged;
+        }
     }
 
     public void ShowHomePanel()
@@ -111,6 +133,8 @@ public sealed class MultiplayerMenuController : MonoBehaviour
                 relayConnectionService.ShutdownSession();
                 ShowHomePanel();
             }
+
+            ApplyTeamNameInputToSession();
         }
         finally
         {
@@ -142,6 +166,7 @@ public sealed class MultiplayerMenuController : MonoBehaviour
     public void StartMatch()
     {
         ResolveReferences();
+        ApplyTeamNameInputToSession();
 
         if (coopSessionCoordinator != null && coopSessionCoordinator.IsSpawned && coopSessionCoordinator.IsServer)
         {
@@ -177,6 +202,7 @@ public sealed class MultiplayerMenuController : MonoBehaviour
     {
         HandleJoinCodeChanged(relayConnectionService.CurrentJoinCode);
         HandlePlayerCountChanged(relayConnectionService.ConnectedPlayerCount);
+        RefreshTeamNameInput();
         RefreshButtonStates();
     }
 
@@ -195,6 +221,11 @@ public sealed class MultiplayerMenuController : MonoBehaviour
         if (copyJoinCodeButton != null)
         {
             copyJoinCodeButton.interactable = !string.IsNullOrWhiteSpace(relayConnectionService.CurrentJoinCode);
+        }
+
+        if (teamNameInput != null)
+        {
+            teamNameInput.interactable = isHost && !relayConnectionService.IsBusy;
         }
 
         if (leaveSessionButton != null)
@@ -324,6 +355,63 @@ public sealed class MultiplayerMenuController : MonoBehaviour
         startMatchButton ??= contentRoot.Find("SessionPanel/ActionsRoot/StartMatchButton")?.GetComponent<Button>();
         leaveSessionButton ??= contentRoot.Find("SessionPanel/ActionsRoot/LeaveSessionButton")?.GetComponent<Button>();
         copyJoinCodeButton ??= contentRoot.Find("SessionPanel/ActionsRoot/CopyJoinCodeButton")?.GetComponent<Button>();
+        teamNameInput ??= contentRoot.Find("SessionPanel/TeamNameInput")?.GetComponent<TMP_InputField>();
+    }
+
+    private void HandleTeamNameChanged(string _)
+    {
+        if (suppressTeamNameInputCallback)
+        {
+            return;
+        }
+
+        ApplyTeamNameInputToSession();
+    }
+
+    private void HandleSessionTeamNameChanged(string _)
+    {
+        RefreshTeamNameInput();
+    }
+
+    private void RefreshTeamNameInput()
+    {
+        if (teamNameInput == null)
+        {
+            return;
+        }
+
+        ResolveReferences();
+        if (coopSessionCoordinator == null)
+        {
+            return;
+        }
+
+        teamNameInput.characterLimit = coopSessionCoordinator.MaxTeamNameLength;
+        var resolvedTeamName = coopSessionCoordinator.TeamName;
+        if (string.Equals(teamNameInput.text, resolvedTeamName))
+        {
+            return;
+        }
+
+        suppressTeamNameInputCallback = true;
+        teamNameInput.SetTextWithoutNotify(resolvedTeamName);
+        suppressTeamNameInputCallback = false;
+    }
+
+    private void ApplyTeamNameInputToSession()
+    {
+        ResolveReferences();
+
+        if (teamNameInput == null ||
+            coopSessionCoordinator == null ||
+            !coopSessionCoordinator.IsSpawned ||
+            !coopSessionCoordinator.IsServer)
+        {
+            return;
+        }
+
+        coopSessionCoordinator.SetTeamNameServer(teamNameInput.text);
+        RefreshTeamNameInput();
     }
 
     private bool ValidateButtonWiring()

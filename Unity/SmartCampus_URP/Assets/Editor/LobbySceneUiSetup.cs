@@ -132,6 +132,7 @@ public static class LobbySceneUiSetup
             joinPanel,
             sessionPanel,
             joinData.inputField,
+            sessionData.teamNameInput,
             sessionData.statusLabel,
             sessionData.joinCodeLabel,
             sessionData.playerCountLabel,
@@ -157,6 +158,7 @@ public static class LobbySceneUiSetup
             $"Saved: {saved}\n" +
             $"HomePanel: {homePanel.GetInstanceID()}\n" +
             $"JoinInput: {joinData.inputField.GetInstanceID()}\n" +
+            $"TeamNameInput: {sessionData.teamNameInput.GetInstanceID()}\n" +
             $"StatusLabel: {sessionData.statusLabel.GetInstanceID()}\n");
     }
 
@@ -253,11 +255,17 @@ public static class LobbySceneUiSetup
         return (inputField, joinButton);
     }
 
-    private static (TMP_Text statusLabel, TMP_Text joinCodeLabel, TMP_Text playerCountLabel, TMP_Text requirementsLabel, Button startMatchButton, Button leaveSessionButton, Button copyJoinCodeButton) BuildSessionPanel(Transform parent, MultiplayerMenuController controller, Font font)
+    private static (TMP_Text statusLabel, TMP_InputField teamNameInput, TMP_Text joinCodeLabel, TMP_Text playerCountLabel, TMP_Text requirementsLabel, Button startMatchButton, Button leaveSessionButton, Button copyJoinCodeButton) BuildSessionPanel(Transform parent, MultiplayerMenuController controller, Font font)
     {
         CreateSectionTitle("SessionTitle", parent, font, "Estado del lobby");
         var statusLabel = CreateBodyText("StatusLabel", parent, font, "Esperando a que el host cree o abra la sala.");
-        statusLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 120f;
+        statusLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 88f;
+
+        CreateBodyText("TeamNameLabel", parent, font, "Nombre del equipo");
+        var teamNameInput = CreateInputField("TeamNameInput", parent, font, "Equipo Micorriza");
+        teamNameInput.characterLimit = 24;
+        teamNameInput.text = "Equipo Micorriza";
+        teamNameInput.gameObject.AddComponent<LayoutElement>().preferredHeight = 60f;
 
         var joinCodeLabel = CreateValueLabel("JoinCodeLabel", parent, font, "Join code: -");
         var playerCountLabel = CreateValueLabel("PlayerCountLabel", parent, font, "Players: 0/6 (minimum 2)");
@@ -278,7 +286,7 @@ public static class LobbySceneUiSetup
         UnityEventTools.AddPersistentListener(startMatchButton.onClick, controller.StartMatch);
         UnityEventTools.AddPersistentListener(leaveSessionButton.onClick, controller.LeaveSession);
 
-        return (statusLabel, joinCodeLabel, playerCountLabel, requirementsLabel, startMatchButton, leaveSessionButton, copyJoinCodeButton);
+        return (statusLabel, teamNameInput, joinCodeLabel, playerCountLabel, requirementsLabel, startMatchButton, leaveSessionButton, copyJoinCodeButton);
     }
 
     private static void AssignControllerReferences(
@@ -288,6 +296,7 @@ public static class LobbySceneUiSetup
         GameObject joinPanel,
         GameObject sessionPanel,
         TMP_InputField joinCodeInput,
+        TMP_InputField teamNameInput,
         TMP_Text statusLabel,
         TMP_Text joinCodeLabel,
         TMP_Text playerCountLabel,
@@ -304,6 +313,7 @@ public static class LobbySceneUiSetup
         serializedObject.FindProperty("joinPanel").objectReferenceValue = joinPanel;
         serializedObject.FindProperty("sessionPanel").objectReferenceValue = sessionPanel;
         serializedObject.FindProperty("joinCodeInput").objectReferenceValue = joinCodeInput;
+        serializedObject.FindProperty("teamNameInput").objectReferenceValue = teamNameInput;
         serializedObject.FindProperty("statusLabel").objectReferenceValue = statusLabel;
         serializedObject.FindProperty("joinCodeLabel").objectReferenceValue = joinCodeLabel;
         serializedObject.FindProperty("playerCountLabel").objectReferenceValue = playerCountLabel;

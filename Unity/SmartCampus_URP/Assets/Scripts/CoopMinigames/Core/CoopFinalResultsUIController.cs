@@ -68,6 +68,12 @@ namespace SmartCampus.Coop.Minigames
                 coopSessionProgressSync.ProgressChanged += HandleProgressChanged;
             }
 
+            if (coopSessionCoordinator != null)
+            {
+                coopSessionCoordinator.TeamNameChanged -= HandleTeamNameChanged;
+                coopSessionCoordinator.TeamNameChanged += HandleTeamNameChanged;
+            }
+
             if (playerProfileSync != null)
             {
                 playerProfileSync.ProfilesChanged += HandleProfilesChanged;
@@ -100,6 +106,11 @@ namespace SmartCampus.Coop.Minigames
                 coopSessionProgressSync.ProgressChanged -= HandleProgressChanged;
             }
 
+            if (coopSessionCoordinator != null)
+            {
+                coopSessionCoordinator.TeamNameChanged -= HandleTeamNameChanged;
+            }
+
             if (playerProfileSync != null)
             {
                 playerProfileSync.ProfilesChanged -= HandleProfilesChanged;
@@ -130,6 +141,11 @@ namespace SmartCampus.Coop.Minigames
         private void HandleProfilesChanged()
         {
             RefreshMembers();
+        }
+
+        private void HandleTeamNameChanged(string _)
+        {
+            RefreshTeamIdentity();
         }
 
         private void HandleJoinCodeChanged(string _)
@@ -242,7 +258,10 @@ namespace SmartCampus.Coop.Minigames
                 return;
             }
 
-            var resolvedTeamName = string.IsNullOrWhiteSpace(teamName) ? "EQUIPO" : teamName.Trim();
+            var runtimeTeamName = coopSessionCoordinator == null ? string.Empty : coopSessionCoordinator.TeamName;
+            var resolvedTeamName = string.IsNullOrWhiteSpace(runtimeTeamName)
+                ? string.IsNullOrWhiteSpace(teamName) ? "EQUIPO" : teamName.Trim()
+                : runtimeTeamName.Trim();
             var roomCode = relayConnectionService == null || string.IsNullOrWhiteSpace(relayConnectionService.CurrentJoinCode)
                 ? unavailableRoomCodeText
                 : relayConnectionService.CurrentJoinCode.Trim().ToUpperInvariant();
