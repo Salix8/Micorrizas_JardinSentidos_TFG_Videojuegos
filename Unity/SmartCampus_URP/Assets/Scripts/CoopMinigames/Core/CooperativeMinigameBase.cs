@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
+using SmartCampus.Dialogue;
 
 namespace SmartCampus.Coop.Minigames
 {
@@ -10,6 +11,7 @@ namespace SmartCampus.Coop.Minigames
     {
         [Header("References")]
         [SerializeField] private CoopSessionCoordinator coopSessionCoordinator;
+        [SerializeField] private DialogueFlowSync dialogueFlowSync;
 
         private readonly NetworkVariable<CooperativeMinigameStage> stage = new(CooperativeMinigameStage.Tutorial);
         private readonly NetworkVariable<MinigameResultNetworkState> resultState = new();
@@ -129,7 +131,7 @@ namespace SmartCampus.Coop.Minigames
 
             if (CanLocalPlayerAdvanceAfterResults)
             {
-                AdvanceAfterResultsServer();
+                RequestDialogueAwareAdvanceAfterResults();
                 return;
             }
 
@@ -245,6 +247,9 @@ namespace SmartCampus.Coop.Minigames
         private void ResolveCoordinator()
         {
             coopSessionCoordinator ??= FindFirstObjectByType<CoopSessionCoordinator>(FindObjectsInactive.Include);
+            dialogueFlowSync ??= coopSessionCoordinator != null
+                ? coopSessionCoordinator.GetComponent<DialogueFlowSync>()
+                : FindFirstObjectByType<DialogueFlowSync>(FindObjectsInactive.Include);
         }
 
         [Rpc(SendTo.Server)]
@@ -308,6 +313,19 @@ namespace SmartCampus.Coop.Minigames
             if (SessionCoordinator != null && SessionCoordinator.IsServer)
             {
                 SessionCoordinator.ContinueAfterMinigameResults();
+            }
+        }
+
+        private void RequestDialogueAwareAdvanceAfterResults()
+        {
+            ResolveCoordinator();
+            if (dialogueFlowSync != null)
+            {
+                dialogueFlowSync.RequestContinueAfterResults();
+            }
+            else
+            {
+                AdvanceAfterResultsServer();
             }
         }
 

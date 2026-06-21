@@ -16,7 +16,7 @@ namespace SmartCampus.Coop.Minigames
         [SerializeField] private string globalProgressLabel = "RED DE MICORRIZAS";
         [SerializeField] private string teamTitle = "EQUIPO";
         [SerializeField] private string unnamedTeamRoomCodeFormat = "SALA {0}";
-        [SerializeField] private string minigameTitlePrefix = "MINIJUEGO:";
+        [SerializeField] private string minigameTitlePrefix = "MISIÓN:";
         [SerializeField] private string globalProgressPercentFormat = "{0:0}%";
         [SerializeField] private Sprite logoSprite;
         [SerializeField] private List<Sprite> defaultAvatarSprites = new();
@@ -86,7 +86,7 @@ namespace SmartCampus.Coop.Minigames
             unnamedTeamRoomCodeFormat = string.IsNullOrWhiteSpace(unnamedTeamRoomCodeFormat)
                 ? "SALA {0}"
                 : unnamedTeamRoomCodeFormat.Trim();
-            minigameTitlePrefix = NormalizeRequired(minigameTitlePrefix, "MINIJUEGO:");
+            minigameTitlePrefix = NormalizeRequired(minigameTitlePrefix, "MISIÓN:");
             globalProgressPercentFormat = NormalizeRequired(globalProgressPercentFormat, "{0:0}%");
 
             defaultAvatarSprites ??= new List<Sprite>();

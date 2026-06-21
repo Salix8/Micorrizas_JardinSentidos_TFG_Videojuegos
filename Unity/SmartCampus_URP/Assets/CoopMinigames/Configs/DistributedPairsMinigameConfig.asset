@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 910e305e7ea1d0e4cb0d7dba93334a84, type: 3}
   m_Name: DistributedPairsMinigameConfig
   m_EditorClassIdentifier: Assembly-CSharp::SmartCampus.Coop.Minigames.DistributedPairs.DistributedPairsMinigameConfig
-  displayName: Parejas distribuidas
+  displayName: "\xBFQue sabe a que?"
   tutorialContent: {fileID: 11400000, guid: 7673dedfbbe043442a9ab6923dbb5db9, type: 2}
   successMessage: Lo habeis conseguido
   returnToMapButtonLabel: Volver al mapa
@@ -22,64 +22,64 @@ MonoBehaviour:
   timeLimitSeconds: 180
   timeoutMessage: Tiempo agotado
   pairDefinitions:
-  - title: Pareja 1
-    flavorHint: Sabor 1
-    description: Placeholder editable desde el asset del minijuego.
+  - title: Azufaifo
+    flavorHint: Dulce
+    description: Ziziphus jujuba
     illustration: {fileID: -484932828, guid: fa814ec1efa0a3d49a13b56a527d0b72, type: 3}
     faceColor: {r: 0.92, g: 0.598, b: 0.598, a: 1}
-  - title: Pareja 2
-    flavorHint: Sabor 2
-    description: Placeholder editable desde el asset del minijuego.
+  - title: Uvas
+    flavorHint: Dulce
+    description: Vitis vinifera
     illustration: {fileID: 1263514170, guid: fa814ec1efa0a3d49a13b56a527d0b72, type: 3}
     faceColor: {r: 0.92, g: 0.79120004, b: 0.598, a: 1}
-  - title: Pareja 3
-    flavorHint: Sabor 3
-    description: Placeholder editable desde el asset del minijuego.
+  - title: Mora blanca
+    flavorHint: Dulce
+    description: Morus alba
     illustration: {fileID: 1559184815, guid: fa814ec1efa0a3d49a13b56a527d0b72, type: 3}
     faceColor: {r: 0.8556, g: 0.92, b: 0.598, a: 1}
-  - title: Pareja 4
-    flavorHint: Sabor 4
-    description: Placeholder editable desde el asset del minijuego.
+  - title: Cereza
+    flavorHint: Dulce
+    description: Prunus avium
     illustration: {fileID: -2119495254, guid: fa814ec1efa0a3d49a13b56a527d0b72, type: 3}
     faceColor: {r: 0.6624, g: 0.92, b: 0.598, a: 1}
-  - title: Pareja 5
-    flavorHint: Sabor 5
-    description: Placeholder editable desde el asset del minijuego.
+  - title: Membrillo
+    flavorHint: Dulce
+    description: Cydonia oblonga
     illustration: {fileID: 1320482387, guid: d532f8d4278a95f4e92ed683e8f2688c, type: 3}
     faceColor: {r: 0.598, g: 0.92, b: 0.7268, a: 1}
-  - title: Pareja 6
-    flavorHint: Sabor 6
-    description: Placeholder editable desde el asset del minijuego.
+  - title: Almendro
+    flavorHint: Umami
+    description: Prunus dulcis
     illustration: {fileID: -819823926, guid: 5a44e729ac374b641889e50d30869a9a, type: 3}
     faceColor: {r: 0.598, g: 0.92, b: 0.92, a: 1}
-  - title: Pareja 7
+  - title: Acido
     flavorHint: Sabor 7
-    description: Placeholder editable desde el asset del minijuego.
+    description: Citrus limon
     illustration: {fileID: -1138599245, guid: d532f8d4278a95f4e92ed683e8f2688c, type: 3}
     faceColor: {r: 0.598, g: 0.72679996, b: 0.92, a: 1}
-  - title: Pareja 8
-    flavorHint: Sabor 8
-    description: Placeholder editable desde el asset del minijuego.
+  - title: Granada
+    flavorHint: Acido
+    description: Punica granatum
     illustration: {fileID: 1504186947, guid: d532f8d4278a95f4e92ed683e8f2688c, type: 3}
     faceColor: {r: 0.66239995, g: 0.598, b: 0.92, a: 1}
-  - title: Pareja 9
-    flavorHint: Sabor 9
-    description: Placeholder editable desde el asset del minijuego.
+  - title: Olivas
+    flavorHint: Amargo
+    description: Olea europaea
     illustration: {fileID: 1821559536, guid: 5a44e729ac374b641889e50d30869a9a, type: 3}
     faceColor: {r: 0.85560006, g: 0.598, b: 0.92, a: 1}
-  - title: Pareja 10
-    flavorHint: Sabor 10
-    description: Placeholder editable desde el asset del minijuego.
+  - title: Datiles
+    flavorHint: Dulce
+    description: Phoenix dactylifera
     illustration: {fileID: -1826667125, guid: 5a44e729ac374b641889e50d30869a9a, type: 3}
     faceColor: {r: 0.92, g: 0.598, b: 0.79120016, a: 1}
-  - title: Pareja 11
-    flavorHint: Sabor 11
-    description: Placeholder editable desde el asset del minijuego.
+  - title: Caqui
+    flavorHint: Dulce
+    description: Diospyros kaki
     illustration: {fileID: 26041034, guid: be898fb718093b34086c71f3c20f7215, type: 3}
     faceColor: {r: 0.92, g: 0.598, b: 0.598, a: 1}
-  - title: Pareja 12
-    flavorHint: Sabor 12
-    description: Placeholder editable desde el asset del minijuego.
+  - title: "Melocot\xF3n"
+    flavorHint: Dulce
+    description: Prunus persica
     illustration: {fileID: 772582622, guid: be898fb718093b34086c71f3c20f7215, type: 3}
     faceColor: {r: 0.92, g: 0.79120016, b: 0.598, a: 1}
   scoreSettings:

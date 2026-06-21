@@ -410,16 +410,22 @@ public static class DialogueSystemSetup
         var frame = new GameObject("Frame", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
         frame.transform.SetParent(root.transform, false);
         var frameRect = frame.GetComponent<RectTransform>();
-        frameRect.anchorMin = new Vector2(0f, 0f);
+        frameRect.anchorMin = Vector2.zero;
         frameRect.anchorMax = new Vector2(1f, 0f);
         frameRect.pivot = new Vector2(0.5f, 0f);
-        frameRect.offsetMin = new Vector2(40f, 32f);
-        frameRect.offsetMax = new Vector2(-40f, 0f);
-        frameRect.anchoredPosition = Vector2.zero;
-        frameRect.sizeDelta = new Vector2(0f, 0f);
+        frameRect.anchoredPosition = new Vector2(0f, 32f);
+        frameRect.sizeDelta = new Vector2(-80f, 800f);
         var frameImage = frame.GetComponent<Image>();
         frameImage.color = new Color32(34, 24, 18, 238);
         frameImage.raycastTarget = false;
+
+        portraitStage.transform.SetParent(root.transform, false);
+        portraitStage.transform.SetAsFirstSibling();
+        portraitStageRect.anchorMin = Vector2.zero;
+        portraitStageRect.anchorMax = Vector2.zero;
+        portraitStageRect.pivot = new Vector2(0f, 1f);
+        portraitStageRect.anchoredPosition = new Vector2(64f, 808f);
+        portraitStageRect.sizeDelta = new Vector2(260f, 260f);
 
         var frameAccent = new GameObject("FrameAccent", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
         frameAccent.transform.SetParent(frame.transform, false);
@@ -438,18 +444,27 @@ public static class DialogueSystemSetup
             30,
             FontStyles.Normal,
             TextAlignmentOptions.TopLeft);
-        Stretch(dialogueLabel.GetComponent<RectTransform>(), new Vector2(44f, 58f), new Vector2(-44f, -34f));
-        dialogueLabel.overflowMode = TextOverflowModes.Overflow;
+        var dialogueLabelRect = dialogueLabel.GetComponent<RectTransform>();
+        dialogueLabelRect.anchorMin = Vector2.zero;
+        dialogueLabelRect.anchorMax = Vector2.one;
+        dialogueLabelRect.pivot = new Vector2(0.5f, 0.5f);
+        dialogueLabelRect.anchoredPosition = new Vector2(0f, -133f);
+        dialogueLabelRect.sizeDelta = new Vector2(-88f, -334f);
+        dialogueLabel.enableAutoSizing = true;
+        dialogueLabel.fontSizeMin = 20f;
+        dialogueLabel.fontSizeMax = 34f;
+        dialogueLabel.textWrappingMode = TextWrappingModes.Normal;
+        dialogueLabel.overflowMode = TextOverflowModes.Ellipsis;
         dialogueLabel.raycastTarget = false;
 
         var speakerBadge = new GameObject("SpeakerBadge", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
-        speakerBadge.transform.SetParent(root.transform, false);
+        speakerBadge.transform.SetParent(frame.transform, false);
         var speakerBadgeRect = speakerBadge.GetComponent<RectTransform>();
-        speakerBadgeRect.anchorMin = new Vector2(0f, 0f);
-        speakerBadgeRect.anchorMax = new Vector2(0f, 0f);
-        speakerBadgeRect.pivot = new Vector2(0f, 0.5f);
-        speakerBadgeRect.anchoredPosition = new Vector2(72f, 224f);
-        speakerBadgeRect.sizeDelta = new Vector2(280f, 54f);
+        speakerBadgeRect.anchorMin = new Vector2(0f, 1f);
+        speakerBadgeRect.anchorMax = new Vector2(0f, 1f);
+        speakerBadgeRect.pivot = new Vector2(0f, 1f);
+        speakerBadgeRect.anchoredPosition = new Vector2(300f, -40f);
+        speakerBadgeRect.sizeDelta = new Vector2(280f, 64f);
         var speakerBadgeImage = speakerBadge.GetComponent<Image>();
         speakerBadgeImage.color = new Color32(79, 53, 34, 245);
         speakerBadgeImage.raycastTarget = false;
@@ -474,6 +489,7 @@ public static class DialogueSystemSetup
         controllerSerializedObject.FindProperty("dialoguePanelView").objectReferenceValue = panelView;
         controllerSerializedObject.ApplyModifiedPropertiesWithoutUndo();
 
+        EnsureWaitingPanel(root);
         PrefabUtility.SaveAsPrefabAsset(root, DialoguePrefabPath);
         Object.DestroyImmediate(root);
     }
@@ -490,7 +506,7 @@ public static class DialogueSystemSetup
         var controller = root.GetComponent<DialogueUIController>();
         var portraitVisualRoot = root.transform.Find("PortraitStage/PortraitVisualRoot");
         var portraitImage = root.transform.Find("PortraitStage/Portrait")?.GetComponent<Image>();
-        var speakerLabel = root.transform.Find("SpeakerBadge/SpeakerNameLabel")?.GetComponent<TextMeshProUGUI>();
+        var speakerLabel = root.transform.Find("Frame/SpeakerBadge/SpeakerNameLabel")?.GetComponent<TextMeshProUGUI>();
         var dialogueLabel = root.transform.Find("Frame/DialogueTextLabel")?.GetComponent<TextMeshProUGUI>();
         var audioSource = root.GetComponent<AudioSource>();
 
@@ -534,9 +550,52 @@ public static class DialogueSystemSetup
             controllerSerializedObject.ApplyModifiedPropertiesWithoutUndo();
         }
 
+        var responsiveLayoutController = root.GetComponent<DialogueResponsiveLayoutController>();
+        if (responsiveLayoutController != null)
+        {
+            Object.DestroyImmediate(responsiveLayoutController);
+        }
+
+        EnsureWaitingPanel(root);
         EditorUtility.SetDirty(root);
         PrefabUtility.SaveAsPrefabAsset(root, DialoguePrefabPath);
         PrefabUtility.UnloadPrefabContents(root);
+    }
+
+    private static DialogueWaitingPanelView EnsureWaitingPanel(GameObject root)
+    {
+        var existing = root.transform.Find("WaitingPanel");
+        var waitingPanel = existing == null
+            ? new GameObject(
+                "WaitingPanel",
+                typeof(RectTransform),
+                typeof(CanvasRenderer),
+                typeof(Image),
+                typeof(CanvasGroup),
+                typeof(DialogueWaitingPanelView))
+            : existing.gameObject;
+
+        waitingPanel.transform.SetParent(root.transform, false);
+        waitingPanel.transform.SetAsLastSibling();
+        var rectTransform = waitingPanel.GetComponent<RectTransform>();
+        rectTransform.anchorMin = Vector2.one;
+        rectTransform.anchorMax = Vector2.one;
+        rectTransform.pivot = Vector2.one;
+        rectTransform.anchoredPosition = new Vector2(-40f, -40f);
+        rectTransform.sizeDelta = new Vector2(320f, 150f);
+
+        var background = waitingPanel.GetComponent<Image>() ?? waitingPanel.AddComponent<Image>();
+        background.color = new Color(0.16f, 0.1f, 0.06f, 0.94f);
+        background.raycastTarget = false;
+
+        var canvasGroup = waitingPanel.GetComponent<CanvasGroup>() ?? waitingPanel.AddComponent<CanvasGroup>();
+        canvasGroup.interactable = false;
+        canvasGroup.blocksRaycasts = false;
+
+        var view = waitingPanel.GetComponent<DialogueWaitingPanelView>() ??
+                   waitingPanel.AddComponent<DialogueWaitingPanelView>();
+        waitingPanel.SetActive(false);
+        return view;
     }
 
     private static GameObject CreateCanvasRoot()
@@ -555,9 +614,10 @@ public static class DialogueSystemSetup
 
     private static GameObject CreateSafeAreaRoot(Transform parent)
     {
-        var safeAreaRoot = new GameObject("SafeAreaRoot", typeof(RectTransform), typeof(SafeAreaFitter));
+        var safeAreaRoot = new GameObject("SafeAreaRoot", typeof(RectTransform));
         safeAreaRoot.transform.SetParent(parent, false);
         Stretch(safeAreaRoot.GetComponent<RectTransform>(), Vector2.zero, Vector2.zero);
+        safeAreaRoot.AddComponent<SafeAreaFitter>();
         return safeAreaRoot;
     }
 
@@ -659,6 +719,16 @@ public static class DialogueSystemSetup
         DialogueSystemConfig systemConfig)
     {
         EnsureEventSystem();
+
+        if (PrefabUtility.IsPartOfPrefabInstance(existingDialoguePanel))
+        {
+            PrefabUtility.RevertPrefabInstance(existingDialoguePanel, InteractionMode.AutomatedAction);
+        }
+
+        if (existingDialoguePanel.transform is RectTransform panelRect)
+        {
+            Stretch(panelRect, Vector2.zero, Vector2.zero);
+        }
 
         var dialogueController = existingDialoguePanel.GetComponent<DialogueUIController>();
         var panelView = existingDialoguePanel.GetComponent<DialoguePanelView>();

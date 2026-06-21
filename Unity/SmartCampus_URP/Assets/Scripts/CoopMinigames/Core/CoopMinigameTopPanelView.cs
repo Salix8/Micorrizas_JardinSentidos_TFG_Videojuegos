@@ -19,6 +19,8 @@ namespace SmartCampus.Coop.Minigames
         [Header("Brand")]
         [SerializeField] private RoundedPanelGraphic logoFrameGraphic;
         [SerializeField] private Image logoImage;
+        [SerializeField] private Sprite logoOverrideSprite;
+        [SerializeField] private bool hideLogo;
         [SerializeField] private TMP_Text projectTitleLabel;
         [SerializeField] private TMP_Text projectSubtitleLabel;
 
@@ -40,14 +42,18 @@ namespace SmartCampus.Coop.Minigames
 
         [Header("Minigame Title")]
         [SerializeField] private TMP_Text minigameTitleLabel;
+        [SerializeField] private string titlePrefixOverride;
         [SerializeField] private Image leftLeafImage;
         [SerializeField] private Image rightLeafImage;
 
         public CoopMinigameThemeConfig ThemeConfig => themeConfig;
         private readonly List<Sprite> roomAvatarSprites = new();
+        private string authoredTitlePrefix;
+        private bool hasAuthoredTitlePrefix;
 
         private void Awake()
         {
+            CaptureAuthoredTitlePrefix();
             ResolveRuntimeReferences();
             ApplyTheme();
         }
@@ -66,6 +72,11 @@ namespace SmartCampus.Coop.Minigames
 
         private void OnValidate()
         {
+            if (!Application.isPlaying)
+            {
+                CaptureAuthoredTitlePrefix(forceRefresh: true);
+            }
+
             ApplyTheme();
         }
 
@@ -86,15 +97,17 @@ namespace SmartCampus.Coop.Minigames
 
         public void SetMinigameTitle(string minigameTitle)
         {
-            if (minigameTitleLabel == null || themeConfig == null)
+            if (minigameTitleLabel == null)
             {
                 return;
             }
 
+            CaptureAuthoredTitlePrefix(forceRefresh: false);
             var normalizedTitle = string.IsNullOrWhiteSpace(minigameTitle) ? string.Empty : minigameTitle.Trim();
+            var resolvedPrefix = ResolveTitlePrefix();
             minigameTitleLabel.text = string.IsNullOrWhiteSpace(normalizedTitle)
-                ? themeConfig.MinigameTitlePrefix
-                : $"{themeConfig.MinigameTitlePrefix} {normalizedTitle}";
+                ? resolvedPrefix
+                : $"{resolvedPrefix} {normalizedTitle}";
         }
 
         public void SetProgress(float progress01)
@@ -168,8 +181,9 @@ namespace SmartCampus.Coop.Minigames
 
             if (logoImage != null)
             {
-                logoImage.sprite = themeConfig.LogoSprite;
-                logoImage.enabled = themeConfig.LogoSprite != null;
+                var logoSprite = ResolveLogoSprite();
+                logoImage.sprite = logoSprite;
+                logoImage.enabled = !hideLogo && logoSprite != null;
                 logoImage.preserveAspect = true;
             }
 
@@ -181,7 +195,7 @@ namespace SmartCampus.Coop.Minigames
             ApplyText(progressTitleLabel, themeConfig.GlobalProgressLabel, themeConfig.Typography.CaptionSize, palette.PrimaryGreen, FontStyles.Bold);
             ApplyText(teamTitleLabel, themeConfig.TeamTitle, themeConfig.Typography.CaptionSize, palette.SecondaryGreen, FontStyles.Bold);
             ApplyText(teamNameLabel, themeConfig.ResolveTeamDisplayName(null, null), themeConfig.Typography.CaptionSize, palette.PrimaryGreen, FontStyles.Bold);
-            ApplyText(minigameTitleLabel, themeConfig.MinigameTitlePrefix, themeConfig.Typography.MinigameTitleSize, Color.white, FontStyles.Bold);
+            ApplyTextStyle(minigameTitleLabel, themeConfig.Typography.MinigameTitleSize, Color.white, FontStyles.Bold);
 
             if (progressPercentLabel != null)
             {
@@ -325,6 +339,53 @@ namespace SmartCampus.Coop.Minigames
             }
         }
 
+        private void CaptureAuthoredTitlePrefix(bool forceRefresh = false)
+        {
+            if ((!forceRefresh && hasAuthoredTitlePrefix) || minigameTitleLabel == null)
+            {
+                return;
+            }
+
+            var labelText = minigameTitleLabel.text;
+            if (string.IsNullOrWhiteSpace(labelText))
+            {
+                return;
+            }
+
+            authoredTitlePrefix = labelText.Trim();
+            hasAuthoredTitlePrefix = true;
+        }
+
+        private string ResolveTitlePrefix()
+        {
+            if (!string.IsNullOrWhiteSpace(titlePrefixOverride))
+            {
+                return titlePrefixOverride.Trim();
+            }
+
+            if (hasAuthoredTitlePrefix && !string.IsNullOrWhiteSpace(authoredTitlePrefix))
+            {
+                return authoredTitlePrefix.Trim();
+            }
+
+            if (themeConfig != null && !string.IsNullOrWhiteSpace(themeConfig.MinigameTitlePrefix))
+            {
+                return themeConfig.MinigameTitlePrefix.Trim();
+            }
+
+            return "MINIJUEGO:";
+        }
+
+        private Sprite ResolveLogoSprite()
+        {
+            if (logoOverrideSprite != null)
+            {
+                return logoOverrideSprite;
+            }
+
+            return themeConfig != null ? themeConfig.LogoSprite : null;
+        }
+
         private static int CountValidSprites(IReadOnlyList<Sprite> avatarSprites)
         {
             if (avatarSprites == null)
@@ -351,12 +412,22 @@ namespace SmartCampus.Coop.Minigames
                 return;
             }
 
+            ApplyTextStyle(label, fontSize, color, style);
+            label.text = value;
+        }
+
+        private void ApplyTextStyle(TMP_Text label, int fontSize, Color color, FontStyles style)
+        {
+            if (label == null)
+            {
+                return;
+            }
+
             if (themeConfig.PrimaryFont != null)
             {
                 label.font = themeConfig.PrimaryFont;
             }
 
-            label.text = value;
             label.fontSize = fontSize;
             label.color = color;
             label.fontStyle = style;

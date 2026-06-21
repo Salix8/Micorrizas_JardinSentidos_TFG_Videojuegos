@@ -1,0 +1,98 @@
+\chapter{Analysis}
+This section identifies the main requirements that guided the design and development of Micorrizas. The purpose of this analysis is to establish what the system must provide in order to support the intended experience. 
+
+The requirements were defined from three main sources: the educational needs of the activity, the game design decisions and the technical limitations of mobile development. The educational context required the game to support biodiversity learning through observation and exploration. The game design required cooperative interaction, narrative progression and feedback. The technical context required geolocation, map integration, multiplayer synchronisation and usability in an outdoor environment.
+
+The requirements are divided into functional and non-functional requirements. Functional requirements describe the actions and behaviours that the system must implement. Non-functional requirements describe the quality conditions that the system must satisfy during use.
+
+\section{Functional Requirements}
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.5}
+\begin{tabular}{|l|p{0.8\textwidth}|}
+\hline
+\rowcolor[HTML]{DFE8DF} \textbf{ID} & \textbf{Description} \\
+\hline
+FR01 & \textbf{Create a game session}\newline The system must allow a player to create a multiplayer session that other users can join. \\
+\hline
+FR02 & \textbf{Join a game session}\newline The system must allow players to join an existing session using a code. \\
+\hline
+FR03 & \textbf{Register player names}\newline The system must allow players to identify themselves within the group session. \\
+\hline
+FR04 & \textbf{Display the game map}\newline The system must show the map of the Jardín de los Sentidos using the selected map integration. \\
+\hline
+FR05 & \textbf{Show the player real position}\newline The system must display the approximate position of the player on the map. \\
+\hline
+FR06 & \textbf{Detect sensory areas}\newline The system must detect when the player enters the activation area of a sensory garden. \\
+\hline
+FR07 & \textbf{Activate quests by location}\newline The system must unlock the corresponding quest when the player reaches the required area. \\
+\hline
+FR08 & \textbf{Present narrative content}\newline The system must display narrative dialogue related to the activated area and the current state of the experience. \\
+\hline
+FR09 & \textbf{Include one quest per sensory garden}\newline The system must include specific quests for sight, sound, touch, taste and smell. \\
+\hline
+FR10 & \textbf{Support cooperative gameplay}\newline The system must require players to collaborate during the quests. \\
+\hline
+FR11 & \textbf{Synchronise session state}\newline The system must keep all connected devices updated with the active quest, progress and results. \\
+\hline
+FR12 & \textbf{Allow answer submission}\newline The system must allow players to submit answers during the quests. \\
+\hline
+FR13 & \textbf{Calculate user performance}\newline The system must calculate a group score after each quest. \\
+\hline
+FR14 & \textbf{Calculate the final result}\newline The system must calculate and display the final group result after all required areas have been completed. \\
+\hline
+FR15 & \textbf{Provide feedback}\newline The system must provide feedback after each challenge, indicating the result of the group’s action. \\
+\hline
+FR16 & \textbf{Track completed areas}\newline The system must register which sensory gardens have already been completed. \\
+\hline
+FR17 & \textbf{Display final summary}\newline The system must present a final screen with the group members and their final score. \\
+\hline
+FR18 & \textbf{Allow replay or restart}\newline The system should allow the group to restart the experience if required. \\
+\hline
+\end{tabular}
+\caption{Functional requirements}
+\label{tab:functional_requirements}
+\end{table}
+
+\section{Non-functional Requirements}
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.5}
+\begin{tabular}{|l|p{0.8\textwidth}|}
+\hline
+\rowcolor[HTML]{DFE8DF} \textbf{ID} & \textbf{Description} \\
+\hline
+NFR01 & \textbf{Mobile platform}\newline The application must run on Android mobile devices. \\
+\hline
+NFR02 & \textbf{Outdoor readability}\newline The interface must remain readable in outdoor conditions, including sunlight and variable lighting. \\
+\hline
+NFR03 & \textbf{GPS tolerance}\newline Activation areas must be wide enough to compensate for inaccuracies in mobile GPS positioning. \\
+\hline
+NFR04 & \textbf{Performance}\newline The application must avoid unnecessary graphical complexity and maintain stable performance on mobile devices. \\
+\hline
+NFR05 & \textbf{Loading efficiency}\newline The system should minimise waiting times during map loading, scene transitions and quest activation. \\
+\hline
+NFR06 & \textbf{Small group support}\newline The multiplayer system must support small cooperative groups. \\
+\hline
+NFR07 & \textbf{Synchronisation consistency}\newline All devices in the same session must receive the same challenge state and result updates. \\
+\hline
+NFR08 & \textbf{Simple access}\newline The system should allow players to access a session through a simple code-based flow. \\
+\hline
+NFR09 & \textbf{Data minimisation}\newline The application should only handle the information required for the session, such as player names, group progress and score. \\
+\hline
+NFR10 & \textbf{Clear interaction}\newline The interface must use simple controls, short instructions and clear feedback. \\
+\hline
+NFR11 & \textbf{Maintainability}\newline The content structure should allow new plants, sounds, questions or quests to be added in future versions. \\
+\hline
+NFR12 & \textbf{Accessibility support}\newline Audio-based information should include visual or textual support when necessary. \\
+\hline
+NFR13 & \textbf{Robustness}\newline The application should remain usable when minor GPS variations or temporary connection delays occur. \\
+\hline
+NFR14 & \textbf{Battery awareness}\newline The application should avoid excessive use of continuous processes that could increase battery consumption. \\
+\hline
+\end{tabular}
+\caption{Non-functional requirements}
+\label{tab:non_functional_requirements}
+\end{table}

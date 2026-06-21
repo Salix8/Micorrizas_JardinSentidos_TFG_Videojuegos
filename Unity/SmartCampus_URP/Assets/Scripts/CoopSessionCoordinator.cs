@@ -4,6 +4,7 @@ using SmartCampus.Coop.Minigames;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using SmartCampus.Dialogue;
 
 [DisallowMultipleComponent]
 public sealed class CoopSessionCoordinator : NetworkBehaviour
@@ -11,6 +12,7 @@ public sealed class CoopSessionCoordinator : NetworkBehaviour
     [Header("References")]
     [SerializeField] private RelayConnectionService relayConnectionService;
     [SerializeField] private CoopSessionProgressSync sessionProgressSync;
+    [SerializeField] private DialogueFlowSync dialogueFlowSync;
     [SerializeField] private bool persistAcrossScenes = true;
 
     [Header("Co-op Rules")]
@@ -116,6 +118,8 @@ public sealed class CoopSessionCoordinator : NetworkBehaviour
         }
 
         sessionProgressSync?.ResetProgressServer();
+        dialogueFlowSync?.ResetSessionServer();
+        dialogueFlowSync?.BeginOpeningTransitionServer();
         activeMiniGameIndex.Value = -1;
         currentPhase.Value = CoopGamePhase.WorldMap;
         LoadScene(mainMapSceneName);
@@ -254,6 +258,8 @@ public sealed class CoopSessionCoordinator : NetworkBehaviour
         }
 
         sessionProgressSync?.ResetProgressServer();
+        dialogueFlowSync?.ResetSessionServer();
+        dialogueFlowSync?.BeginOpeningTransitionServer();
         activeMiniGameIndex.Value = -1;
         currentPhase.Value = CoopGamePhase.WorldMap;
         LoadScene(mainMapSceneName);
@@ -269,6 +275,7 @@ public sealed class CoopSessionCoordinator : NetworkBehaviour
         }
 
         sessionProgressSync?.ResetProgressServer();
+        dialogueFlowSync?.ResetSessionServer();
         activeMiniGameIndex.Value = -1;
         currentPhase.Value = CoopGamePhase.Lobby;
         LoadScene(lobbySceneName);
@@ -382,6 +389,8 @@ public sealed class CoopSessionCoordinator : NetworkBehaviour
     {
         relayConnectionService ??= FindFirstObjectByType<RelayConnectionService>(FindObjectsInactive.Include);
         sessionProgressSync ??= FindFirstObjectByType<CoopSessionProgressSync>(FindObjectsInactive.Include);
+        dialogueFlowSync ??= GetComponent<DialogueFlowSync>();
+        dialogueFlowSync ??= FindFirstObjectByType<DialogueFlowSync>(FindObjectsInactive.Include);
     }
 
     private void LoadScene(string sceneName)

@@ -19,7 +19,7 @@ MonoBehaviour:
   globalProgressLabel: RED DE MICORRIZAS
   teamTitle: EQUIPO
   unnamedTeamRoomCodeFormat: SALA {0}
-  minigameTitlePrefix: 'MINIJUEGO:'
+  minigameTitlePrefix: 'MISIÓN:'
   globalProgressPercentFormat: '{0:0}%'
   logoSprite: {fileID: 21300000, guid: 011549272f0cc8e42b79659c0ca10a44, type: 3}
   defaultAvatarSprites:

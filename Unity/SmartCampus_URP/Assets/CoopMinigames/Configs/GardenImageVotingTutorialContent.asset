@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b823e944a6ef724fbb919335770f994, type: 3}
   m_Name: GardenImageVotingTutorialContent
   m_EditorClassIdentifier: Assembly-CSharp::SmartCampus.Coop.Minigames.MinigameTutorialContentConfig
-  title: Imagenes del jardin
+  title: "Las visiones del jard\xEDn"
   subtitle: Decide con un gesto rapido
   bodyText: 'Cada dispositivo recibe una secuencia propia de imagenes relacionadas
     entre si.

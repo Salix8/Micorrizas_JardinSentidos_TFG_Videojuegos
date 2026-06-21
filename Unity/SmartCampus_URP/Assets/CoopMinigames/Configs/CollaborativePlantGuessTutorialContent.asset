@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b823e944a6ef724fbb919335770f994, type: 3}
   m_Name: CollaborativePlantGuessTutorialContent
   m_EditorClassIdentifier: Assembly-CSharp::SmartCampus.Coop.Minigames.MinigameTutorialContentConfig
-  title: Adivina la planta
+  title: "\xBFQuien es quien?"
   subtitle: Deduce en grupo con pistas visuales
   bodyText: 'Todo el grupo intenta descubrir la planta objetivo.
 

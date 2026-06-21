@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b823e944a6ef724fbb919335770f994, type: 3}
   m_Name: AudioWordConsensusTutorialContent
   m_EditorClassIdentifier: Assembly-CSharp::SmartCampus.Coop.Minigames.MinigameTutorialContentConfig
-  title: Sonido y consenso
+  title: "Ecos de anta\xF1o"
   subtitle: Una persona escucha, el resto compara palabras
   bodyText: 'En cada ronda un dispositivo solo puede reproducir un sonido. Ese jugador
     no recibe ninguna palabra.

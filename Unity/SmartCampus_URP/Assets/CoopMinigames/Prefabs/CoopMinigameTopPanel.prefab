@@ -1038,7 +1038,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 126}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3321530330189994910
 CanvasRenderer:
@@ -1061,12 +1061,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
   m_IgnoreLayout: 0
-  m_MinWidth: -1
-  m_MinHeight: -1
+  m_MinWidth: 126
+  m_MinHeight: 126
   m_PreferredWidth: 126
   m_PreferredHeight: 126
   m_FlexibleWidth: -1
-  m_FlexibleHeight: -1
+  m_FlexibleHeight: 0
   m_LayoutPriority: 1
 --- !u!1 &2414620853237371563
 GameObject:
@@ -1279,7 +1279,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &7320875592515425863
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1294,10 +1294,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 7629549171695658783}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 187.96532, y: -43.075}
+  m_SizeDelta: {x: 375.93063, y: 86.15}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7534610483160213722
 CanvasRenderer:
@@ -1465,7 +1465,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'MINIJUEGO:'
+  m_text: 'MISIÓN:'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 2e498d1c8094910479dc3e1b768306a4, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 2e498d1c8094910479dc3e1b768306a4, type: 2}
@@ -1627,7 +1627,7 @@ MonoBehaviour:
   m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 1
-  m_ChildControlHeight: 0
+  m_ChildControlHeight: 1
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
@@ -1645,11 +1645,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
   m_IgnoreLayout: 0
   m_MinWidth: -1
-  m_MinHeight: -1
+  m_MinHeight: 126
   m_PreferredWidth: 330
-  m_PreferredHeight: -1
+  m_PreferredHeight: 126
   m_FlexibleWidth: -1
-  m_FlexibleHeight: -1
+  m_FlexibleHeight: 0
   m_LayoutPriority: 1
 --- !u!1 &3349242546579540317
 GameObject:
@@ -2051,12 +2051,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
   m_IgnoreLayout: 0
-  m_MinWidth: -1
-  m_MinHeight: -1
+  m_MinWidth: 104
+  m_MinHeight: 104
   m_PreferredWidth: 104
   m_PreferredHeight: 104
   m_FlexibleWidth: -1
-  m_FlexibleHeight: -1
+  m_FlexibleHeight: 0
   m_LayoutPriority: 1
 --- !u!1 &3698682459158259353
 GameObject:
@@ -2151,6 +2151,8 @@ MonoBehaviour:
   titleBandImage: {fileID: 320558000272270947}
   logoFrameGraphic: {fileID: 0}
   logoImage: {fileID: 5863692281657622378}
+  logoOverrideSprite: {fileID: 0}
+  hideLogo: 0
   projectTitleLabel: {fileID: 6576603479358273668}
   projectSubtitleLabel: {fileID: 4655809075900680922}
   progressTitleLabel: {fileID: 1809888134910399185}
@@ -2172,6 +2174,7 @@ MonoBehaviour:
   sessionCoordinator: {fileID: 0}
   avatarCatalog: {fileID: 11400000, guid: 2a4783159e35aea40981cd8300843f6b, type: 2}
   minigameTitleLabel: {fileID: 7702045314203201626}
+  titlePrefixOverride: 
   leftLeafImage: {fileID: 3362503244867199856}
   rightLeafImage: {fileID: 4875299804766531672}
 --- !u!1 &3790914771662313671
@@ -2732,7 +2735,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 220.77272}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &721391707913666935
 CanvasRenderer:

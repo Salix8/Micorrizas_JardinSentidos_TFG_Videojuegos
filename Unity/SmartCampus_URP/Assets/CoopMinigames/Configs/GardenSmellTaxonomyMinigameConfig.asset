@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2d06f0d81d37ea41b2e67f53401897c, type: 3}
   m_Name: GardenSmellTaxonomyMinigameConfig
   m_EditorClassIdentifier: Assembly-CSharp::SmartCampus.Coop.Minigames.GardenSmellTaxonomy.GardenSmellTaxonomyMinigameConfig
-  displayName: Minijuego 5 - Taxonomia del jardin del olfato
+  displayName: El organizador
   tutorialContent: {fileID: 11400000, guid: 5d712bd6ad57550469245005e54288f0, type: 2}
   successMessage: Taxonomia completada
   returnToMapButtonLabel: Volver al mapa

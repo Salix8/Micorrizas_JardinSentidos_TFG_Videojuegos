@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b823e944a6ef724fbb919335770f994, type: 3}
   m_Name: GardenSmellTaxonomyTutorialContent
   m_EditorClassIdentifier: Assembly-CSharp::SmartCampus.Coop.Minigames.MinigameTutorialContentConfig
-  title: Taxonomia del jardin del olfato
+  title: El organizador
   subtitle: Clasifica cada planta por su uso principal
   bodyText: 'La planta activa aparece abajo con su imagen y nombre cientifico.
 

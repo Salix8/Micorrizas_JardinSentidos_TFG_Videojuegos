@@ -79,6 +79,7 @@ public static class CoopMinigameSharedPanelPrefabUtility
         Assign(serializedView, "titleBandImage", titleBand.GetComponent<Image>());
         Assign(serializedView, "logoFrameGraphic", progressColumn.LogoFrameGraphic);
         Assign(serializedView, "logoImage", progressColumn.LogoImage);
+        Assign(serializedView, "logoOverrideSprite", null);
         Assign(serializedView, "projectTitleLabel", brandColumn.ProjectTitle);
         Assign(serializedView, "projectSubtitleLabel", brandColumn.ProjectSubtitle);
         Assign(serializedView, "progressTitleLabel", progressColumn.ProgressTitle);
@@ -91,6 +92,7 @@ public static class CoopMinigameSharedPanelPrefabUtility
         Assign(serializedView, "avatarGridLayout", avatarGridLayout);
         Assign(serializedView, "avatarCatalog", AssetDatabase.LoadAssetAtPath<PlayerMarkerAppearanceCatalogConfig>(PlayerAvatarCatalogPath));
         Assign(serializedView, "minigameTitleLabel", titleLabel);
+        serializedView.FindProperty("titlePrefixOverride").stringValue = string.Empty;
         Assign(serializedView, "leftLeafImage", leftLeaf);
         Assign(serializedView, "rightLeafImage", rightLeaf);
         AssignArray(serializedView, "avatarImages", avatarImages);
@@ -179,13 +181,19 @@ public static class CoopMinigameSharedPanelPrefabUtility
         var rootLayout = root.GetComponent<HorizontalLayoutGroup>();
         rootLayout.spacing = 16f;
         rootLayout.childAlignment = TextAnchor.MiddleLeft;
-        rootLayout.childControlHeight = false;
+        rootLayout.childControlHeight = true;
         rootLayout.childControlWidth = false;
-        root.GetComponent<LayoutElement>().preferredWidth = 330f;
+        rootLayout.childForceExpandHeight = false;
+        var rootLayoutElement = root.GetComponent<LayoutElement>();
+        rootLayoutElement.preferredWidth = 330f;
+        rootLayoutElement.preferredHeight = themeConfig.TopPanelStyle.LogoSize;
 
         var logoFrame = CreateUiObject("LogoFrame", root.transform, typeof(RoundedPanelGraphic), typeof(LayoutElement));
-        logoFrame.GetComponent<LayoutElement>().preferredWidth = themeConfig.TopPanelStyle.LogoSize;
-        logoFrame.GetComponent<LayoutElement>().preferredHeight = themeConfig.TopPanelStyle.LogoSize;
+        var logoLayoutElement = logoFrame.GetComponent<LayoutElement>();
+        logoLayoutElement.minWidth = themeConfig.TopPanelStyle.LogoSize;
+        logoLayoutElement.minHeight = themeConfig.TopPanelStyle.LogoSize;
+        logoLayoutElement.preferredWidth = themeConfig.TopPanelStyle.LogoSize;
+        logoLayoutElement.preferredHeight = themeConfig.TopPanelStyle.LogoSize;
         var logoFrameGraphic = logoFrame.GetComponent<RoundedPanelGraphic>();
         logoFrameGraphic.Configure(
             themeConfig.Palette.PrimaryGreen,
