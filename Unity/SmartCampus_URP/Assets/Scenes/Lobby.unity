@@ -3737,6 +3737,7 @@ MonoBehaviour:
   joinPanel: {fileID: 736832209}
   sessionPanel: {fileID: 1008839839}
   joinCodeInput: {fileID: 1133622988}
+  teamNameInput: {fileID: 0}
   statusLabel: {fileID: 1126524671}
   joinCodeLabel: {fileID: 1527244310}
   playerCountLabel: {fileID: 1268825367}
@@ -4080,6 +4081,8 @@ MonoBehaviour:
   persistAcrossScenes: 1
   minPlayersToStart: 2
   maxPlayers: 6
+  defaultTeamName: Equipo Micorriza
+  maxTeamNameLength: 24
   lobbySceneName: Lobby
   mainMapSceneName: UJI
   sessionSummarySceneName: CoopFinalResults

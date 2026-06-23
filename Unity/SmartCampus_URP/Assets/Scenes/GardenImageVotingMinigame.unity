@@ -4225,7 +4225,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 680, y: 980}
+  m_SizeDelta: {x: 560, y: 780}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &708337645
 MonoBehaviour:
@@ -4241,10 +4241,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SmartCampus.Coop.Minigames.ResponsiveAspectRatioLayoutController
   targetRectTransform: {fileID: 708337644}
   referenceRectTransform: {fileID: 624816970}
-  widthToHeightRatio: 0.6956522
+  widthToHeightRatio: 0.68
   minSize: {x: 220, y: 340}
-  maxSize: {x: 680, y: 980}
-  outerMargin: {x: 24, y: 24}
+  maxSize: {x: 560, y: 780}
+  outerMargin: {x: 48, y: 72}
 --- !u!114 &708337646
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8133,6 +8133,7 @@ MonoBehaviour:
   topPanelView: {fileID: 196851309}
   bottomPanelView: {fileID: 1285862683}
   cardView: {fileID: 708337646}
+  cardLayoutController: {fileID: 708337645}
   displayedPenaltySeconds: 10
   teamName: 
   roomCode: 

@@ -430,13 +430,13 @@
 }
 \titlespacing*{\chapter}{0pt}{-1.5cm}{0pt}
 
-\titleformat{\section}{\tffamily\color{DemonGreen}\huge\uppercase}{}{0pt}{\hfill~#1~\hfill}
+\titleformat{\section}{\tffamily\color{DemonGreen}\huge\uppercase}{}{0pt}{\hfill\thesection.~#1\hfill}
 \titlespacing*{\section}{0pt}{0pt}{1em}
 
-\titleformat{\subsection}{\tffamily\large\uppercase}{}{0pt}{#1}
+\titleformat{\subsection}{\tffamily\large\uppercase}{}{0pt}{\thesubsection.~#1}
 \titlespacing*{\subsection}{0pt}{1em}{0pt}
 
-\titleformat{\subsubsection}{\tffamily\normalsize\uppercase}{}{0pt}{\hfill~#1~\hfill}
+\titleformat{\subsubsection}{\tffamily\normalsize\uppercase}{}{0pt}{\hfill\thesubsubsection.~#1\hfill}
 \titlespacing*{\subsubsection}{0pt}{1em}{0pt}
 
 \titleformat{\paragraph}[runin]{\tffamily\normalsize}{}{0pt}{#1~\quad}

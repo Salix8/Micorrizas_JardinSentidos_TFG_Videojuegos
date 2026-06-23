@@ -10,6 +10,7 @@ using UnityEngine;
 public sealed class CoopGpsMarkerController : MonoBehaviour
 {
     private const ulong OfflineLocalMarkerClientId = ulong.MaxValue;
+    private const int GeneratedCircleSpriteSize = 64;
 
     [Header("References")]
     [SerializeField] private DeviceGpsService deviceGpsService;
@@ -31,6 +32,11 @@ public sealed class CoopGpsMarkerController : MonoBehaviour
     [SerializeField] [Min(0.1f)] private float markerScale = 10f;
     [SerializeField] [Min(0f)] private float markerVisualHeightOffset = 12f;
     [SerializeField] private Vector3 markerVisualLocalEulerAngles = new(90f, 0f, 0f);
+    [SerializeField] [Min(0.1f)] private float markerCircleDiameter = 1f;
+    [SerializeField] [Range(0.1f, 1f)] private float markerAvatarFillRatio = 0.6f;
+    [SerializeField] [Range(0f, 0.25f)] private float markerCircleBorderRatio = 0.08f;
+    [SerializeField] private Color markerCircleColor = new(1f, 1f, 1f, 0.96f);
+    [SerializeField] private Color markerCircleBorderColor = new(0.08f, 0.18f, 0.16f, 0.9f);
     [SerializeField] [Min(0f)] private double markerSurfaceOffsetMeters = 3d;
     [SerializeField] private bool allowOfflineLocalMarker = true;
 
@@ -38,6 +44,7 @@ public sealed class CoopGpsMarkerController : MonoBehaviour
     [SerializeField] private bool showLocalMarkerWithoutSync;
     [SerializeField] private bool showMarkerWithManualLatLon;
     [SerializeField] private bool showMarkerWithSyncedState = true;
+    [SerializeField] private bool showLocalFallbackWhenGpsUnavailableInEditor = true;
     [SerializeField] private double manualLatitude = 39.9936d;
     [SerializeField] private double manualLongitude = -0.0665d;
     [SerializeField] private double manualAltitudeMeters = 0d;
@@ -50,6 +57,7 @@ public sealed class CoopGpsMarkerController : MonoBehaviour
     private bool hasLocalReading;
     private float nextPublishTime;
     private ArcGISMapComponent arcGISMap;
+    private static Sprite generatedCircleSprite;
 
     private void Awake()
     {
@@ -128,7 +136,16 @@ public sealed class CoopGpsMarkerController : MonoBehaviour
 
         if (TryGetResolvedLocalMarkerClientId(out var localMarkerClientId))
         {
-            UpdateMarker(localMarkerClientId, reading.Latitude, reading.Longitude, reading.Altitude, reading.HasFix, true);
+            if (reading.HasFix)
+            {
+                UpdateMarker(localMarkerClientId, reading.Latitude, reading.Longitude, reading.Altitude, true, true);
+                return;
+            }
+
+            if (ShouldShowLocalFallbackMarker(reading))
+            {
+                UpdateMarker(localMarkerClientId, manualLatitude, manualLongitude, manualAltitudeMeters, false, true, true);
+            }
         }
     }
 
@@ -160,22 +177,33 @@ public sealed class CoopGpsMarkerController : MonoBehaviour
         if (hasLocalClientId && showMarkerWithManualLatLon)
         {
             activeClientIds.Add(localClientId);
-            UpdateMarker(localClientId, manualLatitude, manualLongitude, manualAltitudeMeters, true, true);
+            UpdateMarker(localClientId, manualLatitude, manualLongitude, manualAltitudeMeters, false, true, true);
         }
         else if (hasLocalReading && hasLocalClientId)
         {
-            activeClientIds.Add(localClientId);
-
-            if (showLocalMarkerWithoutSync || !showMarkerWithSyncedState || latestLocalReading.HasFix)
+            if (latestLocalReading.HasFix)
             {
+                activeClientIds.Add(localClientId);
                 UpdateMarker(localClientId, latestLocalReading.Latitude, latestLocalReading.Longitude, latestLocalReading.Altitude, latestLocalReading.HasFix, true);
+            }
+            else if (ShouldShowLocalFallbackMarker(latestLocalReading))
+            {
+                activeClientIds.Add(localClientId);
+                UpdateMarker(localClientId, manualLatitude, manualLongitude, manualAltitudeMeters, false, true, true);
             }
         }
 
         RemoveInactiveMarkers(activeClientIds);
     }
 
-    private void UpdateMarker(ulong clientId, double latitude, double longitude, double altitude, bool hasFix, bool isLocal)
+    private void UpdateMarker(
+        ulong clientId,
+        double latitude,
+        double longitude,
+        double altitude,
+        bool hasFix,
+        bool isLocal,
+        bool isFallbackPosition = false)
     {
         if (!markerViews.TryGetValue(clientId, out var markerView))
         {
@@ -191,10 +219,11 @@ public sealed class CoopGpsMarkerController : MonoBehaviour
         markerView = EnsureMarkerAppearance(markerView, clientId, isLocal);
         markerViews[clientId] = markerView;
 
-        markerView.Root.SetActive(hasFix);
-        if (!hasFix)
+        var shouldShowMarker = hasFix || isFallbackPosition;
+        markerView.Root.SetActive(shouldShowMarker);
+        if (!shouldShowMarker)
         {
-            CacheMarkerDiagnostics(clientId, markerView, latitude, longitude, altitude, false, isLocal);
+            CacheMarkerDiagnostics(clientId, markerView, latitude, longitude, altitude, false, isLocal, isFallbackPosition);
             return;
         }
 
@@ -212,7 +241,7 @@ public sealed class CoopGpsMarkerController : MonoBehaviour
             markerView.Renderer.material.color = ResolveMarkerColor(isLocal);
         }
 
-        CacheMarkerDiagnostics(clientId, markerView, latitude, longitude, altitude, hasFix, isLocal);
+        CacheMarkerDiagnostics(clientId, markerView, latitude, longitude, altitude, hasFix, isLocal, isFallbackPosition);
     }
 
     public bool TryGetMarkerWorldPosition(ulong clientId, out Vector3 worldPosition)
@@ -329,7 +358,7 @@ public sealed class CoopGpsMarkerController : MonoBehaviour
 
         markerView.VisualTransform.localPosition = Vector3.up * markerVisualHeightOffset;
         markerView.VisualTransform.localRotation = Quaternion.Euler(markerVisualLocalEulerAngles);
-        markerView.VisualTransform.localScale = markerView.MarkerScale * markerScale;
+        markerView.VisualTransform.localScale = Vector3.one * markerScale;
     }
 
     private void ApplySurfacePlacement(PlayerMarkerView markerView)
@@ -418,7 +447,8 @@ public sealed class CoopGpsMarkerController : MonoBehaviour
         double longitude,
         double altitude,
         bool hasFix,
-        bool isLocal)
+        bool isLocal,
+        bool isFallbackPosition)
     {
         var hasWorldPosition = TryResolveMarkerWorldPosition(markerView, out var worldPosition);
         var universePosition = markerView.HpTransform != null ? markerView.HpTransform.UniversePosition.ToVector3() : Vector3.zero;
@@ -432,6 +462,7 @@ public sealed class CoopGpsMarkerController : MonoBehaviour
             markerView.LocationComponent != null ? markerView.LocationComponent.SurfacePlacementOffset : markerSurfaceOffsetMeters,
             markerView.Root != null && markerView.Root.activeSelf,
             hasFix,
+            isFallbackPosition,
             hasWorldPosition,
             worldPosition,
             markerView.Root != null ? markerView.Root.transform.position : Vector3.zero,
@@ -462,6 +493,22 @@ public sealed class CoopGpsMarkerController : MonoBehaviour
         }
 
         return false;
+    }
+
+    private bool ShouldShowLocalFallbackMarker(DeviceGpsReading reading)
+    {
+        return showLocalFallbackWhenGpsUnavailableInEditor &&
+               IsEditorOrDevelopmentBuild() &&
+               !reading.HasFix;
+    }
+
+    private static bool IsEditorOrDevelopmentBuild()
+    {
+#if UNITY_EDITOR
+        return true;
+#else
+        return Debug.isDebugBuild;
+#endif
     }
 
     private void SubscribeToGpsSync()
@@ -549,20 +596,30 @@ public sealed class CoopGpsMarkerController : MonoBehaviour
             playerProfileSync.TryGetProfile(clientId, out var profile) &&
             !profile.AvatarId.IsEmpty)
         {
-            return profile.AvatarId.ToString();
+            return ResolveAvatarIdOrDefault(profile.AvatarId.ToString());
         }
 
-        return isLocal ? ResolveDesiredLocalAvatarId() : string.Empty;
+        return isLocal ? ResolveDesiredLocalAvatarId() : ResolveAvatarIdOrDefault(string.Empty);
     }
 
     private string ResolveDesiredLocalAvatarId()
     {
         if (localPlayerMarkerProfileService == null)
         {
-            return string.Empty;
+            return ResolveAvatarIdOrDefault(string.Empty);
         }
 
-        return localPlayerMarkerProfileService.CurrentAvatarId;
+        return ResolveAvatarIdOrDefault(localPlayerMarkerProfileService.CurrentAvatarId);
+    }
+
+    private string ResolveAvatarIdOrDefault(string avatarId)
+    {
+        if (localPlayerAppearanceCatalog == null)
+        {
+            return string.IsNullOrWhiteSpace(avatarId) ? string.Empty : avatarId.Trim();
+        }
+
+        return localPlayerAppearanceCatalog.ResolveAvatarIdOrDefault(avatarId);
     }
 
     private Color ResolveMarkerColor(bool isLocal)
@@ -577,11 +634,14 @@ public sealed class CoopGpsMarkerController : MonoBehaviour
         HPTransform hpTransform = null,
         HPRoot hpRoot = null)
     {
-        var avatarScale = Vector3.one;
-        if (!string.IsNullOrWhiteSpace(desiredAvatarId) &&
-            TryReplaceMarkerVisual(root.transform, desiredAvatarId, out var resolvedAvatarScale))
+        var resolvedAvatarId = ResolveAvatarIdOrDefault(desiredAvatarId);
+        if (!string.IsNullOrWhiteSpace(resolvedAvatarId))
         {
-            avatarScale = resolvedAvatarScale;
+            TryReplaceMarkerVisual(root.transform, resolvedAvatarId);
+        }
+        else
+        {
+            RemoveMarkerVisual(root.transform);
         }
 
         var spriteRenderer = root.GetComponentInChildren<SpriteRenderer>(true);
@@ -594,13 +654,15 @@ public sealed class CoopGpsMarkerController : MonoBehaviour
         locationComponent ??= root.GetComponent<ArcGISLocationComponent>();
         hpTransform ??= root.GetComponent<HPTransform>();
         hpRoot ??= root.GetComponentInParent<HPRoot>();
-        var visualTransform = spriteRenderer != null ? spriteRenderer.transform : renderer != null ? renderer.transform : null;
-        return new PlayerMarkerView(root, locationComponent, renderer, spriteRenderer, visualTransform, hpTransform, hpRoot, desiredAvatarId, avatarScale);
+        var visualRoot = root.transform.Find("Visual");
+        var visualTransform = visualRoot != null ? visualRoot : spriteRenderer != null ? spriteRenderer.transform : renderer != null ? renderer.transform : null;
+        return new PlayerMarkerView(root, locationComponent, renderer, spriteRenderer, visualTransform, hpTransform, hpRoot, resolvedAvatarId);
     }
 
-    private bool TryReplaceMarkerVisual(Transform markerRootTransform, string desiredAvatarId, out Vector3 markerAvatarScale)
+    private bool TryReplaceMarkerVisual(Transform markerRootTransform, string desiredAvatarId)
     {
-        markerAvatarScale = Vector3.one;
+        RemoveMarkerVisual(markerRootTransform);
+
         if (localPlayerAppearanceCatalog == null ||
             !localPlayerAppearanceCatalog.TryGetAvatar(desiredAvatarId, out var avatarDefinition) ||
             avatarDefinition == null ||
@@ -609,24 +671,110 @@ public sealed class CoopGpsMarkerController : MonoBehaviour
             return false;
         }
 
-        var existingVisual = markerRootTransform.Find("Visual");
-        if (existingVisual != null)
-        {
-            Destroy(existingVisual.gameObject);
-        }
-
-        var visualInstance = new GameObject("Visual", typeof(SpriteRenderer));
+        var visualInstance = new GameObject("Visual");
         visualInstance.transform.SetParent(markerRootTransform, false);
         visualInstance.transform.localPosition = Vector3.zero;
         visualInstance.transform.localRotation = Quaternion.Euler(markerVisualLocalEulerAngles);
         visualInstance.transform.localScale = Vector3.one;
 
-        var spriteRenderer = visualInstance.GetComponent<SpriteRenderer>();
-        spriteRenderer.sprite = avatarDefinition.AvatarSprite;
-        spriteRenderer.color = Color.white;
-        spriteRenderer.sortingOrder = 50;
-        markerAvatarScale = avatarDefinition.MarkerScale;
+        CreateCircleLayer(visualInstance.transform, "CircleBorder", markerCircleDiameter, markerCircleBorderColor, 48);
+        CreateCircleLayer(
+            visualInstance.transform,
+            "CircleBackground",
+            markerCircleDiameter * (1f - markerCircleBorderRatio),
+            markerCircleColor,
+            49);
+        CreateAvatarLayer(visualInstance.transform, avatarDefinition.AvatarSprite);
         return true;
+    }
+
+    private static void RemoveMarkerVisual(Transform markerRootTransform)
+    {
+        var existingVisual = markerRootTransform.Find("Visual");
+        if (existingVisual == null)
+        {
+            return;
+        }
+
+        existingVisual.gameObject.SetActive(false);
+        Destroy(existingVisual.gameObject);
+    }
+
+    private void CreateCircleLayer(Transform parent, string layerName, float diameter, Color color, int sortingOrder)
+    {
+        var layer = new GameObject(layerName, typeof(SpriteRenderer));
+        layer.transform.SetParent(parent, false);
+        layer.transform.localScale = Vector3.one * Mathf.Max(0.01f, diameter);
+
+        var renderer = layer.GetComponent<SpriteRenderer>();
+        renderer.sprite = GetGeneratedCircleSprite();
+        renderer.color = color;
+        renderer.sortingOrder = sortingOrder;
+    }
+
+    private void CreateAvatarLayer(Transform parent, Sprite avatarSprite)
+    {
+        var layer = new GameObject("AvatarIcon", typeof(SpriteRenderer));
+        layer.transform.SetParent(parent, false);
+        layer.transform.localScale = ResolveUniformSpriteScale(avatarSprite, markerCircleDiameter * markerAvatarFillRatio);
+
+        var renderer = layer.GetComponent<SpriteRenderer>();
+        renderer.sprite = avatarSprite;
+        renderer.color = Color.white;
+        renderer.sortingOrder = 50;
+    }
+
+    private static Vector3 ResolveUniformSpriteScale(Sprite sprite, float targetDiameter)
+    {
+        if (sprite == null)
+        {
+            return Vector3.one;
+        }
+
+        var spriteSize = sprite.bounds.size;
+        var maxDimension = Mathf.Max(spriteSize.x, spriteSize.y);
+        if (maxDimension <= 0f)
+        {
+            return Vector3.one;
+        }
+
+        return Vector3.one * (Mathf.Max(0.01f, targetDiameter) / maxDimension);
+    }
+
+    private static Sprite GetGeneratedCircleSprite()
+    {
+        if (generatedCircleSprite != null)
+        {
+            return generatedCircleSprite;
+        }
+
+        var texture = new Texture2D(GeneratedCircleSpriteSize, GeneratedCircleSpriteSize, TextureFormat.RGBA32, false)
+        {
+            hideFlags = HideFlags.HideAndDontSave,
+            filterMode = FilterMode.Bilinear,
+            wrapMode = TextureWrapMode.Clamp
+        };
+
+        var center = (GeneratedCircleSpriteSize - 1) * 0.5f;
+        var radius = center;
+        for (var y = 0; y < GeneratedCircleSpriteSize; y++)
+        {
+            for (var x = 0; x < GeneratedCircleSpriteSize; x++)
+            {
+                var distance = Vector2.Distance(new Vector2(x, y), new Vector2(center, center));
+                var alpha = Mathf.Clamp01(radius - distance + 0.5f);
+                texture.SetPixel(x, y, new Color(1f, 1f, 1f, alpha));
+            }
+        }
+
+        texture.Apply(updateMipmaps: false, makeNoLongerReadable: true);
+        generatedCircleSprite = Sprite.Create(
+            texture,
+            new Rect(0f, 0f, GeneratedCircleSpriteSize, GeneratedCircleSpriteSize),
+            new Vector2(0.5f, 0.5f),
+            GeneratedCircleSpriteSize);
+        generatedCircleSprite.hideFlags = HideFlags.HideAndDontSave;
+        return generatedCircleSprite;
     }
 
     private sealed class PlayerMarkerView
@@ -639,8 +787,7 @@ public sealed class CoopGpsMarkerController : MonoBehaviour
             Transform visualTransform,
             HPTransform hpTransform,
             HPRoot hpRoot,
-            string avatarId,
-            Vector3 markerScale = default)
+            string avatarId)
         {
             Root = root;
             LocationComponent = locationComponent;
@@ -650,7 +797,6 @@ public sealed class CoopGpsMarkerController : MonoBehaviour
             HpTransform = hpTransform;
             HpRoot = hpRoot;
             AvatarId = avatarId;
-            MarkerScale = markerScale == default ? Vector3.one : markerScale;
         }
 
         public GameObject Root { get; }
@@ -661,7 +807,6 @@ public sealed class CoopGpsMarkerController : MonoBehaviour
         public HPTransform HpTransform { get; }
         public HPRoot HpRoot { get; }
         public string AvatarId { get; }
-        public Vector3 MarkerScale { get; }
     }
 
     private static class ListPool<T>
@@ -693,6 +838,7 @@ public readonly struct MarkerDiagnostics
         double surfacePlacementOffset,
         bool isActive,
         bool hasFix,
+        bool isFallbackPosition,
         bool hasWorldPosition,
         Vector3 worldPosition,
         Vector3 transformPosition,
@@ -710,6 +856,7 @@ public readonly struct MarkerDiagnostics
         SurfacePlacementOffset = surfacePlacementOffset;
         IsActive = isActive;
         HasFix = hasFix;
+        IsFallbackPosition = isFallbackPosition;
         HasWorldPosition = hasWorldPosition;
         WorldPosition = worldPosition;
         TransformPosition = transformPosition;
@@ -728,6 +875,7 @@ public readonly struct MarkerDiagnostics
     public double SurfacePlacementOffset { get; }
     public bool IsActive { get; }
     public bool HasFix { get; }
+    public bool IsFallbackPosition { get; }
     public bool HasWorldPosition { get; }
     public Vector3 WorldPosition { get; }
     public Vector3 TransformPosition { get; }
