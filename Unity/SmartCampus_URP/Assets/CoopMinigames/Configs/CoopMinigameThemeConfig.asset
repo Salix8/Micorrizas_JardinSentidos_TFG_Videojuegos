@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 826a951176d13e74c89151ca66f50d9c, type: 3}
   m_Name: CoopMinigameThemeConfig
   m_EditorClassIdentifier: Assembly-CSharp::SmartCampus.Coop.Minigames.CoopMinigameThemeConfig
-  projectTitle: JARDIN MICORRIZAL
-  projectSubtitle: 'Restauramos juntos
+  projectTitle: "Jard\xEDn de las micorrizas"
+  projectSubtitle: 'Restauremos juntos
 
     la red de micorrizas'
   globalProgressLabel: RED DE MICORRIZAS
@@ -70,6 +70,7 @@ MonoBehaviour:
     upperHeight: 222
     titleBandHeight: 96
     logoSize: 126
+    logoInnerPadding: 10
     avatarSize: 62
     avatarOverlap: 8
     progressBarWidth: 210

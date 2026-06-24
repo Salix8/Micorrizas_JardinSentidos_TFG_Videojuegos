@@ -75,7 +75,7 @@ namespace SmartCampus.Coop.Minigames.GardenImageVoting
 
             if (frameGraphic != null)
             {
-                frameGraphic.Configure(visualSettings.FrameColor, new Color(0.84f, 0.79f, 0.63f, 1f), 34f, 3f);
+                frameGraphic.Configure(visualSettings.BackgroundColor, visualSettings.FrameColor, 34f, 3f);
             }
 
             if (titleLabel != null)
@@ -218,6 +218,11 @@ namespace SmartCampus.Coop.Minigames.GardenImageVoting
                     bodyLabel.text = "Imagen pendiente de configurar. De momento esta carta funciona como placeholder editable desde el CSV.";
                 }
 
+                return;
+            }
+
+            if (!isActiveAndEnabled)
+            {
                 return;
             }
 

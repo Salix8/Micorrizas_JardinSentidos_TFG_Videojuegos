@@ -423,8 +423,8 @@ public static class DialogueSystemSetup
         portraitStage.transform.SetAsFirstSibling();
         portraitStageRect.anchorMin = Vector2.zero;
         portraitStageRect.anchorMax = Vector2.zero;
-        portraitStageRect.pivot = new Vector2(0f, 1f);
-        portraitStageRect.anchoredPosition = new Vector2(64f, 808f);
+        portraitStageRect.pivot = Vector2.zero;
+        portraitStageRect.anchoredPosition = new Vector2(64f, 548f);
         portraitStageRect.sizeDelta = new Vector2(260f, 260f);
 
         var frameAccent = new GameObject("FrameAccent", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
@@ -550,6 +550,8 @@ public static class DialogueSystemSetup
             controllerSerializedObject.ApplyModifiedPropertiesWithoutUndo();
         }
 
+        EnsurePortraitStageBottomAnchor(root);
+
         var responsiveLayoutController = root.GetComponent<DialogueResponsiveLayoutController>();
         if (responsiveLayoutController != null)
         {
@@ -560,6 +562,26 @@ public static class DialogueSystemSetup
         EditorUtility.SetDirty(root);
         PrefabUtility.SaveAsPrefabAsset(root, DialoguePrefabPath);
         PrefabUtility.UnloadPrefabContents(root);
+    }
+
+    private static void EnsurePortraitStageBottomAnchor(GameObject root)
+    {
+        if (root == null || root.transform.Find("PortraitStage") is not RectTransform portraitStageRect)
+        {
+            return;
+        }
+
+        if (portraitStageRect.anchorMin != Vector2.zero ||
+            portraitStageRect.anchorMax != Vector2.zero)
+        {
+            portraitStageRect.anchorMin = Vector2.zero;
+            portraitStageRect.anchorMax = Vector2.zero;
+        }
+
+        var currentBottomLeft = portraitStageRect.anchoredPosition -
+                                Vector2.Scale(portraitStageRect.sizeDelta, portraitStageRect.pivot);
+        portraitStageRect.pivot = Vector2.zero;
+        portraitStageRect.anchoredPosition = currentBottomLeft;
     }
 
     private static DialogueWaitingPanelView EnsureWaitingPanel(GameObject root)

@@ -1,8 +1,8 @@
 \chapter{Planning and resources evaluation}
-This section presents the organisation of the project work. It describes the task breakdown, the estimated workload assigned to each area and the cost analysis derived from the planned development.
+
 
 \section{Planning}
-To facilitate its development process, the project was divided into a set of tasks, as outlined below. Trello~\cite{trello} was used to manage the development process, organise pending tasks and track progress throughout the project.
+This section presents de organisation of the project work. To facilitate its development process, the project was divided into a set of tasks, as outlined below. Trello~\cite{trello} was used to manage the development process, organise pending tasks and track progress throughout the project.
 
 \begin{itemize}
     \item \textbf{Project analysis} (10 hours):
@@ -25,7 +25,7 @@ To facilitate its development process, the project was divided into a set of tas
 
     \item \textbf{Testing and iteration} (60 hours): Aquí se ha contabilizado el tiempo de testear cada mecánica de las quest y el tiempo de ir a testear la geolocalización.
     
-    \item \textbf{Documentation} (50 hours): Documentation is an ongoing task, although it cannot be carried out at every step, as the project is constantly evolving. For instance, you might start using an SDK but then encounter difficulties and end up using a different one, or a task might begin one way and then evolve into different phases.
+    \item \textbf{Documentation} (50 hours): This task covered the preparation of the project documentation throughout the development process.
     \begin{itemize}
         \item \textbf{The technical proposal} (5 hours): The technical proposal defined the scope of the project. Its aim was to set out the basic concept of the project, the educational context, the main objectives and the initial planning. This document also helped to clarify important conceptual aspects of the project, such as the distinction between gamification and serious games.
         \item \textbf{GDD} (10 hours): This document defined the core gameplay loop, cooperative mechanics, narrative framework, level structure, interface design, multiplayer model and technical architecture.
@@ -38,11 +38,28 @@ To facilitate its development process, the project was divided into a set of tas
 \begin{figure}[htpb]
     \centering
     \includegraphics[width=\textwidth]{img/DiagramaGantt.png}
-    %\framebox[\textwidth]{\rule{0pt}{5cm} \textit{Gantt chart of the project planning.}}
     \caption{Gantt chart of the project planning}
     \label{fig:gantt}
 \end{figure}
 
+\begin{landscape}
+\vspace{0.5cm}
+\begin{figure}[htpb]
+    \centering
+    \includegraphics[width=\linewidth]{img/DiagramaGantt.png}
+    \caption{Gantt chart of the project planning}
+    \label{fig:ganttv1}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}[htpb]
+    \centering
+    \includegraphics[width=\linewidth]{img/DiagramaGanttV2.png}
+    \caption{Gantt chart of the project planning}
+    \label{fig:ganttv2}
+\end{figure}
+\end{landscape}
 
 \section{Costs}
 The cost of carrying out this project is broken down below. This does not represent an actual payment, as the project was undertaken as an academic assignment, but it provides an estimate of the professional value of the work carried out
@@ -54,25 +71,22 @@ The cost of the work carried out in this project has been estimated according to
 The selected professional category was Area 3, Group D, Level 3, since it corresponds to software development and programming tasks and represents an appropriate reference for an entry-level profile in the software industry.
 According to the updated 2026 salary tables, this category has an annual gross salary of 18,542.34 €. Considering the annual working time of 1,800 hours established in the same agreement, the hourly cost is calculated as follows:
 
-\begin{dragonbox}{Hourly Cost Calculation}
-\begin{center}
-\large $ \frac{18,542.34 €}{1,800} = 10.30 €/hour $
-\end{center}
-\end{dragonbox}
+
+\[
+\frac{18{,}542.34\,\text{€}}{1{,}800} = 10.30\,\text{€/hour}
+\]
 
 Therefore, the estimated labour cost of the project is: 
 
-\begin{dragonbox}{Total Labour Cost}
-\begin{center}
-\large $ Total labour cost = Number of hours \times 10.30 €/hour $
-\end{center}
+\[
+\text{Total labour cost} = \text{Number of hours} \times 10.30\,\text{€/hour}
+\]
 
-\vspace{0.2cm}
-If the project required 300 hours of work: 
-\begin{center}
-\large $ 300 hours \times 10.30 €/hour = 3,090 € $
-\end{center}
-\end{dragonbox}
+If the project required 330 hours of work: 
+
+ \[
+330\,\text{h} \times 10.30\,\text{€/h} = 3,399\,\text{€}
+\]
 
 \subsection{Hardware}
 The development of a similar project would require a computer capable of running the necessary development tools primarily Unity as well as several mobile devices, between two and six devices. We will estimate six devices to be able to test the application under full conditions. The hardware specifications of the system used for this project is described below.
@@ -92,6 +106,16 @@ The software tools and licences required to develop this project were free for e
     \item \textbf{OpenAI Codex:} Used to assist in the development of certain scripts and technical problem-solving. The pricing model~\cite{codex_pricing} is based on token usage. For this project, the cost was negligible due to the small scale, but it should be considered in larger professional environments.
 \end{itemize}
 \subsection{Other expenses}
+Since the project is based on a geolocated experience in the \textit{Jardín de los Sentidos}, several field tests had to be carried out in the real environment to validate GPS behaviour, interaction areas and mobile usability. Therefore, travel expenses were included as an additional project cost.
+Each validation trip was estimated as a 15 km journey. Using the official Spanish reference of 0.26 €/km for private vehicle travel expenses, the cost per visit is:
+Number of visits × 15 × 0.26 = Travel cost      
+15 × 0.26 = 3.9€/visit
+Assuming a total of  ten validation visits, the estimated travel cost would be:
+10 × 3.9 =  39€
+
+\subsection{Estimated cost}
+After analysing the different cost categories, the estimated cost of replicating the project in a professional context amounts to 4,798 €. This total includes the estimated labour cost, the hardware required for development and testing, the software tools and licences, and the travel expenses associated with field validation. Table ~\ref{tab:general_costs} summarises the final cost breakdown for each category.
+
 
 \vspace{1cm}
 % Tabla general de costes
@@ -100,14 +124,14 @@ The software tools and licences required to develop this project were free for e
 \renewcommand{\arraystretch}{1.5}
 \begin{tabular}{>{\raggedright\arraybackslash}p{0.5\textwidth} >{\raggedleft\arraybackslash}p{0.3\textwidth}}
 \rowcolor[HTML]{DFE8DF} \textbf{Concept} & \textbf{Cost (€)} \\
-\rowcolor[HTML]{F0F5F0} Labour (Working hours) & \\
-\rowcolor[HTML]{DFE8DF} Hardware & \\
-\rowcolor[HTML]{F0F5F0} Software & \\
-\rowcolor[HTML]{DFE8DF} Other expenses & \\
+\rowcolor[HTML]{F0F5F0} Working hours & 3,399 €\\
+\rowcolor[HTML]{DFE8DF} Hardware & 1,479 €\\
+\rowcolor[HTML]{F0F5F0} Software & 190 €\\
+\rowcolor[HTML]{DFE8DF} Other expenses & 39 €\\
 \hline
-\rowcolor[HTML]{DFE8DF} \textbf{Total} & \textbf{} \\
+\rowcolor[HTML]{DFE8DF} \textbf{Total} & \textbf{5107 €} \\
 \end{tabular}
-\caption{General project costs}
+\caption{General project cost, broken down into the main cost categories}
 \label{tab:general_costs}
 \end{table}
 
@@ -116,15 +140,33 @@ The software tools and licences required to develop this project were free for e
 \begin{table}[htpb]
 \centering
 \renewcommand{\arraystretch}{1.5}
-\begin{tabular}{>{\raggedright\arraybackslash}p{0.5\textwidth} >{\raggedleft\arraybackslash}p{0.3\textwidth}}
-\rowcolor[HTML]{DFE8DF} \textbf{Concept} & \textbf{Cost (€)} \\
-\rowcolor[HTML]{F0F5F0} Labour (Working hours) & \\
-\rowcolor[HTML]{DFE8DF} Hardware & \\
-\rowcolor[HTML]{F0F5F0} Software & \\
-\rowcolor[HTML]{DFE8DF} Other expenses & \\
+\begin{tabular}{
+>{\raggedright\arraybackslash}p{0.40\textwidth}
+>{\raggedleft\arraybackslash}p{0.17\textwidth}
+>{\raggedleft\arraybackslash}p{0.20\textwidth}
+>{\raggedleft\arraybackslash}p{0.14\textwidth}
+}
+\rowcolor[HTML]{DFE8DF} 
+\textbf{Task} & \textbf{Estimated hours} & \textbf{Hours worked} & \textbf{Deviation} \\
+
+\rowcolor[HTML]{F0F5F0} Project analysis & 15 & 10 & -5 \\
+\rowcolor[HTML]{DFE8DF} Game design & 80 & 50 & -30 \\
+\rowcolor[HTML]{F0F5F0} Art design & 15 & 10 & -5 \\
+\rowcolor[HTML]{DFE8DF} Development & 130 & 150 & +20 \\
+\rowcolor[HTML]{F0F5F0} Testing and iteration & 30 & 60 & +30 \\
+\rowcolor[HTML]{DFE8DF} Documentation & 30 & 50 & +20 \\
 \hline
-\rowcolor[HTML]{DFE8DF} \textbf{Total} & \textbf{} \\
+\rowcolor[HTML]{DFE8DF} 
+\textbf{Total} & \textbf{300} & \textbf{330} & \textbf{+30} \\
 \end{tabular}
 \caption{Planning deviations}
 \label{tab:planning_deviations}
 \end{table}
+
+The project presented several deviations from the initial planning. As shown in Table~\ref{tab:planning_deviations}, the final workload exceeded the initial estimation by 30 hours. Table~\ref{tab:planning_deviations} shows the comparison between the initially estimated hours, the hours finally spent on each task, and the resulting deviation.
+
+The tasks that required less time were project analysis, game design and art design. In the case of project analysis, the scope of the project and the main requirements were defined at an early stage, mainly thanks to the initial meetings with the teachers involved in the educational activity. Game design also required fewer hours than initially planned because some design decisions were simplified during development in order to keep the prototype feasible and focused on the main educational objectives. Similarly, art design took less time than expected because several visual resources were obtained from existing asset libraries or adapted from available material, reducing the need to create every asset from scratch.
+
+In contrast, development, testing and documentation required more time than originally estimated. Development exceeded the initial planning because the implementation of geolocation and the integration of the different systems involved more technical complexity than expected. The project required several iterations to connect the map, GPS position and mission flow, since the application could not be validated inside the Unity editor. The geolocation system had to be tested on Android devices and in the real physical environment of the \textit{Jardín de los Sentidos}.
+
+The project was completed in 330 hours instead of the 300 hours initially estimated. The final deviation of 30 hours was mainly caused by the complexity of developing and validating a geolocated mobile application in a real outdoor environment.

@@ -169,10 +169,13 @@ namespace SmartCampus.Coop.Minigames
                 return;
             }
 
+            ResolveSerializedReferencesFromHierarchy();
+
             var palette = themeConfig.Palette;
             var panelStyle = themeConfig.CardPanelStyle;
             SetRoundedPanel(backgroundGraphic, palette.PanelBackground, palette.PanelBorder, panelStyle.CornerRadius + 18f, panelStyle.BorderWidth);
             SetRoundedPanel(logoFrameGraphic, palette.PrimaryGreen, palette.MutedGreen, themeConfig.TopPanelStyle.LogoSize * 0.5f, 2f);
+            EnsureLogoLayout();
 
             SetImageColor(backgroundImage, palette.PanelBackground);
             SetImageColor(titleBandImage, palette.PrimaryGreen);
@@ -275,6 +278,54 @@ namespace SmartCampus.Coop.Minigames
             playerProfileSync ??= FindFirstObjectByType<CoopPlayerProfileSync>(FindObjectsInactive.Include);
             sessionCoordinator ??= FindFirstObjectByType<CoopSessionCoordinator>(FindObjectsInactive.Include);
             avatarCatalog ??= playerProfileSync != null ? playerProfileSync.AppearanceCatalog : null;
+        }
+
+        private void ResolveSerializedReferencesFromHierarchy()
+        {
+            logoFrameGraphic ??= FindChildComponent<RoundedPanelGraphic>("LogoFrame");
+            logoImage ??= FindChildComponent<Image>("Logo");
+        }
+
+        private void EnsureLogoLayout()
+        {
+            if (themeConfig == null)
+            {
+                return;
+            }
+
+            var logoSize = themeConfig.TopPanelStyle.LogoSize;
+            if (logoFrameGraphic != null)
+            {
+                var frameMask = logoFrameGraphic.GetComponent<Mask>() ?? logoFrameGraphic.gameObject.AddComponent<Mask>();
+                frameMask.showMaskGraphic = true;
+
+                var frameRect = logoFrameGraphic.GetComponent<RectTransform>();
+                if (frameRect != null)
+                {
+                    frameRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, logoSize);
+                    frameRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, logoSize);
+                }
+
+                var frameLayout = logoFrameGraphic.GetComponent<LayoutElement>();
+                if (frameLayout != null)
+                {
+                    frameLayout.minWidth = logoSize;
+                    frameLayout.minHeight = logoSize;
+                    frameLayout.preferredWidth = logoSize;
+                    frameLayout.preferredHeight = logoSize;
+                }
+            }
+
+            if (logoImage != null)
+            {
+                var logoRect = logoImage.rectTransform;
+                logoRect.anchorMin = new Vector2(0.5f, 0.5f);
+                logoRect.anchorMax = new Vector2(0.5f, 0.5f);
+                logoRect.pivot = new Vector2(0.5f, 0.5f);
+                logoRect.anchoredPosition = Vector2.zero;
+                logoRect.sizeDelta = Vector2.one * Mathf.Max(8f, logoSize - themeConfig.TopPanelStyle.LogoInnerPadding);
+                logoImage.maskable = true;
+            }
         }
 
         private void SubscribeRuntimeEvents()
@@ -459,6 +510,37 @@ namespace SmartCampus.Coop.Minigames
             image.sprite = sprite;
             image.enabled = sprite != null;
             image.preserveAspect = true;
+        }
+
+        private T FindChildComponent<T>(string childName) where T : Component
+        {
+            var child = FindChildRecursive(transform, childName);
+            return child == null ? null : child.GetComponent<T>();
+        }
+
+        private static Transform FindChildRecursive(Transform root, string childName)
+        {
+            if (root == null)
+            {
+                return null;
+            }
+
+            for (var index = 0; index < root.childCount; index++)
+            {
+                var child = root.GetChild(index);
+                if (child.name == childName)
+                {
+                    return child;
+                }
+
+                var nested = FindChildRecursive(child, childName);
+                if (nested != null)
+                {
+                    return nested;
+                }
+            }
+
+            return null;
         }
     }
 

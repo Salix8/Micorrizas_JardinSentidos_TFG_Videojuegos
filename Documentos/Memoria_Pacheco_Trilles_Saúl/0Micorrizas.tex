@@ -22,11 +22,20 @@
 \usepackage{titlesec}
 \titleformat{\paragraph}[runin]{\tffamily\large}{}{0pt}{#1~\quad}
 
+\usepackage{longtable}
 \usepackage{colortbl}
 \usepackage{array}
 \usepackage{float}
-\setstretch{1.5}
+\setstretch{1.15}
+
 \usepackage{parskip} % Elimina la sangría y añade espacio entre párrafos
+\setlength{\parskip}{1em}   % Espacio entre párrafos
+
+\pagecolor{white}
+\backgroundsetup{contents={}}
+
+\usepackage[style=numeric,sorting=none]{biblatex}
+\addbibresource{bibliografia.bib}
 
 
 %% ================ TITLE ================ %%
@@ -39,13 +48,13 @@
 
 \begin{titlepage}
 \centering
-\vspace*{1.5cm}
+\vspace*{1cm}
 
 {\color[HTML]{2D5D3A}\LARGE\bfseries Universitat Jaume I\par}
 \vspace{0.4cm}
 {\large Bachelor's Thesis in Video Game Design and Development\par}
 
-\vspace{3cm}
+\vspace{2cm}
 
 {\color[HTML]{2D5D3A}\Huge\bfseries Micorrizas\par}
 \vspace{0.3cm}
@@ -53,7 +62,7 @@
 \vspace{0.4cm}
 {\color[HTML]{A45E39}\Large\itshape Design and development of a geolocated mobile video game to promote\par knowledge and relationship with the natural environment\par}
 
-\vspace{3cm}
+\vspace{2cm}
 
 \begin{center}
 \renewcommand{\arraystretch}{1.8}
@@ -73,10 +82,8 @@
 \end{titlepage}
 
 \partcolor{Maroon}
-%\partimage{img/Slaad4e.png}
-% \part{GDD}
 
-\include{Preliminares}
+\include{0Preliminares}
 \include{1Introduccion}
 \include{2Planificacion}
 \include{3Analisis}
@@ -84,7 +91,8 @@
 \include{5TesteoValidacion}
 \include{6Resultados}
 \include{7Conclusiones}
-\include{8Bibliografia}
+\printbibliography
+%\include{8Bibliografia}
 \include{9Appendix}
 
 %\include{template}

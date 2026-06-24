@@ -1,5 +1,5 @@
 \chapter{Analysis}
-This section identifies the main requirements that guided the design and development of Micorrizas. The purpose of this analysis is to establish what the system must provide in order to support the intended experience. 
+This section identifies the main requirements that guided the design and development of \textit{Micorrizas}. The purpose of this analysis is to establish what the system must provide in order to support the intended experience. 
 
 The requirements were defined from three main sources: the educational needs of the activity, the game design decisions and the technical limitations of mobile development. The educational context required the game to support biodiversity learning through observation and exploration. The game design required cooperative interaction, narrative progression and feedback. The technical context required geolocation, map integration, multiplayer synchronisation and usability in an outdoor environment.
 
@@ -7,20 +7,46 @@ The requirements are divided into functional and non-functional requirements. Fu
 
 \section{Functional Requirements}
 
-\begin{table}[H]
-\centering
-\renewcommand{\arraystretch}{1.5}
-\begin{tabular}{|l|p{0.8\textwidth}|}
+\renewcommand{\arraystretch}{1}
+
+\definecolor{RowOdd}{HTML}{F0F5F0}
+\definecolor{RowEven}{HTML}{DFE8DF}
+\definecolor{HeaderDark}{HTML}{B0C9B0}
+
+\rowcolors{1}{RowOdd}{RowEven}
+
+\begin{longtable}{|l|p{0.8\textwidth}|}
+\hiderowcolors
+\caption{Functional requirements}
+\label{tab:functional_requirements}\\
+
 \hline
-\rowcolor[HTML]{DFE8DF} \textbf{ID} & \textbf{Description} \\
+\rowcolor{HeaderDark}
+\textbf{ID} & \textbf{Description} \\
 \hline
+\showrowcolors
+\endfirsthead
+
+\hline
+\rowcolor{HeaderDark}
+\textbf{ID} & \textbf{Description} \\
+\hline
+\endhead
+
+\hline
+\multicolumn{2}{r}{\textit{Continued on next page}}\\
+\endfoot
+
+\hline
+\endlastfoot
+
 FR01 & \textbf{Create a game session}\newline The system must allow a player to create a multiplayer session that other users can join. \\
 \hline
 FR02 & \textbf{Join a game session}\newline The system must allow players to join an existing session using a code. \\
 \hline
 FR03 & \textbf{Register player names}\newline The system must allow players to identify themselves within the group session. \\
 \hline
-FR04 & \textbf{Display the game map}\newline The system must show the map of the Jardín de los Sentidos using the selected map integration. \\
+FR04 & \textbf{Display the game map}\newline The system must show the map of the \textit{Jardín de los Sentidos} using the selected map integration. \\
 \hline
 FR05 & \textbf{Show the player real position}\newline The system must display the approximate position of the player on the map. \\
 \hline
@@ -42,7 +68,7 @@ FR13 & \textbf{Calculate user performance}\newline The system must calculate a g
 \hline
 FR14 & \textbf{Calculate the final result}\newline The system must calculate and display the final group result after all required areas have been completed. \\
 \hline
-FR15 & \textbf{Provide feedback}\newline The system must provide feedback after each challenge, indicating the result of the group’s action. \\
+FR15 & \textbf{Provide feedback}\newline The system must provide feedback after each challenge, indicating the result of the group's action. \\
 \hline
 FR16 & \textbf{Track completed areas}\newline The system must register which sensory gardens have already been completed. \\
 \hline
@@ -50,20 +76,38 @@ FR17 & \textbf{Display final summary}\newline The system must present a final sc
 \hline
 FR18 & \textbf{Allow replay or restart}\newline The system should allow the group to restart the experience if required. \\
 \hline
-\end{tabular}
-\caption{Functional requirements}
-\label{tab:functional_requirements}
-\end{table}
+
+\end{longtable}
 
 \section{Non-functional Requirements}
 
-\begin{table}[H]
-\centering
-\renewcommand{\arraystretch}{1.5}
-\begin{tabular}{|l|p{0.8\textwidth}|}
+\renewcommand{\arraystretch}{1}
+
+\begin{longtable}{|l|p{0.82\textwidth}|}
+\hiderowcolors
+\caption{Non-functional requirements}
+\label{tab:non_functional_requirements}\\
+
 \hline
-\rowcolor[HTML]{DFE8DF} \textbf{ID} & \textbf{Description} \\
+\rowcolor{HeaderDark}
+\textbf{ID} & \textbf{Description} \\
 \hline
+\showrowcolors
+\endfirsthead
+
+\hline
+\rowcolor{HeaderDark}
+\textbf{ID} & \textbf{Description} \\
+\hline
+\endhead
+
+\hline
+\multicolumn{2}{r}{\textit{Continued on next page}}\\
+\endfoot
+
+\hline
+\endlastfoot
+
 NFR01 & \textbf{Mobile platform}\newline The application must run on Android mobile devices. \\
 \hline
 NFR02 & \textbf{Outdoor readability}\newline The interface must remain readable in outdoor conditions, including sunlight and variable lighting. \\
@@ -92,7 +136,5 @@ NFR13 & \textbf{Robustness}\newline The application should remain usable when mi
 \hline
 NFR14 & \textbf{Battery awareness}\newline The application should avoid excessive use of continuous processes that could increase battery consumption. \\
 \hline
-\end{tabular}
-\caption{Non-functional requirements}
-\label{tab:non_functional_requirements}
-\end{table}
+
+\end{longtable}

@@ -231,10 +231,10 @@ RectTransform:
   - {fileID: 1207256879}
   m_Father: {fileID: 1771190575}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &279461408
 MonoBehaviour:
@@ -886,7 +886,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 449.18445, y: -190}
+  m_AnchoredPosition: {x: 519.7096, y: -205.20001}
   m_SizeDelta: {x: 340, y: 340}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &731250644
@@ -1020,10 +1020,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1531100553}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 200, y: 50}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &744366782
 MonoBehaviour:
@@ -1065,7 +1065,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "EQUIPO \xB7 SALA ABC123"
+  m_text: 'EQUIPO: ABC123'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1074,7 +1074,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4280378153
   m_fontColor: {r: 0.16, g: 0.39, b: 0.13, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -1087,7 +1087,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -1269,7 +1269,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 32.4
+  m_fontSize: 27.8
   m_fontSizeBase: 20
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -1422,10 +1422,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 279461407}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 519.7096, y: -313.79602}
+  m_SizeDelta: {x: 979.4192, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1207256880
 MonoBehaviour:
@@ -1961,10 +1961,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 279461407}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 200, y: 50}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1392742201
 MonoBehaviour:
@@ -2015,7 +2015,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4279913492
   m_fontColor: {r: 0.08, g: 0.3, b: 0.1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -2028,7 +2028,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -2271,7 +2271,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 32.4
+  m_fontSize: 32.3
   m_fontSizeBase: 20
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -2447,8 +2447,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 473.18445, y: -466}
-  m_SizeDelta: {x: 898.3689, y: 220}
+  m_AnchoredPosition: {x: 545.7096, y: -522}
+  m_SizeDelta: {x: 1039.4192, y: 292}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1531100554
 MonoBehaviour:
@@ -3079,7 +3079,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 35.648
+  m_fontSize: 24.75
   m_fontSizeBase: 28
   m_fontWeight: 400
   m_enableAutoSizing: 1
