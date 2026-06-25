@@ -16,6 +16,7 @@ namespace SmartCampus.Testing.Editor.Core
             var root = new GameObject("TopPanel", typeof(RectTransform), typeof(CoopMinigameTopPanelView));
             var view = root.GetComponent<CoopMinigameTopPanelView>();
             var minigameTitle = CreateLabel(root.transform, "MinigameTitle");
+            var progressTitle = CreateLabel(root.transform, "ProgressTitle");
             var progressPercent = CreateLabel(root.transform, "ProgressPercent");
             var teamName = CreateLabel(root.transform, "TeamName");
             var slider = root.AddComponent<Slider>();
@@ -23,6 +24,7 @@ namespace SmartCampus.Testing.Editor.Core
             var serializedView = new SerializedObject(view);
             Assign(serializedView, "themeConfig", theme);
             Assign(serializedView, "minigameTitleLabel", minigameTitle);
+            Assign(serializedView, "progressTitleLabel", progressTitle);
             Assign(serializedView, "progressPercentLabel", progressPercent);
             Assign(serializedView, "teamNameLabel", teamName);
             Assign(serializedView, "progressSlider", slider);
@@ -31,6 +33,7 @@ namespace SmartCampus.Testing.Editor.Core
             view.Bind("MEMORIA DE FRUTOS", 0.45f, string.Empty, "ABCD");
 
             Assert.That(minigameTitle.text, Is.EqualTo("MISIÓN: MEMORIA DE FRUTOS"));
+            Assert.That(progressTitle.text, Is.EqualTo("RED DE \nMICORRIZAS"));
             Assert.That(progressPercent.text, Is.EqualTo("45%"));
             Assert.That(teamName.text, Is.EqualTo("SALA ABCD"));
             Assert.That(slider.value, Is.EqualTo(0.45f).Within(0.001f));
@@ -204,6 +207,27 @@ namespace SmartCampus.Testing.Editor.Core
             Assert.That(timeValue.text, Is.EqualTo("01:20"));
             Assert.That(penaltyValue.text, Is.EqualTo("-10s"));
             Assert.That(slider.value, Is.EqualTo(0.8f).Within(0.001f));
+
+            Object.DestroyImmediate(root);
+            Object.DestroyImmediate(theme);
+        }
+
+        [Test]
+        public void BottomPanelBind_UsesThemePenaltyFallbackWhenSceneValueIsZero()
+        {
+            var theme = ScriptableObject.CreateInstance<CoopMinigameThemeConfig>();
+            var root = new GameObject("BottomPanel", typeof(RectTransform), typeof(CoopMinigameBottomPanelView));
+            var view = root.GetComponent<CoopMinigameBottomPanelView>();
+            var penaltyValue = CreateLabel(root.transform, "PenaltyValue");
+
+            var serializedView = new SerializedObject(view);
+            Assign(serializedView, "themeConfig", theme);
+            Assign(serializedView, "penaltyValueLabel", penaltyValue);
+            serializedView.ApplyModifiedPropertiesWithoutUndo();
+
+            view.Bind("Titulo", "Texto", 80f, 100f, 0f);
+
+            Assert.That(penaltyValue.text, Is.EqualTo("-10s"));
 
             Object.DestroyImmediate(root);
             Object.DestroyImmediate(theme);

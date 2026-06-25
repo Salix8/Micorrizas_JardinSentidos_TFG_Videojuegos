@@ -19,7 +19,7 @@ MonoBehaviour:
   cardsPerDevice: 6
   pairsToUse: 12
   guaranteedVisiblePairsOffset: 1
-  timeLimitSeconds: 180
+  timeLimitSeconds: 300
   timeoutMessage: Tiempo agotado
   pairDefinitions:
   - title: Azufaifo

@@ -13,11 +13,12 @@ namespace SmartCampus.Coop.Minigames
         [Header("Brand")]
         [SerializeField] private string projectTitle = "JARDIN MICORRIZAL";
         [SerializeField] private string projectSubtitle = "Restauramos juntos\nla red de micorrizas";
-        [SerializeField] private string globalProgressLabel = "RED DE MICORRIZAS";
+        [SerializeField] private string globalProgressLabel = "RED DE \nMICORRIZAS";
         [SerializeField] private string teamTitle = "EQUIPO";
         [SerializeField] private string unnamedTeamRoomCodeFormat = "SALA {0}";
         [SerializeField] private string minigameTitlePrefix = "MISIÓN:";
         [SerializeField] private string globalProgressPercentFormat = "{0:0}%";
+        [SerializeField] [Min(0f)] private float defaultPenaltySeconds = 10f;
         [SerializeField] private Sprite logoSprite;
         [SerializeField] private List<Sprite> defaultAvatarSprites = new();
 
@@ -49,6 +50,7 @@ namespace SmartCampus.Coop.Minigames
         public string TeamTitle => teamTitle;
         public string MinigameTitlePrefix => minigameTitlePrefix;
         public string GlobalProgressPercentFormat => globalProgressPercentFormat;
+        public float DefaultPenaltySeconds => defaultPenaltySeconds;
         public Sprite LogoSprite => logoSprite;
         public IReadOnlyList<Sprite> DefaultAvatarSprites => defaultAvatarSprites;
         public TMP_FontAsset PrimaryFont => primaryFont;
@@ -81,13 +83,14 @@ namespace SmartCampus.Coop.Minigames
         {
             projectTitle = NormalizeRequired(projectTitle, "JARDIN MICORRIZAL");
             projectSubtitle = NormalizeRequired(projectSubtitle, "Restauramos juntos\nla red de micorrizas");
-            globalProgressLabel = NormalizeRequired(globalProgressLabel, "RED DE MICORRIZAS");
+            globalProgressLabel = NormalizeRequired(globalProgressLabel, "RED DE \nMICORRIZAS");
             teamTitle = NormalizeRequired(teamTitle, "EQUIPO");
             unnamedTeamRoomCodeFormat = string.IsNullOrWhiteSpace(unnamedTeamRoomCodeFormat)
                 ? "SALA {0}"
                 : unnamedTeamRoomCodeFormat.Trim();
             minigameTitlePrefix = NormalizeRequired(minigameTitlePrefix, "MISIÓN:");
             globalProgressPercentFormat = NormalizeRequired(globalProgressPercentFormat, "{0:0}%");
+            defaultPenaltySeconds = Mathf.Max(0f, defaultPenaltySeconds);
 
             defaultAvatarSprites ??= new List<Sprite>();
             typography.Clamp();

@@ -1,17 +1,17 @@
-plantId,commonName,scientificName,synonyms,imagePath,surfaceRoughness,leafType,fruitCategory,fruitType,leafPersistence,plantType
-alcornoque,Alcornoque,Quercus suber,Alzina Surera|Chaparro|Roble sobrero,,Muy rugosa,Coriacea,Seco,Bellota,Perenne,Árbol
-espino_negro,Espino negro,Rhamnus lycioides,Arçot|Cambrón|Escambrón,,Media,Lanceolada,Carnoso,Drupa,Perenne,Arbusto
-almez,Almez,Celtis australis,Lledoner|Lodón|Litonero|Aligonero,,Lisa,Aserrada,Carnoso,Drupa,Caduca,Árbol
-adelfa,Adelfa,Nerium oleander,Baladre|Laurel romano,,Media,Lanceolada,Seco,Foliculo,Perenne,Arbusto
-algarrobo,Algarrobo ,Ceratonia siliqua,Garrofera,,Media,Compuesta,Seco,Legumbre,Perenne,Árbol
-encina,Encina,Quercus ilex,Carrasca|Chaparra|Alzina,,Rugosa,Coriacea,Seco,Bellota,Perenne,Árbol
-aladierna,Aladierno,Rhamnus alaternus,Aladern|Aladierna|Carrasquilla,,Media,Coriácea,Carnoso,Drupa,Perenne,Arbusto
-pino_pinonero,Pino piñonero,Pinus pinea,Pi pinyoner|Pino manso|Pino doncel|Pino albar,,Rugosa,Acicular,No,Piña,Perenne,Árbol
-pino_carrasco,Pino carrasco,Pinus halepensis,Pi blanc,,Rugosa,Acicular,No,Piña,Perenne,Árbol
-pino_silvestre,Pino silvestre,Pinus sylvestris,Pi roig|Pino serrano|Pino bermejo|Pino rojo,,Rugosa,Acicular,No,Piña,Perenne,Árbol
-acebo,Acebo,Ilex aquifolium,Grèvol,,Rugosa,Coriacea,Carnoso,Drupa,Perenne,Arbusto
-palmito,Palmito,Chamaerops humilis,Margalló|Palmera enana,,Aspera,Palmada,Carnoso,Drupa,Perenne,Palmera
-madrono,Madroño,Arbutus unedo,Arboç,,Media,Aserrada,Carnoso,Baya,Perenne,Arbusto
-olivo,Olivo,Olea europaea,Olivera|Aceituno,,Media,Lanceolada,Carnoso,Drupa,Perenne,Árbol
-hiedra,Hiedra común,Hedera helix,Heura|Yedra,,Media,Lobulada,Carnoso,Drupa,Perenne,Trepadora
-chumbera,Chumbera,Opuntia ficus-indica,Figuera de moro|Nopal|Tuna,,Media,Carnosa,Carnoso,Baya,Perenne,Suculenta
+plantId,commonName,scientificName,synonyms,surfaceRoughness,leafType,fruitCategory,fruitType,plantType
+alcornoque,Alcornoque,Quercus suber,Alzina Surera|Chaparro|Roble sobrero,Muy rugosa,Coriacea,Seco,Bellota,Árbol
+espino_negro,Espino negro,Rhamnus lycioides,Arçot|Cambrón|Escambrón,Media,Lanceolada,Carnoso,Drupa,Arbusto
+almez,Almez,Celtis australis,Lledoner|Lodón|Litonero|Aligonero,Lisa,Aserrada,Carnoso,Drupa,Árbol
+adelfa,Adelfa,Nerium oleander,Baladre|Laurel romano,Media,Lanceolada,Seco,Foliculo,Arbusto
+algarrobo,Algarrobo ,Ceratonia siliqua,Garrofera,Media,Compuesta,Seco,Legumbre,Árbol
+encina,Encina,Quercus ilex,Carrasca|Chaparra|Alzina,Rugosa,Coriacea,Seco,Bellota,Árbol
+aladierna,Aladierno,Rhamnus alaternus,Aladern|Aladierna|Carrasquilla,Media,Coriácea,Carnoso,Drupa,Arbusto
+pino_pinonero,Pino piñonero,Pinus pinea,Pi pinyoner|Pino manso|Pino doncel|Pino albar,Rugosa,Acicular,No,Piña,Árbol
+pino_carrasco,Pino carrasco,Pinus halepensis,Pi blanc,Rugosa,Acicular,No,Piña,Árbol
+pino_silvestre,Pino silvestre,Pinus sylvestris,Pi roig|Pino serrano|Pino bermejo|Pino rojo,Rugosa,Acicular,No,Piña,Árbol
+acebo,Acebo,Ilex aquifolium,Grèvol,Rugosa,Coriacea,Carnoso,Drupa,Arbusto
+palmito,Palmito,Chamaerops humilis,Margalló|Palmera enana,Aspera,Palmada,Carnoso,Drupa,Palmera
+madrono,Madroño,Arbutus unedo,Arboç,Media,Aserrada,Carnoso,Baya,Arbusto
+olivo,Olivo,Olea europaea,Olivera|Aceituno,Media,Lanceolada,Carnoso,Drupa,Árbol
+hiedra,Hiedra común,Hedera helix,Heura|Yedra,Media,Lobulada,Carnoso,Drupa,Trepadora
+chumbera,Chumbera,Opuntia ficus-indica,Figuera de moro|Nopal|Tuna,Media,Carnosa,Carnoso,Baya,Suculenta

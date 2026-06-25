@@ -41,6 +41,31 @@ namespace SmartCampus.Testing.Editor.Core
         }
 
         [Test]
+        public void FivePlayableMinigames_IgnoresReserveStateForCompletionAndAverage()
+        {
+            var states = CoopSessionProgressService.CreateDefaultStates(6);
+            var scores = new[] { 10f, 8f, 6f, 9f, 7f };
+
+            for (var index = 0; index < scores.Length; index++)
+            {
+                var state = states[index];
+                var updated = CoopSessionProgressService.TryRegisterResult(
+                    ref state,
+                    index,
+                    new MinigameResultData($"Minijuego {index + 1}", scores[index], index + 1, 0),
+                    index);
+                states[index] = state;
+
+                Assert.That(updated, Is.True);
+            }
+
+            Assert.That(CoopSessionProgressService.CountCompleted(states, playableMinigameCount: 5), Is.EqualTo(5));
+            Assert.That(CoopSessionProgressService.AreAllCompleted(states, playableMinigameCount: 5), Is.True);
+            Assert.That(CoopSessionProgressService.CalculateAverageScore(states, playableMinigameCount: 5), Is.EqualTo(8f));
+            Assert.That(CoopSessionProgressService.AreAllCompleted(states), Is.False);
+        }
+
+        [Test]
         public void RegisteringTheSameMinigameTwice_PreservesTheFirstResult()
         {
             var states = CoopSessionProgressService.CreateDefaultStates(1);

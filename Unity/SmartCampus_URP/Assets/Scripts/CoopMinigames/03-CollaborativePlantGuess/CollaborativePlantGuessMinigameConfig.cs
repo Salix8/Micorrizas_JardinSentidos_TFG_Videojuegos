@@ -9,6 +9,8 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
     [CreateAssetMenu(menuName = "SmartCampus/Coop/Minigames/Collaborative Plant Guess Config", fileName = "CollaborativePlantGuessMinigameConfig")]
     public sealed class CollaborativePlantGuessMinigameConfig : CooperativeMinigameConfigBase
     {
+        public const int MaxAutocompleteSuggestions = 4;
+
         [Header("Dataset")]
         [SerializeField] private string csvRelativePath = "CoopMinigames/CollaborativePlantGuessPlants.csv";
         [SerializeField] private List<CollaborativePlantGuessImageEntry> plantImages = new();
@@ -20,10 +22,9 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
         [SerializeField] [Min(3)] private int maxAttempts = 8;
         [SerializeField] [Min(1)] private int leafTypeRevealAttempt = 1;
         [SerializeField] [Min(1)] private int fruitDetailRevealAttempt = 2;
-        [SerializeField] [Min(1)] private int leafPersistenceRevealAttempt = 4;
-        [SerializeField] [Min(1)] private int plantTypeRevealAttempt = 6;
+        [SerializeField] [Min(1)] private int plantTypeRevealAttempt = 4;
         [SerializeField] [Min(0f)] private float victoryRevealDelaySeconds = 1.2f;
-        [SerializeField] [Min(1)] private int autocompleteSuggestionCount = 6;
+        [SerializeField] [Range(1, MaxAutocompleteSuggestions)] private int autocompleteSuggestionCount = MaxAutocompleteSuggestions;
         [SerializeField] private string timeoutMessage = "Tiempo agotado";
         [SerializeField] private string attemptsExhaustedMessage = "Intentos agotados";
         [SerializeField] private string invalidGuessMessage = "Selecciona una planta valida del autocompletado";
@@ -42,7 +43,6 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
         public int MaxAttempts => maxAttempts;
         public int LeafTypeRevealAttempt => leafTypeRevealAttempt;
         public int FruitDetailRevealAttempt => fruitDetailRevealAttempt;
-        public int LeafPersistenceRevealAttempt => leafPersistenceRevealAttempt;
         public int PlantTypeRevealAttempt => plantTypeRevealAttempt;
         public float VictoryRevealDelaySeconds => victoryRevealDelaySeconds;
         public int AutocompleteSuggestionCount => autocompleteSuggestionCount;
@@ -92,10 +92,9 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             maxAttempts = Mathf.Max(3, maxAttempts);
             leafTypeRevealAttempt = Mathf.Clamp(leafTypeRevealAttempt, 1, maxAttempts);
             fruitDetailRevealAttempt = Mathf.Clamp(fruitDetailRevealAttempt, 1, maxAttempts);
-            leafPersistenceRevealAttempt = Mathf.Clamp(leafPersistenceRevealAttempt, 1, maxAttempts);
             plantTypeRevealAttempt = Mathf.Clamp(plantTypeRevealAttempt, 1, maxAttempts);
             victoryRevealDelaySeconds = Mathf.Max(0f, victoryRevealDelaySeconds);
-            autocompleteSuggestionCount = Mathf.Max(1, autocompleteSuggestionCount);
+            autocompleteSuggestionCount = Mathf.Clamp(autocompleteSuggestionCount, 1, MaxAutocompleteSuggestions);
             scoreSettings.Clamp();
             visualSettings.Clamp();
             plantImages ??= new List<CollaborativePlantGuessImageEntry>();

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab796ac5275cf914a81eede299b428a7, type: 3}
   m_Name: CollaborativePlantGuessMinigameConfig
   m_EditorClassIdentifier: Assembly-CSharp::SmartCampus.Coop.Minigames.CollaborativePlantGuess.CollaborativePlantGuessMinigameConfig
-  displayName: "\xBFQuien es quien?"
+  displayName: "\xBFQui\xE9n ser\xE1?"
   tutorialContent: {fileID: 11400000, guid: b7564c284041354428e8039fe9e67977, type: 2}
   successMessage: Planta encontrada
   returnToMapButtonLabel: Volver al mapa
@@ -52,14 +52,13 @@ MonoBehaviour:
     image: {fileID: 21300000, guid: e564f87349ce62f48b4436d98e2a30e0, type: 3}
   minimumSupportedPlayers: 2
   maxSupportedDevices: 6
-  timeLimitSeconds: 180
+  timeLimitSeconds: 300
   maxAttempts: 8
   leafTypeRevealAttempt: 1
   fruitDetailRevealAttempt: 2
-  leafPersistenceRevealAttempt: 4
-  plantTypeRevealAttempt: 6
+  plantTypeRevealAttempt: 4
   victoryRevealDelaySeconds: 1.2
-  autocompleteSuggestionCount: 6
+  autocompleteSuggestionCount: 4
   timeoutMessage: Tiempo agotado
   attemptsExhaustedMessage: Intentos agotados
   invalidGuessMessage: Selecciona una planta valida del autocompletado

@@ -157,8 +157,8 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             {
                 hintLabel.gameObject.SetActive(true);
                 hintLabel.text =
-                    $"Orden de pistas: rugosidad, tipo de hoja, categoria del fruto, tipo de fruto, hoja perenne o caduca y tipo de planta. " +
-                    $"Se desbloquean en los intentos 2, 4 y 6 para tipo de fruto, persistencia y tipo de planta.";
+                    $"Orden de pistas: rugosidad, tipo de hoja, categoria del fruto, tipo de fruto y tipo de planta. " +
+                    $"El tipo de fruto se desbloquea en el intento 2 y el tipo de planta en el intento 4.";
             }
 
             if (guessInputField != null)
@@ -226,7 +226,7 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
                 return "Selecciona una planta valida. Puedes buscar por nombre comun, cientifico o sinonimos.";
             }
 
-            return "Busca por nombre comun, cientifico o sinonimos. Cada intento se comparte con 6 pistas para comparar la planta elegida.";
+            return "Busca por nombre comun, cientifico o sinonimos. Cada intento se comparte con 5 pistas para comparar la planta elegida.";
         }
 
         private string BuildStatusMessage(CollaborativePlantGuessMinigameConfig config)
@@ -256,13 +256,23 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
         {
             if (suggestionRoot == null || suggestionTemplate == null || guessInputField == null || !TypedSession.HasLoadedPlantDefinitions)
             {
+                if (suggestionRoot != null)
+                {
+                    suggestionRoot.gameObject.SetActive(false);
+                }
+
                 return;
             }
 
+            var suggestionLimit = config == null
+                ? CollaborativePlantGuessMinigameConfig.MaxAutocompleteSuggestions
+                : Mathf.Min(config.AutocompleteSuggestionCount, CollaborativePlantGuessMinigameConfig.MaxAutocompleteSuggestions);
             var suggestions = CollaborativePlantGuessAutocompleteService.BuildSuggestions(
                 TypedSession.GetLoadedPlantDefinitions(),
                 guessInputField.text,
-                config.AutocompleteSuggestionCount);
+                suggestionLimit);
+
+            suggestionRoot.gameObject.SetActive(suggestions.Count > 0);
 
             for (var index = 0; index < suggestions.Count; index++)
             {

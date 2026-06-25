@@ -24,7 +24,7 @@ MonoBehaviour:
       para decidir en grupo cual debe pulsarse.
     sceneName: AudioWordConsensusMinigame
   - minigameIndex: 2
-    displayName: "\xBFQue sabe a que?"
+    displayName: "\xBFQui\xE9n ser\xE1?"
     description: Adivina una planta entre todos con historial compartido, autocompletado
       y pistas de atributos tipo Loldle.
     sceneName: CollaborativePlantGuessMinigame

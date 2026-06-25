@@ -16,11 +16,12 @@ MonoBehaviour:
   projectSubtitle: 'Restauremos juntos
 
     la red de micorrizas'
-  globalProgressLabel: RED DE MICORRIZAS
+  globalProgressLabel: "RED DE \nMICORRIZAS"
   teamTitle: EQUIPO
   unnamedTeamRoomCodeFormat: SALA {0}
   minigameTitlePrefix: "MISI\xD3N:"
   globalProgressPercentFormat: '{0:0}%'
+  defaultPenaltySeconds: 10
   logoSprite: {fileID: 21300000, guid: 011549272f0cc8e42b79659c0ca10a44, type: 3}
   defaultAvatarSprites:
   - {fileID: 21300000, guid: 0c06e1806008ef0448c12bac22506c65, type: 3}
@@ -96,7 +97,7 @@ MonoBehaviour:
     chatIcon: {fileID: 0}
     leafIcon: {fileID: 0}
     timerIcon: {fileID: 21300000, guid: b9abe8ba784b48647b980a22cad1d4ef, type: 3}
-    penaltyTimerIcon: {fileID: 0}
+    penaltyTimerIcon: {fileID: 21300000, guid: 897a2d29119d4497b53a3782cf6c2423, type: 3}
     successIcon: {fileID: 0}
     failureIcon: {fileID: 0}
   decorationStyle:

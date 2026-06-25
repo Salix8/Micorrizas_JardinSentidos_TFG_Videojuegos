@@ -110,7 +110,10 @@ namespace SmartCampus.Coop.Minigames
                 return;
             }
 
-            var roundedPenalty = Mathf.RoundToInt(Mathf.Abs(penaltySeconds));
+            var resolvedPenalty = penaltySeconds > 0f || themeConfig == null
+                ? penaltySeconds
+                : themeConfig.DefaultPenaltySeconds;
+            var roundedPenalty = Mathf.RoundToInt(Mathf.Abs(resolvedPenalty));
             penaltyValueLabel.text = roundedPenalty <= 0 ? "0s" : $"-{roundedPenalty}s";
         }
 
@@ -148,7 +151,8 @@ namespace SmartCampus.Coop.Minigames
             ApplyText(timeLabel, bottomStyle.TimeRemainingLabel, typography.CaptionSize, palette.PrimaryGreen, FontStyles.Bold);
             ApplyText(timeValueLabel, "00:00", typography.ProjectTitleSize, palette.PrimaryGreen, FontStyles.Bold);
             ApplyText(penaltyLabel, bottomStyle.PenaltyLabel, typography.CaptionSize, palette.Danger, FontStyles.Bold);
-            ApplyText(penaltyValueLabel, "-0s", typography.ProjectTitleSize, palette.Danger, FontStyles.Bold);
+            ApplyTextStyle(penaltyValueLabel, typography.ProjectTitleSize, palette.Danger, FontStyles.Bold);
+            SetPenaltySeconds(themeConfig.DefaultPenaltySeconds);
 
             if (timeSlider != null)
             {

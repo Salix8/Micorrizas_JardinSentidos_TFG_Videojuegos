@@ -15,7 +15,6 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             bool isExactPlantMatch,
             CollaborativePlantGuessComparisonOutcome plantTypeOutcome,
             CollaborativePlantGuessComparisonOutcome surfaceRoughnessOutcome,
-            CollaborativePlantGuessComparisonOutcome leafPersistenceOutcome,
             CollaborativePlantGuessComparisonOutcome leafTypeOutcome,
             CollaborativePlantGuessComparisonOutcome fruitCategoryOutcome,
             CollaborativePlantGuessComparisonOutcome fruitTypeOutcome)
@@ -23,7 +22,6 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             IsExactPlantMatch = isExactPlantMatch;
             PlantTypeOutcome = plantTypeOutcome;
             SurfaceRoughnessOutcome = surfaceRoughnessOutcome;
-            LeafPersistenceOutcome = leafPersistenceOutcome;
             LeafTypeOutcome = leafTypeOutcome;
             FruitCategoryOutcome = fruitCategoryOutcome;
             FruitTypeOutcome = fruitTypeOutcome;
@@ -32,7 +30,6 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
         public bool IsExactPlantMatch { get; }
         public CollaborativePlantGuessComparisonOutcome PlantTypeOutcome { get; }
         public CollaborativePlantGuessComparisonOutcome SurfaceRoughnessOutcome { get; }
-        public CollaborativePlantGuessComparisonOutcome LeafPersistenceOutcome { get; }
         public CollaborativePlantGuessComparisonOutcome LeafTypeOutcome { get; }
         public CollaborativePlantGuessComparisonOutcome FruitCategoryOutcome { get; }
         public CollaborativePlantGuessComparisonOutcome FruitTypeOutcome { get; }
@@ -59,7 +56,6 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
                 isExactPlantMatch,
                 EvaluateExactText(targetPlant.PlantType, guessedPlant.PlantType),
                 EvaluateExactText(targetPlant.SurfaceRoughness, guessedPlant.SurfaceRoughness),
-                EvaluateExactText(targetPlant.LeafPersistence, guessedPlant.LeafPersistence),
                 EvaluateExactText(targetPlant.LeafType, guessedPlant.LeafType),
                 EvaluateExactText(targetPlant.FruitCategory, guessedPlant.FruitCategory),
                 EvaluateExactText(targetPlant.FruitType, guessedPlant.FruitType));

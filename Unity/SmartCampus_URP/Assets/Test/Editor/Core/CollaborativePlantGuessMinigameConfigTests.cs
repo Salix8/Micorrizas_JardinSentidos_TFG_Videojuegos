@@ -49,7 +49,6 @@ namespace SmartCampus.Testing.Editor.Core
                     string.Empty,
                     "Arbol",
                     "Rugosa",
-                    "Perenne",
                     "Coriacea",
                     "Seco",
                     "Bellota")

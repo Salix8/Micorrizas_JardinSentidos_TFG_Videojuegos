@@ -22,6 +22,13 @@ namespace SmartCampus.Coop.Minigames
         [SerializeField] private Vector2 panelSize = new(560f, 150f);
         [SerializeField] private List<GameObject> hiddenElements = new();
 
+        [Header("Panel Background")]
+        [SerializeField] private RoundedPanelGraphic panelBackground;
+        [SerializeField] private Color panelBackgroundColor = new(0.96f, 0.93f, 0.83f, 0.9f);
+        [SerializeField] private Color panelBorderColor = new(0.76f, 0.70f, 0.52f, 0.88f);
+        [SerializeField] [Min(0f)] private float panelCornerRadius = 30f;
+        [SerializeField] [Min(0f)] private float panelBorderWidth = 1.5f;
+
         [Header("Progress Label Backgrounds")]
         [SerializeField] private Color progressLabelBackgroundColor = new(0.96f, 0.93f, 0.83f, 0.92f);
         [SerializeField] private Color progressLabelBorderColor = new(0.76f, 0.70f, 0.52f, 0.85f);
@@ -46,7 +53,9 @@ namespace SmartCampus.Coop.Minigames
 
         private void OnValidate()
         {
+            ResolveReferences();
             ApplySceneLayout();
+            ApplyVisualOverrides();
         }
 
         private void OnDisable()
@@ -68,6 +77,7 @@ namespace SmartCampus.Coop.Minigames
                 CalculateProgress01(),
                 sessionCoordinator == null ? string.Empty : sessionCoordinator.TeamName,
                 relayConnectionService == null ? string.Empty : relayConnectionService.CurrentJoinCode);
+            ApplyVisualOverrides();
         }
 
         private float CalculateProgress01()
@@ -84,6 +94,7 @@ namespace SmartCampus.Coop.Minigames
         {
             topPanelView ??= GetComponentInChildren<CoopMinigameTopPanelView>(true);
             panelRectTransform ??= topPanelView == null ? null : topPanelView.GetComponent<RectTransform>();
+            panelBackground ??= panelRectTransform == null ? null : panelRectTransform.GetComponent<RoundedPanelGraphic>();
             sessionCoordinator ??= FindFirstObjectByType<CoopSessionCoordinator>(FindObjectsInactive.Include);
             sessionProgressSync ??= sessionCoordinator != null
                 ? sessionCoordinator.SessionProgressSync
@@ -109,6 +120,19 @@ namespace SmartCampus.Coop.Minigames
                 {
                     element.SetActive(false);
                 }
+            }
+        }
+
+        private void ApplyVisualOverrides()
+        {
+            if (panelBackground != null)
+            {
+                panelBackground.raycastTarget = false;
+                panelBackground.Configure(
+                    panelBackgroundColor,
+                    panelBorderColor,
+                    panelCornerRadius,
+                    panelBorderWidth);
             }
 
             foreach (var binding in progressLabelBackgrounds)
