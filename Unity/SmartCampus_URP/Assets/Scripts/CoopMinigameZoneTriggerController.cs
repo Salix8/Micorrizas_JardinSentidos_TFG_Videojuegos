@@ -402,8 +402,10 @@ public sealed class CoopMinigameZoneTriggerController : MonoBehaviour
 
         if (coopSessionProgressSync != null &&
             coopSessionProgressSync.TryGetProgressState(zone.MiniGameIndex, out var progressState) &&
-            progressState.IsCompleted &&
-            progressState.ScoreOutOfTen > completedZoneMinimumScore)
+            CoopMinigameZoneVisualStateService.ShouldUseCompletedSprite(
+                progressState.IsCompleted,
+                progressState.ScoreOutOfTen,
+                completedZoneMinimumScore))
         {
             return completedZoneSprite;
         }

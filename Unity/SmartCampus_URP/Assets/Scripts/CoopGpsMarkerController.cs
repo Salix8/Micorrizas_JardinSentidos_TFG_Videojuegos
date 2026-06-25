@@ -32,6 +32,8 @@ public sealed class CoopGpsMarkerController : MonoBehaviour
     [SerializeField] [Min(0.1f)] private float markerScale = 10f;
     [SerializeField] [Min(0f)] private float markerVisualHeightOffset = 12f;
     [SerializeField] private Vector3 markerVisualLocalEulerAngles = new(90f, 0f, 0f);
+    [SerializeField] private bool alignMarkerVisualToMapPlane = true;
+    [SerializeField] private float markerVisualMapYawDegrees;
     [SerializeField] [Min(0.1f)] private float markerCircleDiameter = 1f;
     [SerializeField] [Range(0.1f, 1f)] private float markerAvatarFillRatio = 0.6f;
     [SerializeField] [Range(0f, 0.25f)] private float markerCircleBorderRatio = 0.08f;
@@ -126,6 +128,22 @@ public sealed class CoopGpsMarkerController : MonoBehaviour
         {
             nextPublishTime = Time.unscaledTime + publishIntervalSeconds;
             gpsStateSync.SubmitLocalReading(latestLocalReading);
+        }
+    }
+
+    private void LateUpdate()
+    {
+        if (!alignMarkerVisualToMapPlane)
+        {
+            return;
+        }
+
+        foreach (var markerView in markerViews.Values)
+        {
+            if (markerView.Root != null && markerView.Root.activeInHierarchy)
+            {
+                ApplyMapAlignedVisualTransform(markerView);
+            }
         }
     }
 
@@ -356,9 +374,54 @@ public sealed class CoopGpsMarkerController : MonoBehaviour
             return;
         }
 
-        markerView.VisualTransform.localPosition = Vector3.up * markerVisualHeightOffset;
-        markerView.VisualTransform.localRotation = Quaternion.Euler(markerVisualLocalEulerAngles);
+        if (alignMarkerVisualToMapPlane)
+        {
+            ApplyMapAlignedVisualTransform(markerView);
+        }
+        else
+        {
+            markerView.VisualTransform.localPosition = Vector3.up * markerVisualHeightOffset;
+            markerView.VisualTransform.localRotation = Quaternion.Euler(markerVisualLocalEulerAngles);
+        }
+
         markerView.VisualTransform.localScale = Vector3.one * markerScale;
+    }
+
+    private void ApplyMapAlignedVisualTransform(PlayerMarkerView markerView)
+    {
+        var mapNormal = ResolveMapPlaneNormal();
+        var mapForward = ResolveMapPlaneForward(mapNormal);
+        var markerPosition = TryResolveMarkerWorldPosition(markerView, out var resolvedWorldPosition)
+            ? resolvedWorldPosition
+            : markerView.Root.transform.position;
+
+        markerView.VisualTransform.position = markerPosition + mapNormal * markerVisualHeightOffset;
+        markerView.VisualTransform.rotation = Quaternion.AngleAxis(markerVisualMapYawDegrees, mapNormal) *
+                                              Quaternion.LookRotation(mapNormal, mapForward);
+    }
+
+    private Vector3 ResolveMapPlaneNormal()
+    {
+        if (arcGISMap != null)
+        {
+            return arcGISMap.transform.up.normalized;
+        }
+
+        var mainCamera = Camera.main;
+        return mainCamera != null ? (-mainCamera.transform.forward).normalized : Vector3.up;
+    }
+
+    private Vector3 ResolveMapPlaneForward(Vector3 mapNormal)
+    {
+        var mainCamera = Camera.main;
+        var candidateForward = mainCamera != null ? mainCamera.transform.up : Vector3.forward;
+        if (arcGISMap != null && Vector3.ProjectOnPlane(candidateForward, mapNormal).sqrMagnitude <= 0.0001f)
+        {
+            candidateForward = arcGISMap.transform.forward;
+        }
+
+        candidateForward = Vector3.ProjectOnPlane(candidateForward, mapNormal);
+        return candidateForward.sqrMagnitude > 0.0001f ? candidateForward.normalized : Vector3.forward;
     }
 
     private void ApplySurfacePlacement(PlayerMarkerView markerView)
