@@ -13,11 +13,12 @@ namespace SmartCampus.Coop.Minigames
         [Header("Brand")]
         [SerializeField] private string projectTitle = "JARDIN MICORRIZAL";
         [SerializeField] private string projectSubtitle = "Restauramos juntos\nla red de micorrizas";
-        [SerializeField] private string globalProgressLabel = "RED DE MICORRIZAS";
+        [SerializeField] private string globalProgressLabel = "RED DE \nMICORRIZAS";
         [SerializeField] private string teamTitle = "EQUIPO";
         [SerializeField] private string unnamedTeamRoomCodeFormat = "SALA {0}";
         [SerializeField] private string minigameTitlePrefix = "MISIÓN:";
         [SerializeField] private string globalProgressPercentFormat = "{0:0}%";
+        [SerializeField] [Min(0f)] private float defaultPenaltySeconds = 10f;
         [SerializeField] private Sprite logoSprite;
         [SerializeField] private List<Sprite> defaultAvatarSprites = new();
 
@@ -49,6 +50,7 @@ namespace SmartCampus.Coop.Minigames
         public string TeamTitle => teamTitle;
         public string MinigameTitlePrefix => minigameTitlePrefix;
         public string GlobalProgressPercentFormat => globalProgressPercentFormat;
+        public float DefaultPenaltySeconds => defaultPenaltySeconds;
         public Sprite LogoSprite => logoSprite;
         public IReadOnlyList<Sprite> DefaultAvatarSprites => defaultAvatarSprites;
         public TMP_FontAsset PrimaryFont => primaryFont;
@@ -81,13 +83,14 @@ namespace SmartCampus.Coop.Minigames
         {
             projectTitle = NormalizeRequired(projectTitle, "JARDIN MICORRIZAL");
             projectSubtitle = NormalizeRequired(projectSubtitle, "Restauramos juntos\nla red de micorrizas");
-            globalProgressLabel = NormalizeRequired(globalProgressLabel, "RED DE MICORRIZAS");
+            globalProgressLabel = NormalizeRequired(globalProgressLabel, "RED DE \nMICORRIZAS");
             teamTitle = NormalizeRequired(teamTitle, "EQUIPO");
             unnamedTeamRoomCodeFormat = string.IsNullOrWhiteSpace(unnamedTeamRoomCodeFormat)
                 ? "SALA {0}"
                 : unnamedTeamRoomCodeFormat.Trim();
             minigameTitlePrefix = NormalizeRequired(minigameTitlePrefix, "MISIÓN:");
             globalProgressPercentFormat = NormalizeRequired(globalProgressPercentFormat, "{0:0}%");
+            defaultPenaltySeconds = Mathf.Max(0f, defaultPenaltySeconds);
 
             defaultAvatarSprites ??= new List<Sprite>();
             typography.Clamp();
@@ -315,6 +318,7 @@ namespace SmartCampus.Coop.Minigames
         [SerializeField] [Min(80f)] private float upperHeight;
         [SerializeField] [Min(40f)] private float titleBandHeight;
         [SerializeField] [Min(32f)] private float logoSize;
+        [SerializeField] [Min(0f)] private float logoInnerPadding;
         [SerializeField] [Min(24f)] private float avatarSize;
         [SerializeField] [Min(0f)] private float avatarOverlap;
         [SerializeField] [Min(40f)] private float progressBarWidth;
@@ -323,6 +327,7 @@ namespace SmartCampus.Coop.Minigames
         public float UpperHeight => upperHeight;
         public float TitleBandHeight => titleBandHeight;
         public float LogoSize => logoSize;
+        public float LogoInnerPadding => logoInnerPadding;
         public float AvatarSize => avatarSize;
         public float AvatarOverlap => avatarOverlap;
         public float ProgressBarWidth => progressBarWidth;
@@ -335,6 +340,7 @@ namespace SmartCampus.Coop.Minigames
                 upperHeight = 222f,
                 titleBandHeight = 96f,
                 logoSize = 126f,
+                logoInnerPadding = 10f,
                 avatarSize = 62f,
                 avatarOverlap = 8f,
                 progressBarWidth = 210f,
@@ -347,6 +353,7 @@ namespace SmartCampus.Coop.Minigames
             upperHeight = Mathf.Max(80f, upperHeight);
             titleBandHeight = Mathf.Max(40f, titleBandHeight);
             logoSize = Mathf.Max(32f, logoSize);
+            logoInnerPadding = Mathf.Clamp(logoInnerPadding, 0f, logoSize - 8f);
             avatarSize = Mathf.Max(24f, avatarSize);
             avatarOverlap = Mathf.Max(0f, avatarOverlap);
             progressBarWidth = Mathf.Max(40f, progressBarWidth);

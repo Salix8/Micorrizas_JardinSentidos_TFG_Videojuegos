@@ -22,7 +22,7 @@ MonoBehaviour:
   minimumRequiredPlants: 6
   maxPlantsPerMatch: 9
   shufflePlants: 1
-  timeLimitSeconds: 210
+  timeLimitSeconds: 300
   transitionDuration: 0.2
   timeoutMessage: Tiempo agotado
   scoreSettings:

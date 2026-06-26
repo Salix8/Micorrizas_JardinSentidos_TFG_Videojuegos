@@ -210,13 +210,14 @@ public static class GardenImageVotingMinigameSetup
             2f);
 
         CreateSwipeDecisionZones(cardPanel.transform, font, themeConfig);
+        var cardLayoutSettings = config.CardLayoutSettings;
 
         var cardRoot = CreateUiObject("CardRoot", cardPanel.transform, typeof(Image), typeof(CanvasGroup), typeof(GardenImageVotingCardView), typeof(ResponsiveAspectRatioLayoutController));
         var cardRootRect = cardRoot.GetComponent<RectTransform>();
         cardRootRect.anchorMin = new Vector2(0.5f, 0.5f);
         cardRootRect.anchorMax = new Vector2(0.5f, 0.5f);
         cardRootRect.pivot = new Vector2(0.5f, 0.5f);
-        cardRootRect.sizeDelta = new Vector2(640f, 920f);
+        cardRootRect.sizeDelta = cardLayoutSettings.MaxSize;
         cardRoot.GetComponent<Image>().color = config.CardVisualSettings.BackgroundColor;
         cardRoot.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0f);
         var cardBackground = CreateUiObject("RoundedCardBackground", cardRoot.transform, typeof(RoundedPanelGraphic));
@@ -227,12 +228,13 @@ public static class GardenImageVotingMinigameSetup
             34f,
             3f);
         cardBackground.transform.SetAsFirstSibling();
-        cardRoot.GetComponent<ResponsiveAspectRatioLayoutController>().Configure(
+        var cardLayoutController = cardRoot.GetComponent<ResponsiveAspectRatioLayoutController>();
+        cardLayoutController.Configure(
             cardPanel.GetComponent<RectTransform>(),
-            640f / 920f,
-            new Vector2(220f, 340f),
-            new Vector2(680f, 980f),
-            new Vector2(24f, 24f));
+            cardLayoutSettings.WidthToHeightRatio,
+            cardLayoutSettings.MinSize,
+            cardLayoutSettings.MaxSize,
+            cardLayoutSettings.OuterMargin);
 
         var illustration = CreateUiObject("Illustration", cardRoot.transform, typeof(Image));
         var illustrationRect = illustration.GetComponent<RectTransform>();
@@ -315,6 +317,7 @@ public static class GardenImageVotingMinigameSetup
         serializedUiController.FindProperty("topPanelView").objectReferenceValue = topPanelView;
         serializedUiController.FindProperty("bottomPanelView").objectReferenceValue = bottomPanelView;
         serializedUiController.FindProperty("cardView").objectReferenceValue = cardView;
+        serializedUiController.FindProperty("cardLayoutController").objectReferenceValue = cardLayoutController;
         serializedUiController.FindProperty("displayedPenaltySeconds").floatValue = config.IncorrectAnswerPenaltySeconds;
         serializedUiController.FindProperty("titleLabel").objectReferenceValue = titleLabel;
         serializedUiController.FindProperty("timerLabel").objectReferenceValue = timerLabel;

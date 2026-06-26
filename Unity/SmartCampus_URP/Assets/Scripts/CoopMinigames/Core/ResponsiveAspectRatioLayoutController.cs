@@ -16,6 +16,8 @@ namespace SmartCampus.Coop.Minigames
 
         private Vector2 lastReferenceSize;
 
+        public RectTransform ReferenceRectTransform => referenceRectTransform;
+
         private void Awake()
         {
             ResolveReferences();
@@ -55,6 +57,20 @@ namespace SmartCampus.Coop.Minigames
             maxSize = configuredMaxSize;
             outerMargin = configuredOuterMargin;
             RefreshLayout();
+        }
+
+        public void ConfigureSizing(
+            float configuredWidthToHeightRatio,
+            Vector2 configuredMinSize,
+            Vector2 configuredMaxSize,
+            Vector2 configuredOuterMargin)
+        {
+            Configure(
+                referenceRectTransform,
+                configuredWidthToHeightRatio,
+                configuredMinSize,
+                configuredMaxSize,
+                configuredOuterMargin);
         }
 
         public void RefreshLayout()
@@ -98,15 +114,49 @@ namespace SmartCampus.Coop.Minigames
         {
             if (referenceRectTransform != null)
             {
-                return referenceRectTransform.rect.size;
+                if (TryGetValidSize(referenceRectTransform, out var referenceSize))
+                {
+                    return referenceSize;
+                }
             }
 
             if (targetRectTransform != null && targetRectTransform.parent is RectTransform parentRectTransform)
             {
-                return parentRectTransform.rect.size;
+                if (TryGetValidSize(parentRectTransform, out var parentSize))
+                {
+                    return parentSize;
+                }
+            }
+
+            var canvas = targetRectTransform == null ? null : targetRectTransform.GetComponentInParent<Canvas>();
+            if (canvas != null && canvas.transform is RectTransform canvasRectTransform)
+            {
+                var canvasSize = canvasRectTransform.rect.size;
+                if (canvasSize.x > 0f && canvasSize.y > 0f)
+                {
+                    return canvasSize;
+                }
             }
 
             return new Vector2(Screen.width, Screen.height);
+        }
+
+        private static bool TryGetValidSize(RectTransform rectTransform, out Vector2 size)
+        {
+            var current = rectTransform;
+            while (current != null)
+            {
+                size = current.rect.size;
+                if (size.x > 0f && size.y > 0f)
+                {
+                    return true;
+                }
+
+                current = current.parent as RectTransform;
+            }
+
+            size = Vector2.zero;
+            return false;
         }
 
         private void ResolveReferences()

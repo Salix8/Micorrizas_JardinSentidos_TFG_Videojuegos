@@ -13,6 +13,7 @@ namespace SmartCampus.Coop.Minigames.GardenImageVoting
         [SerializeField] private CoopMinigameTopPanelView topPanelView;
         [SerializeField] private CoopMinigameBottomPanelView bottomPanelView;
         [SerializeField] private GardenImageVotingCardView cardView;
+        [SerializeField] private ResponsiveAspectRatioLayoutController cardLayoutController;
 
         [SerializeField] private float displayedPenaltySeconds;
         [SerializeField] private string teamName;
@@ -107,6 +108,8 @@ namespace SmartCampus.Coop.Minigames.GardenImageVoting
                 titleLabel.text = config.DisplayName;
             }
 
+            ApplyCardLayout(config.CardLayoutSettings);
+
             if (topPanelView != null)
             {
                 topPanelView.Bind(config.DisplayName, CalculateGlobalProgress01(), teamName, roomCode);
@@ -180,6 +183,25 @@ namespace SmartCampus.Coop.Minigames.GardenImageVoting
                 config.SwipeThreshold,
                 config.TransitionDuration,
                 TypedSession.SubmitLocalDecision);
+        }
+
+        private void ApplyCardLayout(GardenImageVotingCardLayoutSettings layoutSettings)
+        {
+            if (cardLayoutController == null && cardView != null)
+            {
+                cardLayoutController = cardView.GetComponent<ResponsiveAspectRatioLayoutController>();
+            }
+
+            if (cardLayoutController == null)
+            {
+                return;
+            }
+
+            cardLayoutController.ConfigureSizing(
+                layoutSettings.WidthToHeightRatio,
+                layoutSettings.MinSize,
+                layoutSettings.MaxSize,
+                layoutSettings.OuterMargin);
         }
 
         protected override int? GetFailureFeedbackCount()

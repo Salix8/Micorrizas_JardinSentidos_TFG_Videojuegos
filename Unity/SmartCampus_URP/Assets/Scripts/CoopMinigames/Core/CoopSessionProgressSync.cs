@@ -12,24 +12,35 @@ namespace SmartCampus.Coop.Minigames
         [SerializeField] private CoopSessionCoordinator coopSessionCoordinator;
         [SerializeField] private bool persistAcrossScenes = true;
 
+        [Header("Progress Rules")]
+        [SerializeField] [Min(1)] private int playableMinigameCount = 5;
+
         private readonly NetworkList<CoopMinigameProgressNetworkState> progressStates = new();
         private int nextCompletionOrder;
 
-        public int ConfiguredMinigameCount => progressStates.Count;
-        public int CompletedCount => CoopSessionProgressService.CountCompleted(GetProgressStatesSnapshot());
-        public bool AreAllMinigamesCompleted => CoopSessionProgressService.AreAllCompleted(GetProgressStatesSnapshot());
-        public float AverageScoreOutOfTen => CoopSessionProgressService.CalculateAverageScore(GetProgressStatesSnapshot());
+        public int ConfiguredMinigameCount => ResolvePlayableMinigameCount();
+        public int TrackedMinigameCount => progressStates.Count;
+        public int PlayableMinigameCount => playableMinigameCount;
+        public int CompletedCount => CoopSessionProgressService.CountCompleted(GetProgressStatesSnapshot(), ConfiguredMinigameCount);
+        public bool AreAllMinigamesCompleted => CoopSessionProgressService.AreAllCompleted(GetProgressStatesSnapshot(), ConfiguredMinigameCount);
+        public float AverageScoreOutOfTen => CoopSessionProgressService.CalculateAverageScore(GetProgressStatesSnapshot(), ConfiguredMinigameCount);
 
         public event Action ProgressChanged;
 
         private void Awake()
         {
+            playableMinigameCount = Mathf.Max(1, playableMinigameCount);
             ResolveReferences();
 
             if (persistAcrossScenes)
             {
                 DontDestroyOnLoad(gameObject);
             }
+        }
+
+        private void OnValidate()
+        {
+            playableMinigameCount = Mathf.Max(1, playableMinigameCount);
         }
 
         public override void OnNetworkSpawn()
@@ -155,6 +166,16 @@ namespace SmartCampus.Coop.Minigames
         private void ResolveReferences()
         {
             coopSessionCoordinator ??= FindFirstObjectByType<CoopSessionCoordinator>(FindObjectsInactive.Include);
+        }
+
+        private int ResolvePlayableMinigameCount()
+        {
+            if (progressStates.Count <= 0)
+            {
+                return 0;
+            }
+
+            return Mathf.Clamp(playableMinigameCount, 1, progressStates.Count);
         }
 
         private void HandleProgressStatesChanged(NetworkListEvent<CoopMinigameProgressNetworkState> _)

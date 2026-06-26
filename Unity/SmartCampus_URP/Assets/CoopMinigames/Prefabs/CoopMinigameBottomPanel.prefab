@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 1054627829083053413}
   - component: {fileID: 4041757395085960908}
   - component: {fileID: 5945143241164758215}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: PenaltyGroup
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -105,7 +105,7 @@ GameObject:
   - component: {fileID: 1065704529575968171}
   - component: {fileID: 8712055544349758274}
   - component: {fileID: 3405212866778338409}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -181,7 +181,7 @@ GameObject:
   - component: {fileID: 1919545389333912417}
   - component: {fileID: 652767668505953332}
   - component: {fileID: 7804545005485910318}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Icon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -276,7 +276,7 @@ GameObject:
   - component: {fileID: 8879167420397961988}
   - component: {fileID: 2947648226164050815}
   - component: {fileID: 8198623109836284824}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: InstructionTitleLabel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -330,7 +330,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: DE ACUERDO EN EQUIPO
+  m_text: IMAGENES DEL JARDIN
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 2e498d1c8094910479dc3e1b768306a4, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 2e498d1c8094910479dc3e1b768306a4, type: 2}
@@ -374,9 +374,9 @@ MonoBehaviour:
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
-  m_TextWrappingMode: 1
+  m_TextWrappingMode: 0
   m_wordWrappingRatios: 0.4
-  m_overflowMode: 0
+  m_overflowMode: 3
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 0
@@ -413,7 +413,7 @@ GameObject:
   - component: {fileID: 8334780710028259379}
   - component: {fileID: 6026277148332490230}
   - component: {fileID: 7196283952509444288}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Fill
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -489,7 +489,8 @@ GameObject:
   - component: {fileID: 542219835574476131}
   - component: {fileID: 8282759948225693187}
   - component: {fileID: 5490132014523673690}
-  m_Layer: 0
+  - component: {fileID: 4894998554776831019}
+  m_Layer: 5
   m_Name: CoopMinigameBottomPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -564,15 +565,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SmartCampus.Coop.Minigames.CoopMinigameBottomPanelView
   themeConfig: {fileID: 11400000, guid: 786768ce65317aa4fbc6ad35e21ff0ce, type: 2}
-  instructionPanelGraphic: {fileID: 0}
+  instructionPanelGraphic: {fileID: 8590914234370515348}
   instructionPanelImage: {fileID: 0}
-  instructionIconCircleGraphic: {fileID: 0}
+  instructionIconCircleGraphic: {fileID: 8422622059892694984}
   instructionIconImage: {fileID: 652767668505953332}
   instructionTitleLabel: {fileID: 8198623109836284824}
   instructionBodyLabel: {fileID: 1377713277294986122}
-  timerPanelGraphic: {fileID: 0}
+  timerPanelGraphic: {fileID: 7433072477393632442}
   timerPanelImage: {fileID: 0}
-  timerIconCircleGraphic: {fileID: 0}
+  timerIconCircleGraphic: {fileID: 6057732957677359599}
   timerIconImage: {fileID: 7831325204017597247}
   timeLabel: {fileID: 9037461738598112171}
   timeValueLabel: {fileID: 7607892710719069661}
@@ -580,10 +581,30 @@ MonoBehaviour:
   timeSliderFillImage: {fileID: 7196283952509444288}
   timeSliderBackgroundImage: {fileID: 3405212866778338409}
   dividerImage: {fileID: 6245007193089849730}
-  penaltyIconCircleGraphic: {fileID: 0}
+  penaltyIconCircleGraphic: {fileID: 1988473662814557879}
   penaltyIconImage: {fileID: 762207154217620182}
   penaltyLabel: {fileID: 47797014188207305}
   penaltyValueLabel: {fileID: 6070582585079074323}
+--- !u!114 &4894998554776831019
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2827799719026903379}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
+  m_IgnoreLayout: 0
+  m_MinWidth: -1
+  m_MinHeight: 260
+  m_PreferredWidth: -1
+  m_PreferredHeight: 360
+  m_FlexibleWidth: -1
+  m_FlexibleHeight: 0
+  m_LayoutPriority: 1
 --- !u!1 &2852501000444696921
 GameObject:
   m_ObjectHideFlags: 0
@@ -595,7 +616,7 @@ GameObject:
   - component: {fileID: 7035415630158482864}
   - component: {fileID: 2100639124606538699}
   - component: {fileID: 47797014188207305}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: PenaltyLabel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -693,9 +714,9 @@ MonoBehaviour:
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
-  m_TextWrappingMode: 1
+  m_TextWrappingMode: 0
   m_wordWrappingRatios: 0.4
-  m_overflowMode: 0
+  m_overflowMode: 3
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 0
@@ -733,7 +754,7 @@ GameObject:
   - component: {fileID: 1377569743937149955}
   - component: {fileID: 3389248549489527301}
   - component: {fileID: 2650988028862492687}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: TimeTexts
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -827,7 +848,9 @@ GameObject:
   - component: {fileID: 438133866099620740}
   - component: {fileID: 1326793639043970519}
   - component: {fileID: 8433372381361049604}
-  m_Layer: 0
+  - component: {fileID: 6057732957677359599}
+  - component: {fileID: 4995998230785691543}
+  m_Layer: 5
   m_Name: TimerIconCircle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -882,6 +905,44 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
+--- !u!114 &6057732957677359599
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3437994484792939574}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f6e2749e4794b66aeb7c6ac7b46ca8f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SmartCampus.Coop.Minigames.RoundedPanelGraphic
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  cornerRadius: 43
+  borderWidth: 2
+  fillColor: {r: 0.996, g: 0.988, b: 0.956, a: 0.94}
+  borderColor: {r: 0.38, g: 0.63, b: 0.22, a: 1}
+  cornerSegments: 10
+--- !u!114 &4995998230785691543
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3437994484792939574}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31a19414c41e5ae4aae2af33fee712f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Mask
+  m_ShowMaskGraphic: 1
 --- !u!1 &4525582912413527607
 GameObject:
   m_ObjectHideFlags: 0
@@ -893,7 +954,7 @@ GameObject:
   - component: {fileID: 3018103541325259199}
   - component: {fileID: 7694136052366068032}
   - component: {fileID: 6070582585079074323}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: PenaltyValueLabel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -947,7 +1008,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: -0s
+  m_text: -10s
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 2e498d1c8094910479dc3e1b768306a4, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 2e498d1c8094910479dc3e1b768306a4, type: 2}
@@ -991,9 +1052,9 @@ MonoBehaviour:
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
-  m_TextWrappingMode: 1
+  m_TextWrappingMode: 0
   m_wordWrappingRatios: 0.4
-  m_overflowMode: 0
+  m_overflowMode: 3
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 0
@@ -1031,7 +1092,7 @@ GameObject:
   - component: {fileID: 4195099710982458492}
   - component: {fileID: 8916449267172910441}
   - component: {fileID: 9148990883640003314}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: TimeGroup
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1124,7 +1185,7 @@ GameObject:
   - component: {fileID: 1307264927830542634}
   - component: {fileID: 8865165944045193162}
   - component: {fileID: 7607892710719069661}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: TimeValueLabel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1222,9 +1283,9 @@ MonoBehaviour:
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
-  m_TextWrappingMode: 1
+  m_TextWrappingMode: 0
   m_wordWrappingRatios: 0.4
-  m_overflowMode: 0
+  m_overflowMode: 3
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 0
@@ -1261,13 +1322,15 @@ GameObject:
   - component: {fileID: 8920746601818679926}
   - component: {fileID: 7627184120119092938}
   - component: {fileID: 210714535299594721}
-  m_Layer: 0
+  - component: {fileID: 8422622059892694984}
+  - component: {fileID: 5382999215112197447}
+  m_Layer: 5
   m_Name: InstructionIconCircle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &8920746601818679926
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1283,10 +1346,10 @@ RectTransform:
   - {fileID: 8079347909986458032}
   m_Father: {fileID: 7393595790180984967}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 71, y: -78}
+  m_SizeDelta: {x: 86, y: 86}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7627184120119092938
 CanvasRenderer:
@@ -1316,6 +1379,44 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
+--- !u!114 &8422622059892694984
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5174719552935960132}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f6e2749e4794b66aeb7c6ac7b46ca8f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SmartCampus.Coop.Minigames.RoundedPanelGraphic
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  cornerRadius: 43
+  borderWidth: 2
+  fillColor: {r: 0.996, g: 0.988, b: 0.956, a: 0.94}
+  borderColor: {r: 0.84, g: 0.79, b: 0.63, a: 1}
+  cornerSegments: 10
+--- !u!114 &5382999215112197447
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5174719552935960132}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31a19414c41e5ae4aae2af33fee712f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Mask
+  m_ShowMaskGraphic: 1
 --- !u!1 &5354060727252956079
 GameObject:
   m_ObjectHideFlags: 0
@@ -1328,7 +1429,7 @@ GameObject:
   - component: {fileID: 3942353885815571914}
   - component: {fileID: 6245007193089849730}
   - component: {fileID: 7295305604348624371}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Divider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1424,7 +1525,8 @@ GameObject:
   - component: {fileID: 36162704843235006}
   - component: {fileID: 2634473630675534926}
   - component: {fileID: 3435442144003297731}
-  m_Layer: 0
+  - component: {fileID: 8590914234370515348}
+  m_Layer: 5
   m_Name: InstructionPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1506,6 +1608,31 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
+--- !u!114 &8590914234370515348
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5696552051137221460}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f6e2749e4794b66aeb7c6ac7b46ca8f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SmartCampus.Coop.Minigames.RoundedPanelGraphic
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  cornerRadius: 40
+  borderWidth: 2
+  fillColor: {r: 0.996, g: 0.988, b: 0.956, a: 0.94}
+  borderColor: {r: 0.84, g: 0.79, b: 0.63, a: 1}
+  cornerSegments: 10
 --- !u!1 &5714865648061982767
 GameObject:
   m_ObjectHideFlags: 0
@@ -1516,7 +1643,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1822358737629791233}
   - component: {fileID: 7852765158733020590}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Fill Area
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1562,7 +1689,7 @@ GameObject:
   - component: {fileID: 5800900355868167368}
   - component: {fileID: 3088305871101915071}
   - component: {fileID: 1377713277294986122}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: InstructionBodyLabel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1616,7 +1743,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Cuando todos hayais terminado, se contara el resultado.
+  m_text: Observad y decidid si las especies ilustradas las podeis ver o no.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 2e498d1c8094910479dc3e1b768306a4, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 2e498d1c8094910479dc3e1b768306a4, type: 2}
@@ -1700,7 +1827,7 @@ GameObject:
   - component: {fileID: 7949085349408333130}
   - component: {fileID: 8776506301856598757}
   - component: {fileID: 2523080393628648935}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: InstructionText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1794,7 +1921,8 @@ GameObject:
   - component: {fileID: 8419908508529354997}
   - component: {fileID: 5005932086254503215}
   - component: {fileID: 8985903051399932759}
-  m_Layer: 0
+  - component: {fileID: 7433072477393632442}
+  m_Layer: 5
   m_Name: TimerPenaltyPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1877,6 +2005,31 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
+--- !u!114 &7433072477393632442
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7728371490045988780}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f6e2749e4794b66aeb7c6ac7b46ca8f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SmartCampus.Coop.Minigames.RoundedPanelGraphic
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  cornerRadius: 40
+  borderWidth: 2
+  fillColor: {r: 0.996, g: 0.988, b: 0.956, a: 0.94}
+  borderColor: {r: 0.84, g: 0.79, b: 0.63, a: 1}
+  cornerSegments: 10
 --- !u!1 &7739656287952907168
 GameObject:
   m_ObjectHideFlags: 0
@@ -1889,7 +2042,7 @@ GameObject:
   - component: {fileID: 3815977025213267959}
   - component: {fileID: 7831325204017597247}
   - component: {fileID: 8536070196488827744}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Icon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1930,7 +2083,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7739656287952907168}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
@@ -1943,7 +2096,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 21300000, guid: b9abe8ba784b48647b980a22cad1d4ef, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -1985,7 +2138,7 @@ GameObject:
   - component: {fileID: 9155170992943729759}
   - component: {fileID: 8641079194872984388}
   - component: {fileID: 6696589455272624791}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: TimeSlider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2068,7 +2221,7 @@ MonoBehaviour:
   m_MinValue: 0
   m_MaxValue: 1
   m_WholeNumbers: 0
-  m_Value: 0.8
+  m_Value: 1
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -2104,7 +2257,7 @@ GameObject:
   - component: {fileID: 2666512064588440263}
   - component: {fileID: 762207154217620182}
   - component: {fileID: 9195602601589146294}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Icon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2145,7 +2298,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8063774095511171518}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
@@ -2158,7 +2311,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 21300000, guid: 897a2d29119d4497b53a3782cf6c2423, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -2199,7 +2352,9 @@ GameObject:
   - component: {fileID: 4754635683880762060}
   - component: {fileID: 4632554260641405824}
   - component: {fileID: 842391036716023810}
-  m_Layer: 0
+  - component: {fileID: 1988473662814557879}
+  - component: {fileID: 2503320747183914371}
+  m_Layer: 5
   m_Name: PenaltyIconCircle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2254,6 +2409,44 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
+--- !u!114 &1988473662814557879
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8153174782485800553}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f6e2749e4794b66aeb7c6ac7b46ca8f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SmartCampus.Coop.Minigames.RoundedPanelGraphic
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  cornerRadius: 43
+  borderWidth: 2
+  fillColor: {r: 0.996, g: 0.988, b: 0.956, a: 0.94}
+  borderColor: {r: 0.95, g: 0.78, b: 0.72, a: 1}
+  cornerSegments: 10
+--- !u!114 &2503320747183914371
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8153174782485800553}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31a19414c41e5ae4aae2af33fee712f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Mask
+  m_ShowMaskGraphic: 1
 --- !u!1 &8357424012302676036
 GameObject:
   m_ObjectHideFlags: 0
@@ -2265,7 +2458,7 @@ GameObject:
   - component: {fileID: 7439136509439746781}
   - component: {fileID: 1682481971875331599}
   - component: {fileID: 9037461738598112171}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: TimeLabel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2363,9 +2556,9 @@ MonoBehaviour:
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
-  m_TextWrappingMode: 1
+  m_TextWrappingMode: 0
   m_wordWrappingRatios: 0.4
-  m_overflowMode: 0
+  m_overflowMode: 3
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 0
@@ -2403,7 +2596,7 @@ GameObject:
   - component: {fileID: 3008471324743910370}
   - component: {fileID: 2860458639621938517}
   - component: {fileID: 2148519010315993763}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: PenaltyTexts
   m_TagString: Untagged
   m_Icon: {fileID: 0}

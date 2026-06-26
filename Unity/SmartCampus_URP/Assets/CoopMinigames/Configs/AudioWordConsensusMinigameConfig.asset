@@ -17,7 +17,7 @@ MonoBehaviour:
   successMessage: Rondas completadas
   returnToMapButtonLabel: Volver al mapa
   maxSupportedDevices: 6
-  timeLimitSeconds: 120
+  timeLimitSeconds: 300
   feedbackDurationSeconds: 1.2
   timeoutMessage: Tiempo agotado
   missingAudioClipLabel: Sonido pendiente de asignar

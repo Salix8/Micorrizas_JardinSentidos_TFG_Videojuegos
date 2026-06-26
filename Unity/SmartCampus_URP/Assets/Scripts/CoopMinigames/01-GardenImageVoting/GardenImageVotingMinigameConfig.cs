@@ -25,6 +25,7 @@ namespace SmartCampus.Coop.Minigames.GardenImageVoting
 
         [Header("Visuals")]
         [SerializeField] private GardenImageVotingCardVisualSettings cardVisualSettings = GardenImageVotingCardVisualSettings.CreateDefault();
+        [SerializeField] private GardenImageVotingCardLayoutSettings cardLayoutSettings = GardenImageVotingCardLayoutSettings.CreateDefault();
 
         public string CsvRelativePath => csvRelativePath;
         public int CardsPerDevice => cardsPerDevice;
@@ -37,6 +38,7 @@ namespace SmartCampus.Coop.Minigames.GardenImageVoting
         public string TimeoutMessage => timeoutMessage;
         public GardenImageVotingScoreSettings ScoreSettings => scoreSettings;
         public GardenImageVotingCardVisualSettings CardVisualSettings => cardVisualSettings;
+        public GardenImageVotingCardLayoutSettings CardLayoutSettings => cardLayoutSettings;
 
         private void OnValidate()
         {
@@ -48,6 +50,7 @@ namespace SmartCampus.Coop.Minigames.GardenImageVoting
             transitionDuration = Mathf.Max(0.05f, transitionDuration);
             scoreSettings.Clamp();
             cardVisualSettings.Clamp();
+            cardLayoutSettings.Clamp();
         }
     }
 
@@ -126,6 +129,42 @@ namespace SmartCampus.Coop.Minigames.GardenImageVoting
             swipeRightColor.a = 1f;
             swipeLeftColor.a = 1f;
             placeholderColor.a = 1f;
+        }
+    }
+
+    [Serializable]
+    public struct GardenImageVotingCardLayoutSettings
+    {
+        [SerializeField] [Min(0.2f)] private float widthToHeightRatio;
+        [SerializeField] private Vector2 minSize;
+        [SerializeField] private Vector2 maxSize;
+        [SerializeField] private Vector2 outerMargin;
+
+        public float WidthToHeightRatio => widthToHeightRatio;
+        public Vector2 MinSize => minSize;
+        public Vector2 MaxSize => maxSize;
+        public Vector2 OuterMargin => outerMargin;
+
+        public static GardenImageVotingCardLayoutSettings CreateDefault()
+        {
+            return new GardenImageVotingCardLayoutSettings
+            {
+                widthToHeightRatio = 0.68f,
+                minSize = new Vector2(220f, 340f),
+                maxSize = new Vector2(560f, 780f),
+                outerMargin = new Vector2(48f, 72f)
+            };
+        }
+
+        public void Clamp()
+        {
+            widthToHeightRatio = Mathf.Max(0.2f, widthToHeightRatio);
+            minSize.x = Mathf.Max(120f, minSize.x);
+            minSize.y = Mathf.Max(160f, minSize.y);
+            maxSize.x = Mathf.Max(minSize.x, maxSize.x);
+            maxSize.y = Mathf.Max(minSize.y, maxSize.y);
+            outerMargin.x = Mathf.Max(0f, outerMargin.x);
+            outerMargin.y = Mathf.Max(0f, outerMargin.y);
         }
     }
 }

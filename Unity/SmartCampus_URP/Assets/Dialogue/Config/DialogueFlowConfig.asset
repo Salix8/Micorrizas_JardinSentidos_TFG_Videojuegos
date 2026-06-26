@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 66cb043cbfd24400a2c133a5a46c7374, type: 3}
   m_Name: DialogueFlowConfig
   m_EditorClassIdentifier: Assembly-CSharp::SmartCampus.Dialogue.DialogueFlowConfig
-  dialoguesEnabled: 1
+  dialoguesEnabled: 0
   dialogueSystemConfig: {fileID: 11400000, guid: b297bbda9fb7c3148a7e225cee9c76e3, type: 2}
   dialoguePanelPrefab: {fileID: 3479520924228261738, guid: 5cbb889dd8caebb48b29b92383fdb85f, type: 3}
   reclaimSequenceKey: Reclaim

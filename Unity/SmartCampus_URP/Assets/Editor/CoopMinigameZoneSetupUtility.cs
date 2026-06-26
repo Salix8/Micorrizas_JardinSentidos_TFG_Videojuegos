@@ -8,6 +8,8 @@ using UnityEngine.UI;
 public static class CoopMinigameZoneSetupUtility
 {
     private const string UjiScenePath = "Assets/Scenes/UJI.unity";
+    private const string IncompleteZoneSpritePath = "Assets/Art/icono-sobremapa-Marron.png";
+    private const string CompletedZoneSpritePath = "Assets/Art/icono-sobremapa.png";
 
     private static readonly ZoneSeed[] ZoneSeeds =
     {
@@ -73,6 +75,12 @@ public static class CoopMinigameZoneSetupUtility
         var serializedTriggerController = new SerializedObject(triggerController);
         serializedTriggerController.FindProperty("gpsMarkerController").objectReferenceValue = markerController;
         serializedTriggerController.FindProperty("countdownUiController").objectReferenceValue = countdownUi;
+        serializedTriggerController.FindProperty("incompleteZoneSprite").objectReferenceValue =
+            AssetDatabase.LoadAssetAtPath<Sprite>(IncompleteZoneSpritePath);
+        serializedTriggerController.FindProperty("completedZoneSprite").objectReferenceValue =
+            AssetDatabase.LoadAssetAtPath<Sprite>(CompletedZoneSpritePath);
+        serializedTriggerController.FindProperty("zoneVisualLocalOffset").vector3Value = new Vector3(0f, 18f, 0f);
+        serializedTriggerController.FindProperty("zoneVisualSortingOrder").intValue = 100;
         var zoneArray = serializedTriggerController.FindProperty("zoneDefinitions");
         zoneArray.arraySize = zoneDefinitions.Length;
         for (var index = 0; index < zoneDefinitions.Length; index++)

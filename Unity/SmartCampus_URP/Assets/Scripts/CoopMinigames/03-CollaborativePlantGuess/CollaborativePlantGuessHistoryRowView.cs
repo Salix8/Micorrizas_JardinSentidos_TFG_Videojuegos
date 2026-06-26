@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.Serialization;
 using TMPro;
 using UnityEngine.UI;
 using SmartCampus.Coop.Minigames;
@@ -13,14 +12,12 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
         [SerializeField] private TMP_Text plantNameLabel;
         [SerializeField] private Image plantImage;
         [SerializeField] private GameObject plantImagePlaceholder;
-        [SerializeField] [FormerlySerializedAs("leafPersistenceCell")] private Image plantTypeCell;
-        [SerializeField] [FormerlySerializedAs("leafPersistenceLabel")] private TMP_Text plantTypeLabel;
-        [SerializeField] [FormerlySerializedAs("leafSizeCell")] private Image surfaceRoughnessCell;
-        [SerializeField] [FormerlySerializedAs("leafSizeLabel")] private TMP_Text surfaceRoughnessLabel;
-        [SerializeField] private Image leafPersistenceCell;
-        [SerializeField] private TMP_Text leafPersistenceLabel;
-        [SerializeField] [FormerlySerializedAs("leafTextureCell")] private Image leafTypeCell;
-        [SerializeField] [FormerlySerializedAs("leafTextureLabel")] private TMP_Text leafTypeLabel;
+        [SerializeField] private Image plantTypeCell;
+        [SerializeField] private TMP_Text plantTypeLabel;
+        [SerializeField] private Image surfaceRoughnessCell;
+        [SerializeField] private TMP_Text surfaceRoughnessLabel;
+        [SerializeField] private Image leafTypeCell;
+        [SerializeField] private TMP_Text leafTypeLabel;
         [SerializeField] private Image fruitCategoryCell;
         [SerializeField] private TMP_Text fruitCategoryLabel;
         [SerializeField] private Image fruitTypeCell;
@@ -50,7 +47,6 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             BindCell(leafTypeCell, leafTypeLabel, "Forma de hoja", plantDefinition?.LeafType, historyEntry.LeafTypeOutcome, config.VisualSettings, CollaborativePlantGuessHintProgressionService.ShouldRevealLeafType(historyEntry.AttemptIndex, config));
             BindCell(fruitCategoryCell, fruitCategoryLabel, "Categoria del fruto", plantDefinition?.FruitCategory, historyEntry.FruitCategoryOutcome, config.VisualSettings, CollaborativePlantGuessHintProgressionService.ShouldRevealFruitCategory(historyEntry.AttemptIndex, config));
             BindCell(fruitTypeCell, fruitTypeLabel, "Tipo de fruto", plantDefinition?.FruitType, historyEntry.FruitTypeOutcome, config.VisualSettings, CollaborativePlantGuessHintProgressionService.ShouldRevealFruitType(historyEntry.AttemptIndex, config));
-            BindCell(leafPersistenceCell, leafPersistenceLabel, "Tipo de hoja", plantDefinition?.LeafPersistence, historyEntry.LeafPersistenceOutcome, config.VisualSettings, CollaborativePlantGuessHintProgressionService.ShouldRevealLeafPersistence(historyEntry.AttemptIndex, config));
             BindCell(plantTypeCell, plantTypeLabel, "Tipo de planta", plantDefinition?.PlantType, historyEntry.PlantTypeOutcome, config.VisualSettings, CollaborativePlantGuessHintProgressionService.ShouldRevealPlantType(historyEntry.AttemptIndex, config));
 
             RefreshLayout();
@@ -113,7 +109,6 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             ConfigureComparisonCell(leafTypeCell);
             ConfigureComparisonCell(fruitCategoryCell);
             ConfigureComparisonCell(fruitTypeCell);
-            ConfigureComparisonCell(leafPersistenceCell);
             ConfigureComparisonCell(plantTypeCell);
             HideAttemptLabel();
             ConfigureInfoText(plantNameLabel, TextAnchor.UpperLeft, 3);
@@ -252,8 +247,8 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
                 layoutElement = cellObject.AddComponent<LayoutElement>();
             }
 
-            layoutElement.minWidth = 84f;
-            layoutElement.preferredWidth = 104f;
+            layoutElement.minWidth = 108f;
+            layoutElement.preferredWidth = 128f;
             layoutElement.flexibleWidth = 1f;
             layoutElement.preferredHeight = -1f;
 
@@ -270,7 +265,7 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             if (verticalLayout != null)
             {
                 verticalLayout.padding = new RectOffset(6, 6, 6, 8);
-                verticalLayout.spacing = 4f;
+                verticalLayout.spacing = 6f;
                 verticalLayout.childAlignment = TextAnchor.UpperCenter;
                 verticalLayout.childControlWidth = true;
                 verticalLayout.childControlHeight = true;
@@ -289,9 +284,12 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             }
 
             headerLabel.alignment = TextAlignmentOptions.Top;
-            headerLabel.enableWordWrapping = true;
+            headerLabel.textWrappingMode = TextWrappingModes.Normal;
             headerLabel.overflowMode = TextOverflowModes.Overflow;
             headerLabel.enableAutoSizing = false;
+            headerLabel.fontSize = Mathf.Max(headerLabel.fontSize, 16f);
+            headerLabel.color = new Color(0.075f, 0.29f, 0.095f, 1f);
+            headerLabel.fontStyle = FontStyles.Bold;
 
             var layoutElement = headerLabel.GetComponent<LayoutElement>();
             if (layoutElement == null)
@@ -311,10 +309,12 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             }
 
             valueLabel.alignment = TextAlignmentOptions.Top;
-            valueLabel.enableWordWrapping = true;
+            valueLabel.textWrappingMode = TextWrappingModes.Normal;
             valueLabel.overflowMode = TextOverflowModes.Overflow;
             valueLabel.enableAutoSizing = false;
             valueLabel.richText = true;
+            valueLabel.fontSize = Mathf.Max(valueLabel.fontSize, 18f);
+            valueLabel.color = new Color(0.08f, 0.11f, 0.09f, 1f);
 
             var layoutElement = valueLabel.GetComponent<LayoutElement>();
             if (layoutElement == null)
@@ -335,7 +335,7 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             }
 
             label.alignment = ConvertAlignment(alignment);
-            label.enableWordWrapping = true;
+            label.textWrappingMode = TextWrappingModes.Normal;
             label.overflowMode = TextOverflowModes.Overflow;
             label.enableAutoSizing = false;
 
@@ -402,12 +402,6 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
                 return;
             }
 
-            if (leafPersistenceCell == null)
-            {
-                leafPersistenceCell = CreateComparisonCell("LeafPersistenceCell", "Hoja perenne/caduca", comparisonsRow);
-                leafPersistenceLabel = ResolveValueLabel(leafPersistenceCell);
-            }
-
             if (fruitCategoryCell == null)
             {
                 fruitCategoryCell = PromoteLegacyFruitCell(comparisonsRow);
@@ -435,8 +429,7 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             SetSiblingIfPresent(leafTypeCell, 1);
             SetSiblingIfPresent(fruitCategoryCell, 2);
             SetSiblingIfPresent(fruitTypeCell, 3);
-            SetSiblingIfPresent(leafPersistenceCell, 4);
-            SetSiblingIfPresent(plantTypeCell, 5);
+            SetSiblingIfPresent(plantTypeCell, 4);
         }
 
         private static void SetSiblingIfPresent(Component component, int index)
@@ -496,7 +489,7 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             headerLabel.fontSize = 15;
             headerLabel.alignment = TextAlignmentOptions.Top;
             headerLabel.color = new Color(0.16f, 0.2f, 0.18f, 1f);
-            headerLabel.enableWordWrapping = true;
+            headerLabel.textWrappingMode = TextWrappingModes.Normal;
             headerLabel.overflowMode = TextOverflowModes.Overflow;
             headerLabel.text = headerText;
 
@@ -506,7 +499,7 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             valueLabel.fontSize = 17;
             valueLabel.alignment = TextAlignmentOptions.Top;
             valueLabel.color = new Color(0.1f, 0.12f, 0.11f, 1f);
-            valueLabel.enableWordWrapping = true;
+            valueLabel.textWrappingMode = TextWrappingModes.Normal;
             valueLabel.overflowMode = TextOverflowModes.Overflow;
             valueLabel.text = CollaborativePlantGuessHintProgressionService.LockedValue;
 
@@ -633,14 +626,9 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             return attemptIndex >= (config == null ? 2 : config.FruitDetailRevealAttempt);
         }
 
-        public static bool ShouldRevealLeafPersistence(int attemptIndex, CollaborativePlantGuessMinigameConfig config)
-        {
-            return attemptIndex >= (config == null ? 4 : config.LeafPersistenceRevealAttempt);
-        }
-
         public static bool ShouldRevealPlantType(int attemptIndex, CollaborativePlantGuessMinigameConfig config)
         {
-            return attemptIndex >= (config == null ? 6 : config.PlantTypeRevealAttempt);
+            return attemptIndex >= (config == null ? 4 : config.PlantTypeRevealAttempt);
         }
     }
 }

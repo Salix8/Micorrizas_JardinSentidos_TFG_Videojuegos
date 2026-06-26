@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using SmartCampus.Dialogue;
+using UnityEditor;
 using UnityEngine;
 
 namespace SmartCampus.Testing.Editor.Core
@@ -61,6 +62,27 @@ namespace SmartCampus.Testing.Editor.Core
             Assert.That(portrait.IsPortrait, Is.True);
             Assert.That(landscape.IsPortrait, Is.False);
             Assert.That(landscape.PortraitRect.width, Is.LessThan(portrait.PortraitRect.width));
+        }
+
+        [Test]
+        public void DialoguePanelPrefab_PortraitStage_UsesBottomAnchor()
+        {
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Dialogue/DialoguePanel.prefab");
+            var portraitStage = prefab == null
+                ? null
+                : prefab.transform.Find("PortraitStage") as RectTransform;
+            var portraitVisualRoot = prefab == null
+                ? null
+                : prefab.transform.Find("PortraitStage/PortraitVisualRoot") as RectTransform;
+
+            Assert.That(portraitStage, Is.Not.Null);
+            Assert.That(portraitVisualRoot, Is.Not.Null);
+            Assert.That(portraitStage.anchorMin.y, Is.EqualTo(0f));
+            Assert.That(portraitStage.anchorMax.y, Is.EqualTo(0f));
+            Assert.That(portraitStage.pivot.y, Is.EqualTo(0f));
+            Assert.That(portraitVisualRoot.anchorMin.y, Is.EqualTo(0f));
+            Assert.That(portraitVisualRoot.anchorMax.y, Is.EqualTo(0f));
+            Assert.That(portraitVisualRoot.pivot.y, Is.EqualTo(0f));
         }
 
         private static void AssertRectContains(Rect parent, Rect child)

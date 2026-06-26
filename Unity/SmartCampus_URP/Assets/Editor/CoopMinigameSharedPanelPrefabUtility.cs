@@ -188,7 +188,8 @@ public static class CoopMinigameSharedPanelPrefabUtility
         rootLayoutElement.preferredWidth = 330f;
         rootLayoutElement.preferredHeight = themeConfig.TopPanelStyle.LogoSize;
 
-        var logoFrame = CreateUiObject("LogoFrame", root.transform, typeof(RoundedPanelGraphic), typeof(LayoutElement));
+        var logoFrame = CreateUiObject("LogoFrame", root.transform, typeof(RoundedPanelGraphic), typeof(Mask), typeof(LayoutElement));
+        logoFrame.GetComponent<Mask>().showMaskGraphic = true;
         var logoLayoutElement = logoFrame.GetComponent<LayoutElement>();
         logoLayoutElement.minWidth = themeConfig.TopPanelStyle.LogoSize;
         logoLayoutElement.minHeight = themeConfig.TopPanelStyle.LogoSize;
@@ -201,8 +202,9 @@ public static class CoopMinigameSharedPanelPrefabUtility
             themeConfig.TopPanelStyle.LogoSize * 0.5f,
             2f);
 
-        var logo = CreateIconImage("Logo", logoFrame.transform, Vector2.one * (themeConfig.TopPanelStyle.LogoSize - 22f));
-        Stretch(logo.rectTransform, new Vector2(11f, 11f), new Vector2(-11f, -11f));
+        var logoSize = Mathf.Max(8f, themeConfig.TopPanelStyle.LogoSize - themeConfig.TopPanelStyle.LogoInnerPadding);
+        var logo = CreateIconImage("Logo", logoFrame.transform, Vector2.one * logoSize);
+        Center(logo.rectTransform);
 
         var labels = CreateUiObject("ProgressLabels", root.transform, typeof(VerticalLayoutGroup), typeof(LayoutElement));
         labels.GetComponent<LayoutElement>().preferredWidth = 190f;

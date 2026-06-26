@@ -248,6 +248,7 @@ public sealed class GpsDebugPanelUIController : MonoBehaviour
 
         if (includeDetails)
         {
+            builder.AppendLine($"Fallback demo {diagnostics.IsFallbackPosition}");
             builder.AppendLine($"Parent {diagnostics.ParentName} | ArcGIS init {diagnostics.IsArcGisInitialized}");
         }
     }
@@ -266,7 +267,7 @@ public sealed class GpsDebugPanelUIController : MonoBehaviour
             return;
         }
 
-        builder.AppendLine($"Activo {diagnostics.IsActive} | Fix {diagnostics.HasFix}");
+        builder.AppendLine($"Activo {diagnostics.IsActive} | Fix {diagnostics.HasFix} | Fallback {diagnostics.IsFallbackPosition}");
         builder.AppendLine($"World {diagnostics.WorldPosition.x:F1}, {diagnostics.WorldPosition.y:F1}, {diagnostics.WorldPosition.z:F1}");
 
         if (includeDetails)

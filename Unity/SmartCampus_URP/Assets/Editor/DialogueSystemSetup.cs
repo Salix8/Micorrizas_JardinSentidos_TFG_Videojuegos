@@ -421,10 +421,10 @@ public static class DialogueSystemSetup
 
         portraitStage.transform.SetParent(root.transform, false);
         portraitStage.transform.SetAsFirstSibling();
-        portraitStageRect.anchorMin = Vector2.zero;
-        portraitStageRect.anchorMax = Vector2.zero;
-        portraitStageRect.pivot = new Vector2(0f, 1f);
-        portraitStageRect.anchoredPosition = new Vector2(64f, 808f);
+        portraitStageRect.anchorMin = new Vector2(0.5f, 0f);
+        portraitStageRect.anchorMax = new Vector2(0.5f, 0f);
+        portraitStageRect.pivot = new Vector2(0.5f, 0f);
+        portraitStageRect.anchoredPosition = Vector2.zero;
         portraitStageRect.sizeDelta = new Vector2(260f, 260f);
 
         var frameAccent = new GameObject("FrameAccent", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
@@ -481,6 +481,8 @@ public static class DialogueSystemSetup
         panelViewSerializedObject.FindProperty("speakerNameLabel").objectReferenceValue = speakerLabel;
         panelViewSerializedObject.FindProperty("dialogueTextLabel").objectReferenceValue = dialogueLabel;
         panelViewSerializedObject.FindProperty("voiceAudioSource").objectReferenceValue = audioSource;
+        panelViewSerializedObject.FindProperty("portraitVisualAnchoredPosition").vector2Value = new Vector2(-257f, 710f);
+        panelViewSerializedObject.FindProperty("portraitVisualSize").vector2Value = new Vector2(260f, 260f);
         panelViewSerializedObject.ApplyModifiedPropertiesWithoutUndo();
 
         var controller = root.GetComponent<DialogueUIController>();
@@ -539,6 +541,8 @@ public static class DialogueSystemSetup
                 panelViewSerializedObject.FindProperty("voiceAudioSource").objectReferenceValue = audioSource;
             }
 
+            // Keep these layout values editable from the prefab inspector.
+            // Existing prefabs should not be repaired back to generated defaults.
             panelViewSerializedObject.ApplyModifiedPropertiesWithoutUndo();
         }
 
@@ -550,6 +554,8 @@ public static class DialogueSystemSetup
             controllerSerializedObject.ApplyModifiedPropertiesWithoutUndo();
         }
 
+        EnsurePortraitStageBottomAnchor(root);
+
         var responsiveLayoutController = root.GetComponent<DialogueResponsiveLayoutController>();
         if (responsiveLayoutController != null)
         {
@@ -560,6 +566,39 @@ public static class DialogueSystemSetup
         EditorUtility.SetDirty(root);
         PrefabUtility.SaveAsPrefabAsset(root, DialoguePrefabPath);
         PrefabUtility.UnloadPrefabContents(root);
+    }
+
+    private static void EnsurePortraitStageBottomAnchor(GameObject root)
+    {
+        if (root == null || root.transform.Find("PortraitStage") is not RectTransform portraitStageRect)
+        {
+            return;
+        }
+
+        EnsureBottomAnchoredRect(portraitStageRect);
+
+        if (portraitStageRect.Find("PortraitVisualRoot") is RectTransform portraitVisualRootRect)
+        {
+            EnsureBottomAnchoredRect(portraitVisualRootRect);
+        }
+    }
+
+    private static void EnsureBottomAnchoredRect(RectTransform rectTransform)
+    {
+        var currentBottom = rectTransform.anchoredPosition.y -
+                            rectTransform.sizeDelta.y * rectTransform.pivot.y;
+        var anchorMin = rectTransform.anchorMin;
+        var anchorMax = rectTransform.anchorMax;
+        var pivot = rectTransform.pivot;
+
+        anchorMin.y = 0f;
+        anchorMax.y = 0f;
+        pivot.y = 0f;
+
+        rectTransform.anchorMin = anchorMin;
+        rectTransform.anchorMax = anchorMax;
+        rectTransform.pivot = pivot;
+        rectTransform.anchoredPosition = new Vector2(rectTransform.anchoredPosition.x, currentBottom);
     }
 
     private static DialogueWaitingPanelView EnsureWaitingPanel(GameObject root)

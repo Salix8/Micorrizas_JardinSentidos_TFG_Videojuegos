@@ -13,7 +13,6 @@ namespace SmartCampus.Testing.Editor.Core
             string scientificName,
             string plantType = "Arbol",
             string surfaceRoughness = "Media",
-            string leafPersistence = "Perenne",
             string leafType = "Simple",
             string fruitCategory = "Carnoso",
             string fruitType = "Baya")
@@ -26,7 +25,6 @@ namespace SmartCampus.Testing.Editor.Core
                 string.Empty,
                 plantType,
                 surfaceRoughness,
-                leafPersistence,
                 leafType,
                 fruitCategory,
                 fruitType);
@@ -41,7 +39,6 @@ namespace SmartCampus.Testing.Editor.Core
                 "Laurus nobilis",
                 plantType: "Arbusto",
                 surfaceRoughness: "Rugosa",
-                leafPersistence: "Caduca",
                 leafType: "Lanceolada",
                 fruitCategory: "Carnoso",
                 fruitType: "Drupa");
@@ -51,7 +48,6 @@ namespace SmartCampus.Testing.Editor.Core
                 "Arbutus unedo",
                 plantType: "Arbol",
                 surfaceRoughness: "Media",
-                leafPersistence: "Perenne",
                 leafType: "Ovalada",
                 fruitCategory: "Carnoso",
                 fruitType: "Baya");
@@ -61,7 +57,6 @@ namespace SmartCampus.Testing.Editor.Core
             Assert.That(evaluation.IsExactPlantMatch, Is.False);
             Assert.That(evaluation.PlantTypeOutcome, Is.EqualTo(CollaborativePlantGuessComparisonOutcome.Incorrect));
             Assert.That(evaluation.SurfaceRoughnessOutcome, Is.EqualTo(CollaborativePlantGuessComparisonOutcome.Incorrect));
-            Assert.That(evaluation.LeafPersistenceOutcome, Is.EqualTo(CollaborativePlantGuessComparisonOutcome.Incorrect));
             Assert.That(evaluation.LeafTypeOutcome, Is.EqualTo(CollaborativePlantGuessComparisonOutcome.Incorrect));
             Assert.That(evaluation.FruitCategoryOutcome, Is.EqualTo(CollaborativePlantGuessComparisonOutcome.Exact));
             Assert.That(evaluation.FruitTypeOutcome, Is.EqualTo(CollaborativePlantGuessComparisonOutcome.Incorrect));

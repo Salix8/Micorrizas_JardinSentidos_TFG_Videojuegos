@@ -15,7 +15,6 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             string imagePath,
             string plantType,
             string surfaceRoughness,
-            string leafPersistence,
             string leafType,
             string fruitCategory,
             string fruitType)
@@ -27,7 +26,6 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             ImagePath = imagePath ?? string.Empty;
             PlantType = plantType;
             SurfaceRoughness = surfaceRoughness;
-            LeafPersistence = leafPersistence;
             LeafType = leafType;
             FruitCategory = fruitCategory;
             FruitType = fruitType;
@@ -40,7 +38,6 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
         public string ImagePath { get; }
         public string PlantType { get; }
         public string SurfaceRoughness { get; }
-        public string LeafPersistence { get; }
         public string LeafType { get; }
         public string FruitCategory { get; }
         public string FruitType { get; }
@@ -104,7 +101,6 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
                 var imagePath = GetValue(row, headerMap, "imagePath").Trim();
                 var plantType = GetValue(row, headerMap, "plantType").Trim();
                 var surfaceRoughness = GetValue(row, headerMap, "surfaceRoughness").Trim();
-                var leafPersistence = GetValue(row, headerMap, "leafPersistence").Trim();
                 var leafType = GetValue(row, headerMap, "leafType").Trim();
                 var fruitCategory = GetRequiredValue(row, headerMap, "fruitCategory").Trim();
                 var fruitType = GetRequiredValue(row, headerMap, "fruitType").Trim();
@@ -115,7 +111,6 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
                     string.IsNullOrWhiteSpace(scientificName) ||
                     string.IsNullOrWhiteSpace(plantType) ||
                     string.IsNullOrWhiteSpace(surfaceRoughness) ||
-                    string.IsNullOrWhiteSpace(leafPersistence) ||
                     string.IsNullOrWhiteSpace(leafType) ||
                     string.IsNullOrWhiteSpace(fruitCategory) ||
                     string.IsNullOrWhiteSpace(fruitType))
@@ -147,7 +142,6 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
                     imagePath,
                     plantType,
                     surfaceRoughness,
-                    leafPersistence,
                     leafType,
                     fruitCategory,
                     fruitType));
@@ -173,7 +167,6 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
                 "scientificName",
                 "plantType",
                 "surfaceRoughness",
-                "leafPersistence",
                 "leafType",
                 "fruitCategory",
                 "fruitType"

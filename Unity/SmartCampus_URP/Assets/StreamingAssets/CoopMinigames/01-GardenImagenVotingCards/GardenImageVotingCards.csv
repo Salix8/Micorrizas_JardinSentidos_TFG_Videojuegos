@@ -1,31 +1,31 @@
 roundIndex,deviceSlot,topic,title,imagePath,isSeenInGarden
-1,1,,Cupressus arizonica,Cipres--Cupressus-arizonica-Y.jpg,true
-1,2,,Cupressus macrocarpa,Cipres--Cupressus-macrocarpa-Y.jpg,true
-1,3,,Cupressus sempervirens,Cipres--Cupressus-sempervirens-Y.jpg,true
-1,4,,Pinus canariensis,Pino--Pinus-canariensis-Y.jpg,true
-1,5,,Taxus baccata,Tejo--Taxus-baccata-Y.jpg,true
-1,6,,Cedrus deodara,Cedro--Cedrus-deodara-Y.jpg,true
-2,1,,Ginkgo biloba,Ginkgo--Ginkgo-biloba-Y.jpg,true
-2,2,,Araucaria excelsa (Araucaria heterophyla),Araucaria--Araucaria-excelsaZZ (Araucaria heterophyla)-Z.jpg,true
-2,3,,Casuarina equisetifolia,Casuarina--Casuarina-equisetifolia-Y.jpg,true
-2,4,,Jacaranda mimosaefolia,Jacaranda--Jacaranda-mimosaefolia-Y.jpg,true
-2,5,,Erythrina crista-galli,Cresta-de-gallo--Erythrina-crista-galli-Y.jpg,true
-2,6,,Tamarix africana,Tamarindo--Tamarix-africana-Y.jpg,true
-3,1,,Tipuana tipu,Tipuana--Tipuana-tipu-Y.jpg,true
-3,2,,Grevillea robusta,Roble-australiano--Grevillea-robusta-Y.jpg,true
-3,3,,Prunus cerasifera,Ciruelo--Prunus-cerasifera-Y.jpg,true
-3,4,,Lagunaria patersonii,Lagunaria--Lagunaria-patersonii-Y.jpg,true
-3,5,,Imagen 3-5,Cross-Image.jpg,false
-3,6,,Imagen 3-6,Cross-Image.jpg,false
-4,1,,Imagen 4-1,Cross-Image.jpg,false
-4,2,,Imagen 4-2,Cross-Image.jpg,false
-4,3,,Imagen 4-3,Cross-Image.jpg,false
-4,4,,Imagen 4-4,Cross-Image.jpg,false
-4,5,,Imagen 4-5,Cross-Image.jpg,false
-4,6,,Imagen 4-6,Cross-Image.jpg,false
-5,1,,Imagen 5-1,Check-Image.jpg,true
-5,2,,Imagen 5-2,Cross-Image.jpg,false
-5,3,,Imagen 5-3,Cross-Image.jpg,false
-5,4,,Imagen 5-4,Cross-Image.jpg,false
-5,5,,Imagen 5-5,Cross-Image.jpg,false
-5,6,,Imagen 5-6,Cross-Image.jpg,false
+1,1,Cupressus arizonica,Ciprés de Arizona,Cipres--Cupressus-arizonica-Y.jpg,true
+1,2,Cupressus macrocarpa,Ciprés de Monterrey,Cipres--Cupressus-macrocarpa-Y.jpg,true
+1,3,Cupressus sempervirens,Ciprés común,Cipres--Cupressus-sempervirens-Y.jpg,true
+1,4,Pinus canariensis,Pino de Canarias,Pino--Pinus-canariensis-Y.jpg,true
+1,5,Taxus baccata,Tejo común,Tejo--Taxus-baccata-Y.jpg,true
+1,6,Cedro del Himalaya,Cedro deodara,Cedro--Cedrus-deodara-Y.jpg,true
+2,1,Ginkgo biloba,Albaricoque plateado,Ginkgo--Ginkgo-biloba-Y.jpg,true
+2,2,Araucaria excelsa (Araucaria heterophylla), Pino de Norfolk,Araucaria--Araucaria-excelsaZZ (Araucaria heterophyla)-Z.jpg,true
+2,3,Casuarina equisetifolia,Pino marítimo,Casuarina--Casuarina-equisetifolia-Y.jpg,true
+2,4,Jacaranda mimosifolia,Jacarandá azul (tarco),Jacaranda--Jacaranda-mimosaefolia-Y.jpg,true
+2,5,Erythrina crista-galli,Ceibo,Cresta-de-gallo--Erythrina-crista-galli-Y.jpg,true
+2,6,Tamarix africana,Taray,Tamarindo--Tamarix-africana-Y.jpg,true
+3,1,Tipuana tipu,Tipa blanca,Tipuana--Tipuana-tipu-Y.jpg,true
+3,2,Grevillea robusta,Roble australiano (roble plateado),Roble-australiano--Grevillea-robusta-Y.jpg,true
+3,3,Prunus cerasifera,Ciruelo mirobolano,Ciruelo--Prunus-cerasifera-Y.jpg,true
+3,4,Lagunaria patersonii,Lagunaria,Lagunaria--Lagunaria-patersonii-Y.jpg,true
+3,5,Ceratonia siliqua,Algarrobo,Algarrobo.JPG,false
+3,6,Celtis australis,Lodón (Lledoner),Lledoner.jpg,false
+4,1,Chamaerops humilis,Palmito,Palmito-Chamaerops_humilis.jpg,false
+4,2,Ilex aquifolium,Acebo,Acebo-Ilex_aquifolium.JPG,false
+4,3,Ziziphus jujuba,Azufaifo,Azufaifo.jpg,false
+4,4,Cydonia oblonga,Membrillo,Membrillo-Cydonia-oblonga.JPG,false
+4,5,Punica granatum,Granado,Granado-Punica-granatum.jpg,false
+4,6,Olea europaea,Olivo,Olivo-Olea_europaea.jpg,false
+5,1,Opuntia ficus-indica,Chumbera (Nopal - Tuna),Cumbera-Opuntia_ficus-indica.jpg,false
+5,2,Lavandula,Lavanda,Lavanda.jpg,false
+5,3,Pittosporum tobira,Azahar de la China,Azahar-Pittosporum-tobira-frutos-nuevos.jpg,false
+5,4,Salix babylonica,Sauce Llorón,Sauce_Lloron-Sauce_Patagónico.jpg,false
+5,5,Citrus × aurantium,Naranjo amargo,Naranjo-Bitter_oranges.jpg,false
+5,6,Phyllostachys aurea,Bambu,Bambu-Phyllostachys_aurea3.jpg,false

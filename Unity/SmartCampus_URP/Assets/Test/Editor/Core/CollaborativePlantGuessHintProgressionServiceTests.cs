@@ -13,8 +13,7 @@ namespace SmartCampus.Testing.Editor.Core
             var serialized = new SerializedObject(config);
             serialized.FindProperty("leafTypeRevealAttempt").intValue = 1;
             serialized.FindProperty("fruitDetailRevealAttempt").intValue = 2;
-            serialized.FindProperty("leafPersistenceRevealAttempt").intValue = 4;
-            serialized.FindProperty("plantTypeRevealAttempt").intValue = 6;
+            serialized.FindProperty("plantTypeRevealAttempt").intValue = 4;
             serialized.ApplyModifiedPropertiesWithoutUndo();
             return config;
         }
@@ -35,21 +34,20 @@ namespace SmartCampus.Testing.Editor.Core
         }
 
         [Test]
-        public void LeafPersistence_RevealsFromFourthAttempt()
+        public void FruitCategory_RevealsFromFirstAttempt()
         {
             var config = CreateConfig();
 
-            Assert.That(CollaborativePlantGuessHintProgressionService.ShouldRevealLeafPersistence(3, config), Is.False);
-            Assert.That(CollaborativePlantGuessHintProgressionService.ShouldRevealLeafPersistence(4, config), Is.True);
+            Assert.That(CollaborativePlantGuessHintProgressionService.ShouldRevealFruitCategory(1, config), Is.True);
         }
 
         [Test]
-        public void PlantType_RevealsFromSixthAttempt()
+        public void PlantType_RevealsFromFourthAttempt()
         {
             var config = CreateConfig();
 
-            Assert.That(CollaborativePlantGuessHintProgressionService.ShouldRevealPlantType(5, config), Is.False);
-            Assert.That(CollaborativePlantGuessHintProgressionService.ShouldRevealPlantType(6, config), Is.True);
+            Assert.That(CollaborativePlantGuessHintProgressionService.ShouldRevealPlantType(3, config), Is.False);
+            Assert.That(CollaborativePlantGuessHintProgressionService.ShouldRevealPlantType(4, config), Is.True);
         }
     }
 }

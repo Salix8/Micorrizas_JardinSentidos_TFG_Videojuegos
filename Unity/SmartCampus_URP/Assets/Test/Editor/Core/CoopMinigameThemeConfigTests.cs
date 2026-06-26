@@ -12,7 +12,8 @@ namespace SmartCampus.Testing.Editor.Core
             var theme = ScriptableObject.CreateInstance<CoopMinigameThemeConfig>();
 
             Assert.That(theme.ProjectTitle, Is.EqualTo("JARDIN MICORRIZAL"));
-            Assert.That(theme.GlobalProgressLabel, Is.EqualTo("RED DE MICORRIZAS"));
+            Assert.That(theme.GlobalProgressLabel, Is.EqualTo("RED DE \nMICORRIZAS"));
+            Assert.That(theme.DefaultPenaltySeconds, Is.EqualTo(10f));
             Assert.That(theme.TeamTitle, Is.EqualTo("EQUIPO"));
             Assert.That(theme.Palette.PrimaryGreen.a, Is.EqualTo(1f));
             Assert.That(theme.TopPanelStyle.TitleBandHeight, Is.GreaterThanOrEqualTo(40f));

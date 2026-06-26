@@ -53,13 +53,19 @@ namespace SmartCampus.Coop.Minigames
 
         public static int CountCompleted(IReadOnlyList<CoopMinigameProgressNetworkState> states)
         {
+            return CountCompleted(states, states?.Count ?? 0);
+        }
+
+        public static int CountCompleted(IReadOnlyList<CoopMinigameProgressNetworkState> states, int playableMinigameCount)
+        {
             if (states == null)
             {
                 return 0;
             }
 
             var completedCount = 0;
-            for (var index = 0; index < states.Count; index++)
+            var cappedCount = Mathf.Clamp(playableMinigameCount, 0, states.Count);
+            for (var index = 0; index < cappedCount; index++)
             {
                 if (states[index].IsCompleted)
                 {
@@ -75,7 +81,18 @@ namespace SmartCampus.Coop.Minigames
             return states != null && states.Count > 0 && CountCompleted(states) == states.Count;
         }
 
+        public static bool AreAllCompleted(IReadOnlyList<CoopMinigameProgressNetworkState> states, int playableMinigameCount)
+        {
+            var cappedCount = states == null ? 0 : Mathf.Clamp(playableMinigameCount, 0, states.Count);
+            return cappedCount > 0 && CountCompleted(states, cappedCount) == cappedCount;
+        }
+
         public static float CalculateAverageScore(IReadOnlyList<CoopMinigameProgressNetworkState> states)
+        {
+            return CalculateAverageScore(states, states?.Count ?? 0);
+        }
+
+        public static float CalculateAverageScore(IReadOnlyList<CoopMinigameProgressNetworkState> states, int playableMinigameCount)
         {
             if (states == null || states.Count == 0)
             {
@@ -84,7 +101,8 @@ namespace SmartCampus.Coop.Minigames
 
             var scoreSum = 0f;
             var completedCount = 0;
-            for (var index = 0; index < states.Count; index++)
+            var cappedCount = Mathf.Clamp(playableMinigameCount, 0, states.Count);
+            for (var index = 0; index < cappedCount; index++)
             {
                 if (!states[index].IsCompleted)
                 {

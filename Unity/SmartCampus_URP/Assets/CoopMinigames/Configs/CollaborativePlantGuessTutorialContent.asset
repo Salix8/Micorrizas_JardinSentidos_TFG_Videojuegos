@@ -12,29 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b823e944a6ef724fbb919335770f994, type: 3}
   m_Name: CollaborativePlantGuessTutorialContent
   m_EditorClassIdentifier: Assembly-CSharp::SmartCampus.Coop.Minigames.MinigameTutorialContentConfig
-  title: "\xBFQuien es quien?"
+  title: "\xBFQui\xE9n ser\xE1?"
   subtitle: Deduce en grupo con pistas visuales
-  bodyText: 'Todo el grupo intenta descubrir la planta objetivo.
-
-
-    Escribe una
-    planta del CSV con ayuda del autocompletado. Puedes buscar por nombre comun,
-    cientifico o sinonimos y cada intento aparece en todos los dispositivos con pistas
-    de color por atributo.
-
-
-    Verde significa acierto, naranja significa casi
-    y rojo significa fallo. El mismo dispositivo no puede enviar dos intentos seguidos.
-
-
-    Las
-    pistas aparecen en este orden: rugosidad, tipo de hoja, categoria del fruto,
-    tipo de fruto, hoja perenne o caduca y tipo de planta.
-
-
-    El tipo de fruto
-    se desbloquea en el intento 2, la persistencia de la hoja en el 4 y el tipo de
-    planta en el 6.'
+  bodyText: "Deb\xE9is hacer sugerencias para adivinar la planta que est\xE1 tocando
+    la red. \r\n\r\nMientras Deeproot os ayudar\xE1 indicandoos caliente o fr\xEDo
+    (Verde: acierto, naranja: casi y rojo: fallo). \r\n\r\nSi fall\xE1is, se os restar\xE1
+    10 segundos del tiempo que ten\xE9is para completar dicha misi\xF3n."
   illustration: {fileID: 0}
   videoClip: {fileID: 0}
   customContentPrefab: {fileID: 0}

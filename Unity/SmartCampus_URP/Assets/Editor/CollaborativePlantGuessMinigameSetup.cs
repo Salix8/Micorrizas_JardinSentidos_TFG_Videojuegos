@@ -92,8 +92,8 @@ public static class CollaborativePlantGuessMinigameSetup
             "Todo el grupo intenta descubrir la planta objetivo.\n\n" +
             "Escribe una planta del CSV con ayuda del autocompletado. Puedes buscar por nombre comun, cientifico o sinonimos y cada intento aparece en todos los dispositivos con pistas de color por atributo.\n\n" +
             "Verde significa acierto, naranja significa casi y rojo significa fallo. El mismo dispositivo no puede enviar dos intentos seguidos.\n\n" +
-            "Las pistas aparecen en este orden: rugosidad, tipo de hoja, categoria del fruto, tipo de fruto, hoja perenne o caduca y tipo de planta.\n\n" +
-            "El tipo de fruto se desbloquea en el intento 2, la persistencia de la hoja en el 4 y el tipo de planta en el 6.";
+            "Las pistas aparecen en este orden: rugosidad, tipo de hoja, categoria del fruto, tipo de fruto y tipo de planta.\n\n" +
+            "El tipo de fruto se desbloquea en el intento 2 y el tipo de planta en el 4.";
         serializedObject.ApplyModifiedPropertiesWithoutUndo();
         EditorUtility.SetDirty(asset);
         return asset;
@@ -120,10 +120,9 @@ public static class CollaborativePlantGuessMinigameSetup
         serializedObject.FindProperty("maxAttempts").intValue = 8;
         serializedObject.FindProperty("leafTypeRevealAttempt").intValue = 1;
         serializedObject.FindProperty("fruitDetailRevealAttempt").intValue = 2;
-        serializedObject.FindProperty("leafPersistenceRevealAttempt").intValue = 4;
-        serializedObject.FindProperty("plantTypeRevealAttempt").intValue = 6;
+        serializedObject.FindProperty("plantTypeRevealAttempt").intValue = 4;
         serializedObject.FindProperty("victoryRevealDelaySeconds").floatValue = 1.2f;
-        serializedObject.FindProperty("autocompleteSuggestionCount").intValue = 6;
+        serializedObject.FindProperty("autocompleteSuggestionCount").intValue = CollaborativePlantGuessMinigameConfig.MaxAutocompleteSuggestions;
         serializedObject.FindProperty("timeoutMessage").stringValue = "Tiempo agotado";
         serializedObject.FindProperty("attemptsExhaustedMessage").stringValue = "Intentos agotados";
         serializedObject.FindProperty("invalidGuessMessage").stringValue = "Selecciona una planta valida del autocompletado";
@@ -453,7 +452,6 @@ public static class CollaborativePlantGuessMinigameSetup
         var leafTypeCell = CreateComparisonCell("Tipo de hoja", comparisonsRow.transform, font, "Lanceolada", config.VisualSettings.NeutralCellColor);
         var fruitCategoryCell = CreateComparisonCell("Categoria del fruto", comparisonsRow.transform, font, "Carnoso", config.VisualSettings.NeutralCellColor);
         var fruitTypeCell = CreateComparisonCell("Tipo de fruto", comparisonsRow.transform, font, "?", config.VisualSettings.NeutralCellColor);
-        var leafPersistenceCell = CreateComparisonCell("Hoja perenne/caduca", comparisonsRow.transform, font, "?", config.VisualSettings.NeutralCellColor);
         var plantTypeCell = CreateComparisonCell("Tipo de planta", comparisonsRow.transform, font, "?", config.VisualSettings.NeutralCellColor);
 
         var rowView = root.AddComponent<CollaborativePlantGuessHistoryRowView>();
@@ -466,8 +464,6 @@ public static class CollaborativePlantGuessMinigameSetup
         serializedRowView.FindProperty("plantTypeLabel").objectReferenceValue = plantTypeCell.ValueLabel;
         serializedRowView.FindProperty("surfaceRoughnessCell").objectReferenceValue = surfaceRoughnessCell.RootImage;
         serializedRowView.FindProperty("surfaceRoughnessLabel").objectReferenceValue = surfaceRoughnessCell.ValueLabel;
-        serializedRowView.FindProperty("leafPersistenceCell").objectReferenceValue = leafPersistenceCell.RootImage;
-        serializedRowView.FindProperty("leafPersistenceLabel").objectReferenceValue = leafPersistenceCell.ValueLabel;
         serializedRowView.FindProperty("leafTypeCell").objectReferenceValue = leafTypeCell.RootImage;
         serializedRowView.FindProperty("leafTypeLabel").objectReferenceValue = leafTypeCell.ValueLabel;
         serializedRowView.FindProperty("fruitCategoryCell").objectReferenceValue = fruitCategoryCell.RootImage;
@@ -482,12 +478,12 @@ public static class CollaborativePlantGuessMinigameSetup
     {
         var root = CreatePanel($"{headerText}Cell", parent, backgroundColor);
         var layoutElement = root.AddComponent<LayoutElement>();
-        layoutElement.minWidth = 84f;
-        layoutElement.preferredWidth = 104f;
+        layoutElement.minWidth = 108f;
+        layoutElement.preferredWidth = 128f;
         layoutElement.flexibleWidth = 1f;
         var layout = root.AddComponent<VerticalLayoutGroup>();
         layout.padding = new RectOffset(6, 6, 6, 8);
-        layout.spacing = 4f;
+        layout.spacing = 6f;
         layout.childAlignment = TextAnchor.UpperCenter;
         layout.childControlWidth = true;
         layout.childControlHeight = true;
@@ -498,8 +494,10 @@ public static class CollaborativePlantGuessMinigameSetup
         var header = CreateText("HeaderLabel", root.transform, font, headerText, 16, TextAnchor.UpperCenter);
         header.textWrappingMode = TextWrappingModes.Normal;
         header.overflowMode = TextOverflowModes.Overflow;
+        header.color = new Color(0.075f, 0.29f, 0.095f, 1f);
+        header.fontStyle = FontStyles.Bold;
         header.gameObject.AddComponent<LayoutElement>().minHeight = 34f;
-        var valueLabel = CreateText("ValueLabel", root.transform, font, value, 20, TextAnchor.UpperCenter);
+        var valueLabel = CreateText("ValueLabel", root.transform, font, value, 18, TextAnchor.UpperCenter);
         valueLabel.textWrappingMode = TextWrappingModes.Normal;
         valueLabel.overflowMode = TextOverflowModes.Overflow;
         valueLabel.gameObject.AddComponent<LayoutElement>().minHeight = 36f;
@@ -624,18 +622,18 @@ public static class CollaborativePlantGuessMinigameSetup
     private static string BuildCsvTemplate()
     {
         return
-            "plantId,commonName,scientificName,synonyms,imagePath,surfaceRoughness,leafType,fruitCategory,fruitType,leafPersistence,plantType\n" +
-            "adelfa_baladre,Adelfa / baladre,Nerium oleander,Adelfa|Baladre|Nerium oleander,,Media,Lanceolada,Seco,Foliculo,Perenne,Arbusto\n" +
-            "acebo,Acebo,Ilex aquifolium,Acebo|Ilex aquifolium,,Rugosa,Coriacea,Carnoso,Baya,Perenne,Arbusto\n" +
-            "palmito_margallo,Palmito / margallo,Chamaerops humilis,Palmito|Margallo|Chamaerops humilis,,Aspera,Palmada,Carnoso,Drupa,Perenne,Palmera\n" +
-            "olivo,Olivo,Olea europaea,Olivo|Olea europaea,,Media,Lanceolada,Carnoso,Drupa,Perenne,Arbol\n" +
-            "encina,Encina,Quercus ilex,Encina|Carrasca|Quercus ilex,,Rugosa,Coriacea,Seco,Bellota,Perenne,Arbol\n" +
-            "hiedra_enredadera,Hiedra / enredadera,Hedera helix,Hiedra|Enredadera|Enredaderas|Hedera helix,,Media,Lobulada,Carnoso,Baya,Perenne,Trepadora\n" +
-            "garrofera_algarrobo,Garrofera / algarrobo,Ceratonia siliqua,Garrofera|Algarrobo|Ceratonia siliqua,,Media,Compuesta,Seco,Legumbre,Perenne,Arbol\n" +
-            "madrono,Madrono,Arbutus unedo,Madrono|Arbutus unedo,,Media,Aserrada,Carnoso,Baya,Perenne,Arbusto\n" +
-            "alcornoque_surera,Alcornoque / surera,Quercus suber,Alcornoque|Surera|Quercus suber,,Muy rugosa,Coriacea,Seco,Bellota,Perenne,Arbol\n" +
-            "pino_carrasco,Pino carrasco,Pinus halepensis,Pino carrasco|Pinus halepensis,,Rugosa,Acicular,Seco,Pina,Perenne,Arbol\n" +
-            "chumbera_figa_palera,Chumbera / figa palera,Opuntia ficus-indica,Chumbera|Figa palera|Nopal|Opuntia ficus-indica,,Media,Carnosa,Carnoso,Baya,Perenne,Suculenta\n";
+            "plantId,commonName,scientificName,synonyms,imagePath,surfaceRoughness,leafType,fruitCategory,fruitType,plantType\n" +
+            "adelfa_baladre,Adelfa / baladre,Nerium oleander,Adelfa|Baladre|Nerium oleander,,Media,Lanceolada,Seco,Foliculo,Arbusto\n" +
+            "acebo,Acebo,Ilex aquifolium,Acebo|Ilex aquifolium,,Rugosa,Coriacea,Carnoso,Baya,Arbusto\n" +
+            "palmito_margallo,Palmito / margallo,Chamaerops humilis,Palmito|Margallo|Chamaerops humilis,,Aspera,Palmada,Carnoso,Drupa,Palmera\n" +
+            "olivo,Olivo,Olea europaea,Olivo|Olea europaea,,Media,Lanceolada,Carnoso,Drupa,Arbol\n" +
+            "encina,Encina,Quercus ilex,Encina|Carrasca|Quercus ilex,,Rugosa,Coriacea,Seco,Bellota,Arbol\n" +
+            "hiedra_enredadera,Hiedra / enredadera,Hedera helix,Hiedra|Enredadera|Enredaderas|Hedera helix,,Media,Lobulada,Carnoso,Baya,Trepadora\n" +
+            "garrofera_algarrobo,Garrofera / algarrobo,Ceratonia siliqua,Garrofera|Algarrobo|Ceratonia siliqua,,Media,Compuesta,Seco,Legumbre,Arbol\n" +
+            "madrono,Madrono,Arbutus unedo,Madrono|Arbutus unedo,,Media,Aserrada,Carnoso,Baya,Arbusto\n" +
+            "alcornoque_surera,Alcornoque / surera,Quercus suber,Alcornoque|Surera|Quercus suber,,Muy rugosa,Coriacea,Seco,Bellota,Arbol\n" +
+            "pino_carrasco,Pino carrasco,Pinus halepensis,Pino carrasco|Pinus halepensis,,Rugosa,Acicular,Seco,Pina,Arbol\n" +
+            "chumbera_figa_palera,Chumbera / figa palera,Opuntia ficus-indica,Chumbera|Figa palera|Nopal|Opuntia ficus-indica,,Media,Carnosa,Carnoso,Baya,Suculenta\n";
     }
 
     private static Canvas CreateCanvas(string name)

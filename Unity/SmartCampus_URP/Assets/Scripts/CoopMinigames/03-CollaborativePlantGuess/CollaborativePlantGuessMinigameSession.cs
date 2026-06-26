@@ -433,7 +433,6 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
                 PlantId = new FixedString128Bytes(guessedPlant.PlantId),
                 PlantTypeOutcome = evaluation.PlantTypeOutcome,
                 SurfaceRoughnessOutcome = evaluation.SurfaceRoughnessOutcome,
-                LeafPersistenceOutcome = evaluation.LeafPersistenceOutcome,
                 LeafTypeOutcome = evaluation.LeafTypeOutcome,
                 FruitCategoryOutcome = evaluation.FruitCategoryOutcome,
                 FruitTypeOutcome = evaluation.FruitTypeOutcome,

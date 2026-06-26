@@ -17,6 +17,10 @@ namespace SmartCampus.Dialogue
         [SerializeField] private TMP_Text dialogueTextLabel;
         [SerializeField] private AudioSource voiceAudioSource;
 
+        [Header("Portrait Layout")]
+        [SerializeField] private Vector2 portraitVisualAnchoredPosition = new(-257f, 710f);
+        [SerializeField] private Vector2 portraitVisualSize = new(260f, 260f);
+
         public TMP_Text DialogueTextLabel => dialogueTextLabel;
         public event Action AdvanceRequested;
 
@@ -133,13 +137,13 @@ namespace SmartCampus.Dialogue
 
             if (activePortraitVisual.transform is RectTransform visualRect)
             {
-                visualRect.anchorMin = Vector2.zero;
-                visualRect.anchorMax = Vector2.one;
-                visualRect.offsetMin = Vector2.zero;
-                visualRect.offsetMax = Vector2.zero;
+                visualRect.anchorMin = new Vector2(0.5f, 0f);
+                visualRect.anchorMax = new Vector2(0.5f, 0f);
+                visualRect.pivot = new Vector2(0.5f, 0f);
+                visualRect.sizeDelta = portraitVisualSize;
+                visualRect.anchoredPosition = portraitVisualAnchoredPosition;
                 visualRect.localScale = Vector3.one;
                 visualRect.localRotation = Quaternion.identity;
-                visualRect.anchoredPosition3D = Vector3.zero;
             }
             else
             {

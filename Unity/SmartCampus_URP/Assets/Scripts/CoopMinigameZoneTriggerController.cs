@@ -11,8 +11,8 @@ using UnityEditor;
 [DisallowMultipleComponent]
 public sealed class CoopMinigameZoneTriggerController : MonoBehaviour
 {
-    private const string IncompleteZoneSpriteAssetPath = "Assets/Art/MicorrizaMarron.png";
-    private const string CompletedZoneSpriteAssetPath = "Assets/Art/MicorrizaVerde.png";
+    private const string IncompleteZoneSpriteAssetPath = "Assets/Art/icono-sobremapa-Marron.png";
+    private const string CompletedZoneSpriteAssetPath = "Assets/Art/icono-sobremapa.png";
     private const string ZoneVisualObjectName = "ZoneMicorrizaVisual";
 
     [Header("References")]
@@ -32,9 +32,9 @@ public sealed class CoopMinigameZoneTriggerController : MonoBehaviour
     [Header("Zone Visuals")]
     [SerializeField] private Sprite incompleteZoneSprite;
     [SerializeField] private Sprite completedZoneSprite;
+    [SerializeField] [Range(0f, 10f)] private float completedZoneMinimumScore = 5f;
     [SerializeField] private Vector3 zoneVisualLocalOffset = new(0f, 8f, 0f);
     [SerializeField] private Vector3 zoneVisualLocalEulerAngles = new(90f, 0f, 0f);
-    [SerializeField] [Min(0.01f)] private float zoneVisualScaleMultiplier = 0.035f;
     [SerializeField] private int zoneVisualSortingOrder = 25;
 
     private readonly CoopMinigameZoneCountdownTracker countdownTracker = new();
@@ -358,19 +358,7 @@ public sealed class CoopMinigameZoneTriggerController : MonoBehaviour
     {
         visualTransform.localPosition = zoneVisualLocalOffset;
         visualTransform.localRotation = Quaternion.Euler(zoneVisualLocalEulerAngles);
-        visualTransform.localScale = Vector3.one * ResolveZoneVisualScale(zone);
-    }
-
-    private float ResolveZoneVisualScale(CoopMinigameZoneDefinition zone)
-    {
-        if (zone != null && zone.ZoneCollider is BoxCollider boxCollider)
-        {
-            var size = boxCollider.size;
-            var largestSide = Mathf.Max(size.x, size.z);
-            return Mathf.Max(0.01f, largestSide * zoneVisualScaleMultiplier);
-        }
-
-        return Mathf.Max(0.01f, zoneVisualScaleMultiplier);
+        visualTransform.localScale = Vector3.one;
     }
 
     private void RefreshZoneVisualStates()
@@ -412,8 +400,17 @@ public sealed class CoopMinigameZoneTriggerController : MonoBehaviour
             return incompleteZoneSprite;
         }
 
-        var isCompleted = coopSessionProgressSync != null && coopSessionProgressSync.IsMinigameCompleted(zone.MiniGameIndex);
-        return isCompleted ? completedZoneSprite : incompleteZoneSprite;
+        if (coopSessionProgressSync != null &&
+            coopSessionProgressSync.TryGetProgressState(zone.MiniGameIndex, out var progressState) &&
+            CoopMinigameZoneVisualStateService.ShouldUseCompletedSprite(
+                progressState.IsCompleted,
+                progressState.ScoreOutOfTen,
+                completedZoneMinimumScore))
+        {
+            return completedZoneSprite;
+        }
+
+        return incompleteZoneSprite;
     }
 
     private void TryResolveEditorSpriteReferences()
