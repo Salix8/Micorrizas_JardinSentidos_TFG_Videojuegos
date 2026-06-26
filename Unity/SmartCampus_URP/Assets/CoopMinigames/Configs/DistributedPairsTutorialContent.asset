@@ -14,17 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SmartCampus.Coop.Minigames.MinigameTutorialContentConfig
   title: "\xBFQue sabe a que?"
   subtitle: Coordina tu informacion con el resto
-  bodyText: 'Cada dispositivo solo puede revelar una carta a la vez.
-
-
-    Cuando
-    dos jugadores revelan la pareja correcta en dispositivos distintos, ambas cartas
-    se descartan y se repone la mano si el mazo lo permite.
-
-
-    Puedes cerrar este
-    popup con la cruz o tocando fuera. Edita este asset para anadir texto, imagenes,
-    video o contenido personalizado.'
+  bodyText: "Cada aventurero puede revelar una carta a la vez. Cuando dos cartas
+    se revelan a la vez, si son iguales se descartan y se repone la mano (si a\xFAn
+    quedan cartas).\r\n\r\nSi las dos cartas son distintas se os restar\xE1 10 segundos
+    del tiempo que ten\xE9is para completar dicha misi\xF3n."
   illustration: {fileID: 0}
   videoClip: {fileID: 0}
   customContentPrefab: {fileID: 0}
