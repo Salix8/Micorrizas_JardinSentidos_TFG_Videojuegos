@@ -14,21 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SmartCampus.Coop.Minigames.MinigameTutorialContentConfig
   title: El organizador
   subtitle: Clasifica cada planta por su uso principal
-  bodyText: 'La planta activa aparece abajo con su imagen y nombre cientifico.
-
-
-    Arrastra
-    esa planta hacia una de las tres categorias centrales: decoracion, alimentacion
-    o curacion.
-
-
-    Si aciertas, su nombre cientifico quedara en verde dentro de
-    la categoria correcta. Si fallas, aparecera en rojo en la categoria real para
-    que todo el grupo vea donde debia ir.
-
-
-    El estado es compartido entre todos
-    los dispositivos y la nota final es grupal sobre 10.'
+  bodyText: "Deb\xE9is clasificar las plantas seg\xFAn sus cualidades. Deslizad izquierda:
+    decoraci\xF3n, centro: alimentaci\xF3n derecha: curaci\xF3n.\r\n\r\nSi fall\xE1is,
+    se os restar\xE1 10 segundos del tiempo que ten\xE9is para completar dicha misi\xF3n.\r\n"
   illustration: {fileID: 0}
   videoClip: {fileID: 0}
   customContentPrefab: {fileID: 0}

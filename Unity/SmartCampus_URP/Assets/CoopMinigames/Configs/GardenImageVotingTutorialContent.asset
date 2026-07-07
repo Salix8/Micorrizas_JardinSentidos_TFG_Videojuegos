@@ -14,17 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SmartCampus.Coop.Minigames.MinigameTutorialContentConfig
   title: "Las visiones del jard\xEDn"
   subtitle: Decide con un gesto rapido
-  bodyText: 'Cada dispositivo recibe una secuencia propia de imagenes relacionadas
-    entre si.
-
-
-    Desliza la tarjeta a la derecha si crees que esa imagen si aparece
-    en el jardin, y a la izquierda si crees que no.
-
-
-    Los aciertos suman puntos
-    compartidos para todo el lobby. La partida termina cuando se acaba el tiempo
-    o cuando todos completan sus imagenes.'
+  bodyText: "Cada aventurero debe observar el entorno y/o preguntar a sus compa\xF1eros.\r\n\r\nSi
+    la especie que aparece en el dispositivo est\xE1 en este jard\xEDn desliza derecha,
+    si no desliza izquierda.\r\n\r\nSi fall\xE1is, se os restar\xE1 10 segundos del
+    tiempo que ten\xE9is para completar dicha misi\xF3n.\r\n"
   illustration: {fileID: 0}
   videoClip: {fileID: 0}
   customContentPrefab: {fileID: 0}
