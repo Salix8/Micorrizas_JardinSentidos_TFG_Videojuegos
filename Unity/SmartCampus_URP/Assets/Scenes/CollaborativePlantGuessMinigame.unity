@@ -9334,6 +9334,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1377713277294986122, guid: 4ac9cefee8aa6714da36951072a9153c, type: 3}
+      propertyPath: m_text
+      value: "Observad y decidid que planta tiene esas caracter\xEDsticas."
+      objectReference: {fileID: 0}
+    - target: {fileID: 1377713277294986122, guid: 4ac9cefee8aa6714da36951072a9153c, type: 3}
       propertyPath: m_fontColor32.rgba
       value: 4279704596
       objectReference: {fileID: 0}
@@ -9631,7 +9635,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6070582585079074323, guid: 4ac9cefee8aa6714da36951072a9153c, type: 3}
       propertyPath: m_text
-      value: -0s
+      value: -10s
       objectReference: {fileID: 0}
     - target: {fileID: 6070582585079074323, guid: 4ac9cefee8aa6714da36951072a9153c, type: 3}
       propertyPath: m_fontColor32.rgba
@@ -9832,6 +9836,10 @@ PrefabInstance:
     - target: {fileID: 8153174782485800553, guid: 4ac9cefee8aa6714da36951072a9153c, type: 3}
       propertyPath: m_Layer
       value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8198623109836284824, guid: 4ac9cefee8aa6714da36951072a9153c, type: 3}
+      propertyPath: m_text
+      value: TEXTURAS DEL JARDIN
       objectReference: {fileID: 0}
     - target: {fileID: 8198623109836284824, guid: 4ac9cefee8aa6714da36951072a9153c, type: 3}
       propertyPath: m_fontColor32.rgba
