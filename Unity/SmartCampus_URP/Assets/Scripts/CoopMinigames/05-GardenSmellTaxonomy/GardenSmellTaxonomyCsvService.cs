@@ -6,17 +6,51 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
     public sealed class GardenSmellTaxonomyPlantDefinition
     {
         public GardenSmellTaxonomyPlantDefinition(string plantId, string scientificName, string imagePath, GardenSmellTaxonomyCategory correctCategory)
+            : this(plantId, CreateCommonNameFallback(plantId), scientificName, imagePath, correctCategory)
+        {
+        }
+
+        public GardenSmellTaxonomyPlantDefinition(
+            string plantId,
+            string commonName,
+            string scientificName,
+            string imagePath,
+            GardenSmellTaxonomyCategory correctCategory)
         {
             PlantId = plantId ?? string.Empty;
+            CommonName = string.IsNullOrWhiteSpace(commonName) ? CreateCommonNameFallback(plantId) : commonName.Trim();
             ScientificName = scientificName ?? string.Empty;
             ImagePath = imagePath ?? string.Empty;
             CorrectCategory = correctCategory;
         }
 
         public string PlantId { get; }
+        public string CommonName { get; }
         public string ScientificName { get; }
         public string ImagePath { get; }
         public GardenSmellTaxonomyCategory CorrectCategory { get; }
+
+        private static string CreateCommonNameFallback(string plantId)
+        {
+            if (string.IsNullOrWhiteSpace(plantId))
+            {
+                return string.Empty;
+            }
+
+            var words = plantId.Replace('-', '_').Split(new[] { '_' }, StringSplitOptions.RemoveEmptyEntries);
+            for (var index = 0; index < words.Length; index++)
+            {
+                var word = words[index].Trim();
+                if (word.Length == 0)
+                {
+                    continue;
+                }
+
+                words[index] = char.ToUpperInvariant(word[0]) + (word.Length > 1 ? word.Substring(1).ToLowerInvariant() : string.Empty);
+            }
+
+            return string.Join(" ", words);
+        }
     }
 
     public static class GardenSmellTaxonomyCsvService
@@ -60,6 +94,7 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
                 }
 
                 var plantId = GetValue(row, headerMap, "plantId").Trim();
+                var commonName = GetValue(row, headerMap, "commonName").Trim();
                 var scientificName = GetValue(row, headerMap, "scientificName").Trim();
                 var imagePath = GetValue(row, headerMap, "imagePath").Trim();
                 var rawCategory = GetValue(row, headerMap, "correctCategory").Trim();
@@ -88,7 +123,7 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
                     return false;
                 }
 
-                definitions.Add(new GardenSmellTaxonomyPlantDefinition(plantId, scientificName, imagePath, category));
+                definitions.Add(new GardenSmellTaxonomyPlantDefinition(plantId, commonName, scientificName, imagePath, category));
             }
 
             if (definitions.Count < 3)

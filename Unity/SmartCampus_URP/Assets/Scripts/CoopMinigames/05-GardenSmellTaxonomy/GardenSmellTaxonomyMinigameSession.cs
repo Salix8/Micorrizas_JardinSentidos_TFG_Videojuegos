@@ -298,6 +298,7 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
 
                 loadedDefinitions.Add(new GardenSmellTaxonomyPlantDefinition(
                     definition.PlantId,
+                    definition.CommonName,
                     definition.ScientificName,
                     resolvedImagePath,
                     definition.CorrectCategory));

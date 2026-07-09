@@ -1,13 +1,13 @@
-plantId,scientificName,imagePath,correctCategory
-lavandula_dentata,Lavandula dentata,Plants/lavandula-dentata.png,Decoracion
-jasminum_officinale,Jasminum officinale,Plants/jasminum-officinale.png,Decoracion
-rosa_damascena,Rosa damascena,Plants/rosa-damascena.png,Decoracion
-pelargonium_graveolens,Pelargonium graveolens,Plants/pelargonium-graveolens.png,Decoracion
-mentha_spicata,Mentha spicata,Plants/mentha-spicata.png,Alimentacion
-ocimum_basilicum,Ocimum basilicum,Plants/ocimum-basilicum.png,Alimentacion
-foeniculum_vulgare,Foeniculum vulgare,Plants/foeniculum-vulgare.png,Alimentacion
-laurus_nobilis,Laurus nobilis,Plants/laurus-nobilis.png,Alimentacion
-aloe_vera,Aloe vera,Plants/aloe-vera.png,Curacion
-matricaria_chamomilla,Matricaria chamomilla,Plants/matricaria-chamomilla.png,Curacion
-salvia_officinalis,Salvia officinalis,Plants/salvia-officinalis.png,Curacion
-thymus_vulgaris,Thymus vulgaris,Plants/thymus-vulgaris.png,Curacion
+plantId,commonName,scientificName,imagePath,correctCategory
+lavandula_dentata,Lavanda,Lavandula dentata,Plants/lavandula-dentata.jpg,Decoracion
+jasminum_officinale,Jazmin,Jasminum officinale,Plants/jasminum-officinale.jpg,Decoracion
+rosa_damascena,Rosa de Damasco,Rosa damascena,Plants/rosa-damascena.jpg,Decoracion
+pelargonium_graveolens,Geranio oloroso,Pelargonium graveolens,Plants/pelargonium-graveolens.jpg,Decoracion
+mentha_spicata,Hierbabuena,Mentha spicata,Plants/mentha-spicata.jpg,Alimentacion
+ocimum_basilicum,Albahaca,Ocimum basilicum,Plants/ocimum-basilicum.jpg,Alimentacion
+foeniculum_vulgare,Hinojo,Foeniculum vulgare,Plants/foeniculum-vulgare.jpg,Alimentacion
+laurus_nobilis,Laurel,Laurus nobilis,Plants/laurus-nobilis.jpg,Alimentacion
+aloe_vera,Aloe vera,Aloe vera,Plants/aloe-vera.png,Curacion
+matricaria_chamomilla,Manzanilla,Matricaria chamomilla,Plants/matricaria-chamomilla.jpg,Curacion
+salvia_officinalis,Salvia,Salvia officinalis,Plants/salvia-officinalis.jpg,Curacion
+thymus_vulgaris,Tomillo,Thymus vulgaris,Plants/thymus-vulgaris.jpg,Curacion

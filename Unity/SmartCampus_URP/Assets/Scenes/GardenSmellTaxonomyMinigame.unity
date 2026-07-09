@@ -602,10 +602,10 @@ RectTransform:
   - {fileID: 201055765}
   m_Father: {fileID: 1659045536}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.08, y: 0.38}
-  m_AnchorMax: {x: 0.92, y: 0.9}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0.56, y: 1}
+  m_AnchoredPosition: {x: 7.5, y: 0}
+  m_SizeDelta: {x: -37, y: -48}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &184106939
 MonoBehaviour:
@@ -2360,10 +2360,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1659045536}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.08, y: 0.2}
-  m_AnchorMax: {x: 0.92, y: 0.32}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0.56, y: 0.45}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: -7.5, y: -12}
+  m_SizeDelta: {x: -37, y: -24}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &636914491
 MonoBehaviour:
@@ -2394,8 +2394,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4281017887
-  m_fontColor: {r: 0.12, g: 0.15, b: 0.17, a: 1}
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -4931,7 +4931,7 @@ MonoBehaviour:
   m_IgnoreLayout: 0
   m_MinWidth: -1
   m_MinHeight: -1
-  m_PreferredWidth: 300
+  m_PreferredWidth: 760
   m_PreferredHeight: 320
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
@@ -4991,7 +4991,7 @@ MonoBehaviour:
     m_Right: 0
     m_Top: 0
     m_Bottom: 0
-  m_ChildAlignment: 0
+  m_ChildAlignment: 4
   m_Spacing: 0
   m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 0
@@ -6684,10 +6684,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1659045536}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.08, y: 0.06}
-  m_AnchorMax: {x: 0.92, y: 0.16}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0.56, y: 0}
+  m_AnchorMax: {x: 1, y: 0.45}
+  m_AnchoredPosition: {x: -7.5, y: 8.15}
+  m_SizeDelta: {x: -37, y: -31.7}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1381657395
 MonoBehaviour:
@@ -6718,8 +6718,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4281017887
-  m_fontColor: {r: 0.12, g: 0.15, b: 0.17, a: 1}
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -8955,7 +8955,7 @@ MonoBehaviour:
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
   ActiveSceneSynchronization: 0
-  SceneMigrationSynchronization: 1
+  SceneMigrationSynchronization: 0
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
@@ -9432,9 +9432,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SmartCampus.Coop.Minigames.ResponsiveAspectRatioLayoutController
   targetRectTransform: {fileID: 1659045536}
   referenceRectTransform: {fileID: 926773162}
-  widthToHeightRatio: 1.2
-  minSize: {x: 220, y: 190}
-  maxSize: {x: 540, y: 420}
+  widthToHeightRatio: 2.55
+  minSize: {x: 520, y: 190}
+  maxSize: {x: 760, y: 320}
   outerMargin: {x: 24, y: 24}
 --- !u!114 &1659045538
 MonoBehaviour:
@@ -9455,6 +9455,11 @@ MonoBehaviour:
   illustrationPlaceholderRoot: {fileID: 201055764}
   scientificNameLabel: {fileID: 636914491}
   helperLabel: {fileID: 1381657395}
+  arrangeContentHorizontally: 1
+  contentPadding: {x: 26, y: 24}
+  illustrationWidthRatio: 0.56
+  horizontalGap: 22
+  scientificNameHeightRatio: 0.55
 --- !u!225 &1659045539
 CanvasGroup:
   m_ObjectHideFlags: 0

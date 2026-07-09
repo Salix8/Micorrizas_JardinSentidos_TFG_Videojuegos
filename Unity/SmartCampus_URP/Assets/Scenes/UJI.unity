@@ -3176,8 +3176,11 @@ MonoBehaviour:
   dialogueFlowSync: {fileID: 0}
   minigameCatalogConfig: {fileID: 11400000, guid: ef497b60053910d4d999ca24f25c6e58, type: 2}
   entryRoot: {fileID: 363153324}
-  entryTemplate: {fileID: 2106978051}
+  entryTemplate: {fileID: 592403945}
   helperLabel: {fileID: 0}
+  useSceneAuthoredEntries: 1
+  preserveSceneAuthoredEntryText: 1
+  instantiateMissingCatalogEntries: 0
 --- !u!114 &756439483
 MonoBehaviour:
   m_ObjectHideFlags: 0

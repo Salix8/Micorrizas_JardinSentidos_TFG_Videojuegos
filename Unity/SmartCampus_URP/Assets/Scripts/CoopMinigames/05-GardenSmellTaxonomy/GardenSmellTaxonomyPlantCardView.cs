@@ -19,6 +19,13 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
         [SerializeField] private TMP_Text scientificNameLabel;
         [SerializeField] private TMP_Text helperLabel;
 
+        [Header("Internal Layout")]
+        [SerializeField] private bool arrangeContentHorizontally = true;
+        [SerializeField] private Vector2 contentPadding = new(26f, 24f);
+        [SerializeField] [Range(0.35f, 0.7f)] private float illustrationWidthRatio = 0.56f;
+        [SerializeField] [Min(0f)] private float horizontalGap = 22f;
+        [SerializeField] [Range(0.35f, 0.75f)] private float scientificNameHeightRatio = 0.55f;
+
         private Func<Vector2, Camera, GardenSmellTaxonomyCategory?> resolveDropCategory;
         private Action<GardenSmellTaxonomyCategory?> onHoverCategoryChanged;
         private Action<GardenSmellTaxonomyCategory> onClassificationCommitted;
@@ -28,8 +35,11 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
         private Vector2 initialAnchoredPosition;
         private float transitionDuration;
         private bool isInteractable;
+        private bool isDragging;
+        private bool hasCapturedLayoutPosition;
         private bool hasBinding;
         private string currentBindingKey = string.Empty;
+        private string currentCommonName = string.Empty;
         private GardenSmellTaxonomyCategory? hoveredCategory;
         private GardenSmellTaxonomyVisualSettings visualSettings = GardenSmellTaxonomyVisualSettings.CreateDefault();
 
@@ -37,7 +47,23 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
         {
             cardTransform ??= GetComponent<RectTransform>();
             canvasGroup ??= GetComponent<CanvasGroup>();
-            initialAnchoredPosition = cardTransform == null ? Vector2.zero : cardTransform.anchoredPosition;
+            ApplyInternalLayout();
+            CaptureCurrentLayoutPosition();
+        }
+
+        private void Start()
+        {
+            RefreshLayoutBaseline();
+        }
+
+        private void OnEnable()
+        {
+            RefreshLayoutBaseline();
+        }
+
+        private void OnValidate()
+        {
+            ApplyInternalLayout();
         }
 
         private void OnDisable()
@@ -71,9 +97,13 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
                 return;
             }
 
+            StopActiveAnimation();
             hasBinding = true;
             currentBindingKey = bindingKey;
+            currentCommonName = definition == null ? string.Empty : definition.CommonName;
             hoveredCategory = null;
+            ApplyInternalLayout();
+            RefreshLayoutBaseline();
 
             if (frameImage != null)
             {
@@ -94,13 +124,17 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
         public void ShowMessage(string title, string helperText)
         {
             isInteractable = false;
+            isDragging = false;
             hasBinding = false;
             currentBindingKey = string.Empty;
+            currentCommonName = helperText;
             hoveredCategory = null;
             onHoverCategoryChanged?.Invoke(null);
             onClassificationCommitted = null;
             resolveDropCategory = null;
+            StopActiveAnimation();
             ReleaseRuntimeSprite();
+            RefreshLayoutBaseline();
             ResetTransform();
 
             if (scientificNameLabel != null)
@@ -111,7 +145,7 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
 
             if (helperLabel != null)
             {
-                helperLabel.text = helperText;
+                helperLabel.text = currentCommonName;
                 helperLabel.color = visualSettings.BodyColor;
             }
 
@@ -138,6 +172,9 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
             {
                 canvasGroup.blocksRaycasts = false;
             }
+
+            RefreshLayoutBaseline();
+            isDragging = true;
         }
 
         public void OnDrag(PointerEventData eventData)
@@ -179,13 +216,15 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
 
             if (!resolvedCategory.HasValue)
             {
+                isDragging = false;
                 animationCoroutine = StartCoroutine(AnimateReturnCoroutine());
                 return;
             }
 
             isInteractable = false;
-            onClassificationCommitted?.Invoke(resolvedCategory.Value);
+            isDragging = false;
             animationCoroutine = StartCoroutine(AnimateCommitCoroutine(resolvedCategory.Value));
+            onClassificationCommitted?.Invoke(resolvedCategory.Value);
         }
 
         private void LoadIllustration(GardenSmellTaxonomyPlantDefinition definition)
@@ -243,6 +282,72 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
                         illustrationPlaceholderRoot.SetActive(false);
                     }
                 }));
+        }
+
+        private void ApplyInternalLayout()
+        {
+            if (!arrangeContentHorizontally)
+            {
+                return;
+            }
+
+            var illustrationRect = illustrationImage == null ? null : illustrationImage.rectTransform;
+            var scientificRect = scientificNameLabel == null ? null : scientificNameLabel.rectTransform;
+            var commonRect = helperLabel == null ? null : helperLabel.rectTransform;
+            if (illustrationRect == null || scientificRect == null || commonRect == null)
+            {
+                return;
+            }
+
+            var leftPadding = contentPadding.x;
+            var rightPadding = contentPadding.x;
+            var topPadding = contentPadding.y;
+            var bottomPadding = contentPadding.y;
+            var gapHalf = horizontalGap * 0.5f;
+            var illustrationRightAnchor = Mathf.Clamp(illustrationWidthRatio, 0.35f, 0.7f);
+            var titleBottomAnchor = Mathf.Clamp01(1f - scientificNameHeightRatio);
+
+            StretchToAnchors(
+                illustrationRect,
+                Vector2.zero,
+                new Vector2(illustrationRightAnchor, 1f),
+                new Vector2(leftPadding, bottomPadding),
+                new Vector2(-gapHalf, -topPadding));
+
+            StretchToAnchors(
+                scientificRect,
+                new Vector2(illustrationRightAnchor, titleBottomAnchor),
+                Vector2.one,
+                new Vector2(gapHalf, 0f),
+                new Vector2(-rightPadding, -topPadding));
+
+            StretchToAnchors(
+                commonRect,
+                new Vector2(illustrationRightAnchor, 0f),
+                new Vector2(1f, titleBottomAnchor),
+                new Vector2(gapHalf, bottomPadding),
+                new Vector2(-rightPadding, -horizontalGap * 0.35f));
+
+            if (illustrationPlaceholderRoot != null &&
+                illustrationPlaceholderRoot.transform is RectTransform placeholderRect)
+            {
+                StretchToAnchors(placeholderRect, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+            }
+        }
+
+        private static void StretchToAnchors(
+            RectTransform rectTransform,
+            Vector2 anchorMin,
+            Vector2 anchorMax,
+            Vector2 offsetMin,
+            Vector2 offsetMax)
+        {
+            rectTransform.anchorMin = anchorMin;
+            rectTransform.anchorMax = anchorMax;
+            rectTransform.pivot = new Vector2(0.5f, 0.5f);
+            rectTransform.offsetMin = offsetMin;
+            rectTransform.offsetMax = offsetMax;
+            rectTransform.localScale = Vector3.one;
         }
 
         private IEnumerator AnimateReturnCoroutine()
@@ -304,7 +409,9 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
                 return;
             }
 
-            helperLabel.text = isInteractable ? "Arrastra la planta hasta su uso principal." : "Esperando...";
+            helperLabel.text = string.IsNullOrWhiteSpace(currentCommonName)
+                ? (isInteractable ? "Nombre comun no disponible" : "Esperando...")
+                : currentCommonName;
             helperLabel.color = visualSettings.BodyColor;
         }
 
@@ -334,6 +441,59 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
             if (canvasGroup != null)
             {
                 canvasGroup.alpha = 1f;
+            }
+        }
+
+        private void RefreshLayoutBaseline()
+        {
+            if (cardTransform == null || isDragging)
+            {
+                return;
+            }
+
+            Canvas.ForceUpdateCanvases();
+
+            if (cardTransform.parent is RectTransform parentRect)
+            {
+                LayoutRebuilder.ForceRebuildLayoutImmediate(parentRect);
+            }
+
+            Canvas.ForceUpdateCanvases();
+            CaptureCurrentLayoutPosition();
+        }
+
+        private void CaptureCurrentLayoutPosition()
+        {
+            if (cardTransform == null)
+            {
+                initialAnchoredPosition = Vector2.zero;
+                hasCapturedLayoutPosition = false;
+                return;
+            }
+
+            initialAnchoredPosition = cardTransform.anchoredPosition;
+            hasCapturedLayoutPosition = true;
+        }
+
+        private void StopActiveAnimation()
+        {
+            if (animationCoroutine == null)
+            {
+                return;
+            }
+
+            StopCoroutine(animationCoroutine);
+            animationCoroutine = null;
+
+            if (canvasGroup != null)
+            {
+                canvasGroup.alpha = 1f;
+                canvasGroup.blocksRaycasts = true;
+            }
+
+            if (cardTransform != null && hasCapturedLayoutPosition)
+            {
+                cardTransform.rotation = Quaternion.identity;
             }
         }
 

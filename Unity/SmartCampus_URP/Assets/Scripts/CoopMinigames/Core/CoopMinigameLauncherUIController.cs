@@ -23,6 +23,10 @@ namespace SmartCampus.Coop.Minigames
         [SerializeField] private Transform entryRoot;
         [SerializeField] private CoopMinigameLauncherEntryView entryTemplate;
         [SerializeField] private TMP_Text helperLabel;
+        [Header("Scene Authored Entries")]
+        [SerializeField] private bool useSceneAuthoredEntries = true;
+        [SerializeField] private bool preserveSceneAuthoredEntryText = true;
+        [SerializeField] private bool instantiateMissingCatalogEntries;
 
         private readonly List<CoopMinigameLauncherEntryView> instantiatedEntries = new();
         private bool hasLoggedCatalogValidation;
@@ -130,19 +134,31 @@ namespace SmartCampus.Coop.Minigames
         private void BuildEntries()
         {
             ResolveReferences();
-            if (entryRoot == null || entryTemplate == null || minigameCatalogConfig == null)
+            if (entryRoot == null || minigameCatalogConfig == null)
+            {
+                return;
+            }
+
+            if ((!useSceneAuthoredEntries || instantiateMissingCatalogEntries) && entryTemplate == null)
             {
                 return;
             }
 
             instantiatedEntries.Clear();
-            entryTemplate.gameObject.SetActive(false);
+
+            if (!useSceneAuthoredEntries && entryTemplate != null)
+            {
+                entryTemplate.gameObject.SetActive(false);
+            }
 
             var sceneEntries = new List<CoopMinigameLauncherEntryView>();
             for (var childIndex = 0; childIndex < entryRoot.childCount; childIndex++)
             {
                 var child = entryRoot.GetChild(childIndex);
-                if (child == entryTemplate.transform)
+                var isTemplateChild = entryTemplate != null && child == entryTemplate.transform;
+                var shouldSkipTemplate = isTemplateChild &&
+                                         (!useSceneAuthoredEntries || !entryTemplate.gameObject.activeSelf);
+                if (shouldSkipTemplate)
                 {
                     continue;
                 }
@@ -154,17 +170,24 @@ namespace SmartCampus.Coop.Minigames
                 }
             }
 
-            for (var index = sceneEntries.Count; index < minigameCatalogConfig.Entries.Count; index++)
+            if (!useSceneAuthoredEntries || instantiateMissingCatalogEntries)
             {
-                var entryInstance = Instantiate(entryTemplate, entryRoot, false);
-                sceneEntries.Add(entryInstance);
+                for (var index = sceneEntries.Count; index < minigameCatalogConfig.Entries.Count; index++)
+                {
+                    var entryInstance = Instantiate(entryTemplate, entryRoot, false);
+                    sceneEntries.Add(entryInstance);
+                }
             }
 
             for (var index = 0; index < sceneEntries.Count; index++)
             {
-                var shouldBeActive = index < minigameCatalogConfig.Entries.Count && minigameCatalogConfig.Entries[index] != null;
-                sceneEntries[index].gameObject.SetActive(shouldBeActive);
-                if (shouldBeActive)
+                var hasCatalogEntry = index < minigameCatalogConfig.Entries.Count && minigameCatalogConfig.Entries[index] != null;
+                if (!useSceneAuthoredEntries)
+                {
+                    sceneEntries[index].gameObject.SetActive(hasCatalogEntry);
+                }
+
+                if (hasCatalogEntry && sceneEntries[index].gameObject.activeSelf)
                 {
                     instantiatedEntries.Add(sceneEntries[index]);
                 }
@@ -223,7 +246,8 @@ namespace SmartCampus.Coop.Minigames
                     entry.Description,
                     canLaunch && !isCompleted,
                     () => LaunchMinigame(entry),
-                    buttonText);
+                    buttonText,
+                    preserveSceneAuthoredEntryText);
             }
         }
 
