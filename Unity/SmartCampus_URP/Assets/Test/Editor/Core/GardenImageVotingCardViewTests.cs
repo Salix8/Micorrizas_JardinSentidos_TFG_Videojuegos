@@ -17,6 +17,7 @@ namespace SmartCampus.Testing.Editor.Core
         private TMP_Text titleLabel;
         private TMP_Text bodyLabel;
         private TMP_Text decisionHintLabel;
+        private GameObject illustrationPlaceholderRoot;
 
         [SetUp]
         public void SetUp()
@@ -36,6 +37,8 @@ namespace SmartCampus.Testing.Editor.Core
             titleLabel = CreateText("CardTitleLabel", root.transform);
             bodyLabel = CreateText("BodyLabel", root.transform);
             decisionHintLabel = CreateText("DecisionHintLabel", root.transform);
+            illustrationPlaceholderRoot = new GameObject("IllustrationPlaceholder");
+            illustrationPlaceholderRoot.transform.SetParent(root.transform, false);
 
             SetPrivateField("cardTransform", root.GetComponent<RectTransform>());
             SetPrivateField("canvasGroup", root.GetComponent<CanvasGroup>());
@@ -44,6 +47,7 @@ namespace SmartCampus.Testing.Editor.Core
             SetPrivateField("titleLabel", titleLabel);
             SetPrivateField("bodyLabel", bodyLabel);
             SetPrivateField("decisionHintLabel", decisionHintLabel);
+            SetPrivateField("illustrationPlaceholderRoot", illustrationPlaceholderRoot);
         }
 
         [TearDown]
@@ -68,6 +72,18 @@ namespace SmartCampus.Testing.Editor.Core
             Assert.That(serializedGraphic.FindProperty("borderColor").colorValue, Is.EqualTo(visuals.FrameColor));
             Assert.That(titleLabel.color, Is.EqualTo(visuals.TitleColor));
             Assert.That(bodyLabel.color, Is.EqualTo(visuals.BodyColor));
+        }
+
+        [Test]
+        public void ShowMessage_WhenPlaceholderIsDisabled_HidesImagePlaceholder()
+        {
+            illustrationPlaceholderRoot.SetActive(true);
+
+            cardView.ShowMessage("Secuencia completada", "No quedan imagenes.", showIllustrationPlaceholder: false);
+
+            Assert.That(illustrationPlaceholderRoot.activeSelf, Is.False);
+            Assert.That(titleLabel.text, Is.EqualTo("Secuencia completada"));
+            Assert.That(bodyLabel.text, Is.EqualTo("No quedan imagenes."));
         }
 
         private static TMP_Text CreateText(string name, Transform parent)

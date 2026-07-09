@@ -262,15 +262,11 @@ public static class CollaborativePlantGuessMinigameSetup
         submitButton.gameObject.AddComponent<LayoutElement>().preferredHeight = 64f;
 
         var suggestionPanel = CreatePanel("SuggestionPanel", inputPanel.transform, new Color(1f, 1f, 1f, 0.55f));
-        suggestionPanel.AddComponent<LayoutElement>().preferredHeight = 96f;
-        var suggestionLayout = suggestionPanel.AddComponent<VerticalLayoutGroup>();
-        suggestionLayout.padding = new RectOffset(12, 12, 12, 12);
-        suggestionLayout.spacing = 8f;
-        suggestionLayout.childControlWidth = true;
-        suggestionLayout.childControlHeight = true;
-        suggestionLayout.childForceExpandHeight = false;
+        suggestionPanel.AddComponent<LayoutElement>().preferredHeight = 150f;
+        var suggestionScrollRect = suggestionPanel.AddComponent<ScrollRect>();
+        var suggestionContentRoot = CreateSuggestionScrollContent(suggestionPanel.transform, suggestionScrollRect);
 
-        var suggestionTemplate = CreateSuggestionTemplate(suggestionPanel.transform, font, config.VisualSettings.SecondaryButtonColor);
+        var suggestionTemplate = CreateSuggestionTemplate(suggestionContentRoot.transform, font, config.VisualSettings.SecondaryButtonColor);
         suggestionTemplate.gameObject.SetActive(false);
 
         var historyPanel = CreatePanel("HistoryPanel", interactivePanel.transform, themeConfig.Palette.PanelBackground);
@@ -315,6 +311,7 @@ public static class CollaborativePlantGuessMinigameSetup
         serializedUiController.FindProperty("collaborativePlantGuessMinigameSession").objectReferenceValue = session;
         serializedUiController.FindProperty("topPanelView").objectReferenceValue = topPanelView;
         serializedUiController.FindProperty("bottomPanelView").objectReferenceValue = bottomPanelView;
+        serializedUiController.FindProperty("overrideBottomInstructionText").boolValue = false;
         serializedUiController.FindProperty("titleLabel").objectReferenceValue = titleLabel;
         serializedUiController.FindProperty("timerLabel").objectReferenceValue = timerLabel;
         serializedUiController.FindProperty("attemptsLabel").objectReferenceValue = attemptsLabel;
@@ -324,11 +321,14 @@ public static class CollaborativePlantGuessMinigameSetup
         serializedUiController.FindProperty("guessInputField").objectReferenceValue = inputField;
         serializedUiController.FindProperty("submitGuessButton").objectReferenceValue = submitButton.GetComponent<Button>();
         serializedUiController.FindProperty("submitGuessButtonLabel").objectReferenceValue = submitButton.GetComponentInChildren<TMP_Text>();
-        serializedUiController.FindProperty("suggestionRoot").objectReferenceValue = suggestionPanel.transform;
+        serializedUiController.FindProperty("suggestionScrollRect").objectReferenceValue = suggestionScrollRect;
+        serializedUiController.FindProperty("suggestionRoot").objectReferenceValue = suggestionContentRoot.transform;
         serializedUiController.FindProperty("suggestionTemplate").objectReferenceValue = suggestionTemplate;
         serializedUiController.FindProperty("historyRoot").objectReferenceValue = scrollView.ContentRoot.transform;
         serializedUiController.FindProperty("historyRowTemplate").objectReferenceValue = historyTemplate;
         serializedUiController.FindProperty("emptyHistoryLabel").objectReferenceValue = emptyHistoryLabel;
+        serializedUiController.FindProperty("overrideHintLabelText").boolValue = false;
+        serializedUiController.FindProperty("forceHintLabelVisible").boolValue = false;
         serializedUiController.ApplyModifiedPropertiesWithoutUndo();
 
         EditorSceneManager.SaveScene(scene, MinigameScenePath);
@@ -539,6 +539,43 @@ public static class CollaborativePlantGuessMinigameSetup
         scrollRect.movementType = ScrollRect.MovementType.Clamped;
 
         return new ScrollViewReferences(root, contentRoot, verticalLayout);
+    }
+
+    private static GameObject CreateSuggestionScrollContent(Transform panelRoot, ScrollRect scrollRect)
+    {
+        var viewport = CreateUiObject("SuggestionViewport", panelRoot, typeof(Image), typeof(RectMask2D));
+        Stretch(viewport.GetComponent<RectTransform>(), new Vector2(6f, 6f), new Vector2(-6f, -6f));
+        var viewportImage = viewport.GetComponent<Image>();
+        viewportImage.color = new Color(1f, 1f, 1f, 0.01f);
+        viewportImage.raycastTarget = true;
+
+        var contentRoot = CreateUiObject("SuggestionContent", viewport.transform, typeof(VerticalLayoutGroup), typeof(ContentSizeFitter));
+        var contentRect = contentRoot.GetComponent<RectTransform>();
+        contentRect.anchorMin = new Vector2(0f, 1f);
+        contentRect.anchorMax = new Vector2(1f, 1f);
+        contentRect.pivot = new Vector2(0.5f, 1f);
+        contentRect.offsetMin = Vector2.zero;
+        contentRect.offsetMax = Vector2.zero;
+
+        var contentLayout = contentRoot.GetComponent<VerticalLayoutGroup>();
+        contentLayout.padding = new RectOffset(8, 8, 8, 8);
+        contentLayout.spacing = 6f;
+        contentLayout.childControlWidth = true;
+        contentLayout.childControlHeight = true;
+        contentLayout.childForceExpandHeight = false;
+
+        var fitter = contentRoot.GetComponent<ContentSizeFitter>();
+        fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+        fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+        scrollRect.viewport = viewport.GetComponent<RectTransform>();
+        scrollRect.content = contentRect;
+        scrollRect.horizontal = false;
+        scrollRect.vertical = true;
+        scrollRect.movementType = ScrollRect.MovementType.Clamped;
+        scrollRect.scrollSensitivity = 24f;
+
+        return contentRoot;
     }
 
     private static TMP_InputField CreateInputField(string name, Transform parent, Font font, string placeholder)

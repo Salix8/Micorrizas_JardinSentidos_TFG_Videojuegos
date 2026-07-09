@@ -233,6 +233,41 @@ namespace SmartCampus.Testing.Editor.Core
             Object.DestroyImmediate(theme);
         }
 
+        [Test]
+        public void BottomPanelBindTimerAndPenalty_KeepsEditorAuthoredInstructionText()
+        {
+            var theme = ScriptableObject.CreateInstance<CoopMinigameThemeConfig>();
+            var root = new GameObject("BottomPanel", typeof(RectTransform), typeof(CoopMinigameBottomPanelView));
+            var view = root.GetComponent<CoopMinigameBottomPanelView>();
+            var instructionTitle = CreateLabel(root.transform, "InstructionTitle");
+            var instructionBody = CreateLabel(root.transform, "InstructionBody");
+            var timeValue = CreateLabel(root.transform, "TimeValue");
+            var penaltyValue = CreateLabel(root.transform, "PenaltyValue");
+            var slider = root.AddComponent<Slider>();
+            instructionTitle.text = "TITULO EDITOR";
+            instructionBody.text = "Texto puesto desde la escena.";
+
+            var serializedView = new SerializedObject(view);
+            Assign(serializedView, "themeConfig", theme);
+            Assign(serializedView, "instructionTitleLabel", instructionTitle);
+            Assign(serializedView, "instructionBodyLabel", instructionBody);
+            Assign(serializedView, "timeValueLabel", timeValue);
+            Assign(serializedView, "penaltyValueLabel", penaltyValue);
+            Assign(serializedView, "timeSlider", slider);
+            serializedView.ApplyModifiedPropertiesWithoutUndo();
+
+            view.BindTimerAndPenalty(80f, 100f, 10f);
+
+            Assert.That(instructionTitle.text, Is.EqualTo("TITULO EDITOR"));
+            Assert.That(instructionBody.text, Is.EqualTo("Texto puesto desde la escena."));
+            Assert.That(timeValue.text, Is.EqualTo("01:20"));
+            Assert.That(penaltyValue.text, Is.EqualTo("-10s"));
+            Assert.That(slider.value, Is.EqualTo(0.8f).Within(0.001f));
+
+            Object.DestroyImmediate(root);
+            Object.DestroyImmediate(theme);
+        }
+
         private static TMP_Text CreateLabel(Transform parent, string name)
         {
             var labelObject = new GameObject(name, typeof(RectTransform), typeof(TextMeshProUGUI));

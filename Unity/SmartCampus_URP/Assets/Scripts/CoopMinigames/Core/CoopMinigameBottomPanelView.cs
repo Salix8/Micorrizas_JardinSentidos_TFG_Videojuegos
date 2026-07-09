@@ -56,6 +56,13 @@ namespace SmartCampus.Coop.Minigames
             SetPenaltySeconds(penaltySeconds);
         }
 
+        public void BindTimerAndPenalty(float remainingSeconds, float totalSeconds, float penaltySeconds)
+        {
+            ApplyTheme();
+            SetTimer(remainingSeconds, totalSeconds);
+            SetPenaltySeconds(penaltySeconds);
+        }
+
         public void SetTheme(CoopMinigameThemeConfig theme)
         {
             themeConfig = theme;

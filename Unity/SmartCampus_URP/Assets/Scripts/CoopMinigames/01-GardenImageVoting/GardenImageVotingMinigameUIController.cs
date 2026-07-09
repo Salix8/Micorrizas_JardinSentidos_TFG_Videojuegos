@@ -166,7 +166,10 @@ namespace SmartCampus.Coop.Minigames.GardenImageVoting
             var localCard = TypedSession.GetLocalCurrentCard();
             if (localCard == null)
             {
-                cardView?.ShowMessage("Secuencia completada", "Ya no te quedan imagenes por revisar en este dispositivo.");
+                cardView?.ShowMessage(
+                    "Secuencia completada",
+                    "Ya no te quedan imagenes por revisar en este dispositivo.",
+                    showIllustrationPlaceholder: false);
                 if (completionLabel != null)
                 {
                     completionLabel.gameObject.SetActive(true);

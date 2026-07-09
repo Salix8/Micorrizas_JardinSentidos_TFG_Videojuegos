@@ -15,6 +15,7 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
         [SerializeField] private CoopMinigameBottomPanelView bottomPanelView;
 
         [Header("Shared Panel Copy")]
+        [SerializeField] private bool overrideBottomInstructionText;
         [SerializeField] private string bottomInstructionTitle = "ENCONTRAD EL ARBOL";
         [SerializeField] private string bottomInstructionBody = "Uno escribe el nombre y el juego da pistas. Adivinad cual es.";
         [SerializeField] private float displayedPenaltySeconds;
@@ -31,11 +32,16 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
         [SerializeField] private TMP_InputField guessInputField;
         [SerializeField] private Button submitGuessButton;
         [SerializeField] private TMP_Text submitGuessButtonLabel;
+        [SerializeField] private ScrollRect suggestionScrollRect;
         [SerializeField] private Transform suggestionRoot;
         [SerializeField] private CollaborativePlantGuessSuggestionEntryView suggestionTemplate;
         [SerializeField] private Transform historyRoot;
         [SerializeField] private CollaborativePlantGuessHistoryRowView historyRowTemplate;
         [SerializeField] private TMP_Text emptyHistoryLabel;
+
+        [Header("Editor Authored Text")]
+        [SerializeField] private bool overrideHintLabelText;
+        [SerializeField] private bool forceHintLabelVisible;
 
         private readonly List<CollaborativePlantGuessSuggestionEntryView> suggestionViews = new();
         private readonly List<CollaborativePlantGuessHistoryRowView> historyRowViews = new();
@@ -153,9 +159,13 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
                 helperLabel.text = BuildHelperMessage(config);
             }
 
-            if (hintLabel != null)
+            if (hintLabel != null && overrideHintLabelText)
             {
-                hintLabel.gameObject.SetActive(true);
+                if (forceHintLabelVisible)
+                {
+                    hintLabel.gameObject.SetActive(true);
+                }
+
                 hintLabel.text =
                     $"Orden de pistas: rugosidad, tipo de hoja, categoria del fruto, tipo de fruto y tipo de planta. " +
                     $"El tipo de fruto se desbloquea en el intento 2 y el tipo de planta en el intento 4.";
@@ -254,13 +264,11 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
 
         private void RefreshSuggestionList(CollaborativePlantGuessMinigameConfig config)
         {
+            EnsureSuggestionScrollHierarchy();
+
             if (suggestionRoot == null || suggestionTemplate == null || guessInputField == null || !TypedSession.HasLoadedPlantDefinitions)
             {
-                if (suggestionRoot != null)
-                {
-                    suggestionRoot.gameObject.SetActive(false);
-                }
-
+                HideSuggestionRows();
                 return;
             }
 
@@ -272,7 +280,7 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
                 guessInputField.text,
                 suggestionLimit);
 
-            suggestionRoot.gameObject.SetActive(suggestions.Count > 0);
+            suggestionRoot.gameObject.SetActive(true);
 
             for (var index = 0; index < suggestions.Count; index++)
             {
@@ -290,6 +298,175 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             for (var index = suggestions.Count; index < suggestionViews.Count; index++)
             {
                 suggestionViews[index].gameObject.SetActive(false);
+            }
+
+            RebuildSuggestionScrollLayout();
+        }
+
+        private void EnsureSuggestionScrollHierarchy()
+        {
+            if (suggestionRoot == null)
+            {
+                return;
+            }
+
+            var existingScrollRect = suggestionScrollRect != null
+                ? suggestionScrollRect
+                : suggestionRoot.GetComponentInParent<ScrollRect>();
+            if (existingScrollRect != null && existingScrollRect.content != null)
+            {
+                suggestionScrollRect = existingScrollRect;
+                suggestionRoot = existingScrollRect.content;
+                EnsureSuggestionContentLayout(suggestionRoot.gameObject);
+                MoveSuggestionViewsToContent(suggestionRoot);
+                return;
+            }
+
+            if (suggestionRoot is not RectTransform panelRect)
+            {
+                return;
+            }
+
+            var outerLayout = panelRect.GetComponent<VerticalLayoutGroup>();
+            if (outerLayout != null)
+            {
+                outerLayout.enabled = false;
+            }
+
+            var panelImage = panelRect.GetComponent<Image>();
+            if (panelImage != null)
+            {
+                panelImage.raycastTarget = true;
+            }
+
+            suggestionScrollRect = panelRect.GetComponent<ScrollRect>();
+            if (suggestionScrollRect == null)
+            {
+                suggestionScrollRect = panelRect.gameObject.AddComponent<ScrollRect>();
+            }
+
+            var viewportRect = panelRect.Find("SuggestionViewport") as RectTransform;
+            if (viewportRect == null)
+            {
+                var viewportObject = new GameObject("SuggestionViewport", typeof(RectTransform), typeof(Image), typeof(RectMask2D));
+                viewportObject.layer = panelRect.gameObject.layer;
+                viewportObject.transform.SetParent(panelRect, false);
+                viewportRect = viewportObject.GetComponent<RectTransform>();
+                var viewportImage = viewportObject.GetComponent<Image>();
+                viewportImage.color = new Color(1f, 1f, 1f, 0.01f);
+                viewportImage.raycastTarget = true;
+            }
+
+            Stretch(viewportRect, new Vector2(6f, 6f), new Vector2(-6f, -6f));
+
+            var contentRect = viewportRect.Find("SuggestionContent") as RectTransform;
+            if (contentRect == null)
+            {
+                var contentObject = new GameObject("SuggestionContent", typeof(RectTransform));
+                contentObject.layer = panelRect.gameObject.layer;
+                contentObject.transform.SetParent(viewportRect, false);
+                contentRect = contentObject.GetComponent<RectTransform>();
+            }
+
+            ConfigureSuggestionContentRect(contentRect);
+            EnsureSuggestionContentLayout(contentRect.gameObject);
+            MoveSuggestionViewsToContent(contentRect);
+
+            suggestionScrollRect.viewport = viewportRect;
+            suggestionScrollRect.content = contentRect;
+            suggestionScrollRect.horizontal = false;
+            suggestionScrollRect.vertical = true;
+            suggestionScrollRect.movementType = ScrollRect.MovementType.Clamped;
+            suggestionScrollRect.scrollSensitivity = 24f;
+            suggestionRoot = contentRect;
+        }
+
+        private void MoveSuggestionViewsToContent(Transform contentRoot)
+        {
+            if (contentRoot == null)
+            {
+                return;
+            }
+
+            if (suggestionTemplate != null && suggestionTemplate.transform.parent != contentRoot)
+            {
+                suggestionTemplate.transform.SetParent(contentRoot, false);
+                suggestionTemplate.transform.SetAsLastSibling();
+            }
+
+            for (var index = 0; index < suggestionViews.Count; index++)
+            {
+                var suggestionView = suggestionViews[index];
+                if (suggestionView != null && suggestionView.transform.parent != contentRoot)
+                {
+                    suggestionView.transform.SetParent(contentRoot, false);
+                }
+            }
+        }
+
+        private static void EnsureSuggestionContentLayout(GameObject contentObject)
+        {
+            var layout = contentObject.GetComponent<VerticalLayoutGroup>();
+            if (layout == null)
+            {
+                layout = contentObject.AddComponent<VerticalLayoutGroup>();
+            }
+
+            layout.padding = new RectOffset(8, 8, 8, 8);
+            layout.spacing = 6f;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandHeight = false;
+
+            var fitter = contentObject.GetComponent<ContentSizeFitter>();
+            if (fitter == null)
+            {
+                fitter = contentObject.AddComponent<ContentSizeFitter>();
+            }
+
+            fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+        }
+
+        private static void ConfigureSuggestionContentRect(RectTransform contentRect)
+        {
+            contentRect.anchorMin = new Vector2(0f, 1f);
+            contentRect.anchorMax = new Vector2(1f, 1f);
+            contentRect.pivot = new Vector2(0.5f, 1f);
+            contentRect.anchoredPosition = Vector2.zero;
+            contentRect.offsetMin = Vector2.zero;
+            contentRect.offsetMax = Vector2.zero;
+        }
+
+        private void HideSuggestionRows()
+        {
+            if (suggestionRoot != null)
+            {
+                suggestionRoot.gameObject.SetActive(true);
+            }
+
+            for (var index = 0; index < suggestionViews.Count; index++)
+            {
+                if (suggestionViews[index] != null)
+                {
+                    suggestionViews[index].gameObject.SetActive(false);
+                }
+            }
+
+            RebuildSuggestionScrollLayout();
+        }
+
+        private void RebuildSuggestionScrollLayout()
+        {
+            if (suggestionRoot is RectTransform contentRect)
+            {
+                LayoutRebuilder.ForceRebuildLayoutImmediate(contentRect);
+            }
+
+            if (suggestionScrollRect != null)
+            {
+                Canvas.ForceUpdateCanvases();
+                suggestionScrollRect.verticalNormalizedPosition = 1f;
             }
         }
 
@@ -332,7 +509,8 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
         {
             while (suggestionViews.Count <= index)
             {
-                var suggestionView = Instantiate(suggestionTemplate, suggestionRoot);
+                EnsureSuggestionScrollHierarchy();
+                var suggestionView = Instantiate(suggestionTemplate, suggestionRoot, false);
                 suggestionView.gameObject.SetActive(true);
                 suggestionViews.Add(suggestionView);
             }
@@ -383,12 +561,19 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
 
             if (bottomPanelView != null)
             {
-                bottomPanelView.Bind(
-                    bottomInstructionTitle,
-                    bottomInstructionBody,
-                    remainingSeconds,
-                    totalSeconds,
-                    displayedPenaltySeconds);
+                if (overrideBottomInstructionText)
+                {
+                    bottomPanelView.Bind(
+                        bottomInstructionTitle,
+                        bottomInstructionBody,
+                        remainingSeconds,
+                        totalSeconds,
+                        displayedPenaltySeconds);
+                }
+                else
+                {
+                    bottomPanelView.BindTimerAndPenalty(remainingSeconds, totalSeconds, displayedPenaltySeconds);
+                }
             }
         }
 
@@ -408,6 +593,15 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             var minutes = totalSeconds / 60;
             var seconds = totalSeconds % 60;
             return $"{minutes:00}:{seconds:00}";
+        }
+
+        private static void Stretch(RectTransform rectTransform, Vector2 offsetMin, Vector2 offsetMax)
+        {
+            rectTransform.anchorMin = Vector2.zero;
+            rectTransform.anchorMax = Vector2.one;
+            rectTransform.pivot = new Vector2(0.5f, 0.5f);
+            rectTransform.offsetMin = offsetMin;
+            rectTransform.offsetMax = offsetMax;
         }
     }
 }

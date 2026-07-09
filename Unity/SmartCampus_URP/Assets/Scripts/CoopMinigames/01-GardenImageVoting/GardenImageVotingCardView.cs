@@ -102,7 +102,7 @@ namespace SmartCampus.Coop.Minigames.GardenImageVoting
             LoadIllustration(definition);
         }
 
-        public void ShowMessage(string title, string body)
+        public void ShowMessage(string title, string body, bool showIllustrationPlaceholder = true)
         {
             isInteractable = false;
             onDecisionCommitted = null;
@@ -136,7 +136,7 @@ namespace SmartCampus.Coop.Minigames.GardenImageVoting
 
             if (illustrationPlaceholderRoot != null)
             {
-                illustrationPlaceholderRoot.SetActive(true);
+                illustrationPlaceholderRoot.SetActive(showIllustrationPlaceholder);
             }
         }
 
