@@ -1,0 +1,102 @@
+% !TeX program = xelatex
+\documentclass[
+    % blackwhite
+]{dragonbane-supplement}
+%\usepackage{fontspec}
+%\setmainfont{Crimson Pro}[Scale=1.2] % Aumenta el tamaño de la fuente en un 20%
+% \usepackage{fontspec}
+% \usepackage{CrimsonPro}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true, % false: boxed links; true: colored links
+    linkcolor=blue,  % Color de los enlaces internos
+    filecolor=blue,  % Color de los enlaces a archivos
+    urlcolor=blue    % Color de los enlaces externos
+}
+
+\usepackage{pdflscape} %pagina horizontal
+\usepackage{makecell} % para que partir palabras en tablas
+\usepackage{tabto}
+
+
+\usepackage{titlesec}
+\titleformat{\paragraph}[runin]{\tffamily\large}{}{0pt}{#1~\quad}
+
+\usepackage{longtable}
+\usepackage{colortbl}
+\usepackage{array}
+\usepackage{float}
+\usepackage{caption}
+\setstretch{1.15}
+
+\usepackage{parskip} % Elimina la sangría y añade espacio entre párrafos
+\setlength{\parskip}{1em}   % Espacio entre párrafos
+
+
+\pagecolor{white}
+\backgroundsetup{contents={}}
+
+\usepackage[style=numeric,sorting=none]{biblatex}
+\addbibresource{bibliografia.bib}
+
+
+%% ================ TITLE ================ %%
+\title{Micorrizas\\}
+\subtitle{Design and development of a geolocated mobile video game to promote knowledge and relationship with the natural environment}
+\author{\large Saúl Pacheco Trilles}
+
+%% ================ DOCUMENT ================ %%
+\begin{document}
+
+\begin{titlepage}
+\centering
+\vspace*{1cm}
+
+{\color[HTML]{2D5D3A}\LARGE\bfseries Universitat Jaume I\par}
+\vspace{0.4cm}
+{\large Bachelor's Thesis in Video Game Design and Development\par}
+
+\vspace{2cm}
+
+{\color[HTML]{2D5D3A}\Huge\bfseries Micorrizas\par}
+\vspace{0.3cm}
+{\color[HTML]{A4B9D2}\rule{0.85\textwidth}{1pt}\par}
+\vspace{0.4cm}
+{\color[HTML]{A45E39}\Large\itshape Design and development of a geolocated mobile video game to promote\par knowledge and relationship with the natural environment\par}
+
+\vspace{2cm}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.8}
+\setlength{\tabcolsep}{10pt}
+\begin{tabular}{>{\bfseries\raggedleft\arraybackslash}p{0.35\textwidth} p{0.45\textwidth}}
+\rowcolor[HTML]{DFE8DF} Student & Saúl Pacheco Trilles \\
+\rowcolor[HTML]{F0F5F0} Supervisor & Águeda Gómez Cambronero \\
+\rowcolor[HTML]{DFE8DF} Course & VJ1241 - Final Degree Project \\
+\rowcolor[HTML]{F0F5F0} Defense date & 13--15 July 2026 \\
+\end{tabular}
+\end{center}
+
+\vfill
+
+\includegraphics[width=0.25\textwidth]{img/LogoUJI.png}\par
+\vspace*{1.5cm}
+\end{titlepage}
+
+\partcolor{Maroon}
+
+\include{0Preliminares}
+\include{1Introduccion}
+\include{2Planificacion}
+\include{3Analisis}
+\include{4Desarrollo}
+\include{5TesteoValidacion}
+\include{6Resultados}
+\include{7Conclusiones}
+\printbibliography
+%\include{8Bibliografia}
+\include{9Appendix}
+
+%\include{template}
+
+\end{document}

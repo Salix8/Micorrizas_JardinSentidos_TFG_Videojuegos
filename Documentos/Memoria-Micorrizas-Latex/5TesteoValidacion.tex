@@ -1,0 +1,214 @@
+% \chapter{Testing and validation}
+% \section{Testing methodology}
+% %Aquí explicar la estrategia de testeo: 
+% % desarrollo iterativo (no rounds: cycles o iteration) e incremental. Cada funcionalidad implementada se prueba después, el supervisor revisa semanalmente el estado del proyecto y proporciona fedback para la siguiente iteración
+% The testing and validation phase was carried out to verify that the application worked as a functional Android prototype and that the experience was understandable and satisfactory for potential users. Since \textit{Micorrizas} combines mobile interaction, geolocation, multiplayer synchronisation and outdoor exploration, validation is complex, as we need to take x users (between 2 and 6) to the \textit{Jardín de los Sentidos}. Furthermore, each user must have an Android device with geolocation capability.
+% \section{Functional testing}
+% % lo que tienes en este primer párrafo. En esta sección explicar la lista de funcionalidades princpales (como lo has hecho) y cómo se probaban y si han salido errores importantes
+% % section{Field testing}
+% % lo que dices de las pruebas en el jardín de los sentidos, que no se podría validar el gps con unity, que se validaban auí la precisicón del gps, los triggers, la sincroización... y lo mismo, problemas que se detectaron
+% First, the application was tested on Android devices in order to check the main gameplay flow: creating a room, joining a cooperative session, accessing the map, detecting the player’s position, activating missions, completing challenges and displaying the final result. Special attention was paid to the geolocation system, as this was the most challenging feature to get up and running; furthermore, the game relies on the player’s physical presence in the \textit{Jardín de los Sentidos}, as this is where the teaching activity takes place. For this reason, several tests had to be carried out in the real-world environment, as the behaviour of the GPS could not be reliably validated within the Unity editor.
+% \section{user validation}
+% % cómo se evauño la experiencia de usuario que ya lo tienes casi lo de probarlo con silvia y marta, cuánto tiempo se probó, los problemas que hubo, sugerencias...
+
+% \section{first evaluation cycle}
+% % la primera ronda de mejoras problemas-> cambio, podrías poner una tabla feedback (p.ej posible confunsión en la misión de sonido -> improvement (añadir imágenes con filtros)
+
+% \section{suggestions not implemented}
+% %ya está (propuestas recibidas y motivo por el que no se implementaron)
+
+% \section{second evaluation cycle} 
+% %lo mismo también podrías poner la tabla
+
+% \section{limitations of the validation} 
+% %esto lo puedes poner aquí en vez de en las conclusiones que creo que tienes auqneu creo queaquí ahora queda mejora. Qué aspectos no se puedieron validar (pedagógicos) el número de participantes en las validaciones fue reducido, no se evaluó el aprendizjae antes y después, no se validó la puntuación si se correspondía con la puntuación que podrían obtener de la actividad normal...
+
+% In addition to technical testing, the game was tested with a group of users in order to collect feedback about the clarity of the interface, the understanding of the missions and the overall flow of the experience. During these tests, a think-aloud protocol was used. Participants were encouraged to verbalise what they were thinking while interacting with the application, which made it possible to identify confusing instructions, unclear visual elements or moments where the game flow was not sufficiently intuitive.
+
+% The first round of feedback focused mainly on the structure of the missions and the behaviour of the map. As a result of this feedback, images were added to the second mission in order to support the sound-recognition task and make the available options easier to understand. The activation areas on the map were also delimited more clearly, so that players could better understand where they needed to be in order to start a mission. What’s more, when you complete the mission, there’s visual feedback, the colour changes to indicate that that area of the garden has now been restored.
+
+% Other suggestions from this first round were considered but not finally implemented. One of them was the addition of a separate learning scene before the second mission. This idea was rejected because it interrupted the rhythm of the experience and added an extra step before the mission itself. Another suggestion was to prevent players from removing pairs in the fourth mission and to add an additional learning phase before it. This was also not implemented in the final version, as it would have increased the complexity of the mission and moved it away from the intended short and direct interaction model.
+
+% A second round of feedback was provided by the lecturers involved in the original educational activity. This feedback was especially relevant because it helped to adjust the prototype to the pedagogical context of the subject. In the fourth quest, an introductory reference to flavours was added so that players could better understand the relationship between the activity and the Garden of Taste. In the first quest, the plant images were enlarged to make visual recognition easier on mobile screens. In the fourth mission, an additional pressure element was introduced to make the activity more dynamic. The user interface was redistributed in some scenes to improve readability and interaction, and the avatar of the GPS indicator was adjusted so that players could more easily interpret the location state of the application.
+
+% The validation process helped to refine the game from both a technical and an educational point of view. The tests confirmed that the application could run as an Android prototype and that the main cooperative flow was functional. At the same time, the feedback received made it possible to improve the clarity of the missions, the readability of the interface and the connection between the game mechanics and the educational activity on which the project is based.
+
+
+
+
+
+\chapter{Testing and validation}
+
+% This chapter describes the validation process followed during the development of \textit{Micorrizas}. The tests focused on three aspects: technical execution on Android devices, correct behaviour of the cooperative flow and clarity of the experience in the physical space of the \textit{Jardín de los Sentidos}.
+
+% The application combines mobile interaction, geolocation, multiplayer synchronisation and outdoor exploration. Editor tests were useful for interface checks, scene transitions and part of the mission logic. Android and field tests were required to validate GPS behaviour, device interaction and mission activation in the real environment.
+
+\section{Testing methodology}
+
+The project followed an iterative and incremental testing strategy. Each major feature was tested after implementation and reviewed again after integration with the rest of the system. This approach was necessary because several systems depended on each other: the map required GPS readings, mission activation used projected player positions, and each quest had to report its result to the cooperative session.
+
+The validation process was organised into three levels:
+
+\begin{itemize}
+    \item \textbf{Functional testing}: verification of the main application flow and each implemented subsystem.
+    \item \textbf{Field testing}: validation of GPS behaviour, trigger zones and outdoor usability in the garden.
+    \item \textbf{User and expert validation}: feedback on clarity, mission design, interface readability and pedagogical suitability.
+\end{itemize}
+
+The supervisor reviewed the prototype periodically. Feedback from these reviews guided the following iteration and helped identify design issues before they became structural problems. It assessed technical feasibility, usability and alignment with the original activity. The measurement of learning impact remains part of future classroom validation.
+
+\section{Functional testing}
+
+Functional testing verified the complete user flow: creating a session, joining from other devices, entering the map, detecting player position, launching missions, completing challenges and displaying the final result. Table \ref{tab:functional_tests} presents the functions tested and their validation objective.
+
+The main integration issues appeared when independent systems had to share state and scene transitions. The flow between map exploration, mini-game execution and return to the session required several iterations to avoid duplicated states or inconsistent progress between clients.
+\begin{table}[H]
+\centering
+\caption{Main functional tests carried out during development}
+\label{tab:functional_tests}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.3\textwidth}
+                >{\raggedright\arraybackslash}p{0.65\textwidth}}
+\rowcolor[HTML]{B0C9B0}
+\textbf{Tested area} & \textbf{Validation objective} \\
+\rowcolor[HTML]{F0F5F0}
+Lobby and connection & Check that a player could create a room and the rest of the group could join using the generated code. \\
+\rowcolor[HTML]{DFE8DF}
+Session synchronisation & Verify that all devices shared the same session state, active mission and progression data. \\
+\rowcolor[HTML]{F0F5F0}
+Map scene & Check that players could access the map, see their position and understand which areas remained pending. \\
+\rowcolor[HTML]{DFE8DF}
+Mission activation & Validate that the game could detect when the group reached an activation area and launch the corresponding mission. \\
+\rowcolor[HTML]{F0F5F0}
+Mini-games & Check that each mission could be played, completed and evaluated according to its mechanic. \\
+\rowcolor[HTML]{DFE8DF}
+Scoring and final screen & Verify that mission results were accumulated and shown at the end of the session. \\
+\end{tabular}
+\end{table}
+
+
+
+\section{Field testing}
+
+Field testing focused on the behaviour that depended on real Android devices and outdoor conditions. The GPS service was the most important case, because the Unity editor could not reproduce the same readings or permissions.
+
+The tests in the \textit{Jardín de los Sentidos} covered four aspects:
+
+\begin{itemize}
+    \item \textbf{GPS availability}: checking that the device obtained a valid location reading and that the application handled the waiting state.
+    \item \textbf{Position representation}: verifying that the player marker was placed coherently after converting GPS coordinates into the ArcGIS scene.
+    \item \textbf{Activation areas}: adjusting the size and tolerance of the mission zones.
+    \item \textbf{Outdoor usability}: observing whether the interface remained understandable while users moved through the physical space.
+\end{itemize}
+
+GPS precision behaved as an approximate value. Small variations appeared even when the user was standing still, and accuracy changed depending on the device and conditions. The activation zones were therefore designed with generous margins, so mission access did not depend on an excessively precise coordinate.
+
+Field testing also improved map feedback. Completed zones received a clearer visual change after their mission was solved, reinforcing the narrative idea of restoring the garden and helping players understand their progress.
+
+\section{User validation}
+
+The prototype was tested with users and reviewed by lecturers involved in the original educational activity. The goal was to identify whether the interface, mission instructions and cooperative flow were understandable without external explanation.
+
+User testing used a think-aloud method. Participants verbalised their decisions while interacting with the application, making it easier to detect confusing instructions, unclear visual elements and moments where the next action was ambiguous.
+
+Lecturer feedback focused on the relationship between the missions, the sensory gardens and the expected learning experience. This review was especially useful for adjusting the application to the pedagogical context of the subject.
+
+
+
+\section{First evaluation cycle}
+
+The first evaluation cycle focused on mission clarity and map behaviour. The prototype already included the main cooperative structure, although certain aspects still needed refinement. Main changes made in this evaluation cycle are detail in Table \ref{tab:first_evaluation_cycle}.
+
+\begin{table}[H]
+\centering
+\caption{Main changes derived from the first evaluation cycle}
+\label{tab:first_evaluation_cycle}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.30\textwidth}
+                >{\raggedright\arraybackslash}p{0.30\textwidth}
+                >{\raggedright\arraybackslash}p{0.30\textwidth}}
+\rowcolor[HTML]{B0C9B0}
+\textbf{Detected issue} & \textbf{Implemented improvement} & \textbf{Effect} \\
+\rowcolor[HTML]{F0F5F0}
+The sound-recognition mission was difficult to solve using only audio cues. & Distorted images were added. Each error is less distorted than the previous one. & The task became easier to interpret while keeping the listening component. \\
+\rowcolor[HTML]{DFE8DF}
+Players needed clearer information about mission activation areas. & The areas on the map were delineated using an image of the mycorrhizae. & Players could better understand where they needed to move. \\
+\rowcolor[HTML]{F0F5F0}
+Completed areas were visually too similar to pending areas. & Once the mission is complete, the image of the mycorrhizae in that area is updated to show that they have now regenerated. & The map communicated restored areas more clearly. \\
+\rowcolor[HTML]{DFE8DF}
+Some mission instructions required extra explanation. & Texts and interface distribution were adjusted in the affected scenes. & The interaction flow became more autonomous. \\
+\end{tabular}
+\end{table}
+
+This cycle improved usability in two key points: the sound mission became easier to understand and the map communicated progression more clearly.
+
+
+
+\section{Second evaluation cycle}
+\label{sec:second_evaluation_cycle}
+
+The second evaluation cycle incorporated feedback from the lecturers. The review refined the link between each mission and its sensory area, and improved readability on mobile screens. Table \ref{tab:second_evaluation_cycle} represents the main changes made in this second evaluation cycle.
+
+\begin{table}[H]
+\centering
+\caption{Main changes derived from the second evaluation cycle}
+\label{tab:second_evaluation_cycle}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.3\textwidth}
+                >{\raggedright\arraybackslash}p{0.3\textwidth}
+                >{\raggedright\arraybackslash}p{0.3\textwidth}}
+\rowcolor[HTML]{B0C9B0}
+\textbf{Feedback} & \textbf{Implemented improvement} & \textbf{Effect} \\
+\rowcolor[HTML]{F0F5F0}
+The GPS state needed clearer feedback. & The GPS avatar indicator was adjusted. & Players could better interpret the location. \\
+\rowcolor[HTML]{DFE8DF}
+Some screens required better readability and hierarchy. & The user interface was reorganised, and the colours and shapes were changed. & Relevant information became easier to scan during play. \\
+\rowcolor[HTML]{F0F5F0}
+The plant images in the first mission needed greater visibility. & The size of the plant images was increased. & Visual recognition became easier on mobile screens. \\
+\rowcolor[HTML]{DFE8DF}
+The fourth mission needed a clearer link with the Garden of Taste. & A reference was added to the flavours of each fruit. & The activity became more directly connected to its sensory area. \\
+\rowcolor[HTML]{F0F5F0}
+The fourth mission needed more tension. & A timer was added as a stressor. & The mission became more dynamic. \\
+\end{tabular}
+\end{table}
+
+This cycle strengthened the educational coherence of the missions and improved the mobile presentation of key information.
+
+
+
+\section{Suggestions not implemented}
+
+Some suggestions were analysed and left outside the final prototype because they increased complexity or interrupted the outdoor flow. Table \ref{tab:not_implemented_suggestions} represents suggestions considered but not implemented in both evaluation cycle.
+
+\begin{table}[H]
+\centering
+\caption{Suggestions considered but not implemented}
+\label{tab:not_implemented_suggestions}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.42\textwidth}
+                >{\raggedright\arraybackslash}p{0.48\textwidth}}
+\rowcolor[HTML]{B0C9B0}
+\textbf{Suggestion} & \textbf{Reason for not implementing it} \\
+\rowcolor[HTML]{F0F5F0}
+Add a separate learning scene before the sound quest. & The tutorial scene was not included because it slowed down the experience. Instead, the decision was made to add images of the species that can be heard, but to distort them using a filter so that this area would not become the visual focus \\
+\rowcolor[HTML]{F0F5F0}
+Add an additional learning phase before the fourth quest. & The teachers’ proposal was adopted instead of this one (see section \ref{sec:second_evaluation_cycle}), because it was more closely aligned with the Garden of Taste. \\
+\rowcolor[HTML]{DFE8DF}
+Prevent a player from revealing more than one card on the same device in the fourth quest. & It makes the mission unnecessarily difficult. \\
+\end{tabular}
+\end{table}
+
+
+
+
+\section{Limitations of the validation}
+
+The number of users was reduced, so the tests are useful for detecting usability and technical problems, while they do not provide representative data about the target student population.
+
+Classroom validation with students remains pending. It could be considered for next year, starting with a small number of pupils and then, in December when the lesson takes place, giving all the pupils the opportunity to take a real test.
+
+No pre-test and post-test study was carried out. The validation therefore did not measure changes in biodiversity knowledge, environmental awareness or perception of the \textit{Jardín de los Sentidos}.
+
+The scoring system was validated as part of the game flow. Its relationship with the assessment criteria of the original activity remains open for future work.
+
+For the scope of this Bachelor’s Thesis, the validation provided enough evidence to refine the prototype, check the Android flow and integrate feedback from the educational context.
