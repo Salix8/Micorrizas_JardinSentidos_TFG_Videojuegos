@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
@@ -12,7 +13,9 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
         [SerializeField] private RectTransform zoneTransform;
         [SerializeField] private Image panelImage;
         [SerializeField] private Image accentImage;
-        [SerializeField] private Image badgeImage;
+        [FormerlySerializedAs("badgeImage")]
+        [SerializeField] private Image categoryIconImage;
+        [SerializeField] private Sprite categoryIconSprite;
         [SerializeField] private TMP_Text badgeLabel;
         [SerializeField] private TMP_Text titleLabel;
         [SerializeField] private TMP_Text subtitleLabel;
@@ -27,6 +30,13 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
         private void Awake()
         {
             zoneTransform ??= transform as RectTransform;
+            ApplyCategoryIconPresentation();
+        }
+
+        private void OnValidate()
+        {
+            zoneTransform ??= transform as RectTransform;
+            ApplyCategoryIconPresentation();
         }
 
         public bool ContainsScreenPoint(Vector2 screenPoint, Camera eventCamera)
@@ -36,7 +46,6 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
 
         public void Bind(IReadOnlyList<GardenSmellTaxonomyClassificationEntryNetworkState> entries, GardenSmellTaxonomyVisualSettings visuals, bool isHighlighted)
         {
-            var categoryColor = visuals.GetCategoryColor(category);
             if (panelImage != null)
             {
                 panelImage.color = isHighlighted ? visuals.DropHighlightColor : visuals.PanelColor;
@@ -44,18 +53,20 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
 
             if (accentImage != null)
             {
-                accentImage.color = categoryColor;
+                accentImage.gameObject.SetActive(false);
             }
 
-            if (badgeImage != null)
+            if (categoryIconImage != null)
             {
-                badgeImage.color = categoryColor;
+                categoryIconImage.sprite = ResolveCategoryIconSprite();
+                categoryIconImage.color = Color.white;
+                categoryIconImage.preserveAspect = true;
+                categoryIconImage.gameObject.SetActive(categoryIconImage.sprite != null);
             }
 
             if (badgeLabel != null)
             {
-                badgeLabel.text = GardenSmellTaxonomyCategoryLabels.GetBadgeLabel(category);
-                badgeLabel.color = Color.white;
+                badgeLabel.gameObject.SetActive(false);
             }
 
             if (titleLabel != null)
@@ -109,6 +120,50 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
                 instance.gameObject.SetActive(false);
                 historyEntryPool.Add(instance);
             }
+        }
+
+        private void ApplyCategoryIconPresentation()
+        {
+            if (accentImage != null)
+            {
+                accentImage.gameObject.SetActive(false);
+            }
+
+            if (badgeLabel != null)
+            {
+                badgeLabel.gameObject.SetActive(false);
+            }
+
+            if (categoryIconImage == null)
+            {
+                return;
+            }
+
+            categoryIconImage.sprite = ResolveCategoryIconSprite();
+            categoryIconImage.color = Color.white;
+            categoryIconImage.preserveAspect = true;
+            categoryIconImage.raycastTarget = false;
+        }
+
+        private Sprite ResolveCategoryIconSprite()
+        {
+            if (categoryIconSprite != null)
+            {
+                return categoryIconSprite;
+            }
+
+            return Resources.Load<Sprite>($"CoopMinigames/GardenSmellTaxonomy/Icons/{GetCategoryIconResourceName(category)}");
+        }
+
+        private static string GetCategoryIconResourceName(GardenSmellTaxonomyCategory category)
+        {
+            return category switch
+            {
+                GardenSmellTaxonomyCategory.Decoration => "garden-smell-decoration",
+                GardenSmellTaxonomyCategory.Food => "garden-smell-food",
+                GardenSmellTaxonomyCategory.Healing => "garden-smell-healing",
+                _ => "garden-smell-decoration"
+            };
         }
     }
 }

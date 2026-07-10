@@ -25,6 +25,7 @@ public static class GardenSmellTaxonomyMinigameSetup
     private const string MinigameScenePath = SceneFolder + "/GardenSmellTaxonomyMinigame.unity";
     private const string LobbyScenePath = SceneFolder + "/Lobby.unity";
     private const string MainMapScenePath = SceneFolder + "/UJI.unity";
+    private const string CategoryIconFolder = "Assets/Resources/CoopMinigames/GardenSmellTaxonomy/Icons";
     private const string MinigameSceneName = "GardenSmellTaxonomyMinigame";
     private const int MinigameIndex = 4;
 
@@ -55,6 +56,10 @@ public static class GardenSmellTaxonomyMinigameSetup
         EnsureFolder("Assets/StreamingAssets", "CoopMinigames");
         EnsureFolder(StreamingAssetsFolder, "05-GardenSmellTaxonomy");
         EnsureFolder(MinigameFolder, "Plants");
+        EnsureFolder("Assets", "Resources");
+        EnsureFolder("Assets/Resources", "CoopMinigames");
+        EnsureFolder("Assets/Resources/CoopMinigames", "GardenSmellTaxonomy");
+        EnsureFolder("Assets/Resources/CoopMinigames/GardenSmellTaxonomy", "Icons");
         EnsureFolder("Assets", "Scenes");
     }
 
@@ -365,28 +370,26 @@ public static class GardenSmellTaxonomyMinigameSetup
         layout.childControlHeight = true;
         layout.childForceExpandHeight = false;
 
-        var accent = CreateUiObject("Accent", zoneRoot.transform, typeof(Image));
-        accent.AddComponent<LayoutElement>().preferredHeight = 8f;
-        accent.GetComponent<Image>().color = visuals.GetCategoryColor(category);
+        var categoryIcon = CreateUiObject("CategoryIcon", zoneRoot.transform, typeof(Image), typeof(LayoutElement));
+        var categoryIconImage = categoryIcon.GetComponent<Image>();
+        categoryIconImage.sprite = LoadCategoryIconSprite(category);
+        categoryIconImage.color = Color.white;
+        categoryIconImage.preserveAspect = true;
+        categoryIconImage.raycastTarget = false;
+        categoryIcon.GetComponent<LayoutElement>().preferredHeight = 82f;
 
         var titleLabel = CreateText("TitleLabel", zoneRoot.transform, font, GardenSmellTaxonomyCategoryLabels.GetDisplayName(category), 28, TextAnchor.MiddleCenter);
         titleLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 36f;
-
-        var badge = CreateUiObject("Badge", zoneRoot.transform, typeof(Image), typeof(LayoutElement));
-        badge.GetComponent<Image>().color = visuals.GetCategoryColor(category);
-        badge.GetComponent<LayoutElement>().preferredWidth = 96f;
-        badge.GetComponent<LayoutElement>().preferredHeight = 96f;
-
-        var badgeLabel = CreateText("BadgeLabel", badge.transform, font, GardenSmellTaxonomyCategoryLabels.GetBadgeLabel(category), 32, TextAnchor.MiddleCenter);
-        Stretch(badgeLabel.rectTransform, Vector2.zero, Vector2.zero);
-        badgeLabel.color = Color.white;
 
         var subtitleLabel = CreateText("SubtitleLabel", zoneRoot.transform, font, GardenSmellTaxonomyCategoryLabels.GetSupportText(category), 18, TextAnchor.MiddleCenter);
         subtitleLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 0f;
         subtitleLabel.gameObject.SetActive(false);
 
         var historyPanel = CreatePanel("HistoryPanel", zoneRoot.transform, new Color(1f, 1f, 1f, 0.08f));
-        historyPanel.AddComponent<LayoutElement>().flexibleHeight = 1f;
+        var historyLayoutElement = historyPanel.AddComponent<LayoutElement>();
+        historyLayoutElement.minHeight = 120f;
+        historyLayoutElement.preferredHeight = 170f;
+        historyLayoutElement.flexibleHeight = 0f;
 
         var emptyStateLabel = CreateText("EmptyStateLabel", historyPanel.transform, font, "Todavia no hay plantas clasificadas.", 18, TextAnchor.MiddleCenter);
         Stretch(emptyStateLabel.rectTransform, new Vector2(12f, 12f), new Vector2(-12f, -12f));
@@ -403,9 +406,10 @@ public static class GardenSmellTaxonomyMinigameSetup
         serializedDropZone.FindProperty("category").enumValueIndex = (int)category;
         serializedDropZone.FindProperty("zoneTransform").objectReferenceValue = zoneRoot.GetComponent<RectTransform>();
         serializedDropZone.FindProperty("panelImage").objectReferenceValue = zoneRoot.GetComponent<Image>();
-        serializedDropZone.FindProperty("accentImage").objectReferenceValue = accent.GetComponent<Image>();
-        serializedDropZone.FindProperty("badgeImage").objectReferenceValue = badge.GetComponent<Image>();
-        serializedDropZone.FindProperty("badgeLabel").objectReferenceValue = badgeLabel;
+        serializedDropZone.FindProperty("accentImage").objectReferenceValue = null;
+        serializedDropZone.FindProperty("categoryIconImage").objectReferenceValue = categoryIconImage;
+        serializedDropZone.FindProperty("categoryIconSprite").objectReferenceValue = categoryIconImage.sprite;
+        serializedDropZone.FindProperty("badgeLabel").objectReferenceValue = null;
         serializedDropZone.FindProperty("titleLabel").objectReferenceValue = titleLabel;
         serializedDropZone.FindProperty("subtitleLabel").objectReferenceValue = subtitleLabel;
         serializedDropZone.FindProperty("emptyStateLabel").objectReferenceValue = emptyStateLabel;
@@ -414,6 +418,23 @@ public static class GardenSmellTaxonomyMinigameSetup
         serializedDropZone.ApplyModifiedPropertiesWithoutUndo();
 
         return new DropZoneReferences(zoneRoot, dropZoneView);
+    }
+
+    private static Sprite LoadCategoryIconSprite(GardenSmellTaxonomyCategory category)
+    {
+        var path = $"{CategoryIconFolder}/{GetCategoryIconFileName(category)}";
+        return AssetDatabase.LoadAssetAtPath<Sprite>(path);
+    }
+
+    private static string GetCategoryIconFileName(GardenSmellTaxonomyCategory category)
+    {
+        return category switch
+        {
+            GardenSmellTaxonomyCategory.Decoration => "garden-smell-decoration.png",
+            GardenSmellTaxonomyCategory.Food => "garden-smell-food.png",
+            GardenSmellTaxonomyCategory.Healing => "garden-smell-healing.png",
+            _ => "garden-smell-decoration.png"
+        };
     }
 
     private static void SetupLobbyScene()
