@@ -21,6 +21,7 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
         private readonly NetworkVariable<ulong> lastGuessingClientId = new(NoClientId);
         private readonly NetworkVariable<FixedString128Bytes> sharedStatusMessage = new();
         private readonly NetworkVariable<FixedString128Bytes> revealedTargetPlantId = new();
+        private readonly NetworkVariable<bool> isVictoryRevealPending = new();
 
         private readonly List<CollaborativePlantGuessPlantDefinition> loadedPlantDefinitions = new();
 
@@ -42,6 +43,12 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
         public float RemainingTimeSeconds => remainingTimeSeconds.Value;
         public string SharedStatusMessage => sharedStatusMessage.Value.ToString();
         public string RevealedTargetPlantId => revealedTargetPlantId.Value.ToString();
+        public bool IsVictoryRevealPending => isVictoryRevealPending.Value;
+        public bool CanLocalAcknowledgeVictoryReveal =>
+            IsVictoryRevealPending &&
+            Stage == CooperativeMinigameStage.Playing &&
+            NetworkManager != null &&
+            NetworkManager.IsHost;
 
         public event Action StateChanged;
 
@@ -58,6 +65,7 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             lastGuessingClientId.OnValueChanged += HandleLastGuessingClientChanged;
             sharedStatusMessage.OnValueChanged += HandleStatusChanged;
             revealedTargetPlantId.OnValueChanged += HandleStringChanged;
+            isVictoryRevealPending.OnValueChanged += HandleBoolChanged;
 
             base.OnNetworkSpawn();
             BeginPlantDefinitionLoad();
@@ -72,6 +80,7 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             lastGuessingClientId.OnValueChanged -= HandleLastGuessingClientChanged;
             sharedStatusMessage.OnValueChanged -= HandleStatusChanged;
             revealedTargetPlantId.OnValueChanged -= HandleStringChanged;
+            isVictoryRevealPending.OnValueChanged -= HandleBoolChanged;
 
             if (csvLoadingCoroutine != null)
             {
@@ -167,6 +176,11 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             }
 
             var canResolvePlant = TryResolveLocalPlant(rawInput, out _);
+            if (isVictoryRevealPending.Value)
+            {
+                return CollaborativePlantGuessSubmissionBlockReason.VictoryRevealPending;
+            }
+
             return CollaborativePlantGuessGameplayRules.GetLocalSubmissionBlockReason(
                 Stage,
                 hasLoadedPlantDefinitions,
@@ -192,6 +206,22 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             }
 
             SubmitGuessServerRpc(rawInput);
+        }
+
+        public void AcknowledgeLocalVictoryReveal()
+        {
+            if (!CanLocalAcknowledgeVictoryReveal)
+            {
+                return;
+            }
+
+            if (IsServer)
+            {
+                AcknowledgeVictoryRevealServer(GetLocalClientId());
+                return;
+            }
+
+            AcknowledgeVictoryRevealServerRpc();
         }
 
         public int GetPlayerDisplaySlot(ulong clientId)
@@ -225,6 +255,7 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             lastGuessingClientId.Value = NoClientId;
             sharedStatusMessage.Value = new FixedString128Bytes("Preparando el conjunto de plantas compartidas.");
             revealedTargetPlantId.Value = default;
+            isVictoryRevealPending.Value = false;
             guessHistory.Clear();
             targetPlantId = string.Empty;
             serverDataPrepared = false;
@@ -271,6 +302,12 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
         private void SubmitGuessServerRpc(string rawGuess, RpcParams rpcParams = default)
         {
             SubmitGuessServer(rawGuess, rpcParams.Receive.SenderClientId);
+        }
+
+        [Rpc(SendTo.Server)]
+        private void AcknowledgeVictoryRevealServerRpc(RpcParams rpcParams = default)
+        {
+            AcknowledgeVictoryRevealServer(rpcParams.Receive.SenderClientId);
         }
 
         private void BeginPlantDefinitionLoad()
@@ -391,6 +428,7 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
                 !serverGameplayActive ||
                 !serverDataPrepared ||
                 HasPublishedResult ||
+                isVictoryRevealPending.Value ||
                 collaborativePlantGuessMinigameConfig == null)
             {
                 return;
@@ -446,8 +484,10 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             if (evaluation.IsExactPlantMatch)
             {
                 RevealTargetPlantServer();
-                sharedStatusMessage.Value = new FixedString128Bytes("Planta acertada. Mostrando el resultado compartido...");
-                ScheduleCompletionServer(true, collaborativePlantGuessMinigameConfig.SuccessMessage, collaborativePlantGuessMinigameConfig.VictoryRevealDelaySeconds);
+                serverGameplayActive = false;
+                remainingTimeSeconds.Value = Mathf.Max(0f, remainingTimeSeconds.Value);
+                isVictoryRevealPending.Value = true;
+                sharedStatusMessage.Value = new FixedString128Bytes("Planta acertada. El host debe confirmar para continuar.");
                 return;
             }
 
@@ -486,6 +526,7 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             }
 
             serverGameplayActive = false;
+            isVictoryRevealPending.Value = false;
             var decoratedResultMessage = resultMessage;
             if (TryGetPlantDefinition(targetPlantId, out var targetPlant))
             {
@@ -526,6 +567,23 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             CompleteMinigameServer(wasSolved, resultMessage);
         }
 
+        private void AcknowledgeVictoryRevealServer(ulong senderClientId)
+        {
+            if (!IsServer ||
+                !isVictoryRevealPending.Value ||
+                NetworkManager == null ||
+                senderClientId != NetworkManager.LocalClientId ||
+                Stage != CooperativeMinigameStage.Playing ||
+                HasPublishedResult ||
+                collaborativePlantGuessMinigameConfig == null)
+            {
+                return;
+            }
+
+            isVictoryRevealPending.Value = false;
+            CompleteMinigameServer(true, collaborativePlantGuessMinigameConfig.SuccessMessage);
+        }
+
         private void HandleHistoryChanged(NetworkListEvent<CollaborativePlantGuessHistoryEntryNetworkState> _)
         {
             StateChanged?.Invoke();
@@ -555,6 +613,11 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
         {
             StateChanged?.Invoke();
         }
+
+        private void HandleBoolChanged(bool _, bool __)
+        {
+            StateChanged?.Invoke();
+        }
     }
 
     public enum CollaborativePlantGuessSubmissionBlockReason
@@ -565,7 +628,8 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
         DataLoadFailed = 3,
         AttemptsExhausted = 4,
         WaitingForAnotherPlayer = 5,
-        InvalidPlantSelection = 6
+        InvalidPlantSelection = 6,
+        VictoryRevealPending = 7
     }
 
     public static class CollaborativePlantGuessGameplayRules

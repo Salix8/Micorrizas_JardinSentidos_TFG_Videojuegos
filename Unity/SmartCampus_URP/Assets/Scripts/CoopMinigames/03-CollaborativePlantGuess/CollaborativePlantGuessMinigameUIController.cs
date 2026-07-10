@@ -38,6 +38,7 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
         [SerializeField] private Transform historyRoot;
         [SerializeField] private CollaborativePlantGuessHistoryRowView historyRowTemplate;
         [SerializeField] private TMP_Text emptyHistoryLabel;
+        [SerializeField] private CollaborativePlantGuessVictoryRevealPopupView victoryRevealPopupView;
 
         [Header("Editor Authored Text")]
         [SerializeField] private bool overrideHintLabelText;
@@ -54,6 +55,7 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
         {
             collaborativePlantGuessMinigameSession ??= FindFirstObjectByType<CollaborativePlantGuessMinigameSession>(FindObjectsInactive.Include);
             sessionProgressSync ??= FindFirstObjectByType<CoopSessionProgressSync>(FindObjectsInactive.Include);
+            EnsureVictoryRevealPopupView();
             base.Awake();
         }
 
@@ -61,6 +63,7 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
         {
             collaborativePlantGuessMinigameSession ??= FindFirstObjectByType<CollaborativePlantGuessMinigameSession>(FindObjectsInactive.Include);
             sessionProgressSync ??= FindFirstObjectByType<CoopSessionProgressSync>(FindObjectsInactive.Include);
+            EnsureVictoryRevealPopupView();
             if (TypedSession != null)
             {
                 TypedSession.StateChanged += HandleStateChanged;
@@ -104,6 +107,11 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             if (submitGuessButton != null)
             {
                 submitGuessButton.onClick.RemoveListener(HandleSubmitPressed);
+            }
+
+            if (victoryRevealPopupView != null)
+            {
+                victoryRevealPopupView.Hide();
             }
 
             base.OnDisable();
@@ -171,11 +179,14 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
                     $"El tipo de fruto se desbloquea en el intento 2 y el tipo de planta en el intento 4.";
             }
 
+            var isVictoryRevealPending = TypedSession.IsVictoryRevealPending;
+
             if (guessInputField != null)
             {
                 guessInputField.interactable =
                     TypedSession.Stage == CooperativeMinigameStage.Playing &&
-                    string.IsNullOrWhiteSpace(TypedSession.DataLoadError);
+                    string.IsNullOrWhiteSpace(TypedSession.DataLoadError) &&
+                    !isVictoryRevealPending;
             }
 
             if (submitGuessButtonLabel != null)
@@ -185,11 +196,13 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
 
             if (submitGuessButton != null)
             {
-                submitGuessButton.interactable = TypedSession.CanLocalSubmitGuess(guessInputField == null ? string.Empty : guessInputField.text);
+                submitGuessButton.interactable = !isVictoryRevealPending &&
+                    TypedSession.CanLocalSubmitGuess(guessInputField == null ? string.Empty : guessInputField.text);
             }
 
             RefreshSuggestionList(config);
             RefreshHistoryList(config);
+            RefreshVictoryRevealPopup();
         }
 
         protected override int? GetFailureFeedbackCount()
@@ -229,6 +242,11 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             if (blockReason == CollaborativePlantGuessSubmissionBlockReason.WaitingForAnotherPlayer)
             {
                 return "Tu dispositivo ya hizo el ultimo intento. Espera a que otro envie una planta.";
+            }
+
+            if (blockReason == CollaborativePlantGuessSubmissionBlockReason.VictoryRevealPending)
+            {
+                return "Planta acertada. Revisad el popup compartido antes de continuar.";
             }
 
             if (blockReason == CollaborativePlantGuessSubmissionBlockReason.InvalidPlantSelection && !string.IsNullOrWhiteSpace(inputText))
@@ -547,6 +565,11 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
             RefreshGameplay();
         }
 
+        private void HandleVictoryRevealAccepted()
+        {
+            TypedSession?.AcknowledgeLocalVictoryReveal();
+        }
+
         private void HandleStateChanged()
         {
             RefreshUi();
@@ -575,6 +598,43 @@ namespace SmartCampus.Coop.Minigames.CollaborativePlantGuess
                     bottomPanelView.BindTimerAndPenalty(remainingSeconds, totalSeconds, displayedPenaltySeconds);
                 }
             }
+        }
+
+        private void RefreshVictoryRevealPopup()
+        {
+            EnsureVictoryRevealPopupView();
+            if (victoryRevealPopupView == null || TypedSession == null || !TypedSession.IsVictoryRevealPending)
+            {
+                victoryRevealPopupView?.Hide();
+                return;
+            }
+
+            if (!TypedSession.TryGetPlantDefinition(TypedSession.RevealedTargetPlantId, out var targetPlant))
+            {
+                victoryRevealPopupView.Hide();
+                return;
+            }
+
+            victoryRevealPopupView.Bind(
+                targetPlant,
+                TypedSession.CanLocalAcknowledgeVictoryReveal,
+                HandleVictoryRevealAccepted);
+        }
+
+        private void EnsureVictoryRevealPopupView()
+        {
+            if (victoryRevealPopupView != null)
+            {
+                return;
+            }
+
+            victoryRevealPopupView = GetComponentInChildren<CollaborativePlantGuessVictoryRevealPopupView>(true);
+            if (victoryRevealPopupView != null)
+            {
+                return;
+            }
+
+            victoryRevealPopupView = CollaborativePlantGuessVictoryRevealPopupView.CreateRuntime(transform);
         }
 
         private float CalculateGlobalProgress01()
