@@ -3739,6 +3739,98 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3209390553445617821, guid: 23ecf881ab811f84b90e6d26ec4d48c1, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3209390553445617821, guid: 23ecf881ab811f84b90e6d26ec4d48c1, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3209390553445617821, guid: 23ecf881ab811f84b90e6d26ec4d48c1, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 810.00006
+      objectReference: {fileID: 0}
+    - target: {fileID: 3209390553445617821, guid: 23ecf881ab811f84b90e6d26ec4d48c1, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 988
+      objectReference: {fileID: 0}
+    - target: {fileID: 3209390553445617821, guid: 23ecf881ab811f84b90e6d26ec4d48c1, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 420
+      objectReference: {fileID: 0}
+    - target: {fileID: 3209390553445617821, guid: 23ecf881ab811f84b90e6d26ec4d48c1, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -580
+      objectReference: {fileID: 0}
+    - target: {fileID: 3314709966823354164, guid: 23ecf881ab811f84b90e6d26ec4d48c1, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3314709966823354164, guid: 23ecf881ab811f84b90e6d26ec4d48c1, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3314709966823354164, guid: 23ecf881ab811f84b90e6d26ec4d48c1, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 746.00006
+      objectReference: {fileID: 0}
+    - target: {fileID: 3314709966823354164, guid: 23ecf881ab811f84b90e6d26ec4d48c1, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 60.480003
+      objectReference: {fileID: 0}
+    - target: {fileID: 3314709966823354164, guid: 23ecf881ab811f84b90e6d26ec4d48c1, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 405.00003
+      objectReference: {fileID: 0}
+    - target: {fileID: 3314709966823354164, guid: 23ecf881ab811f84b90e6d26ec4d48c1, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -173.48001
+      objectReference: {fileID: 0}
+    - target: {fileID: 3563484389313418649, guid: 23ecf881ab811f84b90e6d26ec4d48c1, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3563484389313418649, guid: 23ecf881ab811f84b90e6d26ec4d48c1, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3563484389313418649, guid: 23ecf881ab811f84b90e6d26ec4d48c1, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 746.00006
+      objectReference: {fileID: 0}
+    - target: {fileID: 3563484389313418649, guid: 23ecf881ab811f84b90e6d26ec4d48c1, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 237.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 3563484389313418649, guid: 23ecf881ab811f84b90e6d26ec4d48c1, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 405.00003
+      objectReference: {fileID: 0}
+    - target: {fileID: 3563484389313418649, guid: 23ecf881ab811f84b90e6d26ec4d48c1, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -349.52002
+      objectReference: {fileID: 0}
+    - target: {fileID: 5198649208602517849, guid: 23ecf881ab811f84b90e6d26ec4d48c1, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 1080
+      objectReference: {fileID: 0}
+    - target: {fileID: 5877587689704899917, guid: 23ecf881ab811f84b90e6d26ec4d48c1, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5877587689704899917, guid: 23ecf881ab811f84b90e6d26ec4d48c1, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5877587689704899917, guid: 23ecf881ab811f84b90e6d26ec4d48c1, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 405.00003
+      objectReference: {fileID: 0}
+    - target: {fileID: 5877587689704899917, guid: 23ecf881ab811f84b90e6d26ec4d48c1, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -495.32004
+      objectReference: {fileID: 0}
     - target: {fileID: 6293240616619565279, guid: 23ecf881ab811f84b90e6d26ec4d48c1, type: 3}
       propertyPath: m_Name
       value: TutorialPopup
@@ -3746,6 +3838,30 @@ PrefabInstance:
     - target: {fileID: 6293240616619565279, guid: 23ecf881ab811f84b90e6d26ec4d48c1, type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8887978528724167375, guid: 23ecf881ab811f84b90e6d26ec4d48c1, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8887978528724167375, guid: 23ecf881ab811f84b90e6d26ec4d48c1, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8887978528724167375, guid: 23ecf881ab811f84b90e6d26ec4d48c1, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 746.00006
+      objectReference: {fileID: 0}
+    - target: {fileID: 8887978528724167375, guid: 23ecf881ab811f84b90e6d26ec4d48c1, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 84.240005
+      objectReference: {fileID: 0}
+    - target: {fileID: 8887978528724167375, guid: 23ecf881ab811f84b90e6d26ec4d48c1, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 405.00003
+      objectReference: {fileID: 0}
+    - target: {fileID: 8887978528724167375, guid: 23ecf881ab811f84b90e6d26ec4d48c1, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -74.12
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -9457,6 +9573,7 @@ MonoBehaviour:
   illustrationPlaceholderRoot: {fileID: 201055764}
   scientificNameLabel: {fileID: 636914491}
   helperLabel: {fileID: 1381657395}
+  layoutElement: {fileID: 0}
   arrangeContentHorizontally: 1
   contentPadding: {x: 26, y: 24}
   illustrationWidthRatio: 0.56

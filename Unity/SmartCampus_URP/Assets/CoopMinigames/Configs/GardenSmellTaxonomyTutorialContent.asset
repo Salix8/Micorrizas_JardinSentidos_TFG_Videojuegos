@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: GardenSmellTaxonomyTutorialContent
   m_EditorClassIdentifier: Assembly-CSharp::SmartCampus.Coop.Minigames.MinigameTutorialContentConfig
   title: El organizador
-  subtitle: Clasifica cada planta por su uso principal
+  subtitle: Clasifica cada planta por su uso \nprincipal
   bodyText: "Deb\xE9is clasificar las plantas seg\xFAn sus cualidades. Deslizad izquierda:
     decoraci\xF3n, centro: alimentaci\xF3n derecha: curaci\xF3n.\r\n\r\nSi fall\xE1is,
     se os restar\xE1 10 segundos del tiempo que ten\xE9is para completar dicha misi\xF3n.\r\n"
