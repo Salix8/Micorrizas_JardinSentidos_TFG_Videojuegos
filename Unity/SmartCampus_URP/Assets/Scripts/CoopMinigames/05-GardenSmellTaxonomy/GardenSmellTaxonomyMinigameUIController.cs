@@ -97,6 +97,11 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
                 return TypedSession.DataLoadError;
             }
 
+            if (TypedSession.ContentReadyCount < TypedSession.ParticipantCount)
+            {
+                return $"Esperando imagenes locales: {TypedSession.ContentReadyCount}/{TypedSession.ParticipantCount}";
+            }
+
             return $"Esperando a que el resto cierre el tutorial: {TypedSession.TutorialDismissedCount}/{TypedSession.ParticipantCount}";
         }
 

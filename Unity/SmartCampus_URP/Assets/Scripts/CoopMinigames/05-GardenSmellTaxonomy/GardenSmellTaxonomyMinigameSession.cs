@@ -20,6 +20,7 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
         private readonly NetworkVariable<float> remainingTimeSeconds = new();
         private readonly NetworkVariable<FixedString128Bytes> sharedStatusMessage = new();
         private readonly NetworkVariable<FixedString64Bytes> currentPlantId = new();
+        private readonly NetworkList<ulong> contentReadyClientIds = new();
 
         private readonly List<GardenSmellTaxonomyPlantDefinition> loadedDefinitions = new();
         private readonly List<GardenSmellTaxonomyPlantDefinition> scheduledDefinitions = new();
@@ -44,6 +45,7 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
         public float RemainingTimeSeconds => remainingTimeSeconds.Value;
         public string SharedStatusMessage => sharedStatusMessage.Value.ToString();
         public string CurrentPlantId => currentPlantId.Value.ToString();
+        public int ContentReadyCount => contentReadyClientIds.Count;
 
         public event Action StateChanged;
 
@@ -61,6 +63,7 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
             remainingTimeSeconds.OnValueChanged += HandleScalarChanged;
             sharedStatusMessage.OnValueChanged += HandleStatusChanged;
             currentPlantId.OnValueChanged += HandleCurrentPlantChanged;
+            contentReadyClientIds.OnListChanged += HandleContentReadyChanged;
 
             base.OnNetworkSpawn();
             BeginPlantDefinitionLoad();
@@ -76,6 +79,7 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
             remainingTimeSeconds.OnValueChanged -= HandleScalarChanged;
             sharedStatusMessage.OnValueChanged -= HandleStatusChanged;
             currentPlantId.OnValueChanged -= HandleCurrentPlantChanged;
+            contentReadyClientIds.OnListChanged -= HandleContentReadyChanged;
 
             if (csvLoadingCoroutine != null)
             {
@@ -202,6 +206,7 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
             pendingGameplayStart = false;
             schedulingSeed = Environment.TickCount;
             scheduledDefinitions.Clear();
+            contentReadyClientIds.Clear();
 
             var participantCount = GetParticipantIds().Count;
             if (gardenSmellTaxonomyMinigameConfig == null)
@@ -221,10 +226,8 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
                 return;
             }
 
-            if (hasLoadedDefinitions)
-            {
-                TryPrepareServerData();
-            }
+            RegisterLocalContentReadyIfPossible();
+            TryPrepareServerData();
         }
 
         protected override void OnGameplayStartedServer()
@@ -304,10 +307,7 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
                     definition.CorrectCategory));
             }
 
-            if (IsServer)
-            {
-                TryPrepareServerData();
-            }
+            RegisterLocalContentReadyIfPossible();
 
             StateChanged?.Invoke();
         }
@@ -330,6 +330,12 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
         {
             if (!IsServer || !hasLoadedDefinitions || serverDataPrepared || HasPublishedResult || HasBlockingError || gardenSmellTaxonomyMinigameConfig == null)
             {
+                return;
+            }
+
+            if (!AreAllParticipantsContentReady())
+            {
+                sharedStatusMessage.Value = new FixedString128Bytes($"Esperando imagenes locales: {contentReadyClientIds.Count}/{GetParticipantIds().Count}");
                 return;
             }
 
@@ -448,6 +454,71 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
             currentPlantId.Value = new FixedString64Bytes(scheduledDefinitions[scheduledIndex].PlantId);
         }
 
+        private void RegisterLocalContentReadyIfPossible()
+        {
+            if (!hasLoadedDefinitions || !string.IsNullOrWhiteSpace(dataLoadError))
+            {
+                return;
+            }
+
+            if (IsServer)
+            {
+                RegisterContentReadyServer(GetLocalClientId());
+                return;
+            }
+
+            ReportContentReadyServerRpc();
+        }
+
+        [Rpc(SendTo.Server)]
+        private void ReportContentReadyServerRpc(RpcParams rpcParams = default)
+        {
+            RegisterContentReadyServer(rpcParams.Receive.SenderClientId);
+        }
+
+        private void RegisterContentReadyServer(ulong clientId)
+        {
+            if (!IsServer || IsContentReadyByClient(clientId))
+            {
+                return;
+            }
+
+            contentReadyClientIds.Add(clientId);
+            TryPrepareServerData();
+        }
+
+        private bool AreAllParticipantsContentReady()
+        {
+            var participantIds = GetParticipantIds();
+            if (participantIds.Count <= 0)
+            {
+                return false;
+            }
+
+            for (var index = 0; index < participantIds.Count; index++)
+            {
+                if (!IsContentReadyByClient(participantIds[index]))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private bool IsContentReadyByClient(ulong clientId)
+        {
+            for (var index = 0; index < contentReadyClientIds.Count; index++)
+            {
+                if (contentReadyClientIds[index] == clientId)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         private void CompleteMinigameServer(bool completedAllPlants)
         {
             if (!IsServer || HasPublishedResult)
@@ -487,6 +558,16 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
 
         private void HandleCurrentPlantChanged(FixedString64Bytes _, FixedString64Bytes __)
         {
+            StateChanged?.Invoke();
+        }
+
+        private void HandleContentReadyChanged(NetworkListEvent<ulong> _)
+        {
+            if (IsServer)
+            {
+                TryPrepareServerData();
+            }
+
             StateChanged?.Invoke();
         }
     }

@@ -26,6 +26,10 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
         [SerializeField] [Min(0f)] private float horizontalGap = 22f;
         [SerializeField] [Range(0.35f, 0.75f)] private float scientificNameHeightRatio = 0.55f;
 
+        [Header("Image Loading")]
+        [SerializeField] [Min(1)] private int maxImageLoadAttempts = 4;
+        [SerializeField] [Min(0f)] private float imageRetryDelaySeconds = 0.35f;
+
         private Func<Vector2, Camera, GardenSmellTaxonomyCategory?> resolveDropCategory;
         private Action<GardenSmellTaxonomyCategory?> onHoverCategoryChanged;
         private Action<GardenSmellTaxonomyCategory> onClassificationCommitted;
@@ -93,6 +97,11 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
 
             if (hasBinding && string.Equals(currentBindingKey, bindingKey, StringComparison.Ordinal))
             {
+                if (definition != null && !HasVisibleIllustration() && imageLoadingCoroutine == null)
+                {
+                    LoadIllustration(definition);
+                }
+
                 UpdateHelperLabel(hoveredCategory);
                 return;
             }
@@ -231,12 +240,6 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
         {
             ReleaseRuntimeSprite();
 
-            if (imageLoadingCoroutine != null)
-            {
-                StopCoroutine(imageLoadingCoroutine);
-                imageLoadingCoroutine = null;
-            }
-
             if (illustrationImage != null)
             {
                 illustrationImage.color = Color.white;
@@ -254,23 +257,42 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
                 return;
             }
 
-            imageLoadingCoroutine = StartCoroutine(CoopMinigameExternalContentService.LoadSpriteAsync(
-                definition.ImagePath,
-                (sprite, error) =>
-                {
-                    imageLoadingCoroutine = null;
-                    if (sprite == null)
-                    {
-                        if (helperLabel != null && !string.IsNullOrWhiteSpace(error))
-                        {
-                            helperLabel.text = $"No se ha podido cargar la imagen.\n{error}";
-                            helperLabel.color = visualSettings.IncorrectColor;
-                        }
+            imageLoadingCoroutine = StartCoroutine(LoadIllustrationWithRetriesCoroutine(definition, currentBindingKey));
+        }
 
-                        return;
+        private IEnumerator LoadIllustrationWithRetriesCoroutine(GardenSmellTaxonomyPlantDefinition definition, string requestedBindingKey)
+        {
+            var attempts = Mathf.Max(1, maxImageLoadAttempts);
+            var retryDelay = Mathf.Max(0f, imageRetryDelaySeconds);
+            string lastError = string.Empty;
+
+            for (var attempt = 1; attempt <= attempts; attempt++)
+            {
+                Sprite loadedSprite = null;
+                string loadError = string.Empty;
+
+                yield return CoopMinigameExternalContentService.LoadSpriteAsync(
+                    definition.ImagePath,
+                    (sprite, error) =>
+                    {
+                        loadedSprite = sprite;
+                        loadError = error;
+                    });
+
+                if (!string.Equals(currentBindingKey, requestedBindingKey, StringComparison.Ordinal))
+                {
+                    if (loadedSprite != null)
+                    {
+                        DestroyRuntimeSprite(loadedSprite);
                     }
 
-                    runtimeSprite = sprite;
+                    imageLoadingCoroutine = null;
+                    yield break;
+                }
+
+                if (loadedSprite != null)
+                {
+                    runtimeSprite = loadedSprite;
                     if (illustrationImage != null)
                     {
                         illustrationImage.sprite = runtimeSprite;
@@ -281,7 +303,36 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
                     {
                         illustrationPlaceholderRoot.SetActive(false);
                     }
-                }));
+
+                    imageLoadingCoroutine = null;
+                    yield break;
+                }
+
+                lastError = loadError;
+                Debug.LogWarning(
+                    $"[GardenSmellTaxonomy] No se pudo cargar la imagen '{definition.ImagePath}' para '{definition.ScientificName}' en el intento {attempt}/{attempts}: {loadError}",
+                    this);
+
+                if (attempt < attempts && retryDelay > 0f)
+                {
+                    yield return new WaitForSecondsRealtime(retryDelay);
+                }
+            }
+
+            if (helperLabel != null && !string.IsNullOrWhiteSpace(lastError))
+            {
+                helperLabel.text = $"No se ha podido cargar la imagen.\n{lastError}";
+                helperLabel.color = visualSettings.IncorrectColor;
+            }
+
+            imageLoadingCoroutine = null;
+        }
+
+        private bool HasVisibleIllustration()
+        {
+            return illustrationImage != null &&
+                illustrationImage.enabled &&
+                illustrationImage.sprite != null;
         }
 
         private void ApplyInternalLayout()
@@ -527,8 +578,23 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
 
             if (runtimeSprite != null)
             {
-                Destroy(runtimeSprite);
+                DestroyRuntimeSprite(runtimeSprite);
                 runtimeSprite = null;
+            }
+        }
+
+        private static void DestroyRuntimeSprite(Sprite sprite)
+        {
+            if (sprite == null)
+            {
+                return;
+            }
+
+            var texture = sprite.texture;
+            Destroy(sprite);
+            if (texture != null)
+            {
+                Destroy(texture);
             }
         }
     }

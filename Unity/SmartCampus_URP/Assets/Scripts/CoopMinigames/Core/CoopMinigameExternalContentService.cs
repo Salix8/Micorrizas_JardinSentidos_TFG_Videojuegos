@@ -74,6 +74,37 @@ namespace SmartCampus.Coop.Minigames
                 yield break;
             }
 
+            if (resolvedUri.IsFile && File.Exists(resolvedUri.LocalPath))
+            {
+                byte[] fileBytes;
+                try
+                {
+                    fileBytes = File.ReadAllBytes(resolvedUri.LocalPath);
+                }
+                catch (Exception exception)
+                {
+                    onCompleted?.Invoke(null, exception.Message);
+                    yield break;
+                }
+
+                var fileTexture = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+                if (!fileTexture.LoadImage(fileBytes))
+                {
+                    UnityEngine.Object.Destroy(fileTexture);
+                    onCompleted?.Invoke(null, $"No se pudo decodificar la imagen '{configuredPath}'.");
+                    yield break;
+                }
+
+                var fileSprite = Sprite.Create(
+                    fileTexture,
+                    new Rect(0f, 0f, fileTexture.width, fileTexture.height),
+                    new Vector2(0.5f, 0.5f),
+                    100f);
+
+                onCompleted?.Invoke(fileSprite, string.Empty);
+                yield break;
+            }
+
             var request = UnityWebRequestTexture.GetTexture(resolvedUri);
             yield return request.SendWebRequest();
 
