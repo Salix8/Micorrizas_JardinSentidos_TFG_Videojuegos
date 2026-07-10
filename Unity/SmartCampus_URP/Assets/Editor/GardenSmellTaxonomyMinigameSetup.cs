@@ -225,7 +225,7 @@ public static class GardenSmellTaxonomyMinigameSetup
         timerLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 28f;
         var progressLabel = CreateText("ProgressLabel", statusPanel.transform, font, "Plantas clasificadas: 0/0", 24, TextAnchor.MiddleLeft);
         progressLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 28f;
-        var sharedScoreLabel = CreateText("SharedScoreLabel", statusPanel.transform, font, "Aciertos compartidos: 0   Fallos: 0", 24, TextAnchor.MiddleLeft);
+        var sharedScoreLabel = CreateText("SharedScoreLabel", statusPanel.transform, font, "Aciertos: 0   Fallos: 0", 24, TextAnchor.MiddleLeft);
         sharedScoreLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 28f;
         var statusLabel = CreateText("StatusLabel", statusPanel.transform, font, "Arrastra la planta activa hacia la categoria correcta.", 20, TextAnchor.UpperLeft);
         statusLabel.gameObject.AddComponent<LayoutElement>().preferredHeight = 64f;
