@@ -26,6 +26,10 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
         [SerializeField] [Min(0f)] private float horizontalGap = 22f;
         [SerializeField] [Range(0.35f, 0.75f)] private float scientificNameHeightRatio = 0.55f;
 
+        [Header("Drag Feel")]
+        [SerializeField] [Min(0f)] private float dragRotationSensitivity = 0.04f;
+        [SerializeField] [Min(0f)] private float maxDragRotationDegrees = 10f;
+
         [Header("Image Loading")]
         [SerializeField] [Min(1)] private int maxImageLoadAttempts = 4;
         [SerializeField] [Min(0f)] private float imageRetryDelaySeconds = 0.35f;
@@ -37,11 +41,17 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
         private Coroutine imageLoadingCoroutine;
         private Sprite runtimeSprite;
         private Vector2 initialAnchoredPosition;
+        private Vector2 dragStartPointerLocalPosition;
+        private Vector2 dragStartAnchoredPosition;
         private float transitionDuration;
         private bool isInteractable;
         private bool isDragging;
+        private bool hasActiveDragPointer;
         private bool hasCapturedLayoutPosition;
+        private bool hasCapturedEditorTextColors;
         private bool hasBinding;
+        private Color scientificNameEditorColor = Color.white;
+        private Color helperEditorColor = Color.white;
         private string currentBindingKey = string.Empty;
         private string currentCommonName = string.Empty;
         private GardenSmellTaxonomyCategory? hoveredCategory;
@@ -51,6 +61,7 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
         {
             cardTransform ??= GetComponent<RectTransform>();
             canvasGroup ??= GetComponent<CanvasGroup>();
+            CaptureEditorTextColors();
             ApplyInternalLayout();
             CaptureCurrentLayoutPosition();
         }
@@ -122,7 +133,7 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
             if (scientificNameLabel != null)
             {
                 scientificNameLabel.text = definition == null ? "Sin planta activa" : definition.ScientificName;
-                scientificNameLabel.color = visuals.TitleColor;
+                scientificNameLabel.color = scientificNameEditorColor;
             }
 
             ResetTransform();
@@ -149,13 +160,13 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
             if (scientificNameLabel != null)
             {
                 scientificNameLabel.text = title;
-                scientificNameLabel.color = visualSettings.TitleColor;
+                scientificNameLabel.color = scientificNameEditorColor;
             }
 
             if (helperLabel != null)
             {
                 helperLabel.text = currentCommonName;
-                helperLabel.color = visualSettings.BodyColor;
+                helperLabel.color = helperEditorColor;
             }
 
             if (illustrationImage != null)
@@ -183,6 +194,7 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
             }
 
             RefreshLayoutBaseline();
+            CaptureDragStart(eventData);
             isDragging = true;
         }
 
@@ -193,8 +205,8 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
                 return;
             }
 
-            cardTransform.anchoredPosition += eventData.delta;
-            cardTransform.rotation = Quaternion.Euler(0f, 0f, Mathf.Clamp(cardTransform.anchoredPosition.x * -0.04f, -10f, 10f));
+            UpdateDragPosition(eventData);
+            ApplyDragRotation();
 
             hoveredCategory = resolveDropCategory == null
                 ? null
@@ -226,12 +238,14 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
             if (!resolvedCategory.HasValue)
             {
                 isDragging = false;
+                hasActiveDragPointer = false;
                 animationCoroutine = StartCoroutine(AnimateReturnCoroutine());
                 return;
             }
 
             isInteractable = false;
             isDragging = false;
+            hasActiveDragPointer = false;
             animationCoroutine = StartCoroutine(AnimateCommitCoroutine(resolvedCategory.Value));
             onClassificationCommitted?.Invoke(resolvedCategory.Value);
         }
@@ -463,7 +477,7 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
             helperLabel.text = string.IsNullOrWhiteSpace(currentCommonName)
                 ? (isInteractable ? "Nombre comun no disponible" : "Esperando...")
                 : currentCommonName;
-            helperLabel.color = visualSettings.BodyColor;
+            helperLabel.color = helperEditorColor;
         }
 
         private Vector2 GetCommitOffset(GardenSmellTaxonomyCategory category)
@@ -479,6 +493,66 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
                 default:
                     return initialAnchoredPosition;
             }
+        }
+
+        private void CaptureDragStart(PointerEventData eventData)
+        {
+            if (cardTransform == null || !TryGetPointerLocalPosition(eventData, out dragStartPointerLocalPosition))
+            {
+                hasActiveDragPointer = false;
+                dragStartAnchoredPosition = cardTransform == null ? Vector2.zero : cardTransform.anchoredPosition;
+                return;
+            }
+
+            dragStartAnchoredPosition = cardTransform.anchoredPosition;
+            hasActiveDragPointer = true;
+        }
+
+        private void UpdateDragPosition(PointerEventData eventData)
+        {
+            if (cardTransform == null)
+            {
+                return;
+            }
+
+            if (!hasActiveDragPointer || !TryGetPointerLocalPosition(eventData, out var currentPointerLocalPosition))
+            {
+                cardTransform.anchoredPosition += eventData.delta;
+                return;
+            }
+
+            cardTransform.anchoredPosition = dragStartAnchoredPosition + (currentPointerLocalPosition - dragStartPointerLocalPosition);
+        }
+
+        private bool TryGetPointerLocalPosition(PointerEventData eventData, out Vector2 localPosition)
+        {
+            localPosition = Vector2.zero;
+            if (eventData == null || cardTransform == null || cardTransform.parent is not RectTransform parentRect)
+            {
+                return false;
+            }
+
+            return RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                parentRect,
+                eventData.position,
+                eventData.pressEventCamera,
+                out localPosition);
+        }
+
+        private void ApplyDragRotation()
+        {
+            if (cardTransform == null)
+            {
+                return;
+            }
+
+            var horizontalDragOffset = cardTransform.anchoredPosition.x - initialAnchoredPosition.x;
+            var rotationZ = Mathf.Clamp(
+                horizontalDragOffset * -dragRotationSensitivity,
+                -maxDragRotationDegrees,
+                maxDragRotationDegrees);
+
+            cardTransform.rotation = Quaternion.Euler(0f, 0f, rotationZ);
         }
 
         private void ResetTransform()
@@ -524,6 +598,26 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
 
             initialAnchoredPosition = cardTransform.anchoredPosition;
             hasCapturedLayoutPosition = true;
+        }
+
+        private void CaptureEditorTextColors()
+        {
+            if (hasCapturedEditorTextColors)
+            {
+                return;
+            }
+
+            if (scientificNameLabel != null)
+            {
+                scientificNameEditorColor = scientificNameLabel.color;
+            }
+
+            if (helperLabel != null)
+            {
+                helperEditorColor = helperLabel.color;
+            }
+
+            hasCapturedEditorTextColors = true;
         }
 
         private void StopActiveAnimation()
