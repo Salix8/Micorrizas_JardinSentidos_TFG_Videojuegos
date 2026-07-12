@@ -52,8 +52,8 @@ MonoBehaviour:
     description: Prunus dulcis
     illustration: {fileID: -819823926, guid: 5a44e729ac374b641889e50d30869a9a, type: 3}
     faceColor: {r: 0.598, g: 0.92, b: 0.92, a: 1}
-  - title: Acido
-    flavorHint: Sabor 7
+  - title: "Lim\xF3n"
+    flavorHint: Acido
     description: Citrus limon
     illustration: {fileID: -1138599245, guid: d532f8d4278a95f4e92ed683e8f2688c, type: 3}
     faceColor: {r: 0.598, g: 0.72679996, b: 0.92, a: 1}
