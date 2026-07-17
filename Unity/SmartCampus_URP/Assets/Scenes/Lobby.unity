@@ -3391,7 +3391,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 275, y: -43}
+  m_AnchoredPosition: {x: 389.28, y: -46.440002}
   m_SizeDelta: {x: 230, y: 23}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1093252416
@@ -3423,7 +3423,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4281485931
+    rgba: 4279510592
   m_fontColor: {r: 0.25, g: 0.15, b: 0.08, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -4121,6 +4121,7 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   coopSessionCoordinator: {fileID: 0}
   persistAcrossScenes: 1
+  playableMinigameCount: 5
 --- !u!114 &1175332717
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4616,7 +4617,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 498, y: -43}
+  m_AnchoredPosition: {x: 613.72, y: -46.440002}
   m_SizeDelta: {x: 180, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1374489203
@@ -6728,8 +6729,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 374, y: -155}
-  m_SizeDelta: {x: 748, y: 86}
+  m_AnchoredPosition: {x: 489, y: -116.310005}
+  m_SizeDelta: {x: 978, y: 92.880005}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2007688956
 MonoBehaviour:
