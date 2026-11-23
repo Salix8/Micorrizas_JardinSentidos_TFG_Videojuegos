@@ -35,9 +35,11 @@ namespace SmartCampus.Coop.Minigames
             ref CoopMinigameProgressNetworkState state,
             int minigameIndex,
             MinigameResultData result,
-            int completionOrder)
+            int completionOrder,
+            float minimumPassingScore = 5f)
         {
-            if (state.MinigameIndex != minigameIndex || state.IsCompleted)
+            if (state.MinigameIndex != minigameIndex || state.IsCompleted ||
+                !IsPassingScore(result.ScoreOutOfTen, minimumPassingScore))
             {
                 return false;
             }
@@ -49,6 +51,16 @@ namespace SmartCampus.Coop.Minigames
             state.CompletionOrder = Mathf.Max(0, completionOrder);
             state.ResultMessage = new FixedString128Bytes(result.Message ?? string.Empty);
             return true;
+        }
+
+        public static bool IsPassingScore(float score, float minimumPassingScore)
+        {
+            return !float.IsNaN(score) && score >= Mathf.Clamp(minimumPassingScore, 0f, 10f);
+        }
+
+        public static double GetRetryRemaining(double retryAvailableAt, double currentTime)
+        {
+            return System.Math.Max(0d, retryAvailableAt - currentTime);
         }
 
         public static int CountCompleted(IReadOnlyList<CoopMinigameProgressNetworkState> states)

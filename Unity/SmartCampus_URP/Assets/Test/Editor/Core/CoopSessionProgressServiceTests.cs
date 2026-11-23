@@ -65,6 +65,38 @@ namespace SmartCampus.Testing.Editor.Core
             Assert.That(CoopSessionProgressService.AreAllCompleted(states), Is.False);
         }
 
+        [TestCase(4.99f, false)]
+        [TestCase(5f, true)]
+        public void RegisterResult_OnlyPassingScoresCompleteMission(float score, bool passes)
+        {
+            var state = CoopSessionProgressService.CreateDefaultState(0);
+            var registered = CoopSessionProgressService.TryRegisterResult(
+                ref state, 0, new MinigameResultData("Resultado", score, 1, 1), 0);
+
+            Assert.That(registered, Is.EqualTo(passes));
+            Assert.That(state.IsCompleted, Is.EqualTo(passes));
+            Assert.That(CoopSessionProgressService.CountCompleted(new[] { state }), Is.EqualTo(passes ? 1 : 0));
+        }
+
+        [Test]
+        public void FailedAttempts_FollowedByPass_OnlyPassIsRecorded()
+        {
+            var state = CoopSessionProgressService.CreateDefaultState(0);
+            Assert.That(CoopSessionProgressService.TryRegisterResult(ref state, 0, new MinigameResultData("Fallo", 2f, 0, 1), 0), Is.False);
+            Assert.That(CoopSessionProgressService.TryRegisterResult(ref state, 0, new MinigameResultData("Fallo", 4f, 0, 1), 0), Is.False);
+            Assert.That(CoopSessionProgressService.TryRegisterResult(ref state, 0, new MinigameResultData("Aprobado", 6f, 1, 0), 0), Is.True);
+            Assert.That(state.ScoreOutOfTen, Is.EqualTo(6f));
+            Assert.That(state.CompletionOrder, Is.Zero);
+        }
+
+        [TestCase(100d, 75d, 25d)]
+        [TestCase(100d, 100d, 0d)]
+        [TestCase(100d, 110d, 0d)]
+        public void RetryRemaining_UsesServerDeadline(double deadline, double now, double expected)
+        {
+            Assert.That(CoopSessionProgressService.GetRetryRemaining(deadline, now), Is.EqualTo(expected));
+        }
+
         [Test]
         public void RegisteringTheSameMinigameTwice_PreservesTheFirstResult()
         {

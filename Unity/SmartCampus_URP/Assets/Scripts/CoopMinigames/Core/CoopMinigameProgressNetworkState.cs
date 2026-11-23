@@ -8,6 +8,7 @@ namespace SmartCampus.Coop.Minigames
     {
         public int MinigameIndex;
         public bool IsCompleted;
+        public double RetryAvailableAt;
         public float ScoreOutOfTen;
         public int SuccessfulActions;
         public int FailedActions;
@@ -27,6 +28,7 @@ namespace SmartCampus.Coop.Minigames
         {
             serializer.SerializeValue(ref MinigameIndex);
             serializer.SerializeValue(ref IsCompleted);
+            serializer.SerializeValue(ref RetryAvailableAt);
             serializer.SerializeValue(ref ScoreOutOfTen);
             serializer.SerializeValue(ref SuccessfulActions);
             serializer.SerializeValue(ref FailedActions);
@@ -38,6 +40,7 @@ namespace SmartCampus.Coop.Minigames
         {
             return MinigameIndex == other.MinigameIndex &&
                    IsCompleted == other.IsCompleted &&
+                   RetryAvailableAt.Equals(other.RetryAvailableAt) &&
                    ScoreOutOfTen.Equals(other.ScoreOutOfTen) &&
                    SuccessfulActions == other.SuccessfulActions &&
                    FailedActions == other.FailedActions &&
@@ -59,7 +62,7 @@ namespace SmartCampus.Coop.Minigames
                 SuccessfulActions,
                 FailedActions,
                 CompletionOrder,
-                ResultMessage.GetHashCode());
+                HashCode.Combine(ResultMessage.GetHashCode(), RetryAvailableAt));
         }
     }
 }

@@ -32,7 +32,6 @@ public sealed class CoopMinigameZoneTriggerController : MonoBehaviour
     [Header("Zone Visuals")]
     [SerializeField] private Sprite incompleteZoneSprite;
     [SerializeField] private Sprite completedZoneSprite;
-    [SerializeField] [Range(0f, 10f)] private float completedZoneMinimumScore = 5f;
     [SerializeField] private Vector3 zoneVisualLocalOffset = new(0f, 8f, 0f);
     [SerializeField] private Vector3 zoneVisualLocalEulerAngles = new(90f, 0f, 0f);
     [SerializeField] private int zoneVisualSortingOrder = 25;
@@ -109,6 +108,18 @@ public sealed class CoopMinigameZoneTriggerController : MonoBehaviour
         }
 
         var candidateZone = FindCandidateZone();
+        var retryRemaining = candidateZone == null || coopSessionProgressSync == null
+            ? 0d
+            : coopSessionProgressSync.GetRetryRemainingSeconds(candidateZone.MiniGameIndex);
+        if (candidateZone != null && retryRemaining > 0d)
+        {
+            countdownTracker.Reset();
+            previousCandidateZoneId = -1;
+            lastTriggeredZoneId = -1;
+            countdownUiController?.ShowRetryWait(candidateZone.DisplayName, (float)retryRemaining, coopSessionProgressSync.RetryDelaySeconds);
+            return;
+        }
+
         var snapshot = countdownTracker.Update(
             candidateZone == null ? -1 : candidateZone.GetInstanceID(),
             candidateZone != null,
@@ -189,7 +200,8 @@ public sealed class CoopMinigameZoneTriggerController : MonoBehaviour
                 continue;
             }
 
-            if (!coopSessionCoordinator.CanLaunchMiniGame(zone.MiniGameIndex))
+            if (!coopSessionCoordinator.IsMiniGameConfigured(zone.MiniGameIndex) ||
+                (coopSessionProgressSync != null && coopSessionProgressSync.IsMinigameCompleted(zone.MiniGameIndex)))
             {
                 continue;
             }
@@ -402,10 +414,7 @@ public sealed class CoopMinigameZoneTriggerController : MonoBehaviour
 
         if (coopSessionProgressSync != null &&
             coopSessionProgressSync.TryGetProgressState(zone.MiniGameIndex, out var progressState) &&
-            CoopMinigameZoneVisualStateService.ShouldUseCompletedSprite(
-                progressState.IsCompleted,
-                progressState.ScoreOutOfTen,
-                completedZoneMinimumScore))
+            progressState.IsCompleted)
         {
             return completedZoneSprite;
         }

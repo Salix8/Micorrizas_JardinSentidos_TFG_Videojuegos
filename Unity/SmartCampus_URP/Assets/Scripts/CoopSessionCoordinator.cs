@@ -169,7 +169,7 @@ public sealed class CoopSessionCoordinator : NetworkBehaviour
 
         if (!CanLaunchMiniGame(miniGameIndex))
         {
-            Debug.LogWarning($"Mini-game index {miniGameIndex} has already been completed in this cooperative session.", this);
+            Debug.LogWarning($"Mini-game index {miniGameIndex} is completed or temporarily unavailable in this cooperative session.", this);
             return;
         }
 
@@ -201,7 +201,8 @@ public sealed class CoopSessionCoordinator : NetworkBehaviour
         ResolveReferences();
         var isConfigured = IsMiniGameConfigured(miniGameIndex);
         var isAlreadyCompleted = sessionProgressSync != null && sessionProgressSync.IsMinigameCompleted(miniGameIndex);
-        return CoopSessionFlowService.CanLaunchConfiguredMinigame(isConfigured, isAlreadyCompleted);
+        return CoopSessionFlowService.CanLaunchConfiguredMinigame(isConfigured, isAlreadyCompleted) &&
+               (sessionProgressSync == null || sessionProgressSync.GetRetryRemainingSeconds(miniGameIndex) <= 0d);
     }
 
     public bool TryGetMiniGameSceneName(int miniGameIndex, out string sceneName)

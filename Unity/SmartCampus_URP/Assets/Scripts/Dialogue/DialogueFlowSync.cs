@@ -186,7 +186,9 @@ namespace SmartCampus.Dialogue
             }
 
             var minigameIndex = sessionCoordinator.ActiveMiniGameIndex;
-            if (ShouldUseDialogues() && flowConfig != null)
+            if (ShouldUseDialogues() && flowConfig != null &&
+                sessionCoordinator.SessionProgressSync != null &&
+                sessionCoordinator.SessionProgressSync.IsMinigameCompleted(minigameIndex))
             {
                 if (flowConfig.TryGetSuccessKey(minigameIndex, out var successKey))
                 {

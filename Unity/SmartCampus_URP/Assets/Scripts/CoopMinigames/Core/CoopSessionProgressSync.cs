@@ -14,10 +14,14 @@ namespace SmartCampus.Coop.Minigames
 
         [Header("Progress Rules")]
         [SerializeField] [Min(1)] private int playableMinigameCount = 5;
+        [SerializeField] [Range(0f, 10f)] private float minimumPassingScore = 5f;
+        [SerializeField] [Min(0f)] private float retryDelaySeconds = 60f;
 
         private readonly NetworkList<CoopMinigameProgressNetworkState> progressStates = new();
         private int nextCompletionOrder;
 
+        public float MinimumPassingScore => minimumPassingScore;
+        public float RetryDelaySeconds => retryDelaySeconds;
         public int ConfiguredMinigameCount => ResolvePlayableMinigameCount();
         public int TrackedMinigameCount => progressStates.Count;
         public int PlayableMinigameCount => playableMinigameCount;
@@ -41,6 +45,8 @@ namespace SmartCampus.Coop.Minigames
         private void OnValidate()
         {
             playableMinigameCount = Mathf.Max(1, playableMinigameCount);
+            minimumPassingScore = Mathf.Clamp(minimumPassingScore, 0f, 10f);
+            retryDelaySeconds = Mathf.Max(0f, retryDelaySeconds);
         }
 
         public override void OnNetworkSpawn()
@@ -64,6 +70,16 @@ namespace SmartCampus.Coop.Minigames
         public bool IsMinigameCompleted(int minigameIndex)
         {
             return TryGetProgressState(minigameIndex, out var state) && state.IsCompleted;
+        }
+
+        public double GetRetryRemainingSeconds(int minigameIndex)
+        {
+            if (NetworkManager == null || !TryGetProgressState(minigameIndex, out var state))
+            {
+                return 0d;
+            }
+
+            return CoopSessionProgressService.GetRetryRemaining(state.RetryAvailableAt, NetworkManager.ServerTime.Time);
         }
 
         public bool TryGetResult(int minigameIndex, out MinigameResultData result)
@@ -116,11 +132,24 @@ namespace SmartCampus.Coop.Minigames
             }
 
             var state = progressStates[minigameIndex];
-            if (!CoopSessionProgressService.TryRegisterResult(ref state, minigameIndex, result, nextCompletionOrder))
+            if (state.IsCompleted)
             {
                 return false;
             }
 
+            if (!CoopSessionProgressService.IsPassingScore(result.ScoreOutOfTen, minimumPassingScore))
+            {
+                state.RetryAvailableAt = NetworkManager.ServerTime.Time + Mathf.Max(0f, retryDelaySeconds);
+                progressStates[minigameIndex] = state;
+                return true;
+            }
+
+            if (!CoopSessionProgressService.TryRegisterResult(ref state, minigameIndex, result, nextCompletionOrder, minimumPassingScore))
+            {
+                return false;
+            }
+
+            state.RetryAvailableAt = 0d;
             progressStates[minigameIndex] = state;
             nextCompletionOrder += 1;
             return true;

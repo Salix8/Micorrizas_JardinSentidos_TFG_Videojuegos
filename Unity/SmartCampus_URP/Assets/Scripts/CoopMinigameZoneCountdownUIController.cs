@@ -16,6 +16,9 @@ public sealed class CoopMinigameZoneCountdownUIController : MonoBehaviour
     [SerializeField] private string defaultTitle = "Zona cooperativa";
     [SerializeField] private string subtitleFormat = "Manteneos dentro de {0}";
 
+    [SerializeField] private string retryTitle = "Misión pendiente";
+    [SerializeField] [TextArea] private string retryMessage = "Debéis observar mejor la zona antes de aventuraros de nuevo en esta misión.";
+
     private void Awake()
     {
         ResolveReferences();
@@ -50,6 +53,14 @@ public sealed class CoopMinigameZoneCountdownUIController : MonoBehaviour
         {
             timerLabel.text = Mathf.Max(0f, remainingSeconds).ToString("0.0s");
         }
+    }
+
+    public void ShowRetryWait(string zoneDisplayName, float remainingSeconds, float durationSeconds)
+    {
+        Show(zoneDisplayName, durationSeconds > 0f ? 1f - remainingSeconds / durationSeconds : 1f, remainingSeconds);
+        if (titleLabel != null) titleLabel.text = retryTitle;
+        if (subtitleLabel != null) subtitleLabel.text = retryMessage;
+        if (timerLabel != null) timerLabel.text = Mathf.CeilToInt(Mathf.Max(0f, remainingSeconds)) + " s";
     }
 
     public void Hide()

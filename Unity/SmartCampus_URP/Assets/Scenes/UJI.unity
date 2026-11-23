@@ -3092,7 +3092,6 @@ MonoBehaviour:
   logZoneTransitionsToConsole: 1
   incompleteZoneSprite: {fileID: 21300000, guid: a892de30152b67a41a53295fefb14faa, type: 3}
   completedZoneSprite: {fileID: 21300000, guid: a34e41795046a7d44a7365857b5ceb35, type: 3}
-  completedZoneMinimumScore: 5
   zoneVisualLocalOffset: {x: 0, y: 18, z: 0}
   zoneVisualLocalEulerAngles: {x: 90, y: 0, z: 0}
   zoneVisualSortingOrder: 100
