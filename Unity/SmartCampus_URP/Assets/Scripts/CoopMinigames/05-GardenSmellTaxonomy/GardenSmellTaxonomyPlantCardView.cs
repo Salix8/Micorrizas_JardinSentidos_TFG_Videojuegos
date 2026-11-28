@@ -46,6 +46,7 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
         private Vector2 dragStartAnchoredPosition;
         private float transitionDuration;
         private bool isInteractable;
+        private int zoomDragSessionId;
         private bool isDragging;
         private bool hasActiveDragPointer;
         private bool hasCapturedLayoutPosition;
@@ -188,7 +189,8 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
 
         public void OnBeginDrag(PointerEventData eventData)
         {
-            if (!isInteractable || animationCoroutine != null)
+            zoomDragSessionId = SmartCampus.Coop.Minigames.MinigameZoomGesture.SessionId;
+            if (!isInteractable || animationCoroutine != null || SmartCampus.Coop.Minigames.MinigameZoomGesture.IsActive)
             {
                 return;
             }
@@ -207,6 +209,12 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
         public void OnDrag(PointerEventData eventData)
         {
             if (!isInteractable || animationCoroutine != null || cardTransform == null)
+            {
+                return;
+            }
+
+            // Con dos dedos en pantalla se esta haciendo zoom: la carta no se mueve.
+            if (SmartCampus.Coop.Minigames.MinigameZoomGesture.InterruptedDrag(zoomDragSessionId))
             {
                 return;
             }
@@ -234,7 +242,8 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
                 canvasGroup.blocksRaycasts = true;
             }
 
-            var resolvedCategory = resolveDropCategory == null
+            var resolvedCategory = resolveDropCategory == null ||
+                                   SmartCampus.Coop.Minigames.MinigameZoomGesture.InterruptedDrag(zoomDragSessionId)
                 ? null
                 : resolveDropCategory(eventData.position, eventData.pressEventCamera);
 
@@ -525,7 +534,7 @@ namespace SmartCampus.Coop.Minigames.GardenSmellTaxonomy
 
             if (!hasActiveDragPointer || !TryGetPointerLocalPosition(eventData, out var currentPointerLocalPosition))
             {
-                cardTransform.anchoredPosition += eventData.delta;
+                cardTransform.anchoredPosition += SmartCampus.Coop.Minigames.LocalZoomPointerService.GetLocalDelta(cardTransform, eventData);
                 return;
             }
 

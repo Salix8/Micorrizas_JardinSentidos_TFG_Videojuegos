@@ -29,6 +29,10 @@ public sealed class CoopMinigameZoneTriggerController : MonoBehaviour
     [SerializeField] [Min(0.1f)] private float evaluationIntervalSeconds = 0.1f;
     [SerializeField] private bool logZoneTransitionsToConsole = true;
 
+    [Header("Debug")]
+    [Tooltip("Muestra en pantalla por que una zona no lanza su mision. Desactivar para la version final.")]
+    [SerializeField] private bool showDebugStatusOnScreen = true;
+
     [Header("Zone Visuals")]
     [SerializeField] private Sprite incompleteZoneSprite;
     [SerializeField] private Sprite completedZoneSprite;
@@ -42,6 +46,11 @@ public sealed class CoopMinigameZoneTriggerController : MonoBehaviour
     private float nextEvaluationTime;
     private int previousCandidateZoneId = -1;
     private int lastTriggeredZoneId = -1;
+    private string previousBlocker;
+    private string debugBlocker;
+    private string debugState = string.Empty;
+    private CoopZoneDebugOverlay debugOverlay;
+    private readonly System.Text.StringBuilder debugBuilder = new();
 
     private void Awake()
     {
@@ -95,6 +104,7 @@ public sealed class CoopMinigameZoneTriggerController : MonoBehaviour
 
         nextEvaluationTime = Time.unscaledTime + evaluationIntervalSeconds;
         EvaluateZones();
+        RefreshDebugOverlay();
     }
 
     private void EvaluateZones()
@@ -103,6 +113,21 @@ public sealed class CoopMinigameZoneTriggerController : MonoBehaviour
 
         if (!IsWorldMapPhaseReady())
         {
+            if (coopSessionCoordinator != null && coopSessionCoordinator.IsServer &&
+                coopSessionCoordinator.CurrentPhase == CoopGamePhase.WorldMap)
+            {
+                LogBlocker(dialogueFlowSync != null && dialogueFlowSync.IsFlowBusy
+                    ? "El flujo de dialogo esta ocupado."
+                    : "Faltan referencias de posicion o sesion.");
+            }
+
+            debugState = coopSessionCoordinator == null
+                ? "Sin coordinador de sesion."
+                : coopSessionCoordinator.CurrentPhase != CoopGamePhase.WorldMap
+                    ? $"Fase {coopSessionCoordinator.CurrentPhase} (no es el mapa)."
+                    : dialogueFlowSync != null && dialogueFlowSync.IsFlowBusy
+                        ? "Dialogo en curso: todos deben terminarlo."
+                        : "Faltan referencias de GPS o marcadores.";
             ResetCountdown();
             return;
         }
@@ -116,6 +141,7 @@ public sealed class CoopMinigameZoneTriggerController : MonoBehaviour
             countdownTracker.Reset();
             previousCandidateZoneId = -1;
             lastTriggeredZoneId = -1;
+            debugState = $"Espera de reintento en {candidateZone.DisplayName}: {Mathf.CeilToInt((float)retryRemaining)} s.";
             countdownUiController?.ShowRetryWait(candidateZone.DisplayName, (float)retryRemaining, coopSessionProgressSync.RetryDelaySeconds);
             return;
         }
@@ -135,9 +161,13 @@ public sealed class CoopMinigameZoneTriggerController : MonoBehaviour
 
             previousCandidateZoneId = -1;
             lastTriggeredZoneId = -1;
+            debugState = "Sin zona lista: " + (debugBlocker ?? "motivo desconocido.");
             countdownUiController?.Hide();
             return;
         }
+
+        previousBlocker = null;
+        debugBlocker = null;
 
         if (snapshot.ZoneId != previousCandidateZoneId && logZoneTransitionsToConsole)
         {
@@ -146,21 +176,32 @@ public sealed class CoopMinigameZoneTriggerController : MonoBehaviour
 
         previousCandidateZoneId = snapshot.ZoneId;
         countdownUiController?.Show(candidateZone.DisplayName, snapshot.Progress01, snapshot.RemainingSeconds);
+        debugState = $"Cuenta atras en {candidateZone.DisplayName}: {snapshot.RemainingSeconds:0.0} s.";
 
         if (!snapshot.IsCompleted || lastTriggeredZoneId == snapshot.ZoneId)
         {
+            if (snapshot.IsCompleted)
+            {
+                debugState = $"Mision de {candidateZone.DisplayName} solicitada; esperando dialogo o carga.";
+            }
+
             return;
         }
 
-        lastTriggeredZoneId = snapshot.ZoneId;
+        if (coopSessionCoordinator == null || !coopSessionCoordinator.IsServer)
+        {
+            debugState = $"Cuenta atras completa en {candidateZone.DisplayName}; esperando a que el host lance la mision.";
+        }
 
         if (coopSessionCoordinator != null && coopSessionCoordinator.IsServer)
         {
             if (!coopSessionCoordinator.CanLaunchMiniGame(candidateZone.MiniGameIndex))
             {
+                debugState = $"No se puede lanzar {candidateZone.DisplayName} (completada, en espera o sin escena).";
                 Debug.LogWarning(
                     $"Zone '{candidateZone.DisplayName}' cannot launch minigame. MiniGameNumber={candidateZone.MiniGameNumber} MiniGameIndex={candidateZone.MiniGameIndex} is unavailable in the current cooperative session.",
                     this);
+                ResetCountdown();
                 return;
             }
 
@@ -170,12 +211,21 @@ public sealed class CoopMinigameZoneTriggerController : MonoBehaviour
                 this);
             if (dialogueFlowSync != null)
             {
-                dialogueFlowSync.RequestStartMinigame(candidateZone.MiniGameIndex);
+                if (!dialogueFlowSync.RequestStartMinigame(candidateZone.MiniGameIndex))
+                {
+                    Debug.LogWarning("Minigame start request was rejected; the countdown will restart.", this);
+                    debugState = "Inicio rechazado por el flujo de dialogo; se repite la cuenta atras.";
+                    ResetCountdown();
+                    return;
+                }
             }
             else
             {
                 coopSessionCoordinator.StartMiniGame(candidateZone.MiniGameIndex);
             }
+
+            lastTriggeredZoneId = snapshot.ZoneId;
+            debugState = $"Lanzando la mision de {candidateZone.DisplayName}.";
         }
     }
 
@@ -183,15 +233,27 @@ public sealed class CoopMinigameZoneTriggerController : MonoBehaviour
     {
         if (zoneDefinitions == null || zoneDefinitions.Length == 0 || gpsStateSync == null || coopSessionCoordinator == null)
         {
+            LogBlocker("Faltan zonas o referencias de GPS y sesion.");
             return null;
         }
 
         BuildActivePlayerIds();
         if (activePlayerIds.Count == 0)
         {
+            LogBlocker("No hay jugadores registrados en la sesion.");
             return null;
         }
 
+        foreach (var clientId in activePlayerIds)
+        {
+            if (!gpsStateSync.TryGetState(clientId, out var state) || !state.HasFix)
+            {
+                LogBlocker($"Jugador {clientId}: sin posicion GPS valida.");
+                return null;
+            }
+        }
+
+        string blocker = null;
         for (var index = 0; index < zoneDefinitions.Length; index++)
         {
             var zone = zoneDefinitions[index];
@@ -210,12 +272,30 @@ public sealed class CoopMinigameZoneTriggerController : MonoBehaviour
             for (var playerIndex = 0; playerIndex < activePlayerIds.Count; playerIndex++)
             {
                 var clientId = activePlayerIds[playerIndex];
-                if (!gpsStateSync.TryGetState(clientId, out var state) ||
-                    !state.HasFix ||
-                    state.HorizontalAccuracy > zone.MaxAcceptedAccuracyMeters ||
-                    !gpsMarkerController.TryGetMarkerWorldPosition(clientId, out var markerWorldPosition) ||
-                    !zone.Contains(markerWorldPosition))
+                if (!gpsStateSync.TryGetState(clientId, out var state) || !state.HasFix)
                 {
+                    blocker ??= $"Jugador {clientId}: sin posicion GPS valida.";
+                    allPlayersInside = false;
+                    break;
+                }
+
+                if (state.HorizontalAccuracy > zone.MaxAcceptedAccuracyMeters)
+                {
+                    blocker ??= $"Jugador {clientId}: precision GPS insuficiente para {zone.DisplayName}.";
+                    allPlayersInside = false;
+                    break;
+                }
+
+                if (!gpsMarkerController.TryGetMarkerWorldPosition(clientId, out var markerWorldPosition))
+                {
+                    blocker ??= $"Jugador {clientId}: posicion del marcador no disponible.";
+                    allPlayersInside = false;
+                    break;
+                }
+
+                if (!zone.Contains(markerWorldPosition))
+                {
+                    blocker ??= "Ninguna zona pendiente contiene a todos los jugadores.";
                     allPlayersInside = false;
                     break;
                 }
@@ -227,7 +307,113 @@ public sealed class CoopMinigameZoneTriggerController : MonoBehaviour
             }
         }
 
+        LogBlocker(blocker ?? "No hay misiones configuradas y pendientes en las zonas.");
         return null;
+    }
+
+    private void RefreshDebugOverlay()
+    {
+        if (!showDebugStatusOnScreen)
+        {
+            debugOverlay?.SetVisible(false);
+            return;
+        }
+
+        debugOverlay ??= CoopZoneDebugOverlay.Create(transform);
+        debugOverlay.SetVisible(true);
+
+        debugBuilder.Clear();
+        var isServer = coopSessionCoordinator != null && coopSessionCoordinator.IsServer;
+        debugBuilder.Append("<b>Zonas</b> (").Append(isServer ? "host" : "cliente").Append(")\n");
+        debugBuilder.Append(debugState).Append('\n');
+
+        BuildActivePlayerIds();
+        if (activePlayerIds.Count == 0)
+        {
+            debugBuilder.Append("Sin jugadores registrados.");
+            debugOverlay.SetText(debugBuilder.ToString());
+            return;
+        }
+
+        for (var index = 0; index < activePlayerIds.Count; index++)
+        {
+            var clientId = activePlayerIds[index];
+            debugBuilder.Append("J").Append(index + 1).Append(" (id ").Append(clientId).Append("): ");
+
+            if (gpsStateSync == null || !gpsStateSync.TryGetState(clientId, out var state))
+            {
+                debugBuilder.Append("sin datos GPS\n");
+                continue;
+            }
+
+            if (!state.HasFix)
+            {
+                debugBuilder.Append("GPS sin señal\n");
+                continue;
+            }
+
+            debugBuilder.Append("precision ").Append(state.HorizontalAccuracy.ToString("0")).Append(" m, ");
+            if (gpsMarkerController == null || !gpsMarkerController.TryGetMarkerWorldPosition(clientId, out var markerWorldPosition))
+            {
+                debugBuilder.Append("marcador no disponible\n");
+                continue;
+            }
+
+            var insideZone = FindZoneContaining(markerWorldPosition);
+            if (insideZone == null)
+            {
+                debugBuilder.Append("fuera de zonas\n");
+                continue;
+            }
+
+            debugBuilder.Append("dentro de ").Append(insideZone.DisplayName);
+            if (state.HorizontalAccuracy > insideZone.MaxAcceptedAccuracyMeters)
+            {
+                debugBuilder.Append(" <color=#FFB347>(precision > ").Append(insideZone.MaxAcceptedAccuracyMeters.ToString("0")).Append(" m)</color>");
+            }
+
+            if (coopSessionProgressSync != null && coopSessionProgressSync.IsMinigameCompleted(insideZone.MiniGameIndex))
+            {
+                debugBuilder.Append(" [completada]");
+            }
+
+            debugBuilder.Append('\n');
+        }
+
+        debugOverlay.SetText(debugBuilder.ToString());
+    }
+
+    private CoopMinigameZoneDefinition FindZoneContaining(Vector3 worldPosition)
+    {
+        if (zoneDefinitions == null)
+        {
+            return null;
+        }
+
+        for (var index = 0; index < zoneDefinitions.Length; index++)
+        {
+            var zone = zoneDefinitions[index];
+            if (zone != null && zone.Contains(worldPosition))
+            {
+                return zone;
+            }
+        }
+
+        return null;
+    }
+
+    private void LogBlocker(string blocker)
+    {
+        debugBlocker = blocker;
+
+        if (!logZoneTransitionsToConsole || coopSessionCoordinator == null ||
+            !coopSessionCoordinator.IsServer || blocker == previousBlocker)
+        {
+            return;
+        }
+
+        previousBlocker = blocker;
+        Debug.Log($"Minigame zone waiting: {blocker}", this);
     }
 
     private void BuildActivePlayerIds()

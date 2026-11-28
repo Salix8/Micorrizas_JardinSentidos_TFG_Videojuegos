@@ -16,8 +16,8 @@ public sealed class CoopMinigameZoneCountdownUIController : MonoBehaviour
     [SerializeField] private string defaultTitle = "Zona cooperativa";
     [SerializeField] private string subtitleFormat = "Manteneos dentro de {0}";
 
-    [SerializeField] private string retryTitle = "Misión pendiente";
-    [SerializeField] [TextArea] private string retryMessage = "Debéis observar mejor la zona antes de aventuraros de nuevo en esta misión.";
+    [SerializeField] private string retryTitle = "Misi\u00f3n pendiente";
+    [SerializeField] [TextArea] private string retryMessage = "Deb\u00e9is observar mejor la zona antes de aventuraros de nuevo en esta misi\u00f3n.";
 
     private void Awake()
     {

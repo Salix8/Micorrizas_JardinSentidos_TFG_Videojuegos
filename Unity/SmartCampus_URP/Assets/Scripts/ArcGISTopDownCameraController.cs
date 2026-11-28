@@ -5,6 +5,7 @@ using Esri.ArcGISMapsSDK.Utils.GeoCoord;
 using Esri.GameEngine.Geometry;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using SmartCampus.Coop.Minigames;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.EnhancedTouch;
@@ -38,6 +39,19 @@ public sealed class ArcGISTopDownCameraController : MonoBehaviour
     [SerializeField] private Vector2 boundsHalfSizeMeters = new(280f, 280f);
     [SerializeField] private float panSensitivity = 1f;
 
+    [Header("Zoom") ]
+    [SerializeField, Min(1f)] private float maximumZoom = 2f;
+    [SerializeField, Min(0.01f)] private float zoomStep = 0.25f;
+    [SerializeField, Min(0.01f)] private float pinchSensitivity = 1f;
+    [Tooltip("Muestra los botones - + 1:1. El pellizco con dos dedos funciona igualmente sin ellos.")]
+    [SerializeField] private bool showZoomButtons;
+    [Tooltip("Factor por paso de rueda del raton (para probar en el editor).")]
+    [SerializeField, Min(1.01f)] private float mouseWheelZoomFactor = 1.1f;
+
+    private float currentZoom = 1f;
+    private float previousPinchDistance;
+    private bool pinchBlocked;
+    private bool pinchActive;
     private readonly List<RaycastResult> uiRaycastResults = new();
     private ArcGISSpatialReference wgs84;
     private bool isDragging;
@@ -52,6 +66,10 @@ public sealed class ArcGISTopDownCameraController : MonoBehaviour
         wgs84 = ArcGISSpatialReference.WGS84();
         ConfigureCameraProjection();
         SetCameraPosition(fallbackLatitude, fallbackLongitude);
+        if (showZoomButtons)
+        {
+            LocalZoomControlsView.Create(transform, ZoomIn, ZoomOut, ResetZoom);
+        }
     }
 
     private void OnEnable()
@@ -82,12 +100,79 @@ public sealed class ArcGISTopDownCameraController : MonoBehaviour
         ResolveReferences();
         ConfigureCameraProjection();
         ApplyUnityTopDownRotation();
-        HandlePanInput();
+        if (!HandlePinchInput())
+        {
+            HandlePanInput();
+        }
+
+        HandleMouseWheelZoom();
+    }
+
+    private void HandleMouseWheelZoom()
+    {
+#if ENABLE_INPUT_SYSTEM
+        var mouse = Mouse.current;
+        if (mouse == null)
+        {
+            return;
+        }
+
+        var wheel = mouse.scroll.ReadValue().y;
+        if (Mathf.Abs(wheel) < 0.01f || IsPointerOverBlockingUi(mouse.position.ReadValue()))
+        {
+            return;
+        }
+
+        SetZoom(wheel > 0f ? currentZoom * mouseWheelZoomFactor : currentZoom / mouseWheelZoomFactor);
+#endif
     }
 
     public void CenterOnDefaultPosition()
     {
         SetCameraPosition(fallbackLatitude, fallbackLongitude);
+    }
+
+    private void ZoomIn() => SetZoom(currentZoom + zoomStep);
+    private void ZoomOut() => SetZoom(currentZoom - zoomStep);
+    private void ResetZoom() => SetZoom(1f);
+
+    private void SetZoom(float value)
+    {
+        currentZoom = LocalZoomService.ClampZoom(value, maximumZoom);
+        SetCameraPosition(currentLatitude, currentLongitude);
+    }
+
+    private bool HandlePinchInput()
+    {
+#if ENABLE_INPUT_SYSTEM
+        var touches = UnityEngine.InputSystem.EnhancedTouch.Touch.activeTouches;
+        if (touches.Count >= 2)
+        {
+            isDragging = false;
+            var first = touches[0].screenPosition;
+            var second = touches[1].screenPosition;
+            var distance = Vector2.Distance(first, second);
+            if (!pinchActive)
+            {
+                pinchActive = true;
+                pinchBlocked = IsPointerOverBlockingUi(first) || IsPointerOverBlockingUi(second);
+            }
+            else if (!pinchBlocked && previousPinchDistance > 1f && distance > 1f)
+            {
+                SetZoom(currentZoom * Mathf.Pow(distance / previousPinchDistance, pinchSensitivity));
+            }
+            previousPinchDistance = distance;
+            return true;
+        }
+#endif
+        if (pinchActive)
+        {
+            pinchActive = false;
+            previousPinchDistance = 0f;
+            isDragging = false;
+            return true;
+        }
+        return false;
     }
 
     private void ResolveReferences()
@@ -165,7 +250,7 @@ public sealed class ArcGISTopDownCameraController : MonoBehaviour
     private float CalculateMetersPerPixel()
     {
         var safeScreenHeight = Mathf.Max(1, Screen.height);
-        var visibleMeters = 2f * (float)cameraAltitudeMeters * Mathf.Tan(fieldOfView * 0.5f * Mathf.Deg2Rad);
+        var visibleMeters = 2f * (float)(cameraAltitudeMeters / currentZoom) * Mathf.Tan(fieldOfView * 0.5f * Mathf.Deg2Rad);
         return visibleMeters / safeScreenHeight * Mathf.Max(0.01f, panSensitivity);
     }
 
@@ -184,7 +269,7 @@ public sealed class ArcGISTopDownCameraController : MonoBehaviour
             return;
         }
 
-        cameraLocation.Position = new ArcGISPoint(currentLongitude, currentLatitude, cameraAltitudeMeters, wgs84);
+        cameraLocation.Position = new ArcGISPoint(currentLongitude, currentLatitude, cameraAltitudeMeters / currentZoom, wgs84);
         cameraLocation.Rotation = new ArcGISRotation(cameraHeadingDegrees, cameraPitchDegrees, 0.0);
         ApplyUnityTopDownRotation();
     }

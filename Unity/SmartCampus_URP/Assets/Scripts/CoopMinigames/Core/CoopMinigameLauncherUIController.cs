@@ -30,6 +30,8 @@ namespace SmartCampus.Coop.Minigames
 
         private readonly List<CoopMinigameLauncherEntryView> instantiatedEntries = new();
         private bool hasLoggedCatalogValidation;
+        private bool hasPendingRetry;
+        private float nextRetryRefreshTime;
 
         private void Awake()
         {
@@ -89,6 +91,17 @@ namespace SmartCampus.Coop.Minigames
             {
                 coopSessionProgressSync.ProgressChanged -= HandleProgressChanged;
             }
+        }
+
+        private void Update()
+        {
+            if (!hasPendingRetry || Time.unscaledTime < nextRetryRefreshTime)
+            {
+                return;
+            }
+
+            nextRetryRefreshTime = Time.unscaledTime + 0.5f;
+            RefreshEntries();
         }
 
         private void HandleCoordinatorPhaseChanged(CoopGamePhase _)
@@ -204,6 +217,7 @@ namespace SmartCampus.Coop.Minigames
             }
 
             var isNetworkHost = coopSessionCoordinator != null && coopSessionCoordinator.IsSpawned && coopSessionCoordinator.IsServer;
+            hasPendingRetry = false;
             var isLocalDebugLauncher = !HasActiveNetworkSession();
             var canLaunchFromCurrentContext = isNetworkHost || isLocalDebugLauncher;
             if (helperLabel != null)
@@ -220,6 +234,10 @@ namespace SmartCampus.Coop.Minigames
                 var entry = minigameCatalogConfig.Entries[index];
                 var view = instantiatedEntries[index];
                 var minigameIndex = entry.MinigameIndex;
+                if (coopSessionProgressSync != null && coopSessionProgressSync.GetRetryRemainingSeconds(minigameIndex) > 0d)
+                {
+                    hasPendingRetry = true;
+                }
 
                 if (IsCatalogIndexInvalid(entry))
                 {

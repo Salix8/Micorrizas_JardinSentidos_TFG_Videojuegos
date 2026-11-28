@@ -41,4 +41,19 @@ public sealed class CoopMinigameZoneCountdownTrackerTests
         Assert.That(snapshot.ZoneId, Is.EqualTo(-1));
         Assert.That(snapshot.Progress01, Is.EqualTo(0f).Within(0.001f));
     }
+
+    [Test]
+    public void Reset_AfterRejectedStart_AllowsNewCountdownInSameZone()
+    {
+        var tracker = new CoopMinigameZoneCountdownTracker();
+        tracker.Update(7, true, 0f, 2f);
+        Assert.That(tracker.Update(7, true, 2f, 2f).IsCompleted, Is.True);
+
+        tracker.Reset();
+        var retry = tracker.Update(7, true, 3f, 2f);
+
+        Assert.That(retry.IsCompleted, Is.False);
+        Assert.That(retry.RemainingSeconds, Is.EqualTo(2f));
+        Assert.That(tracker.Update(7, true, 5f, 2f).IsCompleted, Is.True);
+    }
 }

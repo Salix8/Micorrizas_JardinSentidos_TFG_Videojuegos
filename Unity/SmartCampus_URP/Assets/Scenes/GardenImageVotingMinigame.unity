@@ -2150,6 +2150,7 @@ GameObject:
   m_Component:
   - component: {fileID: 415426909}
   - component: {fileID: 415426910}
+  - component: {fileID: 415426911}
   m_Layer: 5
   m_Name: IllustrationPlaceholder
   m_TagString: Untagged
@@ -2202,6 +2203,14 @@ MonoBehaviour:
   fillColor: {r: 1, g: 1, b: 1, a: 0.92}
   borderColor: {r: 0.84, g: 0.79, b: 0.63, a: 1}
   cornerSegments: 10
+--- !u!222 &415426911
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 415426908}
+  m_CullTransparentMesh: 1
 --- !u!1 &421743696
 GameObject:
   m_ObjectHideFlags: 0
@@ -6030,6 +6039,11 @@ MonoBehaviour:
   waitingStatusLabel: {fileID: 111435149}
   waitingActionButton: {fileID: 0}
   waitingActionButtonLabel: {fileID: 0}
+  zoomArea: {fileID: 0}
+  maximumZoom: 2
+  zoomStep: 0.25
+  pinchSensitivity: 1
+  showZoomButtons: 0
   gardenImageVotingMinigameSession: {fileID: 202557654}
   sessionProgressSync: {fileID: 0}
   topPanelView: {fileID: 196851309}

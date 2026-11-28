@@ -41,6 +41,15 @@ namespace SmartCampus.Coop.Minigames
         [SerializeField] private Button waitingActionButton;
         [SerializeField] private TMP_Text waitingActionButtonLabel;
 
+        [Header("Accessibility Zoom")]
+        [Tooltip("Area que se amplia con dos dedos. Si se deja vacio se usa GameplayPanel/InteractivePanel.")]
+        [SerializeField] private RectTransform zoomArea;
+        [SerializeField, Min(1f)] private float maximumZoom = 2f;
+        [SerializeField, Min(0.01f)] private float zoomStep = 0.25f;
+        [SerializeField, Min(0.01f)] private float pinchSensitivity = 1f;
+        [Tooltip("Muestra los botones - + 1:1. El zoom con dos dedos funciona igualmente sin ellos.")]
+        [SerializeField] private bool showZoomButtons;
+
         private bool hasFailureFeedbackBaseline;
         private int lastFailureFeedbackCount;
 
@@ -49,6 +58,31 @@ namespace SmartCampus.Coop.Minigames
         protected virtual void Awake()
         {
             ResolveReferences();
+            if (Application.isPlaying)
+            {
+                var area = ResolveZoomArea();
+                if (area != null && area.GetComponent<MinigameZoomView>() == null)
+                {
+                    var zoom = area.gameObject.AddComponent<MinigameZoomView>();
+                    zoom.Configure(maximumZoom, zoomStep, pinchSensitivity, showZoomButtons);
+                }
+            }
+        }
+
+        private RectTransform ResolveZoomArea()
+        {
+            if (zoomArea != null)
+            {
+                return zoomArea;
+            }
+
+            if (gameplayPanel == null)
+            {
+                return null;
+            }
+
+            var interactivePanel = gameplayPanel.transform.Find("InteractivePanel") as RectTransform;
+            return interactivePanel != null ? interactivePanel : gameplayPanel.transform as RectTransform;
         }
 
         protected virtual void OnEnable()

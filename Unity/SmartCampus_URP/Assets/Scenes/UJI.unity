@@ -1789,10 +1789,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 2031633201}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 94, y: -67.11}
+  m_SizeDelta: {x: 45.36, y: 33.52}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &432432459
 GameObject:
@@ -3487,10 +3487,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 2031633201}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 94, y: -22.675}
+  m_SizeDelta: {x: 138.19, y: 45.35}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &862866407
 MonoBehaviour:
@@ -6350,6 +6350,9 @@ MonoBehaviour:
   timerLabel: {fileID: 2136026160}
   defaultTitle: Zona cooperativa
   subtitleFormat: Manteneos dentro de {0}
+  retryTitle: "Misi\xF3n pendiente"
+  retryMessage: "Deb\xE9is observar mejor la zona antes de aventuraros de nuevo en
+    esta misi\xF3n."
 --- !u!114 &1507243093
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12475,6 +12478,9 @@ MonoBehaviour:
   boundsCenterLongitude: -0.0665
   boundsHalfSizeMeters: {x: 280, y: 280}
   panSensitivity: 1
+  maximumZoom: 2
+  zoomStep: 0.25
+  pinchSensitivity: 1
 --- !u!1 &1831252855
 GameObject:
   m_ObjectHideFlags: 0

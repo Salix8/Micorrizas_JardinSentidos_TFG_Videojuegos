@@ -28,6 +28,7 @@ namespace SmartCampus.Coop.Minigames.GardenImageVoting
         private float swipeThreshold;
         private float transitionDuration;
         private bool isInteractable;
+        private int zoomDragSessionId;
         private GardenImageVotingCardVisualSettings visualSettings = GardenImageVotingCardVisualSettings.CreateDefault();
         private string currentBindingKey = string.Empty;
         private bool hasBinding;
@@ -142,7 +143,8 @@ namespace SmartCampus.Coop.Minigames.GardenImageVoting
 
         public void OnBeginDrag(PointerEventData eventData)
         {
-            if (!isInteractable || animationCoroutine != null)
+            zoomDragSessionId = SmartCampus.Coop.Minigames.MinigameZoomGesture.SessionId;
+            if (!isInteractable || animationCoroutine != null || SmartCampus.Coop.Minigames.MinigameZoomGesture.IsActive)
             {
                 return;
             }
@@ -160,7 +162,13 @@ namespace SmartCampus.Coop.Minigames.GardenImageVoting
                 return;
             }
 
-            cardTransform.anchoredPosition += eventData.delta;
+            // Con dos dedos en pantalla se esta haciendo zoom: la carta no se mueve.
+            if (SmartCampus.Coop.Minigames.MinigameZoomGesture.InterruptedDrag(zoomDragSessionId))
+            {
+                return;
+            }
+
+            cardTransform.anchoredPosition += SmartCampus.Coop.Minigames.LocalZoomPointerService.GetLocalDelta(cardTransform, eventData);
             cardTransform.rotation = Quaternion.Euler(0f, 0f, Mathf.Clamp(cardTransform.anchoredPosition.x * -0.05f, -12f, 12f));
             UpdateDecisionHint(cardTransform.anchoredPosition.x);
         }
@@ -178,7 +186,8 @@ namespace SmartCampus.Coop.Minigames.GardenImageVoting
             }
 
             var horizontalOffset = cardTransform.anchoredPosition.x;
-            if (Mathf.Abs(horizontalOffset) < swipeThreshold)
+            if (SmartCampus.Coop.Minigames.MinigameZoomGesture.InterruptedDrag(zoomDragSessionId) ||
+                Mathf.Abs(horizontalOffset) < swipeThreshold)
             {
                 animationCoroutine = StartCoroutine(AnimateReturnCoroutine());
                 return;

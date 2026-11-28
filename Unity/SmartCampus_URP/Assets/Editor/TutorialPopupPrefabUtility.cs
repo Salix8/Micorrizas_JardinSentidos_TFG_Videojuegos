@@ -15,8 +15,7 @@ public static class TutorialPopupPrefabUtility
         "Assets/Scenes/AudioWordConsensusMinigame.unity",
         "Assets/Scenes/CollaborativePlantGuessMinigame.unity",
         "Assets/Scenes/DistributedPairsMinigame.unity",
-        "Assets/Scenes/GardenSmellTaxonomyMinigame.unity",
-        "Assets/Scenes/PlantPhotoRelayMinigame.unity"
+        "Assets/Scenes/GardenSmellTaxonomyMinigame.unity"
     };
 
     public static TutorialPopupController InstantiateTutorialPopup(Transform parent)
